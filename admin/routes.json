@@ -1,0 +1,6 @@
+{
+  "admin.app.catalog-importer": {
+    "component": "CatalogImporter",
+    "path": "/admin/app/catalog-importer"
+  }
+}

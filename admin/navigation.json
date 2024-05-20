@@ -1,0 +1,12 @@
+{
+  "section": "products",
+  "adminVersion": 4,
+  "titleId": "admin/app.title",
+  "subSection": "catalog-importer",
+  "subSectionItems": [
+    {
+      "labelId": "admin/manager.title",
+      "path": "/admin/catalog-importer"
+    }
+  ]
+}

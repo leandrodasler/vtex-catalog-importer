@@ -1,0 +1,28 @@
+fragment CategoryFields on Category {
+  id
+  name
+}
+
+query {
+  categories {
+    ...CategoryFields
+    subCategories {
+      ...CategoryFields
+      subCategories {
+        ...CategoryFields
+        subCategories {
+          ...CategoryFields
+          subCategories {
+            ...CategoryFields
+            subCategories {
+              ...CategoryFields
+              subCategories {
+                ...CategoryFields
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
