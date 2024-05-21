@@ -1,8 +1,8 @@
 import {
   Button,
   Checkbox,
-  IconArrowDown,
-  IconArrowRight,
+  IconCaretDown,
+  IconCaretRight,
   Skeleton,
 } from '@vtex/admin-ui'
 import React, { useState } from 'react'
@@ -61,18 +61,23 @@ const CategoryTree = () => {
     >
       <div style={{ display: 'flex', alignItems: 'center' }}>
         {category.subCategories && category.subCategories.length > 0 && (
-          <Button
-            onClick={() => handleExpandChange(category.id!)}
-            style={{ cursor: 'pointer', marginRight: '5px' }}
-            size="normal"
-            variant="neutralTertiary"
-          >
+          <>
             {expandedCategories[category.id!] ? (
-              <IconArrowDown />
+              <IconCaretDown
+                size="small"
+                onClick={() => handleExpandChange(category.id!)}
+                cursor="pointer"
+                style={{ marginRight: '5px' }}
+              />
             ) : (
-              <IconArrowRight />
+              <IconCaretRight
+                size="small"
+                onClick={() => handleExpandChange(category.id!)}
+                cursor="pointer"
+                style={{ marginRight: '5px' }}
+              />
             )}
-          </Button>
+          </>
         )}
         <Checkbox
           checked={!!checkedCategories[category.id!]}
