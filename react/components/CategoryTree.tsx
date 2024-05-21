@@ -1,4 +1,10 @@
-import { Button, Checkbox, Skeleton } from '@vtex/admin-ui'
+import {
+  Button,
+  Checkbox,
+  IconArrowDown,
+  IconArrowRight,
+  Skeleton,
+} from '@vtex/admin-ui'
 import React, { useState } from 'react'
 import { useQuery } from 'react-apollo'
 import type { Category, Query } from 'ssesandbox04.catalog-importer'
@@ -58,8 +64,14 @@ const CategoryTree = () => {
           <Button
             onClick={() => handleExpandChange(category.id!)}
             style={{ cursor: 'pointer', marginRight: '5px' }}
+            size="normal"
+            variant="neutralTertiary"
           >
-            {expandedCategories[category.id!] ? ' ↓' : '>'}
+            {expandedCategories[category.id!] ? (
+              <IconArrowDown />
+            ) : (
+              <IconArrowRight />
+            )}
           </Button>
         )}
         <Checkbox
@@ -86,7 +98,13 @@ const CategoryTree = () => {
         categories &&
         categories.map((category: any) => renderCategory(category))}
       <div style={{ marginTop: '10px' }}>
-        <Button style={{ marginTop: '10px' }}>Iniciar processamento</Button>
+        <Button
+          // eslint-disable-next-line no-console
+          onClick={() => console.log(checkedCategories)}
+          style={{ marginTop: '10px' }}
+        >
+          Iniciar processamento
+        </Button>
       </div>
     </div>
   )
