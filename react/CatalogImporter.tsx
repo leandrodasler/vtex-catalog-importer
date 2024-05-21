@@ -1,37 +1,44 @@
-import React from 'react'
-import { useQuery } from 'react-apollo'
-import type { Category, Query } from 'ssesandbox04.catalog-importer'
-import { Layout, PageBlock, PageHeader, Spinner } from 'vtex.styleguide'
+import {
+  Page,
+  PageContent,
+  PageHeader,
+  PageHeaderActions,
+  PageHeaderTitle,
+  PageHeaderTop,
+  ThemeProvider,
+} from '@vtex/admin-ui'
+import React, { Suspense, lazy } from 'react'
+import { useIntl } from 'react-intl'
 
-import CATEGORIES_QUERY from './graphql/categories.graphql'
-import { useMessages } from './messages/useMessages'
+import messages from './messages'
 
-const convertCategory = (c: Category): Partial<Category> =>
-  ({
-    id: c.id,
-    name: c.name,
-    subCategories: c.subCategories?.map(convertCategory),
-  } as Partial<Category>)
+const CategoryTree = lazy(() => import('./components/CategoryTree'))
 
 const CatalogImporter = () => {
-  const messages = useMessages()
-  const { data, loading } = useQuery<Query>(CATEGORIES_QUERY)
-  const categories = data?.categories?.map(convertCategory)
+  const { formatMessage } = useIntl()
 
   return (
-    <Layout
-      fullWidth
-      pageHeader={
-        <PageHeader
-          title={messages.appTitle}
-          subtitle={messages.versionLabel}
-        />
-      }
-    >
-      <PageBlock title={messages.categories}>
-        <pre>{loading ? <Spinner /> : JSON.stringify(categories, null, 2)}</pre>
-      </PageBlock>
-    </Layout>
+    <ThemeProvider>
+      <Page>
+        <PageHeader>
+          <PageHeaderTop>
+            <PageHeaderTitle>
+              {formatMessage(messages.appTitle)}
+            </PageHeaderTitle>
+            <PageHeaderActions>
+              {formatMessage(messages.versionLabel, {
+                version: process.env.VTEX_APP_VERSION,
+              })}
+            </PageHeaderActions>
+          </PageHeaderTop>
+        </PageHeader>
+        <PageContent layout="wide">
+          <Suspense fallback={null}>
+            <CategoryTree />
+          </Suspense>
+        </PageContent>
+      </Page>
+    </ThemeProvider>
   )
 }
 
