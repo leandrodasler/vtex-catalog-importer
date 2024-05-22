@@ -30,13 +30,6 @@ interface ExpandedCategories {
   [key: string]: boolean
 }
 
-const convertCategory = (c: Category): Partial<Category> =>
-  ({
-    id: c.id,
-    name: c.name,
-    subCategories: c.subCategories?.map(convertCategory),
-  } as Partial<Category>)
-
 const CategoryTree = () => {
   const showToast = useToast()
   const { formatMessage } = useIntl()
@@ -119,7 +112,7 @@ const CategoryTree = () => {
     }))
   }
 
-  const renderCategory = (category: Partial<Category>, level = 0) => (
+  const renderCategory = (category: Category, level = 0) => (
     <div
       key={category.id}
       style={{ marginLeft: level * 20, marginBottom: '10px' }}
@@ -127,17 +120,17 @@ const CategoryTree = () => {
       <div style={{ display: 'flex', alignItems: 'center' }}>
         {category.subCategories && category.subCategories.length > 0 && (
           <>
-            {expandedCategories[category.id!] ? (
+            {expandedCategories[category.id] ? (
               <IconCaretDown
                 size="small"
-                onClick={() => handleExpandChange(category.id!)}
+                onClick={() => handleExpandChange(category.id)}
                 cursor="pointer"
                 style={{ marginRight: '5px' }}
               />
             ) : (
               <IconCaretRight
                 size="small"
-                onClick={() => handleExpandChange(category.id!)}
+                onClick={() => handleExpandChange(category.id)}
                 cursor="pointer"
                 style={{ marginRight: '5px' }}
               />
@@ -145,20 +138,18 @@ const CategoryTree = () => {
           </>
         )}
         <Checkbox
-          checked={!!checkedCategories[category.id!]}
+          checked={!!checkedCategories[category.id]}
           label={category.name}
-          onChange={() => handleCategoryChange(category.id!)}
+          onChange={() => handleCategoryChange(category.id)}
         />
       </div>
-      {expandedCategories[category.id!] &&
+      {expandedCategories[category.id] &&
         category.subCategories &&
-        category.subCategories.map((child: any) =>
-          renderCategory(child, level + 1)
-        )}
+        category.subCategories.map((child) => renderCategory(child, level + 1))}
     </div>
   )
 
-  const categories = data?.categories?.map(convertCategory)
+  const categories = data?.categories
 
   return (
     <Card>
@@ -182,7 +173,7 @@ const CategoryTree = () => {
         {loading && <Spinner />}
         {!loading && categories && (
           <>
-            {categories.map((category: any) => renderCategory(category))}
+            {categories.map((category) => renderCategory(category))}
             <Button
               onClick={() =>
                 // TODO remove this showToast and do processing
