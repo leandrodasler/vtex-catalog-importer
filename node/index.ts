@@ -7,6 +7,7 @@ import type {
 import { LRUCache, Service } from '@vtex/api'
 
 import { Clients } from './clients'
+import { appSettings } from './resolvers/appSettings'
 import { categories } from './resolvers/categories'
 
 const TIMEOUT_MS = 4 * 1000
@@ -33,6 +34,12 @@ declare global {
     body: unknown
   }
 
+  interface Settings {
+    account: string
+    vtexAppKey: string
+    vtexAppToken: string
+  }
+
   type Context = ServiceContext<Clients, State>
 
   type Next = () => Promise<void>
@@ -43,6 +50,7 @@ export default new Service({
   graphql: {
     resolvers: {
       Query: {
+        appSettings,
         categories,
       },
     },

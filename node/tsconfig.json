@@ -1,11 +1,10 @@
 {
   "extends": "@vtex/tsconfig",
   "compilerOptions": {
-    "noEmitOnError": false,
-    "lib": ["dom"],
-    "module": "esnext",
-    "moduleResolution": "node",
-    "target": "es2019"
+    "types": ["node"],
+    "typeRoots": ["node_modules/@types"],
+    "module": "commonjs",
+    "noEmitOnError": true
   },
-  "include": ["./typings/*.d.ts", "./**/*.tsx", "./**/*.ts"]
+  "include": ["./**/*.ts", "./typings/*.d.ts"]
 }

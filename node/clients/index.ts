@@ -1,3 +1,9 @@
 import { IOClients } from '@vtex/api'
 
-export class Clients extends IOClients {}
+import HttpClient from './HttpClient'
+
+export class Clients extends IOClients {
+  public get httpClient() {
+    return this.getOrSet('httpClient', HttpClient)
+  }
+}

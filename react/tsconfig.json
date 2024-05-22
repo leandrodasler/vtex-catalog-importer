@@ -1,12 +1,9 @@
 {
   "extends": "@vtex/tsconfig",
   "compilerOptions": {
-    "allowJs": false,
     "noEmitOnError": false,
-    "jsx": "react",
-    "lib": ["es2017", "dom"],
+    "lib": ["dom"],
     "module": "esnext",
-    "strict": true,
     "moduleResolution": "node",
     "target": "es2017"
   },

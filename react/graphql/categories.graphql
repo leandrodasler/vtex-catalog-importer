@@ -18,6 +18,18 @@ query {
               ...CategoryFields
               subCategories {
                 ...CategoryFields
+                subCategories {
+                  ...CategoryFields
+                  subCategories {
+                    ...CategoryFields
+                    subCategories {
+                      ...CategoryFields
+                      subCategories {
+                        ...CategoryFields
+                      }
+                    }
+                  }
+                }
               }
             }
           }

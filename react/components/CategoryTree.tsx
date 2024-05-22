@@ -1,15 +1,26 @@
 import {
+  Alert,
   Button,
+  Card,
+  CardHeader,
+  CardTitle,
   Checkbox,
   IconCaretDown,
   IconCaretRight,
-  Skeleton,
+  Spinner,
+  Stack,
+  csx,
+  useToast,
 } from '@vtex/admin-ui'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useQuery } from 'react-apollo'
+import { useIntl } from 'react-intl'
 import type { Category, Query } from 'ssesandbox04.catalog-importer'
 
+import APP_SETTINGS_QUERY from '../graphql/appSettings.graphql'
 import CATEGORIES_QUERY from '../graphql/categories.graphql'
+import { goToSettings } from '../helpers'
+import messages from '../messages'
 
 interface CheckedCategories {
   [key: string]: boolean
@@ -27,9 +38,63 @@ const convertCategory = (c: Category): Partial<Category> =>
   } as Partial<Category>)
 
 const CategoryTree = () => {
-  const { data, loading, error } = useQuery<Query>(CATEGORIES_QUERY, {
+  const showToast = useToast()
+  const { formatMessage } = useIntl()
+
+  const {
+    data: settings,
+    loading: loadingSettings,
+    error: errorSettings,
+  } = useQuery<Query>(APP_SETTINGS_QUERY, {
     notifyOnNetworkStatusChange: true,
   })
+
+  const {
+    data,
+    loading: loadingCategories,
+    error: errorCategories,
+  } = useQuery<Query>(CATEGORIES_QUERY, {
+    notifyOnNetworkStatusChange: true,
+  })
+
+  const loading = loadingSettings || loadingCategories
+
+  // TODO remove this
+  useEffect(() => {
+    if (!loading && settings) {
+      showToast({
+        message: (
+          <>
+            Settings: <pre>{JSON.stringify(settings, null, 2)}</pre>
+          </>
+        ),
+      })
+    }
+  }, [loading, settings, showToast])
+
+  if (errorSettings) {
+    showToast({
+      message: formatMessage({
+        id: errorSettings.graphQLErrors?.[0].message,
+        defaultMessage: errorSettings.message,
+      }),
+      variant: 'critical',
+    })
+  }
+
+  if (errorCategories) {
+    showToast({
+      message: formatMessage({
+        id: errorCategories.graphQLErrors?.[0].message,
+        defaultMessage: errorCategories.message,
+      }),
+      variant: 'critical',
+      action: {
+        label: formatMessage(messages.settingsLinkLabel),
+        onClick: goToSettings,
+      },
+    })
+  }
 
   const [checkedCategories, setCheckedCategories] = useState<CheckedCategories>(
     {}
@@ -96,22 +161,49 @@ const CategoryTree = () => {
   const categories = data?.categories?.map(convertCategory)
 
   return (
-    <div className="bg-muted-5 pa8">
-      {error && <pre>{JSON.stringify(error, null, 2)}</pre>}
-      {loading && <Skeleton style={{ height: 300 }} />}
-      {!loading &&
-        categories &&
-        categories.map((category: any) => renderCategory(category))}
-      <div style={{ marginTop: '10px' }}>
-        <Button
-          // eslint-disable-next-line no-console
-          onClick={() => console.log(checkedCategories)}
-          style={{ marginTop: '10px' }}
-        >
-          Iniciar processamento
-        </Button>
+    <Card>
+      {!loading && categories && (
+        <CardHeader>
+          <CardTitle>
+            {formatMessage(messages.categories, {
+              account: settings?.appSettings?.account,
+            })}
+          </CardTitle>
+        </CardHeader>
+      )}
+      <div className={csx({ bg: '$secondary', padding: '$space-8' })}>
+        {errorCategories && (
+          <Stack>
+            <Alert variant="critical">
+              {formatMessage(messages.categoriesSourceError)}
+            </Alert>
+          </Stack>
+        )}
+        {loading && <Spinner />}
+        {!loading && categories && (
+          <>
+            {categories.map((category: any) => renderCategory(category))}
+            <Button
+              onClick={() =>
+                // TODO remove this showToast and do processing
+                showToast({
+                  message: (
+                    <>
+                      Checked categories:
+                      <pre>{JSON.stringify(checkedCategories, null, 2)}</pre>
+                    </>
+                  ),
+                  variant: 'info',
+                })
+              }
+              className={csx({ marginTop: '$space-4' })}
+            >
+              {formatMessage(messages.startLabel)}
+            </Button>
+          </>
+        )}
       </div>
-    </div>
+    </Card>
   )
 }
 

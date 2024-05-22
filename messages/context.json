@@ -3,5 +3,12 @@
   "admin/manager.title": "Manage Imports",
   "admin/search.kws": "manage,catalog,import,importer",
   "admin/version.label": "Version {version}",
-  "admin/categories.label": "Categories"
+  "admin/start.label": "Start processing",
+
+  "admin/settings.label": "Settings",
+  "admin/settings.missing.error": "It's mandatory to configure the Source VTEX Account, VTEX App Key and VTEX App Token on app settings",
+  "admin/settings.link.label": "Go to app settings",
+
+  "admin/categories.label": "Categories from {account}",
+  "admin/categories.source.error": "Error loading category tree from source account."
 }

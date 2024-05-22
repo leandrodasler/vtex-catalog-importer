@@ -3,5 +3,12 @@
   "admin/manager.title": "Gerenciar Importações",
   "admin/search.kws": "gerenciar,catalogo,catalog,import,importer,importador",
   "admin/version.label": "Versão {version}",
-  "admin/categories.label": "Categorias"
+  "admin/start.label": "Iniciar processamento",
+
+  "admin/settings.label": "Configurações",
+  "admin/settings.missing.error": "É necessário configurar o Source VTEX Account, VTEX App Key e VTEX App Token da conta de origem nas configurações da app",
+  "admin/settings.link.label": "Ir para as configurações da app",
+
+  "admin/categories.label": "Categorias de {account}",
+  "admin/categories.source.error": "Erro ao carregar a árvore de categorias da conta de origem."
 }

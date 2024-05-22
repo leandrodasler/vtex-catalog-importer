@@ -12,9 +12,7 @@
     "node": "6.x",
     "react": "3.x"
   },
-  "dependencies": {
-    "vtex.render-runtime": "8.x"
-  },
+  "dependencies": {},
   "registries": ["smartcheckout"],
   "policies": [
     {
@@ -47,6 +45,13 @@
       "attrs": {
         "host": "portal.vtexcommercestable.com.br",
         "path": "/api/profile-system/*"
+      }
+    },
+    {
+      "name": "outbound-access",
+      "attrs": {
+        "host": "*.vtexcommercestable.com.br",
+        "path": "/api/*"
       }
     },
     {
@@ -98,12 +103,12 @@
         "type": "string",
         "description": "VTEX account from where the catalog will be imported"
       },
-      "vtex_app_key": {
+      "vtexAppKey": {
         "title": "VTEX App Key",
         "type": "string",
         "description": "Source account app key"
       },
-      "vtex_app_token": {
+      "vtexAppToken": {
         "title": "VTEX App Token",
         "type": "string",
         "description": "Source account app token"
