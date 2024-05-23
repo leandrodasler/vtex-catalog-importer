@@ -10,16 +10,14 @@ import {
   Spinner,
   Stack,
   csx,
-  useToast,
 } from '@vtex/admin-ui'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useQuery } from 'react-apollo'
 import { useIntl } from 'react-intl'
 import type { Category, Query } from 'ssesandbox04.catalog-importer'
 
 import APP_SETTINGS_QUERY from '../graphql/appSettings.graphql'
 import CATEGORIES_QUERY from '../graphql/categories.graphql'
-import { goToSettings } from '../helpers'
 import messages from '../messages'
 
 interface CheckedCategories {
@@ -31,16 +29,14 @@ interface ExpandedCategories {
 }
 
 const CategoryTree = () => {
-  const showToast = useToast()
   const { formatMessage } = useIntl()
 
-  const {
-    data: settings,
-    loading: loadingSettings,
-    error: errorSettings,
-  } = useQuery<Query>(APP_SETTINGS_QUERY, {
-    notifyOnNetworkStatusChange: true,
-  })
+  const { data: settings, loading: loadingSettings } = useQuery<Query>(
+    APP_SETTINGS_QUERY,
+    {
+      notifyOnNetworkStatusChange: true,
+    }
+  )
 
   const {
     data,
@@ -52,43 +48,6 @@ const CategoryTree = () => {
 
   const loading = loadingSettings || loadingCategories
 
-  // TODO remove this
-  useEffect(() => {
-    if (!loading && settings) {
-      showToast({
-        message: (
-          <>
-            Settings: <pre>{JSON.stringify(settings, null, 2)}</pre>
-          </>
-        ),
-      })
-    }
-  }, [loading, settings, showToast])
-
-  if (errorSettings) {
-    showToast({
-      message: formatMessage({
-        id: errorSettings.graphQLErrors?.[0].message,
-        defaultMessage: errorSettings.message,
-      }),
-      variant: 'critical',
-    })
-  }
-
-  if (errorCategories) {
-    showToast({
-      message: formatMessage({
-        id: errorCategories.graphQLErrors?.[0].message,
-        defaultMessage: errorCategories.message,
-      }),
-      variant: 'critical',
-      action: {
-        label: formatMessage(messages.settingsLinkLabel),
-        onClick: goToSettings,
-      },
-    })
-  }
-
   const [checkedCategories, setCheckedCategories] = useState<CheckedCategories>(
     {}
   )
@@ -98,11 +57,97 @@ const CategoryTree = () => {
     setExpandedCategories,
   ] = useState<ExpandedCategories>({})
 
-  const handleCategoryChange = (categoryId: string) => {
-    setCheckedCategories((prevState) => ({
-      ...prevState,
-      [categoryId]: !prevState[categoryId],
-    }))
+  const findCategoryById = (
+    categories: Category[] | null | undefined,
+    categoryId: string
+  ): Category | undefined => {
+    if (!categories) return undefined
+    for (const category of categories) {
+      if (category.id === categoryId) {
+        return category
+      }
+
+      if (category.subCategories) {
+        const subCategory = findCategoryById(category.subCategories, categoryId)
+
+        if (subCategory) {
+          return subCategory
+        }
+      }
+    }
+
+    return undefined
+  }
+
+  const findParentCategory = (
+    categories: Category[] | null | undefined,
+    categoryId: string
+  ): Category | undefined => {
+    if (!categories) return undefined
+    for (const category of categories) {
+      if (
+        category.subCategories &&
+        category.subCategories.some((sub) => sub.id === categoryId)
+      ) {
+        return category
+      }
+
+      if (category.subCategories) {
+        const parentCategory = findParentCategory(
+          category.subCategories,
+          categoryId
+        )
+
+        if (parentCategory) {
+          return parentCategory
+        }
+      }
+    }
+
+    return undefined
+  }
+
+  const handleCategoryChange = (
+    categoryId: string,
+    parentChecked?: boolean
+  ) => {
+    setCheckedCategories((prevState) => {
+      const isChecked =
+        parentChecked !== undefined ? parentChecked : !prevState[categoryId]
+
+      const newState = { ...prevState, [categoryId]: isChecked }
+
+      const category = findCategoryById(
+        data?.categories ?? undefined,
+        categoryId
+      )
+
+      if (category?.subCategories) {
+        category.subCategories.forEach((subCategory) => {
+          newState[subCategory.id] = isChecked
+          if (subCategory.subCategories) {
+            handleCategoryChange(subCategory.id, isChecked)
+          }
+        })
+      }
+
+      if (isChecked) {
+        let parentCategory = findParentCategory(
+          data?.categories ?? undefined,
+          categoryId
+        )
+
+        while (parentCategory) {
+          newState[parentCategory.id] = true
+          parentCategory = findParentCategory(
+            data?.categories ?? undefined,
+            parentCategory.id
+          )
+        }
+      }
+
+      return newState
+    })
   }
 
   const handleExpandChange = (categoryId: string) => {
@@ -174,21 +219,7 @@ const CategoryTree = () => {
         {!loading && categories && (
           <>
             {categories.map((category) => renderCategory(category))}
-            <Button
-              onClick={() =>
-                // TODO remove this showToast and do processing
-                showToast({
-                  message: (
-                    <>
-                      Checked categories:
-                      <pre>{JSON.stringify(checkedCategories, null, 2)}</pre>
-                    </>
-                  ),
-                  variant: 'info',
-                })
-              }
-              className={csx({ marginTop: '$space-4' })}
-            >
+            <Button className={csx({ marginTop: '$space-4' })}>
               {formatMessage(messages.startLabel)}
             </Button>
           </>
