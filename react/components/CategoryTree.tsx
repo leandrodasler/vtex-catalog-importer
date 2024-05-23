@@ -188,10 +188,16 @@ const CategoryTree = () => {
   const renderCategory = (category: Category, level = 0) => (
     <div
       key={category.id}
-      style={{ marginLeft: level * 20, marginBottom: '10px' }}
+      style={{ marginLeft: level ? 30 : 0, marginBottom: 10 }}
     >
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        {category.subCategories && category.subCategories.length > 0 && (
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 10 }}>
+        {!category.subCategories?.length && (
+          <IconCaretRight
+            size="small"
+            style={{ marginRight: '5px', opacity: 0 }}
+          />
+        )}
+        {(category.subCategories?.length ?? 0) > 0 && (
           <>
             {expandedCategories[category.id] ? (
               <IconCaretDown
