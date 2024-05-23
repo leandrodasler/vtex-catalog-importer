@@ -9,7 +9,7 @@
   "admin/settings.missing.error": "It's mandatory to configure the Source VTEX Account, VTEX App Key and VTEX App Token on app settings",
   "admin/settings.link.label": "Go to app settings",
 
-  "admin/categories.label": "Categories from {account}",
-  "admin/categories.source.error": "Error loading category tree from source account.",
-  "admin/categories.refresh.label": "Refresh category tree"
+  "admin/categories.label": "Category tree from {account}",
+  "admin/categories.source.error": "Error lo'ading category tree from source account.",
+  "admin/categories.refresh.label": "Refresh"
 }

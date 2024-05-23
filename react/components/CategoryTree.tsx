@@ -11,7 +11,11 @@ import {
   Skeleton,
   Spinner,
   Stack,
+  Tab,
+  TabList,
+  TabPanel,
   csx,
+  useTabState,
   useToast,
 } from '@vtex/admin-ui'
 import React, { useState } from 'react'
@@ -230,6 +234,8 @@ const CategoryTree = () => {
 
   const categories = data?.categories
 
+  const state = useTabState()
+
   return (
     <Card>
       <CardHeader>
@@ -270,6 +276,20 @@ const CategoryTree = () => {
           </>
         )}
       </div>
+
+      <TabList state={state}>
+        <Tab id="1">Passo 1</Tab>
+        <Tab disabled={state.activeId === '1'} id="2">
+          Passo 2
+        </Tab>
+      </TabList>
+      <TabPanel state={state} id="1">
+        Conteúdo 1
+        <Button onClick={() => state.select('2')}>Próximo passo</Button>
+      </TabPanel>
+      <TabPanel state={state} id="2">
+        Conteúdo 2
+      </TabPanel>
     </Card>
   )
 }
