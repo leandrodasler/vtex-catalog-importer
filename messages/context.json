@@ -10,5 +10,6 @@
   "admin/settings.link.label": "Go to app settings",
 
   "admin/categories.label": "Categories from {account}",
-  "admin/categories.source.error": "Error loading category tree from source account."
+  "admin/categories.source.error": "Error loading category tree from source account.",
+  "admin/categories.refresh.label": "Refresh category tree"
 }

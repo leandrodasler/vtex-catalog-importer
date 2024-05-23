@@ -2,11 +2,13 @@ import {
   Alert,
   Button,
   Card,
+  CardActions,
   CardHeader,
   CardTitle,
   Checkbox,
   IconCaretDown,
   IconCaretRight,
+  Skeleton,
   Spinner,
   Stack,
   csx,
@@ -46,6 +48,7 @@ const CategoryTree = () => {
     data,
     loading: loadingCategories,
     error: errorCategories,
+    refetch: refetchCategories,
   } = useQuery<Query>(CATEGORIES_QUERY, {
     notifyOnNetworkStatusChange: true,
   })
@@ -153,15 +156,26 @@ const CategoryTree = () => {
 
   return (
     <Card>
-      {!loading && categories && (
-        <CardHeader>
+      <CardHeader>
+        {loadingSettings ? (
+          <Skeleton style={{ width: 300, height: 24 }} />
+        ) : (
           <CardTitle>
             {formatMessage(messages.categories, {
               account: settings?.appSettings?.account,
             })}
           </CardTitle>
-        </CardHeader>
-      )}
+        )}
+        <CardActions>
+          <Button
+            variant="tertiary"
+            onClick={() => refetchCategories()}
+            disabled={loadingCategories}
+          >
+            {formatMessage(messages.categoriesRefreshLabel)}
+          </Button>
+        </CardActions>
+      </CardHeader>
       <div className={csx({ bg: '$secondary', padding: '$space-8' })}>
         {errorCategories && (
           <Stack>

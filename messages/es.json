@@ -10,5 +10,6 @@
   "admin/settings.link.label": "Ir para as configurações da app",
 
   "admin/categories.label": "Categorias de {account}",
-  "admin/categories.source.error": "Erro ao carregar a árvore de categorias da conta de origem."
+  "admin/categories.source.error": "Erro ao carregar a árvore de categorias da conta de origem.",
+  "admin/categories.refresh.label": "Recarregar árvore de categorias"
 }

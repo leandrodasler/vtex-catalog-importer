@@ -11,6 +11,7 @@ const messages = defineMessages({
   settingsLinkLabel: { id: 'admin/settings.link.label' },
   categories: { id: 'admin/categories.label' },
   categoriesSourceError: { id: 'admin/categories.source.error' },
+  categoriesRefreshLabel: { id: 'admin/categories.refresh.label' },
 })
 
 export default messages

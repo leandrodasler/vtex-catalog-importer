@@ -6,6 +6,7 @@ import {
   PageHeaderButton,
   PageHeaderTitle,
   PageHeaderTop,
+  Tag,
   ThemeProvider,
   ToastProvider,
 } from '@vtex/admin-ui'
@@ -28,11 +29,11 @@ const CatalogImporter = () => {
             <PageHeaderTop>
               <PageHeaderTitle>
                 {formatMessage(messages.appTitle)}
-                <span className="ml4 c-muted-1">
-                  {formatMessage(messages.versionLabel, {
+                <Tag
+                  label={formatMessage(messages.versionLabel, {
                     version: process.env.VTEX_APP_VERSION,
                   })}
-                </span>
+                />
               </PageHeaderTitle>
               <PageHeaderActions>
                 <PageHeaderButton variant="secondary" onClick={goToSettings}>
