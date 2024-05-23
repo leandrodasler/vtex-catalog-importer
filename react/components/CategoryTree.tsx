@@ -10,6 +10,7 @@ import {
   Spinner,
   Stack,
   csx,
+  useToast,
 } from '@vtex/admin-ui'
 import React, { useState } from 'react'
 import { useQuery } from 'react-apollo'
@@ -18,6 +19,7 @@ import type { Category, Query } from 'ssesandbox04.catalog-importer'
 
 import APP_SETTINGS_QUERY from '../graphql/appSettings.graphql'
 import CATEGORIES_QUERY from '../graphql/categories.graphql'
+import { goToSettings } from '../helpers'
 import messages from '../messages'
 
 interface CheckedCategories {
@@ -29,14 +31,16 @@ interface ExpandedCategories {
 }
 
 const CategoryTree = () => {
+  const showToast = useToast()
   const { formatMessage } = useIntl()
 
-  const { data: settings, loading: loadingSettings } = useQuery<Query>(
-    APP_SETTINGS_QUERY,
-    {
-      notifyOnNetworkStatusChange: true,
-    }
-  )
+  const {
+    data: settings,
+    loading: loadingSettings,
+    error: errorSettings,
+  } = useQuery<Query>(APP_SETTINGS_QUERY, {
+    notifyOnNetworkStatusChange: true,
+  })
 
   const {
     data,
@@ -47,6 +51,30 @@ const CategoryTree = () => {
   })
 
   const loading = loadingSettings || loadingCategories
+
+  if (errorSettings) {
+    showToast({
+      message: formatMessage({
+        id: errorSettings.graphQLErrors?.[0].message,
+        defaultMessage: errorSettings.message,
+      }),
+      variant: 'critical',
+    })
+  }
+
+  if (errorCategories) {
+    showToast({
+      message: formatMessage({
+        id: errorCategories.graphQLErrors?.[0].message,
+        defaultMessage: errorCategories.message,
+      }),
+      variant: 'critical',
+      action: {
+        label: formatMessage(messages.settingsLinkLabel),
+        onClick: goToSettings,
+      },
+    })
+  }
 
   const [checkedCategories, setCheckedCategories] = useState<CheckedCategories>(
     {}
@@ -85,10 +113,7 @@ const CategoryTree = () => {
   ): Category | undefined => {
     if (!categories) return undefined
     for (const category of categories) {
-      if (
-        category.subCategories &&
-        category.subCategories.some((sub) => sub.id === categoryId)
-      ) {
+      if (category.subCategories?.some((sub) => sub.id === categoryId)) {
         return category
       }
 
