@@ -10,7 +10,17 @@ type Category {
   subCategories: [Category!]
 }
 
+type Brand {
+  id: ID!
+  name: String!
+  isActive: Boolean!
+  title: String
+  metaTagDescription: String
+  imageUrl: String
+}
+
 type Query {
-  categories: [Category!]
   appSettings: AppSettings!
+  categories: [Category!]
+  brands: [Brand!]
 }

@@ -8,6 +8,7 @@ import { LRUCache, Service } from '@vtex/api'
 
 import { Clients } from './clients'
 import { appSettings } from './resolvers/appSettings'
+import { brands } from './resolvers/brands'
 import { categories } from './resolvers/categories'
 
 const TIMEOUT_MS = 4 * 1000
@@ -52,6 +53,7 @@ export default new Service({
       Query: {
         appSettings,
         categories,
+        brands,
       },
     },
   },
