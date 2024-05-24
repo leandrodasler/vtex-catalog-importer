@@ -150,10 +150,12 @@ const CategoryTree = () => {
 
       if (isChecked) {
         let parentCategory = findParentCategory(data?.categories, categoryId)
+        let parentCategory = findParentCategory(data?.categories, categoryId)
 
         while (parentCategory) {
           newState[parentCategory.id] = true
           parentCategory = findParentCategory(
+            data?.categories,
             data?.categories,
             parentCategory.id
           )
