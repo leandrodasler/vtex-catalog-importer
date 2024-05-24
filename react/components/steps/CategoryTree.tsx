@@ -27,9 +27,9 @@ import { useQuery } from 'react-apollo'
 import { useIntl } from 'react-intl'
 import type { Category, Query } from 'ssesandbox04.catalog-importer'
 
+import BRANDS_QUERY from '../../graphql/brands.graphql'
+import CATEGORIES_QUERY from '../../graphql/categories.graphql'
 import messages from '../../messages'
-import BRANDS_QUERY from '../graphql/brands.graphql'
-import CATEGORIES_QUERY from '../graphql/categories.graphql'
 
 interface CheckedCategories {
   [key: string]: boolean
