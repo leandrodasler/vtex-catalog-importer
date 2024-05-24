@@ -1,0 +1,10 @@
+query getBrands {
+  brands {
+    id
+    name
+    isActive
+    title
+    metaTagDescription
+    imageUrl
+  }
+}

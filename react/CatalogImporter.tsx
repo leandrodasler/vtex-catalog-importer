@@ -1,4 +1,5 @@
 import {
+  IconGear,
   Page,
   PageContent,
   PageHeader,
@@ -6,6 +7,7 @@ import {
   PageHeaderButton,
   PageHeaderTitle,
   PageHeaderTop,
+  Spinner,
   Tag,
   ThemeProvider,
   ToastProvider,
@@ -36,14 +38,18 @@ const CatalogImporter = () => {
                 />
               </PageHeaderTitle>
               <PageHeaderActions>
-                <PageHeaderButton variant="secondary" onClick={goToSettings}>
+                <PageHeaderButton
+                  variant="secondary"
+                  onClick={goToSettings}
+                  icon={<IconGear />}
+                >
                   {formatMessage(messages.settingsLabel)}
                 </PageHeaderButton>
               </PageHeaderActions>
             </PageHeaderTop>
           </PageHeader>
           <PageContent layout="wide">
-            <Suspense fallback={null}>
+            <Suspense fallback={<Spinner />}>
               <CategoryTree />
             </Suspense>
           </PageContent>

@@ -3,7 +3,7 @@ fragment CategoryFields on Category {
   name
 }
 
-query {
+query getCategoryTree {
   categories {
     ...CategoryFields
     subCategories {

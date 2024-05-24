@@ -6,12 +6,16 @@ const messages = defineMessages({
   searchKws: { id: 'admin/search.kws' },
   versionLabel: { id: 'admin/version.label' },
   startLabel: { id: 'admin/start.label' },
+  previousLabel: { id: 'admin/previous.label' },
+  nextLabel: { id: 'admin/next.label' },
   settingsMissingError: { id: 'admin/settings.missing.error' },
   settingsLabel: { id: 'admin/settings.label' },
   settingsLinkLabel: { id: 'admin/settings.link.label' },
-  categories: { id: 'admin/categories.label' },
+  settingsError: { id: 'admin/settings.error' },
+  categoriesLabel: { id: 'admin/categories.label' },
   categoriesSourceError: { id: 'admin/categories.source.error' },
   categoriesRefreshLabel: { id: 'admin/categories.refresh.label' },
+  optionsLabel: { id: 'admin/options.label' },
 })
 
 export default messages

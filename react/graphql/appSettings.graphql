@@ -1,4 +1,4 @@
-query {
+query getAppSettings {
   appSettings {
     account
     vtexAppKey

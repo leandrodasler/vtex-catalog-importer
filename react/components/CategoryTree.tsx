@@ -5,10 +5,15 @@ import {
   CardActions,
   CardHeader,
   CardTitle,
+  Center,
   Checkbox,
+  Flex,
+  IconArrowLeft,
+  IconArrowLineDown,
+  IconArrowRight,
+  IconArrowsClockwise,
   IconCaretDown,
   IconCaretRight,
-  Skeleton,
   Spinner,
   Stack,
   Tab,
@@ -16,16 +21,14 @@ import {
   TabPanel,
   csx,
   useTabState,
-  useToast,
 } from '@vtex/admin-ui'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useQuery } from 'react-apollo'
 import { useIntl } from 'react-intl'
 import type { Category, Query } from 'ssesandbox04.catalog-importer'
 
-import APP_SETTINGS_QUERY from '../graphql/appSettings.graphql'
+import BRANDS_QUERY from '../graphql/brands.graphql'
 import CATEGORIES_QUERY from '../graphql/categories.graphql'
-import { goToSettings } from '../helpers'
 import messages from '../messages'
 
 interface CheckedCategories {
@@ -37,16 +40,7 @@ interface ExpandedCategories {
 }
 
 const CategoryTree = () => {
-  const showToast = useToast()
   const { formatMessage } = useIntl()
-
-  const {
-    data: settings,
-    loading: loadingSettings,
-    error: errorSettings,
-  } = useQuery<Query>(APP_SETTINGS_QUERY, {
-    notifyOnNetworkStatusChange: true,
-  })
 
   const {
     data,
@@ -57,31 +51,12 @@ const CategoryTree = () => {
     notifyOnNetworkStatusChange: true,
   })
 
-  const loading = loadingSettings || loadingCategories
+  const { data: brands } = useQuery<Query>(BRANDS_QUERY, {
+    notifyOnNetworkStatusChange: true,
+  })
 
-  if (errorSettings) {
-    showToast({
-      message: formatMessage({
-        id: errorSettings.graphQLErrors?.[0].message,
-        defaultMessage: errorSettings.message,
-      }),
-      variant: 'critical',
-    })
-  }
-
-  if (errorCategories) {
-    showToast({
-      message: formatMessage({
-        id: errorCategories.graphQLErrors?.[0].message,
-        defaultMessage: errorCategories.message,
-      }),
-      variant: 'critical',
-      action: {
-        label: formatMessage(messages.settingsLinkLabel),
-        onClick: goToSettings,
-      },
-    })
-  }
+  // eslint-disable-next-line no-console
+  console.log({ brands })
 
   const [checkedCategories, setCheckedCategories] = useState<CheckedCategories>(
     {}
@@ -91,6 +66,13 @@ const CategoryTree = () => {
     expandedCategories,
     setExpandedCategories,
   ] = useState<ExpandedCategories>({})
+
+  useEffect(() => {
+    if (loadingCategories) {
+      setCheckedCategories({})
+      setExpandedCategories({})
+    }
+  }, [loadingCategories])
 
   const findCategoryById = (
     categories: Category[] | null | undefined,
@@ -120,7 +102,9 @@ const CategoryTree = () => {
   ): Category | undefined => {
     if (!categories) return undefined
     for (const category of categories) {
-      if (category.subCategories?.some((sub) => sub.id === categoryId)) {
+      if (
+        category.subCategories?.some((sub: Category) => sub.id === categoryId)
+      ) {
         return category
       }
 
@@ -149,30 +133,28 @@ const CategoryTree = () => {
 
       const newState = { ...prevState, [categoryId]: isChecked }
 
-      const category = findCategoryById(
-        data?.categories ?? undefined,
-        categoryId
-      )
+      const markSubcategories = (category: Category, checked: boolean) => {
+        if (category.subCategories) {
+          category.subCategories.forEach((subCategory: Category) => {
+            newState[subCategory.id] = checked
+            markSubcategories(subCategory, checked)
+          })
+        }
+      }
 
-      if (category?.subCategories) {
-        category.subCategories.forEach((subCategory) => {
-          newState[subCategory.id] = isChecked
-          if (subCategory.subCategories) {
-            handleCategoryChange(subCategory.id, isChecked)
-          }
-        })
+      const category = findCategoryById(data?.categories, categoryId)
+
+      if (category) {
+        markSubcategories(category, isChecked)
       }
 
       if (isChecked) {
-        let parentCategory = findParentCategory(
-          data?.categories ?? undefined,
-          categoryId
-        )
+        let parentCategory = findParentCategory(data?.categories, categoryId)
 
         while (parentCategory) {
           newState[parentCategory.id] = true
           parentCategory = findParentCategory(
-            data?.categories ?? undefined,
+            data?.categories,
             parentCategory.id
           )
         }
@@ -228,7 +210,9 @@ const CategoryTree = () => {
       </div>
       {expandedCategories[category.id] &&
         category.subCategories &&
-        category.subCategories.map((child) => renderCategory(child, level + 1))}
+        category.subCategories.map((child: Category) =>
+          renderCategory(child, level + 1)
+        )}
     </div>
   )
 
@@ -236,23 +220,19 @@ const CategoryTree = () => {
 
   const state = useTabState()
 
+  // eslint-disable-next-line no-console
+  console.log({ checkedCategories })
+
   return (
     <Card>
       <CardHeader>
-        {loadingSettings ? (
-          <Skeleton style={{ width: 300, height: 24 }} />
-        ) : (
-          <CardTitle>
-            {formatMessage(messages.categories, {
-              account: settings?.appSettings?.account,
-            })}
-          </CardTitle>
-        )}
+        <CardTitle>{formatMessage(messages.categoriesLabel)}</CardTitle>
         <CardActions>
           <Button
             variant="tertiary"
             onClick={() => refetchCategories()}
             disabled={loadingCategories}
+            icon={<IconArrowsClockwise />}
           >
             {formatMessage(messages.categoriesRefreshLabel)}
           </Button>
@@ -260,35 +240,132 @@ const CategoryTree = () => {
       </CardHeader>
       <div className={csx({ bg: '$secondary', padding: '$space-8' })}>
         {errorCategories && (
-          <Stack>
+          <Center>
             <Alert variant="critical">
-              {formatMessage(messages.categoriesSourceError)}
+              <Stack space="$space-4">
+                <span>{formatMessage(messages.categoriesSourceError)}</span>
+
+                <span>
+                  {formatMessage({
+                    id:
+                      errorCategories.graphQLErrors?.[0]?.message ||
+                      errorCategories.message,
+                  })}
+                </span>
+              </Stack>
             </Alert>
-          </Stack>
+          </Center>
         )}
-        {loading && <Spinner />}
-        {!loading && categories && (
-          <>
-            {categories.map((category) => renderCategory(category))}
-            <Button className={csx({ marginTop: '$space-4' })}>
-              {formatMessage(messages.startLabel)}
-            </Button>
-          </>
+        {loadingCategories && (
+          <Center>
+            <Spinner />
+          </Center>
         )}
+        {!loadingCategories &&
+          !errorCategories &&
+          categories &&
+          categories.map((category: Category) => renderCategory(category))}
       </div>
 
       <TabList state={state}>
-        <Tab id="1">Passo 1</Tab>
+        <Tab id="1">{formatMessage(messages.settingsLabel)}</Tab>
         <Tab disabled={state.activeId === '1'} id="2">
-          Passo 2
+          {formatMessage(messages.categoriesLabel)}
+        </Tab>
+        <Tab disabled={state.activeId === '1' || state.activeId === '2'} id="3">
+          {formatMessage(messages.optionsLabel)}
+        </Tab>
+        <Tab
+          disabled={
+            state.activeId === '1' ||
+            state.activeId === '2' ||
+            state.activeId === '3'
+          }
+          id="4"
+        >
+          {formatMessage(messages.startLabel)}
         </Tab>
       </TabList>
-      <TabPanel state={state} id="1">
+      <TabPanel
+        state={state}
+        id="1"
+        className={csx({ bg: '$secondary', paddingTop: '$space-4' })}
+      >
         Conteúdo 1
-        <Button onClick={() => state.select('2')}>Próximo passo</Button>
+        <Flex justify="end" className={csx({ marginTop: '$space-4' })}>
+          <Button
+            onClick={() => state.select('2')}
+            icon={<IconArrowRight />}
+            iconPosition="end"
+          >
+            {formatMessage(messages.nextLabel)}
+          </Button>
+        </Flex>
       </TabPanel>
-      <TabPanel state={state} id="2">
+      <TabPanel
+        state={state}
+        id="2"
+        className={csx({ bg: '$secondary', paddingTop: '$space-4' })}
+      >
         Conteúdo 2
+        <Flex
+          justify="space-between"
+          className={csx({ marginTop: '$space-4' })}
+        >
+          <Button onClick={() => state.select('1')} icon={<IconArrowLeft />}>
+            {formatMessage(messages.previousLabel)}
+          </Button>
+          <Button
+            onClick={() => state.select('3')}
+            icon={<IconArrowRight />}
+            iconPosition="end"
+          >
+            {formatMessage(messages.nextLabel)}
+          </Button>
+        </Flex>
+      </TabPanel>
+      <TabPanel
+        state={state}
+        id="3"
+        className={csx({ bg: '$secondary', paddingTop: '$space-4' })}
+      >
+        Conteúdo 3
+        <Flex
+          justify="space-between"
+          className={csx({ marginTop: '$space-4' })}
+        >
+          <Button onClick={() => state.select('2')} icon={<IconArrowLeft />}>
+            {formatMessage(messages.previousLabel)}
+          </Button>
+          <Button
+            onClick={() => state.select('4')}
+            icon={<IconArrowRight />}
+            iconPosition="end"
+          >
+            {formatMessage(messages.nextLabel)}
+          </Button>
+        </Flex>
+      </TabPanel>
+      <TabPanel
+        state={state}
+        id="4"
+        className={csx({ bg: '$secondary', paddingTop: '$space-4' })}
+      >
+        Conteúdo 4
+        <Flex
+          justify="space-between"
+          className={csx({ marginTop: '$space-4' })}
+        >
+          <Button onClick={() => state.select('3')} icon={<IconArrowLeft />}>
+            {formatMessage(messages.previousLabel)}
+          </Button>
+          <Button
+            disabled={!Object.values(checkedCategories).some((c) => c)}
+            icon={<IconArrowLineDown />}
+          >
+            {formatMessage(messages.startLabel)}
+          </Button>
+        </Flex>
       </TabPanel>
     </Card>
   )

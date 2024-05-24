@@ -1136,9 +1136,9 @@ semver@^6.3.1:
   resolved "https://registry.yarnpkg.com/semver/-/semver-6.3.1.tgz#556d2ef8689146e46dcea4bfdd095f3434dffcb4"
   integrity sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==
 
-"ssesandbox04.catalog-importer@http://vtex.vtexassets.com/_v/public/typings/v1/ssesandbox04.catalog-importer@0.0.1/public/@types/ssesandbox04.catalog-importer":
+"ssesandbox04.catalog-importer@https://tiago--cubostecnologia.myvtex.com/_v/private/typings/linked/v1/ssesandbox04.catalog-importer@0.0.1+build1716516933/public/@types/ssesandbox04.catalog-importer":
   version "0.0.1"
-  resolved "http://vtex.vtexassets.com/_v/public/typings/v1/ssesandbox04.catalog-importer@0.0.1/public/@types/ssesandbox04.catalog-importer#de352b0a14fc8aee0ae8bbcc1ee50845738878e7"
+  resolved "https://tiago--cubostecnologia.myvtex.com/_v/private/typings/linked/v1/ssesandbox04.catalog-importer@0.0.1+build1716516933/public/@types/ssesandbox04.catalog-importer#564450124c7d8e9d1fe5917a5815a0d75c953355"
 
 supports-color@^5.3.0:
   version "5.5.0"
@@ -1211,6 +1211,10 @@ use-debounce@^7.0.0:
   version "7.0.1"
   resolved "https://registry.npmjs.org/use-debounce/-/use-debounce-7.0.1.tgz"
   integrity sha512-fOrzIw2wstbAJuv8PC9Vg4XgwyTLEOdq4y/Z3IhVl8DAE4svRcgyEUvrEXu+BMNgMoc3YND6qLT61kkgEKXh7Q==
+
+"vtex.render-runtime@http://vtex.vtexassets.com/_v/public/typings/v1/vtex.render-runtime@8.134.2/public/@types/vtex.render-runtime":
+  version "8.134.2"
+  resolved "http://vtex.vtexassets.com/_v/public/typings/v1/vtex.render-runtime@8.134.2/public/@types/vtex.render-runtime#ae69e2b2a471291c6c6b155e17510150fbfc2d0e"
 
 yallist@^3.0.2:
   version "3.1.1"

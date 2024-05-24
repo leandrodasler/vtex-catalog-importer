@@ -8,7 +8,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged",
+      "post-merge": "cd react && yarn && cd ../node && yarn && cd .."
     }
   },
   "lint-staged": {
