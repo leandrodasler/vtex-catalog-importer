@@ -2,11 +2,7 @@ import type { IOContext, IOResponse, InstanceOptions } from '@vtex/api'
 import { ExternalClient } from '@vtex/api'
 
 export default class HttpClient extends ExternalClient {
-  private settings: Settings = {
-    account: '',
-    vtexAppKey: '',
-    vtexAppToken: '',
-  }
+  private settings?: Settings
 
   constructor(context: IOContext, options?: InstanceOptions) {
     super('', context, {
@@ -25,17 +21,21 @@ export default class HttpClient extends ExternalClient {
   private getAuthHeaders() {
     return {
       headers: {
-        'X-VTEX-API-AppKey': this.settings.vtexAppKey,
-        'X-VTEX-API-AppToken': this.settings.vtexAppToken,
+        'X-VTEX-API-AppKey': this.settings?.vtexAppKey,
+        'X-VTEX-API-AppToken': this.settings?.vtexAppToken,
       },
     }
   }
 
   private getUrl(path: string) {
-    const url = `http://${this.settings.account}.myvtex.com/${path}`
+    const url = `http://${this.settings?.account}.myvtex.com/${path}`
 
     // eslint-disable-next-line no-console
-    console.log('GET:', url)
+    console.log('======================================================')
+    // eslint-disable-next-line no-console
+    console.log('HttpClient Request:', url)
+    // eslint-disable-next-line no-console
+    console.log('======================================================')
 
     return url
   }

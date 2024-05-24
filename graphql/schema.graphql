@@ -1,3 +1,5 @@
+directive @WithSettings on FIELD | FIELD_DEFINITION
+
 type AppSettings {
   account: String!
   vtexAppKey: String!
@@ -20,7 +22,7 @@ type Brand {
 }
 
 type Query {
-  appSettings: AppSettings!
-  categories: [Category!]
-  brands: [Brand!]
+  appSettings: AppSettings! @WithSettings
+  categories: [Category!] @WithSettings
+  brands: [Brand!] @WithSettings
 }

@@ -7,6 +7,7 @@ import type {
 import { LRUCache, Service } from '@vtex/api'
 
 import { Clients } from './clients'
+import { WithSettings } from './directives/WithSettings'
 import { appSettings } from './resolvers/appSettings'
 import { brands } from './resolvers/brands'
 import { categories } from './resolvers/categories'
@@ -31,14 +32,22 @@ const clients: ClientsConfig<Clients> = {
 }
 
 declare global {
-  interface State extends RecorderState {
-    body: unknown
-  }
-
   interface Settings {
     account: string
     vtexAppKey: string
     vtexAppToken: string
+  }
+
+  interface State extends RecorderState {
+    body: {
+      settings: Settings
+    }
+  }
+
+  interface ApiCategory {
+    id: number
+    name: string
+    children?: ApiCategory[]
   }
 
   type Context = ServiceContext<Clients, State>
@@ -55,6 +64,9 @@ export default new Service({
         categories,
         brands,
       },
+    },
+    schemaDirectives: {
+      WithSettings,
     },
   },
 })
