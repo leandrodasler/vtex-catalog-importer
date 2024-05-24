@@ -18,7 +18,7 @@ import { useIntl } from 'react-intl'
 import { goToSettings } from './helpers'
 import messages from './messages'
 
-const CategoryTree = lazy(() => import('./components/CategoryTree'))
+const CategoryTree = lazy(() => import('./components/steps/CategoryTree'))
 
 const CatalogImporter = () => {
   const { formatMessage } = useIntl()
