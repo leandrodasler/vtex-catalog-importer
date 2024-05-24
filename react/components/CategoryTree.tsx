@@ -149,30 +149,28 @@ const CategoryTree = () => {
 
       const newState = { ...prevState, [categoryId]: isChecked }
 
-      const category = findCategoryById(
-        data?.categories ?? undefined,
-        categoryId
-      )
+      const markSubcategories = (category: Category, checked: boolean) => {
+        if (category.subCategories) {
+          category.subCategories.forEach((subCategory) => {
+            newState[subCategory.id] = checked
+            markSubcategories(subCategory, checked)
+          })
+        }
+      }
 
-      if (category?.subCategories) {
-        category.subCategories.forEach((subCategory) => {
-          newState[subCategory.id] = isChecked
-          if (subCategory.subCategories) {
-            handleCategoryChange(subCategory.id, isChecked)
-          }
-        })
+      const category = findCategoryById(data?.categories, categoryId)
+
+      if (category) {
+        markSubcategories(category, isChecked)
       }
 
       if (isChecked) {
-        let parentCategory = findParentCategory(
-          data?.categories ?? undefined,
-          categoryId
-        )
+        let parentCategory = findParentCategory(data?.categories, categoryId)
 
         while (parentCategory) {
           newState[parentCategory.id] = true
           parentCategory = findParentCategory(
-            data?.categories ?? undefined,
+            data?.categories,
             parentCategory.id
           )
         }
