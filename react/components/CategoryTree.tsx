@@ -55,9 +55,6 @@ const CategoryTree = () => {
     notifyOnNetworkStatusChange: true,
   })
 
-  // eslint-disable-next-line no-console
-  console.log({ brands })
-
   const [checkedCategories, setCheckedCategories] = useState<CheckedCategories>(
     {}
   )
@@ -221,7 +218,9 @@ const CategoryTree = () => {
   const state = useTabState()
 
   // eslint-disable-next-line no-console
-  console.log({ checkedCategories })
+  console.log('checkedCategories:', checkedCategories)
+  // eslint-disable-next-line no-console
+  console.log('brands:', brands?.brands)
 
   return (
     <Card>
