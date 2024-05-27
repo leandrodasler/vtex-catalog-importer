@@ -7,20 +7,12 @@ import {
   CardTitle,
   Center,
   Checkbox,
-  Flex,
-  IconArrowLeft,
-  IconArrowLineDown,
-  IconArrowRight,
   IconArrowsClockwise,
   IconCaretDown,
   IconCaretRight,
   Spinner,
   Stack,
-  Tab,
-  TabList,
-  TabPanel,
   csx,
-  useTabState,
 } from '@vtex/admin-ui'
 import React, { useEffect, useState } from 'react'
 import { useQuery } from 'react-apollo'
@@ -31,6 +23,10 @@ import BRANDS_QUERY from '../../graphql/brands.graphql'
 import CATEGORIES_QUERY from '../../graphql/categories.graphql'
 import messages from '../../messages'
 
+interface CategoryTreeProps {
+  setChecked: (checked: boolean) => void
+}
+
 interface CheckedCategories {
   [key: string]: boolean
 }
@@ -39,7 +35,7 @@ interface ExpandedCategories {
   [key: string]: boolean
 }
 
-const CategoryTree = () => {
+const CategoryTree = ({ setChecked }: CategoryTreeProps) => {
   const { formatMessage } = useIntl()
 
   const {
@@ -157,6 +153,10 @@ const CategoryTree = () => {
         }
       }
 
+      const anyChecked = Object.values(newState).some((checked) => checked)
+
+      setChecked(anyChecked)
+
       return newState
     })
   }
@@ -215,8 +215,6 @@ const CategoryTree = () => {
 
   const categories = data?.categories
 
-  const state = useTabState()
-
   // eslint-disable-next-line no-console
   console.log('checkedCategories:', checkedCategories)
   // eslint-disable-next-line no-console
@@ -265,107 +263,6 @@ const CategoryTree = () => {
           categories &&
           categories.map((category: Category) => renderCategory(category))}
       </div>
-
-      <TabList state={state}>
-        <Tab id="1">{formatMessage(messages.settingsLabel)}</Tab>
-        <Tab disabled={state.activeId === '1'} id="2">
-          {formatMessage(messages.categoriesLabel)}
-        </Tab>
-        <Tab disabled={state.activeId === '1' || state.activeId === '2'} id="3">
-          {formatMessage(messages.optionsLabel)}
-        </Tab>
-        <Tab
-          disabled={
-            state.activeId === '1' ||
-            state.activeId === '2' ||
-            state.activeId === '3'
-          }
-          id="4"
-        >
-          {formatMessage(messages.startLabel)}
-        </Tab>
-      </TabList>
-      <TabPanel
-        state={state}
-        id="1"
-        className={csx({ bg: '$secondary', paddingTop: '$space-4' })}
-      >
-        Conteúdo 1
-        <Flex justify="end" className={csx({ marginTop: '$space-4' })}>
-          <Button
-            onClick={() => state.select('2')}
-            icon={<IconArrowRight />}
-            iconPosition="end"
-          >
-            {formatMessage(messages.nextLabel)}
-          </Button>
-        </Flex>
-      </TabPanel>
-      <TabPanel
-        state={state}
-        id="2"
-        className={csx({ bg: '$secondary', paddingTop: '$space-4' })}
-      >
-        Conteúdo 2
-        <Flex
-          justify="space-between"
-          className={csx({ marginTop: '$space-4' })}
-        >
-          <Button onClick={() => state.select('1')} icon={<IconArrowLeft />}>
-            {formatMessage(messages.previousLabel)}
-          </Button>
-          <Button
-            onClick={() => state.select('3')}
-            icon={<IconArrowRight />}
-            iconPosition="end"
-          >
-            {formatMessage(messages.nextLabel)}
-          </Button>
-        </Flex>
-      </TabPanel>
-      <TabPanel
-        state={state}
-        id="3"
-        className={csx({ bg: '$secondary', paddingTop: '$space-4' })}
-      >
-        Conteúdo 3
-        <Flex
-          justify="space-between"
-          className={csx({ marginTop: '$space-4' })}
-        >
-          <Button onClick={() => state.select('2')} icon={<IconArrowLeft />}>
-            {formatMessage(messages.previousLabel)}
-          </Button>
-          <Button
-            onClick={() => state.select('4')}
-            icon={<IconArrowRight />}
-            iconPosition="end"
-          >
-            {formatMessage(messages.nextLabel)}
-          </Button>
-        </Flex>
-      </TabPanel>
-      <TabPanel
-        state={state}
-        id="4"
-        className={csx({ bg: '$secondary', paddingTop: '$space-4' })}
-      >
-        Conteúdo 4
-        <Flex
-          justify="space-between"
-          className={csx({ marginTop: '$space-4' })}
-        >
-          <Button onClick={() => state.select('3')} icon={<IconArrowLeft />}>
-            {formatMessage(messages.previousLabel)}
-          </Button>
-          <Button
-            disabled={!Object.values(checkedCategories).some((c) => c)}
-            icon={<IconArrowLineDown />}
-          >
-            {formatMessage(messages.startLabel)}
-          </Button>
-        </Flex>
-      </TabPanel>
     </Card>
   )
 }

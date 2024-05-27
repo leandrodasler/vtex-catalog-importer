@@ -7,18 +7,16 @@ import {
   PageHeaderButton,
   PageHeaderTitle,
   PageHeaderTop,
-  Spinner,
   Tag,
   ThemeProvider,
   ToastProvider,
 } from '@vtex/admin-ui'
-import React, { Suspense, lazy } from 'react'
+import React from 'react'
 import { useIntl } from 'react-intl'
 
+import ImporterSteps from './components/ImporterSteps'
 import { goToSettings } from './helpers'
 import messages from './messages'
-
-const CategoryTree = lazy(() => import('./components/steps/CategoryTree'))
 
 const CatalogImporter = () => {
   const { formatMessage } = useIntl()
@@ -49,9 +47,7 @@ const CatalogImporter = () => {
             </PageHeaderTop>
           </PageHeader>
           <PageContent layout="wide">
-            <Suspense fallback={<Spinner />}>
-              <CategoryTree />
-            </Suspense>
+            <ImporterSteps />
           </PageContent>
         </Page>
       </ToastProvider>
