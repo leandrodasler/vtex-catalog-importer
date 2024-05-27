@@ -23,6 +23,10 @@ export default function ImporterSteps() {
   const state = useTabState()
   const { formatMessage } = useIntl()
   const [checked, setChecked] = useState(false)
+  const [checkedSecondStep, setCheckedSecondStep] = useState(false)
+
+  // eslint-disable-next-line no-console
+  console.log(checked, checkedSecondStep)
 
   return (
     <div>
@@ -92,7 +96,7 @@ export default function ImporterSteps() {
         className={csx({ bg: '$secondary', paddingTop: '$space-4' })}
       >
         <Suspense fallback={<Spinner />}>
-          <ImportOptions />
+          <ImportOptions setChecked={setCheckedSecondStep} />
         </Suspense>
         <Flex
           justify="space-between"
@@ -105,6 +109,7 @@ export default function ImporterSteps() {
             onClick={() => state.select('4')}
             icon={<IconArrowRight />}
             iconPosition="end"
+            disabled={!checkedSecondStep}
           >
             {formatMessage(messages.nextLabel)}
           </Button>

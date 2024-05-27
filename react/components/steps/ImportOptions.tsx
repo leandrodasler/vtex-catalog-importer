@@ -8,22 +8,45 @@ import {
 } from '@vtex/admin-ui'
 import React, { useState } from 'react'
 
-export default function ImportOptions() {
+interface Props {
+  setChecked: (checked: boolean) => void
+}
+
+export default function ImportOptions({ setChecked }: Props) {
   const state = useRadioState({ defaultValue: 'radio-1' })
   const [value, setValue] = useState('')
+  const [checkedItems, setCheckedItems] = useState<string[]>([])
 
-  // eslint-disable-next-line no-console
-  console.log('state', state.value)
+  function handleCheck(item: string, isChecked: boolean) {
+    let updatedCheckedItems = []
+
+    if (isChecked) {
+      updatedCheckedItems = [...checkedItems, item]
+    } else {
+      updatedCheckedItems = checkedItems.filter((i) => i !== item)
+    }
+
+    setCheckedItems(updatedCheckedItems)
+    setChecked(updatedCheckedItems.length > 0)
+  }
+
   const values = React.useMemo(
     () => ['Importar ou não imagens', 'Importar ou não preços', 'Estoques'],
     []
   )
 
+  const isStockSelected = checkedItems.includes('Estoques')
+
   return (
     <div>
-      <CheckboxGroup label="" id="fruits-checkbox-group">
-        {values.map((fruit, key) => (
-          <Checkbox value={fruit} label={fruit} key={key} />
+      <CheckboxGroup label="" id="options-checkbox-group">
+        {values.map((option, key) => (
+          <Checkbox
+            value={option}
+            label={option}
+            key={key}
+            onChange={(e) => handleCheck(option, e.target.checked)}
+          />
         ))}
       </CheckboxGroup>
       <RadioGroup
@@ -32,8 +55,16 @@ export default function ImportOptions() {
         label=""
         style={{ marginLeft: 40, marginTop: 20 }}
       >
-        <Radio value="1" label="copiar valor da conta de origem" />
-        <Radio value="2" label="informar valor (para todos)" />
+        <Radio
+          value="1"
+          label="copiar valor da conta de origem"
+          disabled={!isStockSelected}
+        />
+        <Radio
+          value="2"
+          label="informar valor (para todos)"
+          disabled={!isStockSelected}
+        />
         {state.value === '2' && (
           <div style={{ marginLeft: 40 }}>
             <TextInput
@@ -42,7 +73,11 @@ export default function ImportOptions() {
             />
           </div>
         )}
-        <Radio value="3" label="estoque infinito (para todos)" />
+        <Radio
+          value="3"
+          label="estoque infinito (para todos)"
+          disabled={!isStockSelected}
+        />
       </RadioGroup>
     </div>
   )
