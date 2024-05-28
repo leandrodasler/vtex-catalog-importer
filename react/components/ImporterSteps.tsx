@@ -27,12 +27,6 @@ export default function ImporterSteps() {
   const [checkedSecondStep, setCheckedSecondStep] = useState(false)
   const [checkedTreeOptions, setCheckedTreeOptions] = useState({})
 
-  // eslint-disable-next-line no-console
-  console.log(checkedTreeOptions)
-
-  // eslint-disable-next-line no-console
-  console.log(checked, checkedSecondStep)
-
   return (
     <div>
       <TabList state={state}>
