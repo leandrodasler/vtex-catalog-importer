@@ -16,5 +16,7 @@
   "admin/categories.source.error": "Error loading category tree from source account:",
   "admin/categories.refresh.label": "Refresh",
 
-  "admin/options.label": "Import options"
+  "admin/options.label": "Import options",
+
+  "admin/options.categories": "Selected Categories"
 }

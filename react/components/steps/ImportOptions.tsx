@@ -13,7 +13,7 @@ interface Props {
 }
 
 export default function ImportOptions({ setChecked }: Props) {
-  const state = useRadioState({ defaultValue: 'radio-1' })
+  const state = useRadioState({ defaultValue: '' })
   const [value, setValue] = useState('')
   const [checkedItems, setCheckedItems] = useState<string[]>([])
 

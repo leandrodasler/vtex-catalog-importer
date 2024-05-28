@@ -18,12 +18,17 @@ import messages from '../messages'
 
 const CategoryTree = lazy(() => import('./steps/CategoryTree'))
 const ImportOptions = lazy(() => import('./steps/ImportOptions'))
+const StartProcessing = lazy(() => import('./steps/StartProcessing'))
 
 export default function ImporterSteps() {
   const state = useTabState()
   const { formatMessage } = useIntl()
   const [checked, setChecked] = useState(false)
   const [checkedSecondStep, setCheckedSecondStep] = useState(false)
+  const [checkedTreeOptions, setCheckedTreeOptions] = useState({})
+
+  // eslint-disable-next-line no-console
+  console.log(checkedTreeOptions)
 
   // eslint-disable-next-line no-console
   console.log(checked, checkedSecondStep)
@@ -71,7 +76,10 @@ export default function ImporterSteps() {
         className={csx({ bg: '$secondary', paddingTop: '$space-4' })}
       >
         <Suspense fallback={<Spinner />}>
-          <CategoryTree setChecked={setChecked} />
+          <CategoryTree
+            setChecked={setChecked}
+            setCheckedTreeOptions={setCheckedTreeOptions}
+          />
         </Suspense>
         <Flex
           justify="space-between"
@@ -120,7 +128,9 @@ export default function ImporterSteps() {
         id="4"
         className={csx({ bg: '$secondary', paddingTop: '$space-4' })}
       >
-        Conteúdo 4
+        <Suspense fallback={<Spinner />}>
+          <StartProcessing checkedTreeOptions={checkedTreeOptions} />
+        </Suspense>
         <Flex
           justify="space-between"
           className={csx({ marginTop: '$space-4' })}

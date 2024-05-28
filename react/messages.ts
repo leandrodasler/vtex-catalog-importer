@@ -16,6 +16,7 @@ const messages = defineMessages({
   categoriesSourceError: { id: 'admin/categories.source.error' },
   categoriesRefreshLabel: { id: 'admin/categories.refresh.label' },
   optionsLabel: { id: 'admin/options.label' },
+  optionsCategories: { id: 'admin/options.categories' },
 })
 
 export default messages

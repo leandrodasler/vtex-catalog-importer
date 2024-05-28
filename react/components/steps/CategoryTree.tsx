@@ -25,17 +25,21 @@ import messages from '../../messages'
 
 interface CategoryTreeProps {
   setChecked: (checked: boolean) => void
+  setCheckedTreeOptions: (checkedOptions: CheckedCategories) => void
 }
 
 interface CheckedCategories {
-  [key: string]: boolean
+  [key: string]: { checked: boolean; name: string }
 }
 
 interface ExpandedCategories {
   [key: string]: boolean
 }
 
-const CategoryTree = ({ setChecked }: CategoryTreeProps) => {
+const CategoryTree = ({
+  setChecked,
+  setCheckedTreeOptions,
+}: CategoryTreeProps) => {
   const { formatMessage } = useIntl()
 
   const {
@@ -122,20 +126,25 @@ const CategoryTree = ({ setChecked }: CategoryTreeProps) => {
   ) => {
     setCheckedCategories((prevState) => {
       const isChecked =
-        parentChecked !== undefined ? parentChecked : !prevState[categoryId]
+        parentChecked !== undefined
+          ? parentChecked
+          : !prevState[categoryId]?.checked
 
-      const newState = { ...prevState, [categoryId]: isChecked }
+      const category = findCategoryById(data?.categories, categoryId)
 
-      const markSubcategories = (category: Category, checked: boolean) => {
-        if (category.subCategories) {
-          category.subCategories.forEach((subCategory: Category) => {
-            newState[subCategory.id] = checked
-            markSubcategories(subCategory, checked)
+      const newState = {
+        ...prevState,
+        [categoryId]: { checked: isChecked, name: category?.name ?? '' },
+      }
+
+      const markSubcategories = (subCategory: Category, checked: boolean) => {
+        if (subCategory.subCategories) {
+          subCategory.subCategories.forEach((childCategory: Category) => {
+            newState[childCategory.id] = { checked, name: childCategory.name }
+            markSubcategories(childCategory, checked)
           })
         }
       }
-
-      const category = findCategoryById(data?.categories, categoryId)
 
       if (category) {
         markSubcategories(category, isChecked)
@@ -145,7 +154,10 @@ const CategoryTree = ({ setChecked }: CategoryTreeProps) => {
         let parentCategory = findParentCategory(data?.categories, categoryId)
 
         while (parentCategory) {
-          newState[parentCategory.id] = true
+          newState[parentCategory.id] = {
+            checked: true,
+            name: parentCategory.name,
+          }
           parentCategory = findParentCategory(
             data?.categories,
             parentCategory.id
@@ -153,9 +165,10 @@ const CategoryTree = ({ setChecked }: CategoryTreeProps) => {
         }
       }
 
-      const anyChecked = Object.values(newState).some((checked) => checked)
+      const anyChecked = Object.values(newState).some((entry) => entry.checked)
 
       setChecked(anyChecked)
+      setCheckedTreeOptions(newState) // Adicione esta linha para atualizar o pai
 
       return newState
     })
@@ -200,7 +213,7 @@ const CategoryTree = ({ setChecked }: CategoryTreeProps) => {
           </>
         )}
         <Checkbox
-          checked={!!checkedCategories[category.id]}
+          checked={!!checkedCategories[category.id]?.checked}
           label={category.name}
           onChange={() => handleCategoryChange(category.id)}
         />
@@ -241,7 +254,6 @@ const CategoryTree = ({ setChecked }: CategoryTreeProps) => {
             <Alert variant="critical">
               <Stack space="$space-4">
                 <span>{formatMessage(messages.categoriesSourceError)}</span>
-
                 <span>
                   {formatMessage({
                     id:
