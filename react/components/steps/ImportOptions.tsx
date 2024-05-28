@@ -7,12 +7,16 @@ import {
   useRadioState,
 } from '@vtex/admin-ui'
 import React, { useState } from 'react'
+import { useIntl } from 'react-intl'
+
+import messages from '../../messages'
 
 interface Props {
   setChecked: (checked: boolean) => void
 }
 
 export default function ImportOptions({ setChecked }: Props) {
+  const { formatMessage } = useIntl()
   const state = useRadioState({ defaultValue: '' })
   const [value, setValue] = useState('')
   const [checkedItems, setCheckedItems] = useState<string[]>([])
@@ -30,24 +34,26 @@ export default function ImportOptions({ setChecked }: Props) {
     setChecked(updatedCheckedItems.length > 0)
   }
 
-  const values = React.useMemo(
-    () => ['Importar ou não imagens', 'Importar ou não preços', 'Estoques'],
-    []
-  )
-
   const isStockSelected = checkedItems.includes('Estoques')
 
   return (
     <div>
       <CheckboxGroup label="" id="options-checkbox-group">
-        {values.map((option, key) => (
-          <Checkbox
-            value={option}
-            label={option}
-            key={key}
-            onChange={(e) => handleCheck(option, e.target.checked)}
-          />
-        ))}
+        <Checkbox
+          value={formatMessage(messages.optionsCheckbox1)}
+          label={formatMessage(messages.optionsCheckbox1)}
+          onChange={(e) => handleCheck(e.target.value, e.target.checked)}
+        />
+        <Checkbox
+          value={formatMessage(messages.optionsCheckbox2)}
+          label={formatMessage(messages.optionsCheckbox2)}
+          onChange={(e) => handleCheck(e.target.value, e.target.checked)}
+        />
+        <Checkbox
+          value={formatMessage(messages.optionsCheckbox3)}
+          label={formatMessage(messages.optionsCheckbox3)}
+          onChange={(e) => handleCheck(e.target.value, e.target.checked)}
+        />
       </CheckboxGroup>
       <RadioGroup
         state={state}

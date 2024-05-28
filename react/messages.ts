@@ -17,6 +17,9 @@ const messages = defineMessages({
   categoriesRefreshLabel: { id: 'admin/categories.refresh.label' },
   optionsLabel: { id: 'admin/options.label' },
   optionsCategories: { id: 'admin/options.categories' },
+  optionsCheckbox1: { id: 'admin/options.checkbox-1' },
+  optionsCheckbox2: { id: 'admin/options.checkbox-2' },
+  optionsCheckbox3: { id: 'admin/options.checkbox-3' },
 })
 
 export default messages

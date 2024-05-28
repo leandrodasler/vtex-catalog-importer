@@ -18,5 +18,8 @@
 
   "admin/options.label": "Import options",
 
-  "admin/options.categories": "Selected Categories"
+  "admin/options.categories": "Selected Categories",
+  "admin/options.checkbox-1": "Importar ou não imagens",
+  "admin/options.checkbox-2": "Importar ou não preços",
+  "admin/options.checkbox-3": "Estoques"
 }

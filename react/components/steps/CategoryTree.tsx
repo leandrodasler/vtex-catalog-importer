@@ -168,7 +168,7 @@ const CategoryTree = ({
       const anyChecked = Object.values(newState).some((entry) => entry.checked)
 
       setChecked(anyChecked)
-      setCheckedTreeOptions(newState) // Adicione esta linha para atualizar o pai
+      setCheckedTreeOptions(newState)
 
       return newState
     })
