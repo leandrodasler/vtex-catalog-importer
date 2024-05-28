@@ -2,7 +2,6 @@ import {
   Alert,
   Button,
   Card,
-  CardHeader,
   Center,
   Checkbox,
   IconArrowsClockwise,
@@ -233,7 +232,13 @@ const CategoryTree = ({
 
   return (
     <Card>
-      <CardHeader>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row-reverse',
+        }}
+        className={csx({ bg: '$secondary', padding: '$space-4' })}
+      >
         <Button
           variant="tertiary"
           onClick={() => refetchCategories()}
@@ -242,7 +247,7 @@ const CategoryTree = ({
         >
           {formatMessage(messages.categoriesRefreshLabel)}
         </Button>
-      </CardHeader>
+      </div>
       <div className={csx({ bg: '$secondary', padding: '$space-8' })}>
         {errorCategories && (
           <Center>
