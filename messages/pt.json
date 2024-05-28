@@ -16,5 +16,10 @@
   "admin/categories.source.error": "Erro ao carregar a árvore de categorias da conta de origem:",
   "admin/categories.refresh.label": "Recarregar",
 
-  "admin/options.label": "Opções da importação"
+  "admin/options.label": "Opções da importação",
+
+  "admin/options.categories": "Categorias Selecionadas",
+  "admin/options.checkbox-1": "Importar ou não imagens",
+  "admin/options.checkbox-2": "Importar ou não preços",
+  "admin/options.checkbox-3": "Estoques"
 }
