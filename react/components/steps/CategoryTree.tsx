@@ -2,9 +2,7 @@ import {
   Alert,
   Button,
   Card,
-  CardActions,
   CardHeader,
-  CardTitle,
   Center,
   Checkbox,
   IconArrowsClockwise,
@@ -236,17 +234,14 @@ const CategoryTree = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{formatMessage(messages.categoriesLabel)}</CardTitle>
-        <CardActions>
-          <Button
-            variant="tertiary"
-            onClick={() => refetchCategories()}
-            disabled={loadingCategories}
-            icon={<IconArrowsClockwise />}
-          >
-            {formatMessage(messages.categoriesRefreshLabel)}
-          </Button>
-        </CardActions>
+        <Button
+          variant="tertiary"
+          onClick={() => refetchCategories()}
+          disabled={loadingCategories}
+          icon={<IconArrowsClockwise />}
+        >
+          {formatMessage(messages.categoriesRefreshLabel)}
+        </Button>
       </CardHeader>
       <div className={csx({ bg: '$secondary', padding: '$space-8' })}>
         {errorCategories && (
