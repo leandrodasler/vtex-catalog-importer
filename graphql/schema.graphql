@@ -6,6 +6,12 @@ type AppSettings {
   vtexAppToken: String!
 }
 
+input AppSettingsInput {
+  account: String
+  vtexAppKey: String
+  vtexAppToken: String
+}
+
 type Category {
   id: String!
   name: String!
@@ -23,6 +29,10 @@ type Brand {
 
 type Query {
   appSettings: AppSettings! @WithSettings
-  categories: [Category!] @WithSettings
+  categories(settings: AppSettingsInput): [Category!] @WithSettings
   brands: [Brand!] @WithSettings
+}
+
+type Mutation {
+  updateAppSettings(newSettings: AppSettingsInput!): AppSettings! @WithSettings
 }

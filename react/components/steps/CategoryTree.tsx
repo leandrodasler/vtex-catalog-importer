@@ -1,9 +1,12 @@
+import type { TabState } from '@vtex/admin-ui'
 import {
   Alert,
   Button,
-  Card,
   Center,
   Checkbox,
+  Flex,
+  IconArrowLeft,
+  IconArrowRight,
   IconArrowsClockwise,
   IconCaretDown,
   IconCaretRight,
@@ -14,14 +17,20 @@ import {
 import React, { useEffect, useState } from 'react'
 import { useQuery } from 'react-apollo'
 import { useIntl } from 'react-intl'
-import type { Category, Query } from 'ssesandbox04.catalog-importer'
+import type {
+  AppSettingsInput,
+  Category,
+  Query,
+  QueryCategoriesArgs,
+} from 'ssesandbox04.catalog-importer'
 
 import BRANDS_QUERY from '../../graphql/brands.graphql'
 import CATEGORIES_QUERY from '../../graphql/categories.graphql'
 import messages from '../../messages'
 
 interface CategoryTreeProps {
-  setChecked: (checked: boolean) => void
+  state: TabState
+  settings?: AppSettingsInput
   setCheckedTreeOptions: (checkedOptions: CheckedCategories) => void
 }
 
@@ -34,7 +43,8 @@ interface ExpandedCategories {
 }
 
 const CategoryTree = ({
-  setChecked,
+  state,
+  settings,
   setCheckedTreeOptions,
 }: CategoryTreeProps) => {
   const { formatMessage } = useIntl()
@@ -44,8 +54,9 @@ const CategoryTree = ({
     loading: loadingCategories,
     error: errorCategories,
     refetch: refetchCategories,
-  } = useQuery<Query>(CATEGORIES_QUERY, {
+  } = useQuery<Query, QueryCategoriesArgs>(CATEGORIES_QUERY, {
     notifyOnNetworkStatusChange: true,
+    variables: { settings },
   })
 
   const { data: brands } = useQuery<Query>(BRANDS_QUERY, {
@@ -162,9 +173,9 @@ const CategoryTree = ({
         }
       }
 
-      const anyChecked = Object.values(newState).some((entry) => entry.checked)
+      // const anyChecked = Object.values(newState).some((entry) => entry.checked)
 
-      setChecked(anyChecked)
+      // setChecked(anyChecked)
       setCheckedTreeOptions(newState)
 
       return newState
@@ -231,51 +242,58 @@ const CategoryTree = ({
   console.log('brands:', brands?.brands)
 
   return (
-    <Card>
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'row-reverse',
-        }}
-        className={csx({ bg: '$secondary', padding: '$space-4' })}
+    <div className={csx({ position: 'relative' })}>
+      <Button
+        className={csx({ position: 'absolute', top: 0, right: 0 })}
+        disabled={loadingCategories}
+        icon={<IconArrowsClockwise />}
+        onClick={() => refetchCategories({ variables: { settings } })}
+        variant="tertiary"
       >
-        <Button
-          variant="tertiary"
-          onClick={() => refetchCategories()}
-          disabled={loadingCategories}
-          icon={<IconArrowsClockwise />}
-        >
-          {formatMessage(messages.categoriesRefreshLabel)}
+        {formatMessage(messages.categoriesRefreshLabel)}
+      </Button>
+      {errorCategories && (
+        <Center>
+          <Alert variant="critical">
+            <Stack space="$space-4">
+              <span>{formatMessage(messages.categoriesSourceError)}</span>
+              <span>
+                {formatMessage({
+                  id:
+                    errorCategories.graphQLErrors?.[0]?.message ||
+                    errorCategories.message,
+                })}
+              </span>
+            </Stack>
+          </Alert>
+        </Center>
+      )}
+      {loadingCategories && (
+        <Center>
+          <Spinner />
+        </Center>
+      )}
+      {!loadingCategories &&
+        !errorCategories &&
+        categories &&
+        categories.map((category: Category) => renderCategory(category))}
+
+      <Flex justify="space-between" className={csx({ marginTop: '$space-4' })}>
+        <Button onClick={() => state.select('1')} icon={<IconArrowLeft />}>
+          {formatMessage(messages.previousLabel)}
         </Button>
-      </div>
-      <div className={csx({ bg: '$secondary', padding: '$space-8' })}>
-        {errorCategories && (
-          <Center>
-            <Alert variant="critical">
-              <Stack space="$space-4">
-                <span>{formatMessage(messages.categoriesSourceError)}</span>
-                <span>
-                  {formatMessage({
-                    id:
-                      errorCategories.graphQLErrors?.[0]?.message ||
-                      errorCategories.message,
-                  })}
-                </span>
-              </Stack>
-            </Alert>
-          </Center>
-        )}
-        {loadingCategories && (
-          <Center>
-            <Spinner />
-          </Center>
-        )}
-        {!loadingCategories &&
-          !errorCategories &&
-          categories &&
-          categories.map((category: Category) => renderCategory(category))}
-      </div>
-    </Card>
+        <Button
+          onClick={() => state.select('3')}
+          icon={<IconArrowRight />}
+          iconPosition="end"
+          disabled={
+            !Object.values(checkedCategories).some((entry) => entry.checked)
+          }
+        >
+          {formatMessage(messages.nextLabel)}
+        </Button>
+      </Flex>
+    </div>
   )
 }
 

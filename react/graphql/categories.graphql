@@ -3,8 +3,8 @@ fragment CategoryFields on Category {
   name
 }
 
-query getCategoryTree {
-  categories {
+query getCategoryTree($settings: AppSettingsInput) {
+  categories(settings: $settings) {
     ...CategoryFields
     subCategories {
       ...CategoryFields

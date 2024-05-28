@@ -3,7 +3,7 @@
   "admin/manager.title": "Manage Imports",
   "admin/search.kws": "manage,catalog,import,importer",
   "admin/version.label": "Version {version}",
-  "admin/start.label": "Start processing",
+  "admin/start.label": "Start import",
   "admin/previous.label": "Previous",
   "admin/next.label": "Next",
 

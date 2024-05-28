@@ -92,29 +92,14 @@
     },
     {
       "name": "vbase-read-write"
+    },
+    {
+      "name": "update-app-settings"
+    },
+    {
+      "name": "read-workspace-apps"
     }
   ],
-  "settingsSchema": {
-    "title": "Catalog Importer Settings",
-    "type": "object",
-    "properties": {
-      "account": {
-        "title": "Source VTEX Account",
-        "type": "string",
-        "description": "VTEX account from where the catalog will be imported"
-      },
-      "vtexAppKey": {
-        "title": "VTEX App Key",
-        "type": "string",
-        "description": "Source account app key"
-      },
-      "vtexAppToken": {
-        "title": "VTEX App Token",
-        "type": "string",
-        "description": "Source account app token"
-      }
-    }
-  },
   "credentialType": "absolute",
   "billingOptions": {
     "type": "free",

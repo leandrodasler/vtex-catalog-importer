@@ -1,41 +1,92 @@
 import {
   Button,
+  Card,
+  Center,
   Flex,
   IconArrowLeft,
   IconArrowLineDown,
   IconArrowRight,
+  IconFaders,
+  IconGear,
+  IconListDashes,
   Spinner,
   Tab,
   TabList,
   TabPanel,
   csx,
   useTabState,
+  useToast,
 } from '@vtex/admin-ui'
 import React, { Suspense, lazy, useState } from 'react'
+import { useQuery } from 'react-apollo'
 import { useIntl } from 'react-intl'
+import type { AppSettingsInput, Query } from 'ssesandbox04.catalog-importer'
 
+import APP_SETTINGS_QUERY from '../graphql/appSettings.graphql'
 import messages from '../messages'
 
+const Settings = lazy(() => import('./steps/Settings'))
 const CategoryTree = lazy(() => import('./steps/CategoryTree'))
 const ImportOptions = lazy(() => import('./steps/ImportOptions'))
 const StartProcessing = lazy(() => import('./steps/StartProcessing'))
 
+const SuspenseFallback = () => (
+  <Center>
+    <Spinner />
+  </Center>
+)
+
 export default function ImporterSteps() {
   const state = useTabState()
   const { formatMessage } = useIntl()
-  const [checked, setChecked] = useState(false)
+  const showToast = useToast()
+  const [settings, setSettings] = useState<AppSettingsInput>()
+  // const [checked, setChecked] = useState(false)
   const [checkedSecondStep, setCheckedSecondStep] = useState(false)
   const [checkedTreeOptions, setCheckedTreeOptions] = useState({})
 
+  const { loading } = useQuery<Query>(APP_SETTINGS_QUERY, {
+    notifyOnNetworkStatusChange: true,
+    onError(error) {
+      showToast({
+        title: formatMessage(messages.settingsError),
+        message: error.message,
+        variant: 'critical',
+      })
+    },
+    onCompleted(data) {
+      setSettings(data.appSettings)
+    },
+  })
+
   return (
-    <div>
-      <TabList state={state}>
-        <Tab id="1">{formatMessage(messages.settingsLabel)}</Tab>
-        <Tab disabled={state.activeId === '1'} id="2">
-          {formatMessage(messages.categoriesLabel)}
+    <Card>
+      <TabList state={state} className={csx({ bg: '$secondary' })}>
+        <Tab id="1" className={csx({ bg: '$secondary' })}>
+          <Center>
+            <IconGear className="mr1" size="small" />
+            {formatMessage(messages.settingsLabel)}
+          </Center>
         </Tab>
-        <Tab disabled={state.activeId === '1' || state.activeId === '2'} id="3">
-          {formatMessage(messages.optionsLabel)}
+        <Tab
+          disabled={state.activeId === '1'}
+          id="2"
+          className={csx({ bg: '$secondary' })}
+        >
+          <Center>
+            <IconListDashes className="mr1" size="small" />
+            {formatMessage(messages.categoriesLabel)}
+          </Center>
+        </Tab>
+        <Tab
+          disabled={state.activeId === '1' || state.activeId === '2'}
+          id="3"
+          className={csx({ bg: '$secondary' })}
+        >
+          <Center>
+            <IconFaders className="mr1" size="small" />
+            {formatMessage(messages.optionsLabel)}
+          </Center>
         </Tab>
         <Tab
           disabled={
@@ -44,38 +95,59 @@ export default function ImporterSteps() {
             state.activeId === '3'
           }
           id="4"
+          className={csx({ bg: '$secondary' })}
         >
-          {formatMessage(messages.startLabel)}
+          <Center>
+            <IconArrowLineDown className="mr1" size="small" />
+            {formatMessage(messages.startLabel)}
+          </Center>
         </Tab>
       </TabList>
       <TabPanel
         state={state}
         id="1"
-        className={csx({ bg: '$secondary', paddingTop: '$space-4' })}
+        hidden={state.activeId !== '1'}
+        className={csx({ padding: '$space-4' })}
       >
-        Conteúdo 1
-        <Flex justify="end" className={csx({ marginTop: '$space-4' })}>
-          <Button
-            onClick={() => state.select('2')}
-            icon={<IconArrowRight />}
-            iconPosition="end"
-          >
-            {formatMessage(messages.nextLabel)}
-          </Button>
-        </Flex>
+        <Suspense fallback={<SuspenseFallback />}>
+          {state.activeId === '1' &&
+            (loading ? (
+              <SuspenseFallback />
+            ) : (
+              <Settings
+                state={state}
+                settings={settings}
+                setSettings={setSettings}
+              />
+            ))}
+        </Suspense>
       </TabPanel>
       <TabPanel
         state={state}
         id="2"
-        className={csx({ bg: '$secondary', paddingTop: '$space-4' })}
+        hidden={state.activeId !== '2'}
+        className={csx({ padding: '$space-4' })}
       >
-        <Suspense fallback={<Spinner />}>
+        <Suspense fallback={<SuspenseFallback />}>
+          {state.activeId === '2' && (
+            <CategoryTree
+              state={state}
+              settings={settings}
+              // checked={checked}
+              // setChecked={setChecked}
+              setCheckedTreeOptions={setCheckedTreeOptions}
+            />
+          )}
+        </Suspense>
+        {/* <Suspense fallback={<Spinner />}>
           <CategoryTree
+            state={state}
+            settings={settings}
             setChecked={setChecked}
             setCheckedTreeOptions={setCheckedTreeOptions}
           />
-        </Suspense>
-        <Flex
+        </Suspense> */}
+        {/* <Flex
           justify="space-between"
           className={csx({ marginTop: '$space-4' })}
         >
@@ -90,7 +162,7 @@ export default function ImporterSteps() {
           >
             {formatMessage(messages.nextLabel)}
           </Button>
-        </Flex>
+        </Flex> */}
       </TabPanel>
       <TabPanel
         state={state}
@@ -137,6 +209,6 @@ export default function ImporterSteps() {
           </Button>
         </Flex>
       </TabPanel>
-    </div>
+    </Card>
   )
 }

@@ -9,5 +9,16 @@
   },
   "minReplicas": 8,
   "maxReplicas": 80,
-  "workers": 1
+  "workers": 1,
+  "events": {
+    "onAppInstalled": {
+      "sender": "apps",
+      "keys": ["setup"],
+      "settingsType": "workspace"
+    },
+    "onSettingsChanged": {
+      "sender": "apps",
+      "keys": ["settings"]
+    }
+  }
 }

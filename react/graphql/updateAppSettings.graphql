@@ -1,0 +1,7 @@
+mutation updateAppSettings($newSettings: AppSettingsInput!) {
+  updateAppSettings(newSettings: $newSettings) {
+    account
+    vtexAppKey
+    vtexAppToken
+  }
+}

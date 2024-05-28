@@ -1,8 +1,9 @@
 import type { IOContext, IOResponse, InstanceOptions } from '@vtex/api'
 import { ExternalClient } from '@vtex/api'
+import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
 export default class HttpClient extends ExternalClient {
-  private settings?: Settings
+  private settings?: AppSettingsInput
 
   constructor(context: IOContext, options?: InstanceOptions) {
     super('', context, {
@@ -14,7 +15,7 @@ export default class HttpClient extends ExternalClient {
     })
   }
 
-  public setSettings(settings: Settings) {
+  public setSettings(settings: AppSettingsInput) {
     this.settings = settings
   }
 

@@ -1,21 +1,19 @@
 import {
-  IconGear,
   Page,
   PageContent,
   PageHeader,
   PageHeaderActions,
-  PageHeaderButton,
   PageHeaderTitle,
   PageHeaderTop,
   Tag,
   ThemeProvider,
   ToastProvider,
+  csx,
 } from '@vtex/admin-ui'
 import React from 'react'
 import { useIntl } from 'react-intl'
 
 import ImporterSteps from './components/ImporterSteps'
-import { goToSettings } from './helpers'
 import messages from './messages'
 
 const CatalogImporter = () => {
@@ -29,24 +27,17 @@ const CatalogImporter = () => {
             <PageHeaderTop>
               <PageHeaderTitle>
                 {formatMessage(messages.appTitle)}
+              </PageHeaderTitle>
+              <PageHeaderActions>
                 <Tag
                   label={formatMessage(messages.versionLabel, {
                     version: process.env.VTEX_APP_VERSION,
                   })}
                 />
-              </PageHeaderTitle>
-              <PageHeaderActions>
-                <PageHeaderButton
-                  variant="secondary"
-                  onClick={goToSettings}
-                  icon={<IconGear />}
-                >
-                  {formatMessage(messages.settingsLabel)}
-                </PageHeaderButton>
               </PageHeaderActions>
             </PageHeaderTop>
           </PageHeader>
-          <PageContent layout="wide">
+          <PageContent layout="wide" className={csx({ gap: 0 })}>
             <ImporterSteps />
           </PageContent>
         </Page>
