@@ -25,5 +25,17 @@
 
   "admin/options.radio-1": "Import images or not",
   "admin/options.radio-2": "Import prices or not",
-  "admin/options.radio-3": "Inventories"
+  "admin/options.radio-3": "Inventories",
+
+  "admin/settingsComponents.label": "Source VTEX Account",
+  "admin/settingsComponents.helpText": "VTEX account from where the catalog will be imported",
+  "admin/settingsComponents.name": "account",
+
+  "admin/settingsComponents.label-2": "VTEX App Key",
+  "admin/settingsComponents.helpText-2": "Source account app key",
+  "admin/settingsComponents.name-2": "vtexAppKey",
+
+  "admin/settingsComponents.label-3": "VTEX App Token",
+  "admin/settingsComponents.helpText-3": "Source account app token",
+  "admin/settingsComponents.name-3": "vtexAppToken"
 }

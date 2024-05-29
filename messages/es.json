@@ -25,5 +25,17 @@
 
   "admin/options.radio-1": "Importar o no imágenes",
   "admin/options.radio-2": "Importar o no precios",
-  "admin/options.radio-3": "Inventarios"
+  "admin/options.radio-3": "Inventarios",
+
+  "admin/settingsComponents.label": "Cuenta VTEX de Origen",
+  "admin/settingsComponents.helpText": "Cuenta VTEX de donde se importará el catálogo",
+  "admin/settingsComponents.name": "cuenta",
+
+  "admin/settingsComponents.label-2": "Clave de la Aplicación VTEX",
+  "admin/settingsComponents.helpText-2": "Clave de la aplicación de la cuenta de origen",
+  "admin/settingsComponents.name-2": "claveAppVTEX",
+
+  "admin/settingsComponents.label-3": "Token de la Aplicación VTEX",
+  "admin/settingsComponents.helpText-3": "Token de la aplicación de la cuenta de origen",
+  "admin/settingsComponents.name-3": "tokenAppVTEX"
 }

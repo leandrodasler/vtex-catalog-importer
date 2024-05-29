@@ -173,9 +173,6 @@ const CategoryTree = ({
         }
       }
 
-      // const anyChecked = Object.values(newState).some((entry) => entry.checked)
-
-      // setChecked(anyChecked)
       setCheckedTreeOptions(newState)
 
       return newState
