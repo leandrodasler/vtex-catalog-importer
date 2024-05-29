@@ -40,7 +40,10 @@ export default function ImportOptions({ state }: Props) {
   }
 
   const isAnyItemChecked = checkedItems.length > 0
-  const isStockSelected = checkedItems.includes('Estoques')
+  const isStockSelected =
+    checkedItems.includes('Estoques') ||
+    checkedItems.includes('Stocks') ||
+    checkedItems.includes('Inventarios')
 
   return (
     <Flex style={{ flexDirection: 'column' }}>
@@ -69,12 +72,12 @@ export default function ImportOptions({ state }: Props) {
       >
         <Radio
           value="1"
-          label="copiar valor da conta de origem"
+          label={formatMessage(messages.optionsRadio1)}
           disabled={!isStockSelected}
         />
         <Radio
           value="2"
-          label="informar valor (para todos)"
+          label={formatMessage(messages.optionsRadio2)}
           disabled={!isStockSelected}
         />
         {stateSelect.value === '2' && (
@@ -87,7 +90,7 @@ export default function ImportOptions({ state }: Props) {
         )}
         <Radio
           value="3"
-          label="estoque infinito (para todos)"
+          label={formatMessage(messages.optionsRadio3)}
           disabled={!isStockSelected}
         />
       </RadioGroup>

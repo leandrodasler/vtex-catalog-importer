@@ -20,6 +20,9 @@ const messages = defineMessages({
   optionsCheckbox1: { id: 'admin/options.checkbox-1' },
   optionsCheckbox2: { id: 'admin/options.checkbox-2' },
   optionsCheckbox3: { id: 'admin/options.checkbox-3' },
+  optionsRadio1: { id: 'admin/options.radio-1' },
+  optionsRadio2: { id: 'admin/options.radio-2' },
+  optionsRadio3: { id: 'admin/options.radio-3' },
 })
 
 export default messages

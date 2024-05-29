@@ -135,7 +135,7 @@ export default function ImporterSteps() {
       <TabPanel
         state={state}
         id="3"
-        className={csx({ bg: '$secondary', paddingTop: '$space-4' })}
+        className={csx({ paddingTop: '$space-4' })}
       >
         <Suspense fallback={<Spinner />}>
           <ImportOptions state={state} />
@@ -144,7 +144,7 @@ export default function ImporterSteps() {
       <TabPanel
         state={state}
         id="4"
-        className={csx({ bg: '$secondary', paddingTop: '$space-4' })}
+        className={csx({ paddingTop: '$space-4' })}
       >
         <Suspense fallback={<Spinner />}>
           <StartProcessing
