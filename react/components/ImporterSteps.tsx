@@ -1,11 +1,7 @@
 import {
-  Button,
   Card,
   Center,
-  Flex,
-  IconArrowLeft,
   IconArrowLineDown,
-  IconArrowRight,
   IconFaders,
   IconGear,
   IconListDashes,
@@ -41,8 +37,6 @@ export default function ImporterSteps() {
   const { formatMessage } = useIntl()
   const showToast = useToast()
   const [settings, setSettings] = useState<AppSettingsInput>()
-  // const [checked, setChecked] = useState(false)
-  const [checkedSecondStep, setCheckedSecondStep] = useState(false)
   const [checkedTreeOptions, setCheckedTreeOptions] = useState({})
 
   const { loading } = useQuery<Query>(APP_SETTINGS_QUERY, {
@@ -133,36 +127,10 @@ export default function ImporterSteps() {
             <CategoryTree
               state={state}
               settings={settings}
-              // checked={checked}
-              // setChecked={setChecked}
               setCheckedTreeOptions={setCheckedTreeOptions}
             />
           )}
         </Suspense>
-        {/* <Suspense fallback={<Spinner />}>
-          <CategoryTree
-            state={state}
-            settings={settings}
-            setChecked={setChecked}
-            setCheckedTreeOptions={setCheckedTreeOptions}
-          />
-        </Suspense> */}
-        {/* <Flex
-          justify="space-between"
-          className={csx({ marginTop: '$space-4' })}
-        >
-          <Button onClick={() => state.select('1')} icon={<IconArrowLeft />}>
-            {formatMessage(messages.previousLabel)}
-          </Button>
-          <Button
-            onClick={() => state.select('3')}
-            icon={<IconArrowRight />}
-            iconPosition="end"
-            disabled={!checked}
-          >
-            {formatMessage(messages.nextLabel)}
-          </Button>
-        </Flex> */}
       </TabPanel>
       <TabPanel
         state={state}
@@ -170,24 +138,8 @@ export default function ImporterSteps() {
         className={csx({ bg: '$secondary', paddingTop: '$space-4' })}
       >
         <Suspense fallback={<Spinner />}>
-          <ImportOptions setChecked={setCheckedSecondStep} />
+          <ImportOptions state={state} />
         </Suspense>
-        <Flex
-          justify="space-between"
-          className={csx({ marginTop: '$space-4' })}
-        >
-          <Button onClick={() => state.select('2')} icon={<IconArrowLeft />}>
-            {formatMessage(messages.previousLabel)}
-          </Button>
-          <Button
-            onClick={() => state.select('4')}
-            icon={<IconArrowRight />}
-            iconPosition="end"
-            disabled={!checkedSecondStep}
-          >
-            {formatMessage(messages.nextLabel)}
-          </Button>
-        </Flex>
       </TabPanel>
       <TabPanel
         state={state}
@@ -195,19 +147,11 @@ export default function ImporterSteps() {
         className={csx({ bg: '$secondary', paddingTop: '$space-4' })}
       >
         <Suspense fallback={<Spinner />}>
-          <StartProcessing checkedTreeOptions={checkedTreeOptions} />
+          <StartProcessing
+            checkedTreeOptions={checkedTreeOptions}
+            state={state}
+          />
         </Suspense>
-        <Flex
-          justify="space-between"
-          className={csx({ marginTop: '$space-4' })}
-        >
-          <Button onClick={() => state.select('3')} icon={<IconArrowLeft />}>
-            {formatMessage(messages.previousLabel)}
-          </Button>
-          <Button icon={<IconArrowLineDown />}>
-            {formatMessage(messages.startLabel)}
-          </Button>
-        </Flex>
       </TabPanel>
     </Card>
   )

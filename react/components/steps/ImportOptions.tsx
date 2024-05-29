@@ -1,9 +1,15 @@
+import type { TabState } from '@vtex/admin-ui'
 import {
+  Button,
   Checkbox,
   CheckboxGroup,
+  Flex,
+  IconArrowLeft,
+  IconArrowRight,
   Radio,
   RadioGroup,
   TextInput,
+  csx,
   useRadioState,
 } from '@vtex/admin-ui'
 import React, { useState } from 'react'
@@ -12,12 +18,12 @@ import { useIntl } from 'react-intl'
 import messages from '../../messages'
 
 interface Props {
-  setChecked: (checked: boolean) => void
+  state: TabState
 }
 
-export default function ImportOptions({ setChecked }: Props) {
+export default function ImportOptions({ state }: Props) {
   const { formatMessage } = useIntl()
-  const state = useRadioState({ defaultValue: '' })
+  const stateSelect = useRadioState({ defaultValue: '' })
   const [value, setValue] = useState('')
   const [checkedItems, setCheckedItems] = useState<string[]>([])
 
@@ -31,13 +37,13 @@ export default function ImportOptions({ setChecked }: Props) {
     }
 
     setCheckedItems(updatedCheckedItems)
-    setChecked(updatedCheckedItems.length > 0)
   }
 
+  const isAnyItemChecked = checkedItems.length > 0
   const isStockSelected = checkedItems.includes('Estoques')
 
   return (
-    <div>
+    <Flex style={{ flexDirection: 'column' }}>
       <CheckboxGroup label="" id="options-checkbox-group">
         <Checkbox
           value={formatMessage(messages.optionsCheckbox1)}
@@ -56,7 +62,7 @@ export default function ImportOptions({ setChecked }: Props) {
         />
       </CheckboxGroup>
       <RadioGroup
-        state={state}
+        state={stateSelect}
         aria-label="radio-group"
         label=""
         style={{ marginLeft: 40, marginTop: 20 }}
@@ -71,7 +77,7 @@ export default function ImportOptions({ setChecked }: Props) {
           label="informar valor (para todos)"
           disabled={!isStockSelected}
         />
-        {state.value === '2' && (
+        {stateSelect.value === '2' && (
           <div style={{ marginLeft: 40 }}>
             <TextInput
               value={value}
@@ -85,6 +91,19 @@ export default function ImportOptions({ setChecked }: Props) {
           disabled={!isStockSelected}
         />
       </RadioGroup>
-    </div>
+      <Flex justify="space-between" className={csx({ marginTop: '$space-4' })}>
+        <Button onClick={() => state.select('2')} icon={<IconArrowLeft />}>
+          {formatMessage(messages.previousLabel)}
+        </Button>
+        <Button
+          onClick={() => state.select('4')}
+          icon={<IconArrowRight />}
+          iconPosition="end"
+          disabled={!isAnyItemChecked}
+        >
+          {formatMessage(messages.nextLabel)}
+        </Button>
+      </Flex>
+    </Flex>
   )
 }
