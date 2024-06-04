@@ -1,5 +1,6 @@
 query getAppSettings {
   appSettings {
+    useDefault
     account
     vtexAppKey
     vtexAppToken

@@ -1,7 +1,6 @@
 import type {
   Cached,
   ClientsConfig,
-  EventContext,
   RecorderState,
   ServiceContext,
 } from '@vtex/api'
@@ -15,7 +14,7 @@ import { brands } from './resolvers/brands'
 import { categories } from './resolvers/categories'
 import { updateAppSettings } from './resolvers/updateAppSettings'
 
-const TIMEOUT_MS = 4 * 1000
+const TIMEOUT_MS = 5 * 60 * 1000
 const CONCURRENCY = 10
 const memoryCache = new LRUCache<string, Cached>({ max: 5000 })
 
@@ -37,19 +36,11 @@ const clients: ClientsConfig<Clients> = {
 declare global {
   interface State extends RecorderState {
     body: {
-      settings: AppSettingsInput
+      settings?: AppSettingsInput
     }
   }
 
-  interface ApiCategory {
-    id: number
-    name: string
-    children?: ApiCategory[]
-  }
-
   type Context = ServiceContext<Clients, State>
-
-  type Next = () => Promise<void>
 }
 
 export default new Service({
@@ -68,32 +59,5 @@ export default new Service({
     schemaDirectives: {
       WithSettings,
     },
-  },
-  events: {
-    onAppInstalled: async (ctx: EventContext<Clients> /* , next: Next */) => {
-      // eslint-disable-next-line no-console
-      console.log('ctx on onAppInstalled')
-      // eslint-disable-next-line no-console
-      console.log(ctx)
-
-      // await next()
-    },
-    onSettingsChanged: async () =>
-      /* ctx: EventContext<Clients> */ /* , next: Next */
-      {
-        // eslint-disable-next-line no-console
-        console.log('onSettingsChanged')
-
-        // const listApps = await ctx.clients.apps.listApps()
-
-        // console.log(
-        //   'listApps.data on onSettingsChanged:',
-        //   `${listApps.data
-        //     .map((app) => app.id)
-        //     .join(', ')}\n======================================`
-        // )
-
-        // await next()
-      },
   },
 })

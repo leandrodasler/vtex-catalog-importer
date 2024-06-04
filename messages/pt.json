@@ -8,9 +8,10 @@
   "admin/next.label": "Próximo",
 
   "admin/settings.label": "Configurações",
-  "admin/settings.missing.error": "É necessário configurar o Source VTEX Account, VTEX App Key e VTEX App Token nas configurações da app",
+  "admin/settings.missing.error": "É necessário informar Conta VTEX de Origem, VTEX App Key e VTEX App Token ao fornecer configurações personalizadas",
   "admin/settings.link.label": "Ir para as configurações da app",
-  "admin/settings.error": "Não foi possível obter as configurações da conta de origem",
+  "admin/settings.error": "Não foi possível obter as configurações salvas",
+  "admin/settings.default.error": "Não foi possível obter as configurações padrão. Forneça configurações personalizadas em vez disso.",
 
   "admin/categories.label": "Selecionar categorias da conta de origem",
   "admin/categories.source.error": "Erro ao carregar a árvore de categorias da conta de origem:",

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.0.2] - 2024-06-03
+
+### Added
+
+- Default settings protected on github secrets and respective replaces on publish and deploy workflow
+
 ## [0.0.1] - 2024-05-22
 
 ### Added

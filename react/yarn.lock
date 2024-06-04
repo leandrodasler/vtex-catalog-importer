@@ -1154,9 +1154,9 @@ semver@^6.3.1:
   resolved "https://registry.yarnpkg.com/semver/-/semver-6.3.1.tgz#556d2ef8689146e46dcea4bfdd095f3434dffcb4"
   integrity sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==
 
-"ssesandbox04.catalog-importer@https://teste--cubostecnologia.myvtex.com/_v/private/typings/linked/v1/ssesandbox04.catalog-importer@0.0.1+build1716913001/public/@types/ssesandbox04.catalog-importer":
-  version "0.0.1"
-  resolved "https://teste--cubostecnologia.myvtex.com/_v/private/typings/linked/v1/ssesandbox04.catalog-importer@0.0.1+build1716913001/public/@types/ssesandbox04.catalog-importer#afbc4649aa60bc26f05d19eb275476ad7d42953f"
+"ssesandbox04.catalog-importer@https://teste--cubostecnologia.myvtex.com/_v/private/typings/linked/v1/ssesandbox04.catalog-importer@0.0.2+build1717510472/public/@types/ssesandbox04.catalog-importer":
+  version "0.0.2"
+  resolved "https://teste--cubostecnologia.myvtex.com/_v/private/typings/linked/v1/ssesandbox04.catalog-importer@0.0.2+build1717510472/public/@types/ssesandbox04.catalog-importer#f65c5683895562c078e40f4f6a30e57e9d3ded27"
 
 supports-color@^5.3.0:
   version "5.5.0"

@@ -8,9 +8,10 @@
   "admin/next.label": "Next",
 
   "admin/settings.label": "Settings",
-  "admin/settings.missing.error": "It's mandatory to configure the Source VTEX Account, VTEX App Key and VTEX App Token on app settings",
+  "admin/settings.missing.error": "It's mandatory to input Source VTEX Account, VTEX App Key and VTEX App Token when provide custom settings",
   "admin/settings.link.label": "Go to app settings",
-  "admin/settings.error": "Unable to get source account settings",
+  "admin/settings.error": "Unable to get saved settings",
+  "admin/settings.default.error": "Unable to get default settings. Provide custom settings instead.",
 
   "admin/categories.label": "Select categories from source account",
   "admin/categories.source.error": "Error loading category tree from source account:",

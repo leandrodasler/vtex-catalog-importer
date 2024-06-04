@@ -12,6 +12,7 @@ const messages = defineMessages({
   settingsLabel: { id: 'admin/settings.label' },
   settingsLinkLabel: { id: 'admin/settings.link.label' },
   settingsError: { id: 'admin/settings.error' },
+  settingsDefaultError: { id: 'admin/settings.default.error' },
   categoriesLabel: { id: 'admin/categories.label' },
   categoriesSourceError: { id: 'admin/categories.source.error' },
   categoriesRefreshLabel: { id: 'admin/categories.refresh.label' },

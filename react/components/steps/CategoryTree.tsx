@@ -24,7 +24,6 @@ import type {
   QueryCategoriesArgs,
 } from 'ssesandbox04.catalog-importer'
 
-import BRANDS_QUERY from '../../graphql/brands.graphql'
 import CATEGORIES_QUERY from '../../graphql/categories.graphql'
 import messages from '../../messages'
 
@@ -59,10 +58,6 @@ const CategoryTree = ({
     variables: { settings },
   })
 
-  const { data: brands } = useQuery<Query>(BRANDS_QUERY, {
-    notifyOnNetworkStatusChange: true,
-  })
-
   const [checkedCategories, setCheckedCategories] = useState<CheckedCategories>(
     {}
   )
@@ -89,8 +84,8 @@ const CategoryTree = ({
         return category
       }
 
-      if (category.subCategories) {
-        const subCategory = findCategoryById(category.subCategories, categoryId)
+      if (category.children) {
+        const subCategory = findCategoryById(category.children, categoryId)
 
         if (subCategory) {
           return subCategory
@@ -107,17 +102,12 @@ const CategoryTree = ({
   ): Category | undefined => {
     if (!categories) return undefined
     for (const category of categories) {
-      if (
-        category.subCategories?.some((sub: Category) => sub.id === categoryId)
-      ) {
+      if (category.children?.some((sub: Category) => sub.id === categoryId)) {
         return category
       }
 
-      if (category.subCategories) {
-        const parentCategory = findParentCategory(
-          category.subCategories,
-          categoryId
-        )
+      if (category.children) {
+        const parentCategory = findParentCategory(category.children, categoryId)
 
         if (parentCategory) {
           return parentCategory
@@ -145,17 +135,17 @@ const CategoryTree = ({
         [categoryId]: { checked: isChecked, name: category?.name ?? '' },
       }
 
-      const markSubcategories = (subCategory: Category, checked: boolean) => {
-        if (subCategory.subCategories) {
-          subCategory.subCategories.forEach((childCategory: Category) => {
+      const markchildren = (subCategory: Category, checked: boolean) => {
+        if (subCategory.children) {
+          subCategory.children.forEach((childCategory: Category) => {
             newState[childCategory.id] = { checked, name: childCategory.name }
-            markSubcategories(childCategory, checked)
+            markchildren(childCategory, checked)
           })
         }
       }
 
       if (category) {
-        markSubcategories(category, isChecked)
+        markchildren(category, isChecked)
       }
 
       if (isChecked) {
@@ -192,13 +182,13 @@ const CategoryTree = ({
       style={{ marginLeft: level ? 30 : 0, marginBottom: 10 }}
     >
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: 10 }}>
-        {!category.subCategories?.length && (
+        {!category.children?.length && (
           <IconCaretRight
             size="small"
             style={{ marginRight: '5px', opacity: 0 }}
           />
         )}
-        {(category.subCategories?.length ?? 0) > 0 && (
+        {(category.children?.length ?? 0) > 0 && (
           <>
             {expandedCategories[category.id] ? (
               <IconCaretDown
@@ -224,8 +214,8 @@ const CategoryTree = ({
         />
       </div>
       {expandedCategories[category.id] &&
-        category.subCategories &&
-        category.subCategories.map((child: Category) =>
+        category.children &&
+        category.children.map((child: Category) =>
           renderCategory(child, level + 1)
         )}
     </div>
@@ -235,8 +225,6 @@ const CategoryTree = ({
 
   // eslint-disable-next-line no-console
   console.log('checkedCategories:', checkedCategories)
-  // eslint-disable-next-line no-console
-  console.log('brands:', brands?.brands)
 
   return (
     <div className={csx({ position: 'relative' })}>

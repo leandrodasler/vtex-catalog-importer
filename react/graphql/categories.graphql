@@ -6,25 +6,25 @@ fragment CategoryFields on Category {
 query getCategoryTree($settings: AppSettingsInput) {
   categories(settings: $settings) {
     ...CategoryFields
-    subCategories {
+    children {
       ...CategoryFields
-      subCategories {
+      children {
         ...CategoryFields
-        subCategories {
+        children {
           ...CategoryFields
-          subCategories {
+          children {
             ...CategoryFields
-            subCategories {
+            children {
               ...CategoryFields
-              subCategories {
+              children {
                 ...CategoryFields
-                subCategories {
+                children {
                   ...CategoryFields
-                  subCategories {
+                  children {
                     ...CategoryFields
-                    subCategories {
+                    children {
                       ...CategoryFields
-                      subCategories {
+                      children {
                         ...CategoryFields
                       }
                     }

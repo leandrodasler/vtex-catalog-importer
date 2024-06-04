@@ -3,7 +3,7 @@ name: Publish and Deploy App
 on:
   push:
     tags:
-      - "v[0-9]+.[0-9]+.[0-9]+"
+      - 'v[0-9]+.[0-9]+.[0-9]+'
   workflow_dispatch:
 
 jobs:
@@ -11,7 +11,78 @@ jobs:
     name: Publish and Deploy App
     runs-on: ubuntu-latest
     steps:
-      - uses: tiago-freire/vtex-publish-deploy-action@v1
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - run: |
+          echo "::group::Load manifest.json"
+          echo "MANIFEST_JSON<<EOF" >> $GITHUB_ENV
+          cat ./manifest.json >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          echo "::endgroup::"
+        shell: bash
+
+      - run: |
+          echo "::group::Load vendor, name and version"
+          APP_VENDOR=${{ fromJson(env.MANIFEST_JSON).vendor }}
+          echo "APP_VENDOR=$APP_VENDOR" >> $GITHUB_ENV
+          APP_NAME=${{ fromJson(env.MANIFEST_JSON).name }}
+          echo "APP_NAME=$APP_NAME" >> $GITHUB_ENV
+          APP_VERSION=${{ fromJson(env.MANIFEST_JSON).version }}
+          echo "APP_VERSION=$APP_VERSION" >> $GITHUB_ENV
+          APP_FULL_NAME=$APP_VENDOR.$APP_NAME@$APP_VERSION
+          echo "APP_FULL_NAME=$APP_FULL_NAME" >> $GITHUB_ENV
+          echo "::endgroup::"
+        shell: bash
+
+      - name: Set default Source Account with a secret
+        uses: jacobtomlinson/gha-find-replace@v3
         with:
+          find: '{{sourceAccount}}'
+          replace: ${{ secrets.SOURCE_ACCOUNT }}
+          regex: false
+          include: './node/helpers/index.ts'
+
+      - name: Set default VTEX App Key with a secret
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: '{{sourceVtexAppKey}}'
+          replace: ${{ secrets.SOURCE_VTEX_APP_KEY }}
+          regex: false
+          include: './node/helpers/index.ts'
+
+      - name: Set default VTEX App Token with a secret
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: '{{sourceVtexAppToken}}'
+          replace: ${{ secrets.SOURCE_VTEX_APP_TOKEN }}
+          regex: false
+          include: './node/helpers/index.ts'
+
+      - uses: vtex/action-toolbelt@v8
+        with:
+          account: ${{ env.APP_VENDOR }}
           appKey: ${{ secrets.VTEX_TOOLBELT_KEY }}
           appToken: ${{ secrets.VTEX_TOOLBELT_TOKEN }}
+
+      - run: |
+          echo "::group::Publish app ${{ env.APP_FULL_NAME }}"
+          output=$(vtex publish --force)
+          echo "$output"
+          if [[ $output != *"published successfully"* ]]; then
+            echo -e "\nFailed to publish app."
+            exit 1
+          fi
+          echo "::endgroup::"
+        shell: bash
+
+      - run: |
+          echo "::group::Deploy app ${{ env.APP_FULL_NAME }}"
+          output=$(vtex deploy --force)
+          echo "$output"
+          if [[ $output != *"Successfully deployed"* ]]; then
+            echo -e "\nFailed to deploy app."
+            exit 1
+          fi
+          echo "::endgroup::"
+        shell: bash
