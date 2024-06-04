@@ -1,16 +1,7 @@
-import type { Brand } from 'ssesandbox04.catalog-importer'
+import type { Query } from 'ssesandbox04.catalog-importer'
 
-export const brands = async (
-  _: unknown,
-  __: unknown,
-  { clients: { httpClient } }: Context
-) => {
-  // eslint-disable-next-line no-console
-  console.log(
-    'brands resolver\n============================================================'
-  )
-
-  const response = await httpClient.get<Brand[]>(
+export const brands = async (_: unknown, __: unknown, context: Context) => {
+  const response = await context.clients.httpClient.get<Query['brands']>(
     'api/catalog_system/pvt/brand/list'
   )
 

@@ -36,21 +36,47 @@ const SuspenseFallback = () => (
   </Center>
 )
 
+const tabListTheme = csx({
+  bg: '$secondary',
+  '> [data-wrap="true"][data-space-inside="true"]': {
+    flexFlow: 'column',
+    '@tablet': { flexFlow: 'row' },
+    '> button': {
+      bg: '$secondary',
+      width: '100%',
+      marginLeft: 0,
+      '@tablet': { width: 'auto' },
+    },
+  },
+})
+
+const tabPanelTheme = csx({ padding: '$space-4' })
+
 export default function ImporterSteps() {
-  const state = useTabState()
+  const state = useTabState({
+    selectOnMove: false,
+    defaultActiveId: '1',
+  })
+
   const { formatMessage } = useIntl()
   const showToast = useToast()
   const [settings, setSettings] = useState<AppSettingsInput>()
-  // const [checked, setChecked] = useState(false)
   const [checkedSecondStep, setCheckedSecondStep] = useState(false)
   const [checkedTreeOptions, setCheckedTreeOptions] = useState({})
 
-  const { loading } = useQuery<Query>(APP_SETTINGS_QUERY, {
+  const { loading, refetch, error } = useQuery<Query>(APP_SETTINGS_QUERY, {
     notifyOnNetworkStatusChange: true,
-    onError(error) {
+    onError(e) {
+      if (e.message.includes('500')) {
+        setTimeout(() => refetch(), 500)
+
+        return
+      }
+
       showToast({
-        title: formatMessage(messages.settingsError),
-        message: error.message,
+        message: `${formatMessage(messages.settingsError)}: ${formatMessage({
+          id: e.graphQLErrors?.[0]?.message || e.message,
+        })}`,
         variant: 'critical',
       })
     },
@@ -61,28 +87,20 @@ export default function ImporterSteps() {
 
   return (
     <Card>
-      <TabList state={state} className={csx({ bg: '$secondary' })}>
-        <Tab id="1" className={csx({ bg: '$secondary' })}>
+      <TabList state={state} className={tabListTheme}>
+        <Tab id="1">
           <Center>
             <IconGear className="mr1" size="small" />
             {formatMessage(messages.settingsLabel)}
           </Center>
         </Tab>
-        <Tab
-          disabled={state.activeId === '1'}
-          id="2"
-          className={csx({ bg: '$secondary' })}
-        >
+        <Tab disabled={state.activeId === '1'} id="2">
           <Center>
             <IconListDashes className="mr1" size="small" />
             {formatMessage(messages.categoriesLabel)}
           </Center>
         </Tab>
-        <Tab
-          disabled={state.activeId === '1' || state.activeId === '2'}
-          id="3"
-          className={csx({ bg: '$secondary' })}
-        >
+        <Tab disabled={state.activeId === '1' || state.activeId === '2'} id="3">
           <Center>
             <IconFaders className="mr1" size="small" />
             {formatMessage(messages.optionsLabel)}
@@ -95,7 +113,6 @@ export default function ImporterSteps() {
             state.activeId === '3'
           }
           id="4"
-          className={csx({ bg: '$secondary' })}
         >
           <Center>
             <IconArrowLineDown className="mr1" size="small" />
@@ -107,18 +124,20 @@ export default function ImporterSteps() {
         state={state}
         id="1"
         hidden={state.activeId !== '1'}
-        className={csx({ padding: '$space-4' })}
+        className={tabPanelTheme}
       >
         <Suspense fallback={<SuspenseFallback />}>
           {state.activeId === '1' &&
-            (loading ? (
+            (loading || error ? (
               <SuspenseFallback />
             ) : (
-              <Settings
-                state={state}
-                settings={settings}
-                setSettings={setSettings}
-              />
+              settings && (
+                <Settings
+                  state={state}
+                  settings={settings}
+                  setSettings={setSettings}
+                />
+              )
             ))}
         </Suspense>
       </TabPanel>
@@ -126,49 +145,19 @@ export default function ImporterSteps() {
         state={state}
         id="2"
         hidden={state.activeId !== '2'}
-        className={csx({ padding: '$space-4' })}
+        className={tabPanelTheme}
       >
         <Suspense fallback={<SuspenseFallback />}>
           {state.activeId === '2' && (
             <CategoryTree
               state={state}
               settings={settings}
-              // checked={checked}
-              // setChecked={setChecked}
               setCheckedTreeOptions={setCheckedTreeOptions}
             />
           )}
         </Suspense>
-        {/* <Suspense fallback={<Spinner />}>
-          <CategoryTree
-            state={state}
-            settings={settings}
-            setChecked={setChecked}
-            setCheckedTreeOptions={setCheckedTreeOptions}
-          />
-        </Suspense> */}
-        {/* <Flex
-          justify="space-between"
-          className={csx({ marginTop: '$space-4' })}
-        >
-          <Button onClick={() => state.select('1')} icon={<IconArrowLeft />}>
-            {formatMessage(messages.previousLabel)}
-          </Button>
-          <Button
-            onClick={() => state.select('3')}
-            icon={<IconArrowRight />}
-            iconPosition="end"
-            disabled={!checked}
-          >
-            {formatMessage(messages.nextLabel)}
-          </Button>
-        </Flex> */}
       </TabPanel>
-      <TabPanel
-        state={state}
-        id="3"
-        className={csx({ bg: '$secondary', paddingTop: '$space-4' })}
-      >
+      <TabPanel state={state} id="3" className={tabPanelTheme}>
         <Suspense fallback={<Spinner />}>
           <ImportOptions setChecked={setCheckedSecondStep} />
         </Suspense>
@@ -189,11 +178,7 @@ export default function ImporterSteps() {
           </Button>
         </Flex>
       </TabPanel>
-      <TabPanel
-        state={state}
-        id="4"
-        className={csx({ bg: '$secondary', paddingTop: '$space-4' })}
-      >
+      <TabPanel state={state} id="4" className={tabPanelTheme}>
         <Suspense fallback={<Spinner />}>
           <StartProcessing checkedTreeOptions={checkedTreeOptions} />
         </Suspense>

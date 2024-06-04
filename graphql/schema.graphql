@@ -1,12 +1,14 @@
 directive @WithSettings on FIELD | FIELD_DEFINITION
 
 type AppSettings {
-  account: String!
-  vtexAppKey: String!
-  vtexAppToken: String!
+  useDefault: Boolean
+  account: String
+  vtexAppKey: String
+  vtexAppToken: String
 }
 
 input AppSettingsInput {
+  useDefault: Boolean
   account: String
   vtexAppKey: String
   vtexAppToken: String
@@ -15,7 +17,7 @@ input AppSettingsInput {
 type Category {
   id: String!
   name: String!
-  subCategories: [Category!]
+  children: [Category!]
 }
 
 type Brand {
@@ -34,5 +36,5 @@ type Query {
 }
 
 type Mutation {
-  updateAppSettings(newSettings: AppSettingsInput!): AppSettings! @WithSettings
+  updateAppSettings(settings: AppSettingsInput): AppSettings! @WithSettings
 }
