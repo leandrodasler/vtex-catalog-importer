@@ -19,13 +19,13 @@
   "admin/options.label": "Import options",
 
   "admin/options.categories": "Selected Categories",
-  "admin/options.checkbox-1": "Import images or not",
-  "admin/options.checkbox-2": "Import prices or not",
+  "admin/options.checkbox-1": "Import images ",
+  "admin/options.checkbox-2": "Import prices",
   "admin/options.checkbox-3": "Stocks",
 
-  "admin/options.radio-1": "Import images or not",
-  "admin/options.radio-2": "Import prices or not",
-  "admin/options.radio-3": "Inventories",
+  "admin/options.radio-1": "Unlimited",
+  "admin/options.radio-2": "To be defined",
+  "admin/options.radio-3": "Keep the source",
 
   "admin/settingsComponents.label": "Source VTEX Account",
   "admin/settingsComponents.helpText": "VTEX account from where the catalog will be imported",
