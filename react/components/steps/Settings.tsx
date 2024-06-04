@@ -157,23 +157,23 @@ const Settings = (props: Props) => {
         {stateDefaultSettings.value === SETTINGS_OPTIONS.CUSTOM && (
           <>
             <TextInput
-              label="Source VTEX Account"
-              helpText="VTEX account from where the catalog will be imported"
-              name="account"
+              label={formatMessage(messages.settingsComponentsLabel)}
+              helpText={formatMessage(messages.settingsComponentsHelpText)}
+              name={formatMessage(messages.settingsComponentsName)}
               state={form}
               onInput={handleTrim}
             />
             <TextInput
-              label="VTEX App Key"
-              helpText="Source account app key"
-              name="vtexAppKey"
+              label={formatMessage(messages.settingsComponentsLabel2)}
+              helpText={formatMessage(messages.settingsComponentsHelpText2)}
+              name={formatMessage(messages.settingsComponentsName2)}
               state={form}
               onInput={handleTrim}
             />
             <TextInput
-              label="VTEX App Token"
-              helpText="Source account app token"
-              name="vtexAppToken"
+              label={formatMessage(messages.settingsComponentsLabel3)}
+              helpText={formatMessage(messages.settingsComponentsHelpText3)}
+              name={formatMessage(messages.settingsComponentsName3)}
               state={form}
               onInput={handleTrim}
             />

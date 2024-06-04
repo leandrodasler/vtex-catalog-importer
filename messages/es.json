@@ -20,7 +20,23 @@
   "admin/options.label": "Opções da importação",
 
   "admin/options.categories": "Categorías Seleccionadas",
-  "admin/options.checkbox-1": "Importar ou não imagens",
-  "admin/options.checkbox-2": "Importar ou não preços",
-  "admin/options.checkbox-3": "Estoques"
+  "admin/options.checkbox-1": "Importar o no imágenes",
+  "admin/options.checkbox-2": "Importar o no precios",
+  "admin/options.checkbox-3": "Inventarios",
+
+  "admin/options.radio-1": "Importar o no imágenes",
+  "admin/options.radio-2": "Importar o no precios",
+  "admin/options.radio-3": "Inventarios",
+
+  "admin/settingsComponents.label": "Cuenta VTEX de Origen",
+  "admin/settingsComponents.helpText": "Cuenta VTEX de donde se importará el catálogo",
+  "admin/settingsComponents.name": "cuenta",
+
+  "admin/settingsComponents.label-2": "Clave de la Aplicación VTEX",
+  "admin/settingsComponents.helpText-2": "Clave de la aplicación de la cuenta de origen",
+  "admin/settingsComponents.name-2": "claveAppVTEX",
+
+  "admin/settingsComponents.label-3": "Token de la Aplicación VTEX",
+  "admin/settingsComponents.helpText-3": "Token de la aplicación de la cuenta de origen",
+  "admin/settingsComponents.name-3": "tokenAppVTEX"
 }

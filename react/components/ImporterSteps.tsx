@@ -1,11 +1,7 @@
 import {
-  Button,
   Card,
   Center,
-  Flex,
-  IconArrowLeft,
   IconArrowLineDown,
-  IconArrowRight,
   IconFaders,
   IconGear,
   IconListDashes,
@@ -61,7 +57,6 @@ export default function ImporterSteps() {
   const { formatMessage } = useIntl()
   const showToast = useToast()
   const [settings, setSettings] = useState<AppSettingsInput>()
-  const [checkedSecondStep, setCheckedSecondStep] = useState(false)
   const [checkedTreeOptions, setCheckedTreeOptions] = useState({})
 
   const { loading, refetch, error } = useQuery<Query>(APP_SETTINGS_QUERY, {
@@ -159,40 +154,16 @@ export default function ImporterSteps() {
       </TabPanel>
       <TabPanel state={state} id="3" className={tabPanelTheme}>
         <Suspense fallback={<Spinner />}>
-          <ImportOptions setChecked={setCheckedSecondStep} />
+          <ImportOptions state={state} />
         </Suspense>
-        <Flex
-          justify="space-between"
-          className={csx({ marginTop: '$space-4' })}
-        >
-          <Button onClick={() => state.select('2')} icon={<IconArrowLeft />}>
-            {formatMessage(messages.previousLabel)}
-          </Button>
-          <Button
-            onClick={() => state.select('4')}
-            icon={<IconArrowRight />}
-            iconPosition="end"
-            disabled={!checkedSecondStep}
-          >
-            {formatMessage(messages.nextLabel)}
-          </Button>
-        </Flex>
       </TabPanel>
       <TabPanel state={state} id="4" className={tabPanelTheme}>
         <Suspense fallback={<Spinner />}>
-          <StartProcessing checkedTreeOptions={checkedTreeOptions} />
+          <StartProcessing
+            checkedTreeOptions={checkedTreeOptions}
+            state={state}
+          />
         </Suspense>
-        <Flex
-          justify="space-between"
-          className={csx({ marginTop: '$space-4' })}
-        >
-          <Button onClick={() => state.select('3')} icon={<IconArrowLeft />}>
-            {formatMessage(messages.previousLabel)}
-          </Button>
-          <Button icon={<IconArrowLineDown />}>
-            {formatMessage(messages.startLabel)}
-          </Button>
-        </Flex>
       </TabPanel>
     </Card>
   )

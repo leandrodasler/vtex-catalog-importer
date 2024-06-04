@@ -22,5 +22,9 @@
   "admin/options.categories": "Selected Categories",
   "admin/options.checkbox-1": "Importar ou não imagens",
   "admin/options.checkbox-2": "Importar ou não preços",
-  "admin/options.checkbox-3": "Estoques"
+  "admin/options.checkbox-3": "Estoques",
+
+  "admin/options.radio-1": "Importar ou não imagens",
+  "admin/options.radio-2": "Importar ou não preços",
+  "admin/options.radio-3": "Estoques"
 }
