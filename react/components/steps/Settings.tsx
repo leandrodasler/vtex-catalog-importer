@@ -111,11 +111,11 @@ const Settings = (props: Props) => {
   const handleResetSettings = useCallback(() => {
     // TODO: add a modal dialog instead of window.confirm
     // eslint-disable-next-line no-alert
-    if (window.confirm('Are you sure you want to reset settings?')) {
+    if (window.confirm(formatMessage(messages.settingsResetConfirmation))) {
       setIsReset(true)
       updateAppSettings({ variables: { settings: {} } })
     }
-  }, [updateAppSettings])
+  }, [formatMessage, updateAppSettings])
 
   const handleTrim = (e: React.FormEvent<HTMLInputElement>) => {
     e.currentTarget.value = e.currentTarget.value.trim()
@@ -125,7 +125,6 @@ const Settings = (props: Props) => {
     <Form state={form} onSubmit={handleSubmit}>
       <Stack space="$space-4" fluid>
         <RadioGroup
-          // direction="row"
           state={stateDefaultSettings}
           aria-label="radio-group"
           label=""
@@ -136,11 +135,11 @@ const Settings = (props: Props) => {
           >
             <Radio
               value={SETTINGS_OPTIONS.DEFAULT}
-              label="Use default settings"
+              label={formatMessage(messages.settingsDefaultLabel)}
             />
             <Radio
               value={SETTINGS_OPTIONS.CUSTOM}
-              label="Provide custom settings"
+              label={formatMessage(messages.settingsCustomLabel)}
             />
             {/* {process.env.NODE_ENV === 'development' && ( */}
             <Button
@@ -149,7 +148,7 @@ const Settings = (props: Props) => {
               disabled={isReset && loadingUpdate}
               onClick={handleResetSettings}
             >
-              Reset
+              {formatMessage(messages.settingsResetLabel)}
             </Button>
             {/* )} */}
           </Stack>
@@ -159,21 +158,21 @@ const Settings = (props: Props) => {
             <TextInput
               label={formatMessage(messages.settingsComponentsLabel)}
               helpText={formatMessage(messages.settingsComponentsHelpText)}
-              name={formatMessage(messages.settingsComponentsName)}
+              name="account"
               state={form}
               onInput={handleTrim}
             />
             <TextInput
               label={formatMessage(messages.settingsComponentsLabel2)}
               helpText={formatMessage(messages.settingsComponentsHelpText2)}
-              name={formatMessage(messages.settingsComponentsName2)}
+              name="vtexAppKey"
               state={form}
               onInput={handleTrim}
             />
             <TextInput
               label={formatMessage(messages.settingsComponentsLabel3)}
               helpText={formatMessage(messages.settingsComponentsHelpText3)}
-              name={formatMessage(messages.settingsComponentsName3)}
+              name="vtexAppToken"
               state={form}
               onInput={handleTrim}
             />

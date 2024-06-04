@@ -8,6 +8,10 @@
   "admin/next.label": "Next",
 
   "admin/settings.label": "Settings",
+  "admin/settings.default.label": "Use default settings",
+  "admin/settings.custom.label": "Provide custom settings",
+  "admin/settings.reset.label": "Reset",
+  "admin/settings.reset.confirmation": "Are you sure you want to reset settings?",
   "admin/settings.missing.error": "It's mandatory to input Source VTEX Account, VTEX App Key and VTEX App Token when provide custom settings",
   "admin/settings.link.label": "Go to app settings",
   "admin/settings.error": "Unable to get saved settings",
@@ -30,13 +34,10 @@
 
   "admin/settingsComponents.label": "Source VTEX Account",
   "admin/settingsComponents.helpText": "VTEX account from where the catalog will be imported",
-  "admin/settingsComponents.name": "account",
 
   "admin/settingsComponents.label-2": "VTEX App Key",
   "admin/settingsComponents.helpText-2": "Source account app key",
-  "admin/settingsComponents.name-2": "vtexAppKey",
 
   "admin/settingsComponents.label-3": "VTEX App Token",
-  "admin/settingsComponents.helpText-3": "Source account app token",
-  "admin/settingsComponents.name-3": "vtexAppToken"
+  "admin/settingsComponents.helpText-3": "Source account app token"
 }

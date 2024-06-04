@@ -10,6 +10,10 @@ const messages = defineMessages({
   nextLabel: { id: 'admin/next.label' },
   settingsMissingError: { id: 'admin/settings.missing.error' },
   settingsLabel: { id: 'admin/settings.label' },
+  settingsDefaultLabel: { id: 'admin/settings.default.label' },
+  settingsCustomLabel: { id: 'admin/settings.custom.label' },
+  settingsResetLabel: { id: 'admin/settings.reset.label' },
+  settingsResetConfirmation: { id: 'admin/settings.reset.confirmation' },
   settingsLinkLabel: { id: 'admin/settings.link.label' },
   settingsError: { id: 'admin/settings.error' },
   settingsDefaultError: { id: 'admin/settings.default.error' },
@@ -26,13 +30,10 @@ const messages = defineMessages({
   optionsRadio3: { id: 'admin/options.radio-3' },
   settingsComponentsLabel: { id: 'admin/settingsComponents.label' },
   settingsComponentsHelpText: { id: 'admin/settingsComponents.helpText' },
-  settingsComponentsName: { id: 'admin/settingsComponents.name' },
   settingsComponentsLabel2: { id: 'admin/settingsComponents.label-2' },
   settingsComponentsHelpText2: { id: 'admin/settingsComponents.helpText-2' },
-  settingsComponentsName2: { id: 'admin/settingsComponents.name-2' },
   settingsComponentsLabel3: { id: 'admin/settingsComponents.label-3' },
   settingsComponentsHelpText3: { id: 'admin/settingsComponents.helpText-3' },
-  settingsComponentsName3: { id: 'admin/settingsComponents.name-3' },
 })
 
 export default messages
