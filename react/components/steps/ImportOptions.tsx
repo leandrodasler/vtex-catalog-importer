@@ -25,7 +25,10 @@ export default function ImportOptions({ state }: Props) {
   const { formatMessage } = useIntl()
   const stateSelect = useRadioState({ defaultValue: '' })
   const [value, setValue] = useState('')
-  const [checkedItems, setCheckedItems] = useState<string[]>([])
+  const [checkedItems, setCheckedItems] = useState<string[]>([
+    formatMessage(messages.optionsCheckbox1),
+    formatMessage(messages.optionsCheckbox2),
+  ])
 
   function handleCheck(item: string, isChecked: boolean) {
     let updatedCheckedItems = []
@@ -51,16 +54,25 @@ export default function ImportOptions({ state }: Props) {
         <Checkbox
           value={formatMessage(messages.optionsCheckbox1)}
           label={formatMessage(messages.optionsCheckbox1)}
+          checked={checkedItems.includes(
+            formatMessage(messages.optionsCheckbox1)
+          )}
           onChange={(e) => handleCheck(e.target.value, e.target.checked)}
         />
         <Checkbox
           value={formatMessage(messages.optionsCheckbox2)}
           label={formatMessage(messages.optionsCheckbox2)}
+          checked={checkedItems.includes(
+            formatMessage(messages.optionsCheckbox2)
+          )}
           onChange={(e) => handleCheck(e.target.value, e.target.checked)}
         />
         <Checkbox
           value={formatMessage(messages.optionsCheckbox3)}
           label={formatMessage(messages.optionsCheckbox3)}
+          checked={checkedItems.includes(
+            formatMessage(messages.optionsCheckbox3)
+          )}
           onChange={(e) => handleCheck(e.target.value, e.target.checked)}
         />
       </CheckboxGroup>
@@ -85,6 +97,7 @@ export default function ImportOptions({ state }: Props) {
             <TextInput
               value={value}
               onChange={(e) => setValue(e.target.value)}
+              type="number"
             />
           </div>
         )}
