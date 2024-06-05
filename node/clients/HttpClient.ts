@@ -20,10 +20,12 @@ export default class HttpClient extends ExternalClient {
   }
 
   private getAuthHeaders() {
+    const { vtexAppKey, vtexAppToken } = this.settings ?? {}
+
     return {
       headers: {
-        'X-VTEX-API-AppKey': this.settings?.vtexAppKey,
-        'X-VTEX-API-AppToken': this.settings?.vtexAppToken,
+        ...(vtexAppKey && { 'X-VTEX-API-AppKey': vtexAppKey }),
+        ...(vtexAppToken && { 'X-VTEX-API-AppToken': vtexAppToken }),
       },
     }
   }
