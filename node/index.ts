@@ -14,8 +14,6 @@ import { brands } from './resolvers/brands'
 import { categories } from './resolvers/categories'
 import { updateAppSettings } from './resolvers/updateAppSettings'
 
-const TIMEOUT_MS = 5 * 60 * 1000
-const CONCURRENCY = 10
 const memoryCache = new LRUCache<string, Cached>({ max: 5000 })
 
 const clients: ClientsConfig<Clients> = {
@@ -26,8 +24,8 @@ const clients: ClientsConfig<Clients> = {
       exponentialBackoffCoefficient: 2,
       initialBackoffDelay: 100,
       retries: 10,
-      timeout: TIMEOUT_MS,
-      concurrency: CONCURRENCY,
+      timeout: 3000,
+      concurrency: 10,
       memoryCache,
     },
   },
