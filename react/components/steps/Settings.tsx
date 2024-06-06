@@ -21,11 +21,13 @@ import type {
 
 import UPDATE_APP_SETTINGS_MUTATION from '../../graphql/updateAppSettings.graphql'
 import messages from '../../messages'
+import type { CheckedCategories } from '../ImporterSteps'
 
 type Props = {
   state: TabState
   settings?: AppSettingsInput
   setSettings: (settings: AppSettingsInput) => void
+  setCheckedTreeOptions: React.Dispatch<React.SetStateAction<CheckedCategories>>
 }
 
 const SETTINGS_OPTIONS = {
@@ -36,7 +38,7 @@ const SETTINGS_OPTIONS = {
 const Settings = (props: Props) => {
   const { formatMessage } = useIntl()
   const showToast = useToast()
-  const { state, settings, setSettings } = props
+  const { state, settings, setSettings, setCheckedTreeOptions } = props
   const form = useFormState<AppSettingsInput>({ defaultValues: settings })
   const [isReset, setIsReset] = useState(false)
   const stateDefaultSettings = useRadioState({
@@ -103,9 +105,17 @@ const Settings = (props: Props) => {
         useDefault: defaultSettingsValue === SETTINGS_OPTIONS.DEFAULT,
       }
 
+      setCheckedTreeOptions({})
+
       updateAppSettings({ variables: { settings: newSettings } })
     },
-    [formatMessage, showToast, defaultSettingsValue, updateAppSettings]
+    [
+      defaultSettingsValue,
+      setCheckedTreeOptions,
+      updateAppSettings,
+      showToast,
+      formatMessage,
+    ]
   )
 
   const handleResetSettings = useCallback(() => {

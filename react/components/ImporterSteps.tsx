@@ -26,6 +26,10 @@ const CategoryTree = lazy(() => import('./steps/CategoryTree'))
 const ImportOptions = lazy(() => import('./steps/ImportOptions'))
 const StartProcessing = lazy(() => import('./steps/StartProcessing'))
 
+export interface CheckedCategories {
+  [key: string]: { checked: boolean; name: string }
+}
+
 const SuspenseFallback = () => (
   <Center>
     <Spinner />
@@ -57,7 +61,10 @@ export default function ImporterSteps() {
   const { formatMessage } = useIntl()
   const showToast = useToast()
   const [settings, setSettings] = useState<AppSettingsInput>()
-  const [checkedTreeOptions, setCheckedTreeOptions] = useState({})
+  const [
+    checkedTreeOptions,
+    setCheckedTreeOptions,
+  ] = useState<CheckedCategories>({})
 
   const { loading, refetch, error } = useQuery<Query>(APP_SETTINGS_QUERY, {
     notifyOnNetworkStatusChange: true,
@@ -131,6 +138,7 @@ export default function ImporterSteps() {
                   state={state}
                   settings={settings}
                   setSettings={setSettings}
+                  setCheckedTreeOptions={setCheckedTreeOptions}
                 />
               )
             ))}
@@ -147,6 +155,7 @@ export default function ImporterSteps() {
             <CategoryTree
               state={state}
               settings={settings}
+              checkedTreeOptions={checkedTreeOptions}
               setCheckedTreeOptions={setCheckedTreeOptions}
             />
           )}

@@ -4,7 +4,7 @@
     "types": ["node"],
     "typeRoots": ["node_modules/@types"],
     "module": "commonjs",
-    "noEmitOnError": true
+    "noEmitOnError": false
   },
   "include": ["./**/*.ts", "./typings/*.d.ts"]
 }

@@ -14,7 +14,7 @@ import {
   Stack,
   csx,
 } from '@vtex/admin-ui'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useQuery } from 'react-apollo'
 import { useIntl } from 'react-intl'
 import type {
@@ -26,15 +26,13 @@ import type {
 
 import CATEGORIES_QUERY from '../../graphql/categories.graphql'
 import messages from '../../messages'
+import type { CheckedCategories } from '../ImporterSteps'
 
 interface CategoryTreeProps {
   state: TabState
   settings?: AppSettingsInput
-  setCheckedTreeOptions: (checkedOptions: CheckedCategories) => void
-}
-
-interface CheckedCategories {
-  [key: string]: { checked: boolean; name: string }
+  checkedTreeOptions?: CheckedCategories
+  setCheckedTreeOptions: React.Dispatch<React.SetStateAction<CheckedCategories>>
 }
 
 interface ExpandedCategories {
@@ -44,6 +42,7 @@ interface ExpandedCategories {
 const CategoryTree = ({
   state,
   settings,
+  checkedTreeOptions,
   setCheckedTreeOptions,
 }: CategoryTreeProps) => {
   const { formatMessage } = useIntl()
@@ -58,21 +57,10 @@ const CategoryTree = ({
     variables: { settings },
   })
 
-  const [checkedCategories, setCheckedCategories] = useState<CheckedCategories>(
-    {}
-  )
-
   const [
     expandedCategories,
     setExpandedCategories,
   ] = useState<ExpandedCategories>({})
-
-  useEffect(() => {
-    if (loadingCategories) {
-      setCheckedCategories({})
-      setExpandedCategories({})
-    }
-  }, [loadingCategories])
 
   const findCategoryById = (
     categories: Category[] | null | undefined,
@@ -122,7 +110,7 @@ const CategoryTree = ({
     categoryId: string,
     parentChecked?: boolean
   ) => {
-    setCheckedCategories((prevState) => {
+    setCheckedTreeOptions((prevState) => {
       const isChecked =
         parentChecked !== undefined
           ? parentChecked
@@ -162,8 +150,6 @@ const CategoryTree = ({
           )
         }
       }
-
-      setCheckedTreeOptions(newState)
 
       return newState
     })
@@ -208,7 +194,7 @@ const CategoryTree = ({
           </>
         )}
         <Checkbox
-          checked={!!checkedCategories[category.id]?.checked}
+          checked={!!checkedTreeOptions?.[category.id]?.checked}
           label={category.name}
           onChange={() => handleCategoryChange(category.id)}
         />
@@ -224,7 +210,7 @@ const CategoryTree = ({
   const categories = data?.categories
 
   // eslint-disable-next-line no-console
-  console.log('checkedCategories:', checkedCategories)
+  console.log('checkedCategories:', checkedTreeOptions)
 
   return (
     <div className={csx({ position: 'relative' })}>
@@ -272,7 +258,8 @@ const CategoryTree = ({
           icon={<IconArrowRight />}
           iconPosition="end"
           disabled={
-            !Object.values(checkedCategories).some((entry) => entry.checked)
+            !checkedTreeOptions ||
+            !Object.values(checkedTreeOptions).some((entry) => entry.checked)
           }
         >
           {formatMessage(messages.nextLabel)}

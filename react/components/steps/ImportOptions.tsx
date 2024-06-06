@@ -8,8 +8,8 @@ import {
   IconArrowRight,
   Radio,
   RadioGroup,
+  Stack,
   TextInput,
-  csx,
   useRadioState,
 } from '@vtex/admin-ui'
 import React, { useState } from 'react'
@@ -21,9 +21,15 @@ interface Props {
   state: TabState
 }
 
+const STOCK_OPTIONS = {
+  KEEP_SOURCE: 1,
+  UNLIMITED: 2,
+  TO_BE_DEFINED: 3,
+}
+
 export default function ImportOptions({ state }: Props) {
   const { formatMessage } = useIntl()
-  const stateSelect = useRadioState({ defaultValue: '' })
+  const stateSelect = useRadioState({ defaultValue: STOCK_OPTIONS.KEEP_SOURCE })
   const [value, setValue] = useState('')
   const [checkedItems, setCheckedItems] = useState<string[]>([
     formatMessage(messages.optionsCheckbox1),
@@ -42,14 +48,11 @@ export default function ImportOptions({ state }: Props) {
     setCheckedItems(updatedCheckedItems)
   }
 
-  const isAnyItemChecked = checkedItems.length > 0
-  const isStockSelected =
-    checkedItems.includes('Estoques') ||
-    checkedItems.includes('Stocks') ||
-    checkedItems.includes('Inventarios')
+  const disabledNext =
+    stateSelect.value === STOCK_OPTIONS.TO_BE_DEFINED && !value
 
   return (
-    <Flex style={{ flexDirection: 'column' }}>
+    <Stack space="$space-4" fluid>
       <CheckboxGroup label="" id="options-checkbox-group">
         <Checkbox
           value={formatMessage(messages.optionsCheckbox1)}
@@ -67,47 +70,32 @@ export default function ImportOptions({ state }: Props) {
           )}
           onChange={(e) => handleCheck(e.target.value, e.target.checked)}
         />
-        <Checkbox
-          value={formatMessage(messages.optionsCheckbox3)}
-          label={formatMessage(messages.optionsCheckbox3)}
-          checked={checkedItems.includes(
-            formatMessage(messages.optionsCheckbox3)
-          )}
-          onChange={(e) => handleCheck(e.target.value, e.target.checked)}
-        />
       </CheckboxGroup>
       <RadioGroup
         state={stateSelect}
-        aria-label="radio-group"
-        label=""
-        style={{ marginLeft: 40, marginTop: 20 }}
+        label={formatMessage(messages.optionsCheckbox3)}
       >
         <Radio
-          value="1"
-          label={formatMessage(messages.optionsRadio1)}
-          disabled={!isStockSelected}
-        />
-        <Radio
-          value="2"
-          label={formatMessage(messages.optionsRadio2)}
-          disabled={!isStockSelected}
-        />
-        {stateSelect.value === '2' && (
-          <div style={{ marginLeft: 40 }}>
-            <TextInput
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              type="number"
-            />
-          </div>
-        )}
-        <Radio
-          value="3"
+          value={STOCK_OPTIONS.KEEP_SOURCE}
           label={formatMessage(messages.optionsRadio3)}
-          disabled={!isStockSelected}
         />
+        <Radio
+          value={STOCK_OPTIONS.UNLIMITED}
+          label={formatMessage(messages.optionsRadio1)}
+        />
+        <Radio
+          value={STOCK_OPTIONS.TO_BE_DEFINED}
+          label={formatMessage(messages.optionsRadio2)}
+        />
+        {stateSelect.value === STOCK_OPTIONS.TO_BE_DEFINED && (
+          <TextInput
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            type="number"
+          />
+        )}
       </RadioGroup>
-      <Flex justify="space-between" className={csx({ marginTop: '$space-4' })}>
+      <Flex justify="space-between">
         <Button onClick={() => state.select('2')} icon={<IconArrowLeft />}>
           {formatMessage(messages.previousLabel)}
         </Button>
@@ -115,11 +103,11 @@ export default function ImportOptions({ state }: Props) {
           onClick={() => state.select('4')}
           icon={<IconArrowRight />}
           iconPosition="end"
-          disabled={!isAnyItemChecked}
+          disabled={disabledNext}
         >
           {formatMessage(messages.nextLabel)}
         </Button>
       </Flex>
-    </Flex>
+    </Stack>
   )
 }
