@@ -1,7 +1,7 @@
 import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
 const DEFAULT_SETTINGS_URL =
-  'http://dev--ssesandbox04.myvtex.com/catalog-importer-configuration/settings'
+  'http://ssesandbox04.myvtex.com/catalog-importer-configuration/settings'
 
 export const getCurrentSettings = async ({ clients: { apps } }: Context) =>
   apps.getAppSettings(process.env.VTEX_APP_ID as string) as AppSettingsInput
