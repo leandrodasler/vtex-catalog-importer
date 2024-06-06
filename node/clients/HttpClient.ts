@@ -3,7 +3,7 @@ import { ExternalClient } from '@vtex/api'
 import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
 export default class HttpClient extends ExternalClient {
-  private settings?: AppSettingsInput
+  protected settings?: AppSettingsInput
 
   constructor(context: IOContext, options?: InstanceOptions) {
     super('', context, {
@@ -19,7 +19,7 @@ export default class HttpClient extends ExternalClient {
     this.settings = settings
   }
 
-  private getAuthHeaders() {
+  protected getAuthHeaders() {
     const { vtexAppKey, vtexAppToken } = this.settings ?? {}
 
     return {
@@ -30,20 +30,21 @@ export default class HttpClient extends ExternalClient {
     }
   }
 
-  private getUrl(path: string) {
-    const url = `http://${this.settings?.account}.myvtex.com/${path}`
-
-    // eslint-disable-next-line no-console
-    console.log('======================================================')
-    // eslint-disable-next-line no-console
-    console.log('HttpClient Request:', url)
-    // eslint-disable-next-line no-console
-    console.log('======================================================')
-
-    return url
+  protected getUrl(path: string) {
+    return `http://${this.settings?.account}.myvtex.com/${path}`
   }
 
   public async get<T>(path: string): Promise<IOResponse<T>> {
-    return this.http.getRaw(this.getUrl(path), this.getAuthHeaders())
+    const url = this.getUrl(path)
+    const options = this.getAuthHeaders()
+
+    // eslint-disable-next-line no-console
+    console.log('======================================================')
+    // eslint-disable-next-line no-console
+    console.log('HttpClient GET:', { url, options })
+    // eslint-disable-next-line no-console
+    console.log('======================================================')
+
+    return this.http.getRaw(url, options)
   }
 }
