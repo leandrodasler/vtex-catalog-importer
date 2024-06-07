@@ -11,15 +11,14 @@ import {
   TabPanel,
   csx,
   useTabState,
-  useToast,
 } from '@vtex/admin-ui'
 import React, { Suspense, lazy, useState } from 'react'
-import { useQuery } from 'react-apollo'
 import { useIntl } from 'react-intl'
-import type { AppSettingsInput, Query } from 'ssesandbox04.catalog-importer'
+import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
-import APP_SETTINGS_QUERY from '../graphql/appSettings.graphql'
+import { APP_SETTINGS_QUERY, useQueryCustom } from '../graphql'
 import messages from '../messages'
+import { ErrorMessage } from './common'
 
 const Settings = lazy(() => import('./steps/Settings'))
 const CategoryTree = lazy(() => import('./steps/CategoryTree'))
@@ -59,29 +58,13 @@ export default function ImporterSteps() {
   })
 
   const { formatMessage } = useIntl()
-  const showToast = useToast()
   const [settings, setSettings] = useState<AppSettingsInput>()
   const [
     checkedTreeOptions,
     setCheckedTreeOptions,
   ] = useState<CheckedCategories>({})
 
-  const { loading, refetch, error } = useQuery<Query>(APP_SETTINGS_QUERY, {
-    notifyOnNetworkStatusChange: true,
-    onError(e) {
-      if (e.message.includes('500')) {
-        setTimeout(() => refetch(), 500)
-
-        return
-      }
-
-      showToast({
-        message: `${formatMessage(messages.settingsError)}: ${formatMessage({
-          id: e.graphQLErrors?.[0]?.message || e.message,
-        })}`,
-        variant: 'critical',
-      })
-    },
+  const { loading, error } = useQueryCustom(APP_SETTINGS_QUERY, {
     onCompleted(data) {
       setSettings(data.appSettings)
     },
@@ -129,19 +112,18 @@ export default function ImporterSteps() {
         className={tabPanelTheme}
       >
         <Suspense fallback={<SuspenseFallback />}>
-          {state.activeId === '1' &&
-            (loading || error ? (
-              <SuspenseFallback />
-            ) : (
-              settings && (
-                <Settings
-                  state={state}
-                  settings={settings}
-                  setSettings={setSettings}
-                  setCheckedTreeOptions={setCheckedTreeOptions}
-                />
-              )
-            ))}
+          {state.activeId === '1' && loading && <SuspenseFallback />}
+          {state.activeId === '1' && error && (
+            <ErrorMessage error={error} title={messages.settingsError} />
+          )}
+          {state.activeId === '1' && !loading && !error && (
+            <Settings
+              state={state}
+              settings={settings}
+              setSettings={setSettings}
+              setCheckedTreeOptions={setCheckedTreeOptions}
+            />
+          )}
         </Suspense>
       </TabPanel>
       <TabPanel

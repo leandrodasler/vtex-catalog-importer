@@ -19,7 +19,7 @@ import type {
   MutationUpdateAppSettingsArgs,
 } from 'ssesandbox04.catalog-importer'
 
-import UPDATE_APP_SETTINGS_MUTATION from '../../graphql/updateAppSettings.graphql'
+import { UPDATE_APP_SETTINGS_MUTATION } from '../../graphql'
 import messages from '../../messages'
 import type { CheckedCategories } from '../ImporterSteps'
 
@@ -151,7 +151,6 @@ const Settings = (props: Props) => {
               value={SETTINGS_OPTIONS.CUSTOM}
               label={formatMessage(messages.settingsCustomLabel)}
             />
-            {/* {process.env.NODE_ENV === 'development' && ( */}
             <Button
               variant="secondary"
               loading={isReset && loadingUpdate}
@@ -160,7 +159,6 @@ const Settings = (props: Props) => {
             >
               {formatMessage(messages.settingsResetLabel)}
             </Button>
-            {/* )} */}
           </Stack>
         </RadioGroup>
         {stateDefaultSettings.value === SETTINGS_OPTIONS.CUSTOM && (

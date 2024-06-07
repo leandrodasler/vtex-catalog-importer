@@ -1,6 +1,5 @@
 import type { TabState } from '@vtex/admin-ui'
 import {
-  Alert,
   Button,
   Center,
   Checkbox,
@@ -11,11 +10,9 @@ import {
   IconCaretDown,
   IconCaretRight,
   Spinner,
-  Stack,
   csx,
 } from '@vtex/admin-ui'
 import React, { useState } from 'react'
-import { useQuery } from 'react-apollo'
 import { useIntl } from 'react-intl'
 import type {
   AppSettingsInput,
@@ -24,9 +21,10 @@ import type {
   QueryCategoriesArgs,
 } from 'ssesandbox04.catalog-importer'
 
-import CATEGORIES_QUERY from '../../graphql/categories.graphql'
+import { CATEGORIES_QUERY, useQueryCustom } from '../../graphql'
 import messages from '../../messages'
 import type { CheckedCategories } from '../ImporterSteps'
+import { ErrorMessage } from '../common'
 
 interface CategoryTreeProps {
   state: TabState
@@ -52,9 +50,9 @@ const CategoryTree = ({
     loading: loadingCategories,
     error: errorCategories,
     refetch: refetchCategories,
-  } = useQuery<Query, QueryCategoriesArgs>(CATEGORIES_QUERY, {
-    notifyOnNetworkStatusChange: true,
+  } = useQueryCustom<Query, QueryCategoriesArgs>(CATEGORIES_QUERY, {
     variables: { settings },
+    toastError: false,
   })
 
   const [
@@ -218,26 +216,16 @@ const CategoryTree = ({
         className={csx({ position: 'absolute', top: 0, right: 0 })}
         disabled={loadingCategories}
         icon={<IconArrowsClockwise />}
-        onClick={() => refetchCategories({ variables: { settings } })}
+        onClick={() => refetchCategories()}
         variant="tertiary"
       >
         {formatMessage(messages.categoriesRefreshLabel)}
       </Button>
       {errorCategories && (
-        <Center>
-          <Alert variant="critical">
-            <Stack space="$space-4">
-              <span>{formatMessage(messages.categoriesSourceError)}</span>
-              <span>
-                {formatMessage({
-                  id:
-                    errorCategories.graphQLErrors?.[0]?.message ||
-                    errorCategories.message,
-                })}
-              </span>
-            </Stack>
-          </Alert>
-        </Center>
+        <ErrorMessage
+          error={errorCategories}
+          title={messages.categoriesSourceError}
+        />
       )}
       {loadingCategories && (
         <Center>

@@ -46,7 +46,7 @@ export default class HttpClient extends ExternalClient {
     // eslint-disable-next-line no-console
     console.log('======================================================')
     // eslint-disable-next-line no-console
-    console.log(`HttpClient ${method}:`, { url, options })
+    console.log(`HttpClient ${method}:`, { options, url })
     // eslint-disable-next-line no-console
     console.log('======================================================')
 
