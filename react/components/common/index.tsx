@@ -1,4 +1,4 @@
-import { Alert, Center, Stack } from '@vtex/admin-ui'
+import { Alert, Center, Spinner, Stack } from '@vtex/admin-ui'
 import React from 'react'
 import type { MessageDescriptor } from 'react-intl'
 import { useIntl } from 'react-intl'
@@ -28,3 +28,9 @@ export const ErrorMessage = ({ error, title }: Props) => {
     </Center>
   )
 }
+
+export const SuspenseFallback = () => (
+  <Center>
+    <Spinner />
+  </Center>
+)

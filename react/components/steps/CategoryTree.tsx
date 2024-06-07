@@ -1,7 +1,6 @@
 import type { TabState } from '@vtex/admin-ui'
 import {
   Button,
-  Center,
   Checkbox,
   Flex,
   IconArrowLeft,
@@ -9,7 +8,6 @@ import {
   IconArrowsClockwise,
   IconCaretDown,
   IconCaretRight,
-  Spinner,
   csx,
 } from '@vtex/admin-ui'
 import React, { useState } from 'react'
@@ -24,7 +22,7 @@ import type {
 import { CATEGORIES_QUERY, useQueryCustom } from '../../graphql'
 import messages from '../../messages'
 import type { CheckedCategories } from '../ImporterSteps'
-import { ErrorMessage } from '../common'
+import { ErrorMessage, SuspenseFallback } from '../common'
 
 interface CategoryTreeProps {
   state: TabState
@@ -227,11 +225,7 @@ const CategoryTree = ({
           title={messages.categoriesSourceError}
         />
       )}
-      {loadingCategories && (
-        <Center>
-          <Spinner />
-        </Center>
-      )}
+      {loadingCategories && <SuspenseFallback />}
       {!loadingCategories &&
         !errorCategories &&
         categories &&

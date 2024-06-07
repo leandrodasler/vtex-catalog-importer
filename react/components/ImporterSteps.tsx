@@ -5,7 +5,6 @@ import {
   IconFaders,
   IconGear,
   IconListDashes,
-  Spinner,
   Tab,
   TabList,
   TabPanel,
@@ -18,7 +17,7 @@ import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
 import { APP_SETTINGS_QUERY, useQueryCustom } from '../graphql'
 import messages from '../messages'
-import { ErrorMessage } from './common'
+import { ErrorMessage, SuspenseFallback } from './common'
 
 const Settings = lazy(() => import('./steps/Settings'))
 const CategoryTree = lazy(() => import('./steps/CategoryTree'))
@@ -29,12 +28,6 @@ export interface CheckedCategories {
   [key: string]: { checked: boolean; name: string }
 }
 
-const SuspenseFallback = () => (
-  <Center>
-    <Spinner />
-  </Center>
-)
-
 const tabListTheme = csx({
   bg: '$secondary',
   '> [data-wrap="true"][data-space-inside="true"]': {
@@ -44,7 +37,7 @@ const tabListTheme = csx({
       bg: '$secondary',
       width: '100%',
       marginLeft: 0,
-      '@tablet': { width: 'auto' },
+      '@tablet': { width: 'auto', marginLeft: '$space-1' },
     },
   },
 })
@@ -52,11 +45,7 @@ const tabListTheme = csx({
 const tabPanelTheme = csx({ padding: '$space-4' })
 
 export default function ImporterSteps() {
-  const state = useTabState({
-    selectOnMove: false,
-    defaultActiveId: '1',
-  })
-
+  const state = useTabState()
   const { formatMessage } = useIntl()
   const [settings, setSettings] = useState<AppSettingsInput>()
   const [
@@ -143,17 +132,29 @@ export default function ImporterSteps() {
           )}
         </Suspense>
       </TabPanel>
-      <TabPanel state={state} id="3" className={tabPanelTheme}>
-        <Suspense fallback={<Spinner />}>
-          <ImportOptions state={state} />
+      <TabPanel
+        state={state}
+        id="3"
+        hidden={state.activeId !== '3'}
+        className={tabPanelTheme}
+      >
+        <Suspense fallback={<SuspenseFallback />}>
+          {state.activeId === '3' && <ImportOptions state={state} />}
         </Suspense>
       </TabPanel>
-      <TabPanel state={state} id="4" className={tabPanelTheme}>
-        <Suspense fallback={<Spinner />}>
-          <StartProcessing
-            checkedTreeOptions={checkedTreeOptions}
-            state={state}
-          />
+      <TabPanel
+        state={state}
+        id="4"
+        hidden={state.activeId !== '4'}
+        className={tabPanelTheme}
+      >
+        <Suspense fallback={<SuspenseFallback />}>
+          {state.activeId === '4' && (
+            <StartProcessing
+              checkedTreeOptions={checkedTreeOptions}
+              state={state}
+            />
+          )}
         </Suspense>
       </TabPanel>
     </Card>
