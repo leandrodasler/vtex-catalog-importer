@@ -45,7 +45,11 @@ const tabListTheme = csx({
 const tabPanelTheme = csx({ padding: '$space-4' })
 
 export default function ImporterSteps() {
-  const state = useTabState()
+  const state = useTabState({
+    focusLoop: false,
+    selectOnMove: false,
+  })
+
   const { formatMessage } = useIntl()
   const [settings, setSettings] = useState<AppSettingsInput>()
   const [
@@ -68,13 +72,16 @@ export default function ImporterSteps() {
             {formatMessage(messages.settingsLabel)}
           </Center>
         </Tab>
-        <Tab disabled={state.activeId === '1'} id="2">
+        <Tab disabled={state.selectedId === '1'} id="2">
           <Center>
             <IconListDashes className="mr1" size="small" />
             {formatMessage(messages.categoriesLabel)}
           </Center>
         </Tab>
-        <Tab disabled={state.activeId === '1' || state.activeId === '2'} id="3">
+        <Tab
+          disabled={state.selectedId === '1' || state.selectedId === '2'}
+          id="3"
+        >
           <Center>
             <IconFaders className="mr1" size="small" />
             {formatMessage(messages.optionsLabel)}
@@ -82,9 +89,9 @@ export default function ImporterSteps() {
         </Tab>
         <Tab
           disabled={
-            state.activeId === '1' ||
-            state.activeId === '2' ||
-            state.activeId === '3'
+            state.selectedId === '1' ||
+            state.selectedId === '2' ||
+            state.selectedId === '3'
           }
           id="4"
         >
@@ -97,15 +104,15 @@ export default function ImporterSteps() {
       <TabPanel
         state={state}
         id="1"
-        hidden={state.activeId !== '1'}
+        hidden={state.selectedId !== '1'}
         className={tabPanelTheme}
       >
         <Suspense fallback={<SuspenseFallback />}>
-          {state.activeId === '1' && loading && <SuspenseFallback />}
-          {state.activeId === '1' && error && (
+          {state.selectedId === '1' && loading && <SuspenseFallback />}
+          {state.selectedId === '1' && error && (
             <ErrorMessage error={error} title={messages.settingsError} />
           )}
-          {state.activeId === '1' && !loading && !error && (
+          {state.selectedId === '1' && !loading && !error && (
             <Settings
               state={state}
               settings={settings}
@@ -118,11 +125,11 @@ export default function ImporterSteps() {
       <TabPanel
         state={state}
         id="2"
-        hidden={state.activeId !== '2'}
+        hidden={state.selectedId !== '2'}
         className={tabPanelTheme}
       >
         <Suspense fallback={<SuspenseFallback />}>
-          {state.activeId === '2' && (
+          {state.selectedId === '2' && (
             <CategoryTree
               state={state}
               settings={settings}
@@ -135,21 +142,21 @@ export default function ImporterSteps() {
       <TabPanel
         state={state}
         id="3"
-        hidden={state.activeId !== '3'}
+        hidden={state.selectedId !== '3'}
         className={tabPanelTheme}
       >
         <Suspense fallback={<SuspenseFallback />}>
-          {state.activeId === '3' && <ImportOptions state={state} />}
+          {state.selectedId === '3' && <ImportOptions state={state} />}
         </Suspense>
       </TabPanel>
       <TabPanel
         state={state}
         id="4"
-        hidden={state.activeId !== '4'}
+        hidden={state.selectedId !== '4'}
         className={tabPanelTheme}
       >
         <Suspense fallback={<SuspenseFallback />}>
-          {state.activeId === '4' && (
+          {state.selectedId === '4' && (
             <StartProcessing
               checkedTreeOptions={checkedTreeOptions}
               state={state}

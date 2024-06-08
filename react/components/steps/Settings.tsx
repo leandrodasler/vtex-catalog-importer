@@ -70,7 +70,7 @@ const Settings = (props: Props) => {
       setSettings(data.updateAppSettings)
 
       if (!isReset) {
-        state.select('2')
+        state.select(state.next())
       } else {
         showToast({
           message: 'Settings reseted successfully',
