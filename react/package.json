@@ -1,4 +1,5 @@
 {
+  "license": "UNLICENSED",
   "dependencies": {
     "@vtex/admin-ui": "^0.138.2",
     "@vtex/admin-ui-form": "^0.8.3",

@@ -10,11 +10,13 @@ import {
   ToastProvider,
   csx,
 } from '@vtex/admin-ui'
-import React from 'react'
+import React, { Suspense, lazy } from 'react'
 import { useIntl } from 'react-intl'
 
-import ImporterSteps from './components/ImporterSteps'
+import { SuspenseFallback } from './components/common'
 import messages from './messages'
+
+const ImporterSteps = lazy(() => import('./components/ImporterSteps'))
 
 const CatalogImporter = () => {
   const { formatMessage } = useIntl()
@@ -38,7 +40,9 @@ const CatalogImporter = () => {
             </PageHeaderTop>
           </PageHeader>
           <PageContent layout="wide" className={csx({ gap: 0 })}>
-            <ImporterSteps />
+            <Suspense fallback={<SuspenseFallback />}>
+              <ImporterSteps />
+            </Suspense>
           </PageContent>
         </Page>
       </ToastProvider>
