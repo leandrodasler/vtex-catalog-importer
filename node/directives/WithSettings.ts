@@ -8,7 +8,7 @@ import { getCurrentSettings, getDefaultSettings } from '../helpers'
 type WithSettingsArgs = { settings?: AppSettingsInput }
 type Field = GraphQLField<unknown, Context, WithSettingsArgs>
 
-export class WithSettings extends SchemaDirectiveVisitor {
+export default class WithSettings extends SchemaDirectiveVisitor {
   public visitFieldDefinition(field: Field) {
     const { resolve = defaultFieldResolver } = field
 

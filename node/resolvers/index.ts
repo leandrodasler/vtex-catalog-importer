@@ -11,12 +11,13 @@ const categories = getResolverFactory<ResolverQuery['categories']>(
   ENDPOINTS.categories
 )
 
-export const Query = {
-  appSettings,
-  categories,
-  brands,
-}
-
-export const Mutation = {
-  updateAppSettings,
+export default {
+  Query: {
+    appSettings,
+    categories,
+    brands,
+  },
+  Mutation: {
+    updateAppSettings,
+  },
 }

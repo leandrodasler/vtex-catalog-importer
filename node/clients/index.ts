@@ -11,7 +11,7 @@ export class Clients extends IOClients {
 
 const memoryCache = new LRUCache<string, Cached>({ max: 5000 })
 
-export const clients: ClientsConfig<Clients> = {
+export default {
   implementation: Clients,
   options: {
     default: {
@@ -24,4 +24,4 @@ export const clients: ClientsConfig<Clients> = {
       memoryCache,
     },
   },
-}
+} as ClientsConfig<Clients>
