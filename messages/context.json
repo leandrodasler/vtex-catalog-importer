@@ -14,7 +14,7 @@
   "admin/settings.reset.confirmation": "Are you sure you want to reset settings?",
   "admin/settings.missing.error": "It's mandatory to input Source VTEX Account, VTEX App Key and VTEX App Token when provide custom settings",
   "admin/settings.link.label": "Go to app settings",
-  "admin/settings.error": "Unable to get saved settings",
+  "admin/settings.error": "Unable to get settings",
   "admin/settings.default.error": "Unable to get default settings. Provide custom settings instead.",
 
   "admin/categories.label": "Select categories from source account",

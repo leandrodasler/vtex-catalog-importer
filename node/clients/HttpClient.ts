@@ -15,7 +15,7 @@ export default class HttpClient extends ExternalClient {
     this.settings = settings
   }
 
-  protected getOptions(): InstanceOptions {
+  protected getRequestConfig(): InstanceOptions {
     const { vtexAppKey, vtexAppToken } = this.settings ?? {}
 
     return {
@@ -31,60 +31,62 @@ export default class HttpClient extends ExternalClient {
 
   protected getUrl(path: string) {
     return this.settings?.account
-      ? `http://${this.settings?.account}.myvtex.com/${path}`
+      ? `http://${this.settings.account}.myvtex.com/${path}`
       : path
   }
 
-  protected async request<T, B = never>(
+  protected async request<Response, Body = Response>(
     path: string,
     method: HttpMethod = 'GET',
-    body?: B
-  ): Promise<IOResponse<T>> {
+    body?: Body
+  ) {
     const url = this.getUrl(path)
-    const options = this.getOptions()
+    const config = this.getRequestConfig()
 
     // eslint-disable-next-line no-console
     console.log('======================================================')
     // eslint-disable-next-line no-console
-    console.log(`HttpClient ${method}:`, { options, url })
+    console.log(`HttpClient - ${method}:`, { headers: config.headers, url })
     // eslint-disable-next-line no-console
     console.log('======================================================')
+
+    const getData = (response: IOResponse<Response>) => response.data
 
     switch (method) {
       case 'POST':
-        return this.http.postRaw(url, body, options)
+        return this.http.postRaw<Response>(url, body, config).then(getData)
 
       case 'PUT':
-        return this.http.putRaw(url, body, options)
+        return this.http.putRaw<Response>(url, body, config).then(getData)
 
       case 'PATCH':
-        return this.http.patch(url, body, options)
+        return this.http.patch<Response>(url, body, config)
 
       case 'DELETE':
-        return this.http.delete(url, options)
+        return this.http.delete<Response>(url, config).then(getData)
 
       default:
-        return this.http.getRaw(url, options)
+        return this.http.getRaw<Response>(url, config).then(getData)
     }
   }
 
-  public async get<R>(path: string): Promise<IOResponse<R>> {
-    return this.request<R>(path, 'GET')
+  public async get<Response>(path: string) {
+    return this.request<Response>(path, 'GET')
   }
 
-  public async post<R, B>(path: string, body: B): Promise<IOResponse<R>> {
-    return this.request<R, B>(path, 'POST', body)
+  public async post<Response, Body = Response>(path: string, body: Body) {
+    return this.request<Response, Body>(path, 'POST', body)
   }
 
-  public async put<R, B>(path: string, body: B): Promise<IOResponse<R>> {
-    return this.request<R, B>(path, 'PUT', body)
+  public async put<Response, Body = Response>(path: string, body: Body) {
+    return this.request<Response, Body>(path, 'PUT', body)
   }
 
-  public async patch<R, B>(path: string, body: B): Promise<IOResponse<R>> {
-    return this.request<R, B>(path, 'PATCH', body)
+  public async patch<Response, Body = Response>(path: string, body: Body) {
+    return this.request<Response, Body>(path, 'PATCH', body)
   }
 
-  public async delete<R>(path: string): Promise<IOResponse<R>> {
-    return this.request<R>(path, 'DELETE')
+  public async delete<Response>(path: string) {
+    return this.request<Response>(path, 'DELETE')
   }
 }

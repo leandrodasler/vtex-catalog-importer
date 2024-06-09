@@ -1,35 +1,11 @@
-import type {
-  Cached,
-  ClientsConfig,
-  RecorderState,
-  ServiceContext,
-} from '@vtex/api'
-import { LRUCache, Service } from '@vtex/api'
+import type { RecorderState, ServiceContext } from '@vtex/api'
+import { Service } from '@vtex/api'
 import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
-import { Clients } from './clients'
+import type { Clients } from './clients'
+import { clients } from './clients'
 import { WithSettings } from './directives/WithSettings'
-import { appSettings } from './resolvers/appSettings'
-import { brands } from './resolvers/brands'
-import { categories } from './resolvers/categories'
-import { updateAppSettings } from './resolvers/updateAppSettings'
-
-const memoryCache = new LRUCache<string, Cached>({ max: 5000 })
-
-const clients: ClientsConfig<Clients> = {
-  implementation: Clients,
-  options: {
-    default: {
-      exponentialTimeoutCoefficient: 2,
-      exponentialBackoffCoefficient: 2,
-      initialBackoffDelay: 100,
-      retries: 10,
-      timeout: 3000,
-      concurrency: 10,
-      memoryCache,
-    },
-  },
-}
+import * as resolvers from './resolvers'
 
 declare global {
   interface State extends RecorderState {
@@ -44,16 +20,7 @@ declare global {
 export default new Service({
   clients,
   graphql: {
-    resolvers: {
-      Query: {
-        appSettings,
-        categories,
-        brands,
-      },
-      Mutation: {
-        updateAppSettings,
-      },
-    },
+    resolvers,
     schemaDirectives: {
       WithSettings,
     },

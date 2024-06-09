@@ -58,6 +58,7 @@ export default function ImporterSteps() {
   ] = useState<CheckedCategories>({})
 
   const { loading, error } = useQueryCustom(APP_SETTINGS_QUERY, {
+    toastError: false,
     onCompleted(data) {
       setSettings(data.appSettings)
     },
