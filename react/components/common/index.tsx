@@ -3,10 +3,8 @@ import React from 'react'
 import type { MessageDescriptor } from 'react-intl'
 import { useIntl } from 'react-intl'
 
-type GraphQLError = {
-  graphQLErrors?: Array<{ message: string }>
-  message: string
-}
+import type { GraphQLError } from '../../graphql'
+import { getGraphQLMessageDescriptor } from '../../graphql'
 
 type Props = { error: GraphQLError; title?: MessageDescriptor }
 
@@ -18,11 +16,7 @@ export const ErrorMessage = ({ error, title }: Props) => {
       <Alert variant="critical">
         <Stack space="$space-4">
           {title && <span>{formatMessage(title)}</span>}
-          <span>
-            {formatMessage({
-              id: error.graphQLErrors?.[0]?.message ?? error.message,
-            })}
-          </span>
+          <span>{formatMessage(getGraphQLMessageDescriptor(error))}</span>
         </Stack>
       </Alert>
     </Center>

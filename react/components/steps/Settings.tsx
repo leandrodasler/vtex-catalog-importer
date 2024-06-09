@@ -19,7 +19,10 @@ import type {
   MutationUpdateAppSettingsArgs,
 } from 'ssesandbox04.catalog-importer'
 
-import { UPDATE_APP_SETTINGS_MUTATION } from '../../graphql'
+import {
+  UPDATE_APP_SETTINGS_MUTATION,
+  getGraphQLMessageDescriptor,
+} from '../../graphql'
 import messages from '../../messages'
 import type { CheckedCategories } from '../ImporterSteps'
 
@@ -57,9 +60,7 @@ const Settings = (props: Props) => {
     notifyOnNetworkStatusChange: true,
     onError(error) {
       showToast({
-        message: formatMessage({
-          id: error.graphQLErrors?.[0]?.message || error.message,
-        }),
+        message: formatMessage(getGraphQLMessageDescriptor(error)),
         variant: 'critical',
         key: 'settings-message',
       })

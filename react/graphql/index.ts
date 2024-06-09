@@ -9,8 +9,17 @@ export { default as APP_SETTINGS_QUERY } from './appSettings.graphql'
 export { default as CATEGORIES_QUERY } from './categories.graphql'
 export { default as UPDATE_APP_SETTINGS_MUTATION } from './updateAppSettings.graphql'
 
+export type GraphQLError = {
+  graphQLErrors?: Array<{ message: string }>
+  message: string
+}
+
 const MAX_RETRIES = 5
 const RETRY_DELAY = 500
+
+export const getGraphQLMessageDescriptor = (error: GraphQLError) => ({
+  id: (error.graphQLErrors?.[0]?.message ?? error.message) as string,
+})
 
 export const useQueryCustom = <T = Query, V = undefined>(
   query: T,
@@ -31,9 +40,7 @@ export const useQueryCustom = <T = Query, V = undefined>(
       } else {
         toastError &&
           showToast({
-            message: formatMessage({
-              id: e.graphQLErrors?.[0]?.message || e.message,
-            }),
+            message: formatMessage(getGraphQLMessageDescriptor(e)),
             variant: 'critical',
           })
 
