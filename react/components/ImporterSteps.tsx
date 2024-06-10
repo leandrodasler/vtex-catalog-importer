@@ -50,6 +50,16 @@ export default function ImporterSteps() {
     selectOnMove: false,
   })
 
+  const [optionsChecked, setOptionsChecked] = useState<{
+    checkedItems: string[]
+    value: string
+    stockOption: number
+  }>({
+    checkedItems: [],
+    value: '',
+    stockOption: 1,
+  })
+
   const { formatMessage } = useIntl()
   const [settings, setSettings] = useState<AppSettingsInput>()
   const [
@@ -147,7 +157,12 @@ export default function ImporterSteps() {
         className={tabPanelTheme}
       >
         <Suspense fallback={<SuspenseFallback />}>
-          {state.selectedId === '3' && <ImportOptions state={state} />}
+          {state.selectedId === '3' && (
+            <ImportOptions
+              state={state}
+              setOptionsChecked={setOptionsChecked}
+            />
+          )}
         </Suspense>
       </TabPanel>
       <TabPanel
@@ -160,6 +175,7 @@ export default function ImporterSteps() {
           {state.selectedId === '4' && (
             <StartProcessing
               checkedTreeOptions={checkedTreeOptions}
+              optionsChecked={optionsChecked}
               state={state}
             />
           )}

@@ -24,20 +24,20 @@
   "admin/options.label": "Opções da importação",
 
   "admin/options.categories": "Categorias Selecionadas",
-  "admin/options.checkbox-1": "Importar imagens",
-  "admin/options.checkbox-2": "Importar preços",
-  "admin/options.checkbox-3": "Estoques",
+  "admin/options.import.image": "Importar imagens",
+  "admin/options.import.price": "Importar preços",
+  "admin/options.import.stocks": "Estoques",
 
-  "admin/options.radio-1": "Ilimitado",
-  "admin/options.radio-2": "A ser definido",
-  "admin/options.radio-3": "Manter como na origem",
+  "admin/options.unlimited": "Ilimitado",
+  "admin/options.defined": "A ser definido",
+  "admin/options.source": "Manter como na origem",
 
   "admin/settingsComponents.label": "Conta VTEX de Origem",
   "admin/settingsComponents.helpText": "Conta VTEX de onde o catálogo será importado",
 
-  "admin/settingsComponents.label-2": "VTEX App Key",
-  "admin/settingsComponents.helpText-2": "App key da conta de origem",
+  "admin/settingsComponents.label.key": "VTEX App Key",
+  "admin/settingsComponents.helpText.key": "App key da conta de origem",
 
-  "admin/settingsComponents.label-3": "VTEX App Token",
-  "admin/settingsComponents.helpText-3": "App token da conta de origem"
+  "admin/settingsComponents.label.token": "VTEX App Token",
+  "admin/settingsComponents.helpText.token": "App token da conta de origem"
 }

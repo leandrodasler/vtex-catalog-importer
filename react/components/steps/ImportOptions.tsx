@@ -19,6 +19,11 @@ import messages from '../../messages'
 
 interface Props {
   state: TabState
+  setOptionsChecked: (options: {
+    checkedItems: string[]
+    value: string
+    stockOption: number
+  }) => void
 }
 
 const STOCK_OPTIONS = {
@@ -27,13 +32,13 @@ const STOCK_OPTIONS = {
   TO_BE_DEFINED: 3,
 }
 
-export default function ImportOptions({ state }: Props) {
+export default function ImportOptions({ state, setOptionsChecked }: Props) {
   const { formatMessage } = useIntl()
   const stateSelect = useRadioState({ defaultValue: STOCK_OPTIONS.KEEP_SOURCE })
   const [value, setValue] = useState('')
   const [checkedItems, setCheckedItems] = useState<string[]>([
-    formatMessage(messages.optionsCheckbox1),
-    formatMessage(messages.optionsCheckbox2),
+    formatMessage(messages.importImage),
+    formatMessage(messages.importPrice),
   ])
 
   function handleCheck(item: string, isChecked: boolean) {
@@ -51,41 +56,45 @@ export default function ImportOptions({ state }: Props) {
   const disabledNext =
     stateSelect.value === STOCK_OPTIONS.TO_BE_DEFINED && !value
 
+  function handleSelectOptions() {
+    setOptionsChecked({
+      checkedItems,
+      value,
+      stockOption: stateSelect.value as number,
+    })
+  }
+
   return (
     <Stack space="$space-4" fluid>
       <CheckboxGroup label="" id="options-checkbox-group">
         <Checkbox
-          value={formatMessage(messages.optionsCheckbox1)}
-          label={formatMessage(messages.optionsCheckbox1)}
-          checked={checkedItems.includes(
-            formatMessage(messages.optionsCheckbox1)
-          )}
+          value={formatMessage(messages.importImage)}
+          label={formatMessage(messages.importImage)}
+          checked={checkedItems.includes(formatMessage(messages.importImage))}
           onChange={(e) => handleCheck(e.target.value, e.target.checked)}
         />
         <Checkbox
-          value={formatMessage(messages.optionsCheckbox2)}
-          label={formatMessage(messages.optionsCheckbox2)}
-          checked={checkedItems.includes(
-            formatMessage(messages.optionsCheckbox2)
-          )}
+          value={formatMessage(messages.importPrice)}
+          label={formatMessage(messages.importPrice)}
+          checked={checkedItems.includes(formatMessage(messages.importPrice))}
           onChange={(e) => handleCheck(e.target.value, e.target.checked)}
         />
       </CheckboxGroup>
       <RadioGroup
         state={stateSelect}
-        label={formatMessage(messages.optionsCheckbox3)}
+        label={formatMessage(messages.importStocks)}
       >
         <Radio
           value={STOCK_OPTIONS.KEEP_SOURCE}
-          label={formatMessage(messages.optionsRadio3)}
+          label={formatMessage(messages.optionsSource)}
         />
         <Radio
           value={STOCK_OPTIONS.UNLIMITED}
-          label={formatMessage(messages.optionsRadio1)}
+          label={formatMessage(messages.optionsUnlimited)}
         />
         <Radio
           value={STOCK_OPTIONS.TO_BE_DEFINED}
-          label={formatMessage(messages.optionsRadio2)}
+          label={formatMessage(messages.optionsDefined)}
         />
         {stateSelect.value === STOCK_OPTIONS.TO_BE_DEFINED && (
           <TextInput
@@ -103,7 +112,10 @@ export default function ImportOptions({ state }: Props) {
           {formatMessage(messages.previousLabel)}
         </Button>
         <Button
-          onClick={() => state.select(state.next())}
+          onClick={() => {
+            handleSelectOptions()
+            state.select(state.next())
+          }}
           icon={<IconArrowRight />}
           iconPosition="end"
           disabled={disabledNext}
