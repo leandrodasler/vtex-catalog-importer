@@ -16,7 +16,7 @@ import { useIntl } from 'react-intl'
 import { SuspenseFallback } from './components/common'
 import messages from './messages'
 
-const ImporterSteps = lazy(() => import('./components/ImporterSteps'))
+const ImportWizard = lazy(() => import('./components/ImportWizard'))
 
 const CatalogImporter = () => {
   const { formatMessage } = useIntl()
@@ -41,7 +41,7 @@ const CatalogImporter = () => {
           </PageHeader>
           <PageContent layout="wide" className={csx({ gap: 0 })}>
             <Suspense fallback={<SuspenseFallback />}>
-              <ImporterSteps />
+              <ImportWizard />
             </Suspense>
           </PageContent>
         </Page>
