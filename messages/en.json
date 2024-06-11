@@ -5,6 +5,8 @@
   "admin/version.label": "Version {version}",
   "admin/previous.label": "Previous",
   "admin/next.label": "Next",
+  "admin/yes.label": "Yes",
+  "admin/no.label": "No",
 
   "admin/settings.label": "Settings",
   "admin/settings.default.label": "Use default settings",
@@ -29,7 +31,7 @@
 
   "admin/options.label": "Import options",
   "admin/options.categories": "Selected Categories",
-  "admin/options.import.image": "Import images ",
+  "admin/options.import.image": "Import images",
   "admin/options.import.price": "Import prices",
   "admin/options.import.stocks": "Stocks",
   "admin/options.unlimited": "Unlimited",

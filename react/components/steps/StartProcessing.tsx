@@ -10,6 +10,7 @@ import React from 'react'
 import { useIntl } from 'react-intl'
 
 import messages from '../../messages'
+import { STOCK_OPTIONS } from './ImportOptions'
 
 interface StartProcessingProps {
   checkedTreeOptions: { [key: string]: { checked: boolean; name: string } }
@@ -31,27 +32,38 @@ const StartProcessing = ({
   return (
     <Flex style={{ flexDirection: 'column' }}>
       <h3>{formatMessage(messages.optionsCategories)}</h3>
-
       {checkedCategories.map((categoryName, index) => (
         <div key={index}>{categoryName}</div>
       ))}
-      <h3>Imported Options</h3>
+      <h3>{formatMessage(messages.optionsLabel)}</h3>
       <div>
-        {optionsChecked.stockOption === 1 ? (
-          <div>{formatMessage(messages.optionsSource)}</div>
-        ) : optionsChecked.stockOption === 2 ? (
-          <div>{formatMessage(messages.optionsUnlimited)}</div>
+        {formatMessage(messages.importImage)}:{' '}
+        {optionsChecked.checkedItems.includes(
+          formatMessage(messages.importImage)
+        )
+          ? formatMessage(messages.yesLabel)
+          : formatMessage(messages.noLabel)}
+      </div>
+      <div>
+        {formatMessage(messages.importPrice)}:{' '}
+        {optionsChecked.checkedItems.includes(
+          formatMessage(messages.importPrice)
+        )
+          ? formatMessage(messages.yesLabel)
+          : formatMessage(messages.noLabel)}
+      </div>
+      <div>
+        {formatMessage(messages.importStocks)}:{' '}
+        {optionsChecked.stockOption === STOCK_OPTIONS.KEEP_SOURCE ? (
+          formatMessage(messages.optionsSource)
+        ) : optionsChecked.stockOption === STOCK_OPTIONS.UNLIMITED ? (
+          formatMessage(messages.optionsUnlimited)
         ) : (
-          <div>
+          <>
             {formatMessage(messages.optionsDefined)}: {optionsChecked.value}
-          </div>
+          </>
         )}
       </div>
-
-      {optionsChecked.checkedItems.map((item, index) => (
-        <div key={index}>{item}</div>
-      ))}
-
       <Flex justify="space-between" className={csx({ marginTop: '$space-4' })}>
         <Button
           onClick={() => state.select(state.previous())}

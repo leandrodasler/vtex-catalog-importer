@@ -5,6 +5,8 @@
   "admin/version.label": "Versión {version}",
   "admin/previous.label": "Anterior",
   "admin/next.label": "Próximo",
+  "admin/yes.label": "Sí",
+  "admin/no.label": "No",
 
   "admin/settings.label": "Configuraciones",
   "admin/settings.default.label": "Utilizar la configuración predeterminada",

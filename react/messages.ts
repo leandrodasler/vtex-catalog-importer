@@ -5,9 +5,10 @@ const messages = defineMessages({
   managerTitle: { id: 'admin/manager.title' },
   searchKws: { id: 'admin/search.kws' },
   versionLabel: { id: 'admin/version.label' },
-  startLabel: { id: 'admin/start.label' },
   previousLabel: { id: 'admin/previous.label' },
   nextLabel: { id: 'admin/next.label' },
+  yesLabel: { id: 'admin/yes.label' },
+  noLabel: { id: 'admin/no.label' },
   settingsMissingError: { id: 'admin/settings.missing.error' },
   settingsLabel: { id: 'admin/settings.label' },
   settingsDefaultLabel: { id: 'admin/settings.default.label' },
@@ -35,6 +36,7 @@ const messages = defineMessages({
   settingsAppKeyHelpText: { id: 'admin/settings.appKey.helpText' },
   settingsAppTokenLabel: { id: 'admin/settings.appToken.label' },
   settingsAppTokenHelpText: { id: 'admin/settings.appToken.helpText' },
+  startLabel: { id: 'admin/start.label' },
 })
 
 export default messages

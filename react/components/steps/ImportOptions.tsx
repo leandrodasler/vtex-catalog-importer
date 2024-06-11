@@ -12,54 +12,57 @@ import {
   TextInput,
   useRadioState,
 } from '@vtex/admin-ui'
-import React, { useState } from 'react'
+import React from 'react'
 import { useIntl } from 'react-intl'
 
 import messages from '../../messages'
+import type { Options } from '../ImporterSteps'
 
 interface Props {
   state: TabState
-  setOptionsChecked: (options: {
-    checkedItems: string[]
-    value: string
-    stockOption: number
-  }) => void
+  optionsChecked: Options
+  setOptionsChecked: React.Dispatch<React.SetStateAction<Options>>
 }
 
-const STOCK_OPTIONS = {
+export const STOCK_OPTIONS = {
   KEEP_SOURCE: 1,
   UNLIMITED: 2,
   TO_BE_DEFINED: 3,
 }
 
-export default function ImportOptions({ state, setOptionsChecked }: Props) {
+export default function ImportOptions({
+  state,
+  optionsChecked,
+  setOptionsChecked,
+}: Props) {
   const { formatMessage } = useIntl()
-  const stateSelect = useRadioState({ defaultValue: STOCK_OPTIONS.KEEP_SOURCE })
-  const [value, setValue] = useState('')
-  const [checkedItems, setCheckedItems] = useState<string[]>([
-    formatMessage(messages.importImage),
-    formatMessage(messages.importPrice),
-  ])
+  const stateSelect = useRadioState({
+    defaultValue: optionsChecked.stockOption,
+  })
 
   function handleCheck(item: string, isChecked: boolean) {
     let updatedCheckedItems = []
 
     if (isChecked) {
-      updatedCheckedItems = [...checkedItems, item]
+      updatedCheckedItems = [...optionsChecked.checkedItems, item]
     } else {
-      updatedCheckedItems = checkedItems.filter((i) => i !== item)
+      updatedCheckedItems = optionsChecked.checkedItems.filter(
+        (i) => i !== item
+      )
     }
 
-    setCheckedItems(updatedCheckedItems)
+    setOptionsChecked({
+      ...optionsChecked,
+      checkedItems: updatedCheckedItems,
+    })
   }
 
   const disabledNext =
-    stateSelect.value === STOCK_OPTIONS.TO_BE_DEFINED && !value
+    stateSelect.value === STOCK_OPTIONS.TO_BE_DEFINED && !optionsChecked.value
 
   function handleSelectOptions() {
     setOptionsChecked({
-      checkedItems,
-      value,
+      ...optionsChecked,
       stockOption: stateSelect.value as number,
     })
   }
@@ -70,13 +73,17 @@ export default function ImportOptions({ state, setOptionsChecked }: Props) {
         <Checkbox
           value={formatMessage(messages.importImage)}
           label={formatMessage(messages.importImage)}
-          checked={checkedItems.includes(formatMessage(messages.importImage))}
+          checked={optionsChecked.checkedItems.includes(
+            formatMessage(messages.importImage)
+          )}
           onChange={(e) => handleCheck(e.target.value, e.target.checked)}
         />
         <Checkbox
           value={formatMessage(messages.importPrice)}
           label={formatMessage(messages.importPrice)}
-          checked={checkedItems.includes(formatMessage(messages.importPrice))}
+          checked={optionsChecked.checkedItems.includes(
+            formatMessage(messages.importPrice)
+          )}
           onChange={(e) => handleCheck(e.target.value, e.target.checked)}
         />
       </CheckboxGroup>
@@ -98,8 +105,13 @@ export default function ImportOptions({ state, setOptionsChecked }: Props) {
         />
         {stateSelect.value === STOCK_OPTIONS.TO_BE_DEFINED && (
           <TextInput
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
+            value={optionsChecked.value}
+            onChange={(e) =>
+              setOptionsChecked({
+                ...optionsChecked,
+                value: e.target.value,
+              })
+            }
             type="number"
           />
         )}

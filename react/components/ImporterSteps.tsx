@@ -18,6 +18,7 @@ import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 import { APP_SETTINGS_QUERY, useQueryCustom } from '../graphql'
 import messages from '../messages'
 import { ErrorMessage, SuspenseFallback } from './common'
+import { STOCK_OPTIONS } from './steps/ImportOptions'
 
 const Settings = lazy(() => import('./steps/Settings'))
 const CategoryTree = lazy(() => import('./steps/CategoryTree'))
@@ -26,6 +27,12 @@ const StartProcessing = lazy(() => import('./steps/StartProcessing'))
 
 export interface CheckedCategories {
   [key: string]: { checked: boolean; name: string }
+}
+
+export interface Options {
+  checkedItems: string[]
+  value: string
+  stockOption: number
 }
 
 const tabListTheme = csx({
@@ -45,22 +52,21 @@ const tabListTheme = csx({
 const tabPanelTheme = csx({ padding: '$space-4' })
 
 export default function ImporterSteps() {
+  const { formatMessage } = useIntl()
   const state = useTabState({
     focusLoop: false,
     selectOnMove: false,
   })
 
-  const [optionsChecked, setOptionsChecked] = useState<{
-    checkedItems: string[]
-    value: string
-    stockOption: number
-  }>({
-    checkedItems: [],
+  const [optionsChecked, setOptionsChecked] = useState<Options>({
+    checkedItems: [
+      formatMessage(messages.importImage),
+      formatMessage(messages.importPrice),
+    ],
     value: '',
-    stockOption: 1,
+    stockOption: STOCK_OPTIONS.KEEP_SOURCE,
   })
 
-  const { formatMessage } = useIntl()
   const [settings, setSettings] = useState<AppSettingsInput>()
   const [
     checkedTreeOptions,
@@ -160,6 +166,7 @@ export default function ImporterSteps() {
           {state.selectedId === '3' && (
             <ImportOptions
               state={state}
+              optionsChecked={optionsChecked}
               setOptionsChecked={setOptionsChecked}
             />
           )}
