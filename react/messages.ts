@@ -14,6 +14,7 @@ const messages = defineMessages({
   settingsCustomLabel: { id: 'admin/settings.custom.label' },
   settingsResetLabel: { id: 'admin/settings.reset.label' },
   settingsResetConfirmation: { id: 'admin/settings.reset.confirmation' },
+  settingsResetSuccess: { id: 'admin/settings.reset.success' },
   settingsLinkLabel: { id: 'admin/settings.link.label' },
   settingsError: { id: 'admin/settings.error' },
   settingsDefaultError: { id: 'admin/settings.default.error' },
@@ -28,16 +29,12 @@ const messages = defineMessages({
   optionsUnlimited: { id: 'admin/options.unlimited' },
   optionsDefined: { id: 'admin/options.defined' },
   optionsSource: { id: 'admin/options.source' },
-  settingsComponentsLabel: { id: 'admin/settingsComponents.label' },
-  settingsComponentsHelpText: { id: 'admin/settingsComponents.helpText' },
-  settingsComponentsKey: { id: 'admin/settingsComponents.label.key' },
-  settingsComponentsHelpTextKey: {
-    id: 'admin/settingsComponents.helpText.key',
-  },
-  settingsComponentsToken: { id: 'admin/settingsComponents.label.token' },
-  settingsComponentsHelpTextToken: {
-    id: 'admin/settingsComponents.helpText.token',
-  },
+  settingsAccountLabel: { id: 'admin/settings.account.label' },
+  settingsAccountHelpText: { id: 'admin/settings.account.helpText' },
+  settingsAppKeyLabel: { id: 'admin/settings.appKey.label' },
+  settingsAppKeyHelpText: { id: 'admin/settings.appKey.helpText' },
+  settingsAppTokenLabel: { id: 'admin/settings.appToken.label' },
+  settingsAppTokenHelpText: { id: 'admin/settings.appToken.helpText' },
 })
 
 export default messages

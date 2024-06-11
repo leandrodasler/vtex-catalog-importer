@@ -3,15 +3,21 @@
   "admin/manager.title": "Gerenciar Importações",
   "admin/search.kws": "gerenciar,administrar,catalogo,catalog,import,importer,importador",
   "admin/version.label": "Versão {version}",
-  "admin/start.label": "Iniciar importação",
   "admin/previous.label": "Anterior",
   "admin/next.label": "Próximo",
 
   "admin/settings.label": "Configurações",
   "admin/settings.default.label": "Utilizar configurações padrão",
   "admin/settings.custom.label": "Fornecer configurações personalizadas",
+  "admin/settings.account.label": "Conta VTEX de Origem",
+  "admin/settings.account.helpText": "Conta VTEX de onde o catálogo será importado",
+  "admin/settings.appKey.label": "VTEX App Key",
+  "admin/settings.appKey.helpText": "App key da conta de origem",
+  "admin/settings.appToken.label": "VTEX App Token",
+  "admin/settings.appToken.helpText": "App token da conta de origem",
   "admin/settings.reset.label": "Redefinir",
   "admin/settings.reset.confirmation": "Tem certeza de que deseja redefinir as configurações?",
+  "admin/settings.reset.success": "Configurações redefinidas com sucesso",
   "admin/settings.missing.error": "É necessário informar Conta VTEX de Origem, VTEX App Key e VTEX App Token ao fornecer configurações personalizadas",
   "admin/settings.link.label": "Ir para as configurações da app",
   "admin/settings.error": "Não foi possível obter as configurações",
@@ -22,22 +28,13 @@
   "admin/categories.refresh.label": "Recarregar",
 
   "admin/options.label": "Opções da importação",
-
   "admin/options.categories": "Categorias Selecionadas",
   "admin/options.import.image": "Importar imagens",
   "admin/options.import.price": "Importar preços",
   "admin/options.import.stocks": "Estoques",
-
   "admin/options.unlimited": "Ilimitado",
   "admin/options.defined": "A ser definido",
   "admin/options.source": "Manter como na origem",
 
-  "admin/settingsComponents.label": "Conta VTEX de Origem",
-  "admin/settingsComponents.helpText": "Conta VTEX de onde o catálogo será importado",
-
-  "admin/settingsComponents.label.key": "VTEX App Key",
-  "admin/settingsComponents.helpText.key": "App key da conta de origem",
-
-  "admin/settingsComponents.label.token": "VTEX App Token",
-  "admin/settingsComponents.helpText.token": "App token da conta de origem"
+  "admin/start.label": "Iniciar importação"
 }

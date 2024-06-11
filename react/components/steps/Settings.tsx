@@ -74,7 +74,7 @@ const Settings = (props: Props) => {
         state.select(state.next())
       } else {
         showToast({
-          message: 'Settings reseted successfully',
+          message: formatMessage(messages.settingsResetSuccess),
           variant: 'positive',
           key: 'settings-message',
         })
@@ -165,22 +165,22 @@ const Settings = (props: Props) => {
         {stateDefaultSettings.value === SETTINGS_OPTIONS.CUSTOM && (
           <>
             <TextInput
-              label={formatMessage(messages.settingsComponentsLabel)}
-              helpText={formatMessage(messages.settingsComponentsHelpText)}
+              label={formatMessage(messages.settingsAccountLabel)}
+              helpText={formatMessage(messages.settingsAccountHelpText)}
               name="account"
               state={form}
               onInput={handleTrim}
             />
             <TextInput
-              label={formatMessage(messages.settingsComponentsKey)}
-              helpText={formatMessage(messages.settingsComponentsHelpTextKey)}
+              label={formatMessage(messages.settingsAppKeyLabel)}
+              helpText={formatMessage(messages.settingsAppKeyHelpText)}
               name="vtexAppKey"
               state={form}
               onInput={handleTrim}
             />
             <TextInput
-              label={formatMessage(messages.settingsComponentsToken)}
-              helpText={formatMessage(messages.settingsComponentsHelpTextToken)}
+              label={formatMessage(messages.settingsAppTokenLabel)}
+              helpText={formatMessage(messages.settingsAppTokenHelpText)}
               name="vtexAppToken"
               state={form}
               onInput={handleTrim}
