@@ -24,7 +24,7 @@ import {
   getGraphQLMessageDescriptor,
 } from '../../graphql'
 import messages from '../../messages'
-import type { CheckedCategories } from '../ImporterSteps'
+import type { CheckedCategories } from '../ImportWizard'
 
 type Props = {
   state: TabState

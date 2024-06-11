@@ -21,7 +21,7 @@ import type {
 
 import { CATEGORIES_QUERY, useQueryCustom } from '../../graphql'
 import messages from '../../messages'
-import type { CheckedCategories } from '../ImporterSteps'
+import type { CheckedCategories } from '../ImportWizard'
 import { ErrorMessage, SuspenseFallback } from '../common'
 
 interface CategoryTreeProps {
