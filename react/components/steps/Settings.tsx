@@ -172,15 +172,15 @@ const Settings = (props: Props) => {
               onInput={handleTrim}
             />
             <TextInput
-              label={formatMessage(messages.settingsComponentsLabel2)}
-              helpText={formatMessage(messages.settingsComponentsHelpText2)}
+              label={formatMessage(messages.settingsComponentsKey)}
+              helpText={formatMessage(messages.settingsComponentsHelpTextKey)}
               name="vtexAppKey"
               state={form}
               onInput={handleTrim}
             />
             <TextInput
-              label={formatMessage(messages.settingsComponentsLabel3)}
-              helpText={formatMessage(messages.settingsComponentsHelpText3)}
+              label={formatMessage(messages.settingsComponentsToken)}
+              helpText={formatMessage(messages.settingsComponentsHelpTextToken)}
               name="vtexAppToken"
               state={form}
               onInput={handleTrim}

@@ -13,11 +13,13 @@ import messages from '../../messages'
 
 interface StartProcessingProps {
   checkedTreeOptions: { [key: string]: { checked: boolean; name: string } }
+  optionsChecked: { checkedItems: string[]; value: string; stockOption: number }
   state: TabState
 }
 
 const StartProcessing = ({
   checkedTreeOptions,
+  optionsChecked,
   state,
 }: StartProcessingProps) => {
   const checkedCategories = Object.values(checkedTreeOptions)
@@ -32,6 +34,22 @@ const StartProcessing = ({
 
       {checkedCategories.map((categoryName, index) => (
         <div key={index}>{categoryName}</div>
+      ))}
+      <h3>Imported Options</h3>
+      <div>
+        {optionsChecked.stockOption === 1 ? (
+          <div>{formatMessage(messages.optionsSource)}</div>
+        ) : optionsChecked.stockOption === 2 ? (
+          <div>{formatMessage(messages.optionsUnlimited)}</div>
+        ) : (
+          <div>
+            {formatMessage(messages.optionsDefined)}: {optionsChecked.value}
+          </div>
+        )}
+      </div>
+
+      {optionsChecked.checkedItems.map((item, index) => (
+        <div key={index}>{item}</div>
       ))}
 
       <Flex justify="space-between" className={csx({ marginTop: '$space-4' })}>

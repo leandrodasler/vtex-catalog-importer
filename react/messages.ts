@@ -22,18 +22,22 @@ const messages = defineMessages({
   categoriesRefreshLabel: { id: 'admin/categories.refresh.label' },
   optionsLabel: { id: 'admin/options.label' },
   optionsCategories: { id: 'admin/options.categories' },
-  optionsCheckbox1: { id: 'admin/options.checkbox-1' },
-  optionsCheckbox2: { id: 'admin/options.checkbox-2' },
-  optionsCheckbox3: { id: 'admin/options.checkbox-3' },
-  optionsRadio1: { id: 'admin/options.radio-1' },
-  optionsRadio2: { id: 'admin/options.radio-2' },
-  optionsRadio3: { id: 'admin/options.radio-3' },
+  importImage: { id: 'admin/options.import.image' },
+  importPrice: { id: 'admin/options.import.price' },
+  importStocks: { id: 'admin/options.import.stocks' },
+  optionsUnlimited: { id: 'admin/options.unlimited' },
+  optionsDefined: { id: 'admin/options.defined' },
+  optionsSource: { id: 'admin/options.source' },
   settingsComponentsLabel: { id: 'admin/settingsComponents.label' },
   settingsComponentsHelpText: { id: 'admin/settingsComponents.helpText' },
-  settingsComponentsLabel2: { id: 'admin/settingsComponents.label-2' },
-  settingsComponentsHelpText2: { id: 'admin/settingsComponents.helpText-2' },
-  settingsComponentsLabel3: { id: 'admin/settingsComponents.label-3' },
-  settingsComponentsHelpText3: { id: 'admin/settingsComponents.helpText-3' },
+  settingsComponentsKey: { id: 'admin/settingsComponents.label.key' },
+  settingsComponentsHelpTextKey: {
+    id: 'admin/settingsComponents.helpText.key',
+  },
+  settingsComponentsToken: { id: 'admin/settingsComponents.label.token' },
+  settingsComponentsHelpTextToken: {
+    id: 'admin/settingsComponents.helpText.token',
+  },
 })
 
 export default messages
