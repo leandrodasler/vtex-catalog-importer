@@ -30,6 +30,11 @@ export const STOCK_OPTIONS = {
   TO_BE_DEFINED: 3,
 }
 
+export const IMPORT_OPTIONS = {
+  IMPORT_IMAGE: 1,
+  IMPORT_PRICE: 2,
+}
+
 export default function ImportOptions({
   state,
   optionsChecked,
@@ -40,7 +45,7 @@ export default function ImportOptions({
     defaultValue: optionsChecked.stockOption,
   })
 
-  function handleCheck(item: string, isChecked: boolean) {
+  function handleCheck(item: number, isChecked: boolean) {
     let updatedCheckedItems = []
 
     if (isChecked) {
@@ -71,20 +76,24 @@ export default function ImportOptions({
     <Stack space="$space-4" fluid>
       <CheckboxGroup label="" id="options-checkbox-group">
         <Checkbox
-          value={formatMessage(messages.importImage)}
+          value={IMPORT_OPTIONS.IMPORT_IMAGE}
           label={formatMessage(messages.importImage)}
           checked={optionsChecked.checkedItems.includes(
-            formatMessage(messages.importImage)
+            IMPORT_OPTIONS.IMPORT_IMAGE
           )}
-          onChange={(e) => handleCheck(e.target.value, e.target.checked)}
+          onChange={(e: { target: { checked: boolean } }) =>
+            handleCheck(IMPORT_OPTIONS.IMPORT_IMAGE, e.target.checked)
+          }
         />
         <Checkbox
-          value={formatMessage(messages.importPrice)}
+          value={IMPORT_OPTIONS.IMPORT_PRICE}
           label={formatMessage(messages.importPrice)}
           checked={optionsChecked.checkedItems.includes(
-            formatMessage(messages.importPrice)
+            IMPORT_OPTIONS.IMPORT_PRICE
           )}
-          onChange={(e) => handleCheck(e.target.value, e.target.checked)}
+          onChange={(e: { target: { checked: boolean } }) =>
+            handleCheck(IMPORT_OPTIONS.IMPORT_PRICE, e.target.checked)
+          }
         />
       </CheckboxGroup>
       <RadioGroup
@@ -106,7 +115,7 @@ export default function ImportOptions({
         {stateSelect.value === STOCK_OPTIONS.TO_BE_DEFINED && (
           <TextInput
             value={optionsChecked.value}
-            onChange={(e) =>
+            onChange={(e: { target: { value: string } }) =>
               setOptionsChecked({
                 ...optionsChecked,
                 value: e.target.value,

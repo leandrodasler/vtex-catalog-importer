@@ -18,7 +18,7 @@ import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 import { APP_SETTINGS_QUERY, useQueryCustom } from '../graphql'
 import messages from '../messages'
 import { ErrorMessage, SuspenseFallback } from './common'
-import { STOCK_OPTIONS } from './steps/ImportOptions'
+import { IMPORT_OPTIONS, STOCK_OPTIONS } from './steps/ImportOptions'
 
 const Settings = lazy(() => import('./steps/Settings'))
 const CategoryTree = lazy(() => import('./steps/CategoryTree'))
@@ -30,7 +30,7 @@ export interface CheckedCategories {
 }
 
 export interface Options {
-  checkedItems: string[]
+  checkedItems: number[]
   value: string
   stockOption: number
 }
@@ -59,10 +59,7 @@ export default function ImporterSteps() {
   })
 
   const [optionsChecked, setOptionsChecked] = useState<Options>({
-    checkedItems: [
-      formatMessage(messages.importImage),
-      formatMessage(messages.importPrice),
-    ],
+    checkedItems: [IMPORT_OPTIONS.IMPORT_IMAGE, IMPORT_OPTIONS.IMPORT_PRICE],
     value: '',
     stockOption: STOCK_OPTIONS.KEEP_SOURCE,
   })

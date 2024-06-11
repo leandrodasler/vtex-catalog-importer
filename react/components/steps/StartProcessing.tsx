@@ -10,11 +10,11 @@ import React from 'react'
 import { useIntl } from 'react-intl'
 
 import messages from '../../messages'
-import { STOCK_OPTIONS } from './ImportOptions'
+import { IMPORT_OPTIONS, STOCK_OPTIONS } from './ImportOptions'
 
 interface StartProcessingProps {
   checkedTreeOptions: { [key: string]: { checked: boolean; name: string } }
-  optionsChecked: { checkedItems: string[]; value: string; stockOption: number }
+  optionsChecked: { checkedItems: number[]; value: string; stockOption: number }
   state: TabState
 }
 
@@ -38,17 +38,13 @@ const StartProcessing = ({
       <h3>{formatMessage(messages.optionsLabel)}</h3>
       <div>
         {formatMessage(messages.importImage)}:{' '}
-        {optionsChecked.checkedItems.includes(
-          formatMessage(messages.importImage)
-        )
+        {optionsChecked.checkedItems.includes(IMPORT_OPTIONS.IMPORT_IMAGE)
           ? formatMessage(messages.yesLabel)
           : formatMessage(messages.noLabel)}
       </div>
       <div>
         {formatMessage(messages.importPrice)}:{' '}
-        {optionsChecked.checkedItems.includes(
-          formatMessage(messages.importPrice)
-        )
+        {optionsChecked.checkedItems.includes(IMPORT_OPTIONS.IMPORT_PRICE)
           ? formatMessage(messages.yesLabel)
           : formatMessage(messages.noLabel)}
       </div>
