@@ -44,7 +44,10 @@ const tabListTheme = csx({
       bg: '$secondary',
       width: '100%',
       marginLeft: 0,
-      '@tablet': { width: 'auto', marginLeft: '$space-1' },
+      '@tablet': {
+        width: 'auto',
+        '&:not(:first-child)': { marginLeft: '$space-1' },
+      },
     },
   },
 })
