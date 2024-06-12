@@ -1,6 +1,7 @@
 {
   "admin/app.title": "Importador de Catálogo",
-  "admin/manager.title": "Assistente de Importação",
+  "admin/wizard.title": "Assistente de Importação",
+  "admin/history.title": "Histórico de Importações",
   "admin/search.kws": "gerenciar,administrar,catalogo,catalog,import,importer,importador",
   "admin/version.label": "Versão {version}",
   "admin/previous.label": "Anterior",

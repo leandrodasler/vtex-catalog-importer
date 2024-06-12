@@ -5,8 +5,12 @@
   "subSection": "catalog-importer",
   "subSectionItems": [
     {
-      "labelId": "admin/manager.title",
+      "labelId": "admin/wizard.title",
       "path": "/admin/catalog-importer"
+    },
+    {
+      "labelId": "admin/history.title",
+      "path": "/admin/history-catalog-importer"
     }
   ]
 }

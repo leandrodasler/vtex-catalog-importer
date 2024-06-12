@@ -2,5 +2,9 @@
   "admin.app.catalog-importer": {
     "component": "CatalogImporter",
     "path": "/admin/app/catalog-importer"
+  },
+  "admin.app.catalog-importer-history": {
+    "component": "CatalogImporterHistory",
+    "path": "/admin/app/history-catalog-importer"
   }
 }

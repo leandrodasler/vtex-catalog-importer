@@ -2,7 +2,8 @@ import { defineMessages } from 'react-intl'
 
 const messages = defineMessages({
   appTitle: { id: 'admin/app.title' },
-  managerTitle: { id: 'admin/manager.title' },
+  wizardTitle: { id: 'admin/wizard.title' },
+  historyTitle: { id: 'admin/history.title' },
   searchKws: { id: 'admin/search.kws' },
   versionLabel: { id: 'admin/version.label' },
   previousLabel: { id: 'admin/previous.label' },

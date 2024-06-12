@@ -1,6 +1,5 @@
 import {
   Card,
-  CardTitle,
   Center,
   IconArrowLineDown,
   IconFaders,
@@ -18,7 +17,7 @@ import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
 import { APP_SETTINGS_QUERY, useQueryCustom } from '../graphql'
 import messages from '../messages'
-import { ErrorMessage, SuspenseFallback } from './common'
+import { ErrorMessage, PageTitle, SuspenseFallback } from './common'
 import { IMPORT_OPTIONS, STOCK_OPTIONS } from './steps/ImportOptions'
 
 const Settings = lazy(() => import('./steps/Settings'))
@@ -81,9 +80,7 @@ export default function ImportWizard() {
 
   return (
     <>
-      <CardTitle className={csx({ marginBottom: '$space-4' })}>
-        {formatMessage(messages.managerTitle)}
-      </CardTitle>
+      <PageTitle>{formatMessage(messages.wizardTitle)}</PageTitle>
       <Card>
         <TabList state={state} className={tabListTheme}>
           <Tab id="1">

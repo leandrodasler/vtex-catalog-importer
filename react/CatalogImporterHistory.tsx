@@ -2,11 +2,11 @@ import React, { lazy } from 'react'
 
 import MainTemplate from './components/MainTemplate'
 
-const ImportWizard = lazy(() => import('./components/ImportWizard'))
+const ImportHistory = lazy(() => import('./components/ImportHistory'))
 
 const CatalogImporter = () => (
   <MainTemplate>
-    <ImportWizard />
+    <ImportHistory />
   </MainTemplate>
 )
 

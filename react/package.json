@@ -1,8 +1,10 @@
 {
   "license": "UNLICENSED",
   "dependencies": {
+    "@types/faker": "^5.5.9",
     "@vtex/admin-ui": "^0.138.2",
     "@vtex/admin-ui-form": "^0.8.3",
+    "faker": "^5.5.3",
     "react-intl": "^5.21.0"
   },
   "devDependencies": {

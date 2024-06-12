@@ -6,9 +6,20 @@ import { useIntl } from 'react-intl'
 import type { GraphQLError } from '../../graphql'
 import { getGraphQLMessageDescriptor } from '../../graphql'
 
-type Props = { error: GraphQLError; title?: MessageDescriptor }
+type PageTitleProps = { children: React.ReactNode }
+type ErrorMessageProps = { error: GraphQLError; title?: MessageDescriptor }
 
-export const ErrorMessage = ({ error, title }: Props) => {
+export const SuspenseFallback = () => (
+  <Center className={csx({ height: '25vh' })}>
+    <Spinner />
+  </Center>
+)
+
+export const PageTitle = ({ children }: PageTitleProps) => (
+  <h5 className="t-heading-5 fw1 mb4">{children}</h5>
+)
+
+export const ErrorMessage = ({ error, title }: ErrorMessageProps) => {
   const { formatMessage } = useIntl()
 
   return (
@@ -22,9 +33,3 @@ export const ErrorMessage = ({ error, title }: Props) => {
     </Center>
   )
 }
-
-export const SuspenseFallback = () => (
-  <Center className={csx({ height: '25vh' })}>
-    <Spinner />
-  </Center>
-)
