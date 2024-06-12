@@ -103,7 +103,7 @@ const columns = createColumns([
   },
 ])
 
-export default function WithPagination() {
+export default function History() {
   const view = useDataViewState()
   const pagination = usePaginationState({
     pageSize: ITEMS_PER_PAGE,

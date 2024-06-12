@@ -1,6 +1,6 @@
 import { defineMessages } from 'react-intl'
 
-const messages = defineMessages({
+export const messages = defineMessages({
   appTitle: { id: 'admin/app.title' },
   wizardTitle: { id: 'admin/wizard.title' },
   historyTitle: { id: 'admin/history.title' },
@@ -39,5 +39,3 @@ const messages = defineMessages({
   settingsAppTokenHelpText: { id: 'admin/settings.appToken.helpText' },
   startLabel: { id: 'admin/start.label' },
 })
-
-export default messages

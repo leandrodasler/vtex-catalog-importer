@@ -6,11 +6,11 @@
   "subSectionItems": [
     {
       "labelId": "admin/wizard.title",
-      "path": "/admin/catalog-importer"
+      "path": "/admin/catalog-importer/wizard"
     },
     {
       "labelId": "admin/history.title",
-      "path": "/admin/history-catalog-importer"
+      "path": "/admin/catalog-importer/history"
     }
   ]
 }

@@ -1,10 +1,10 @@
 {
   "admin.app.catalog-importer": {
-    "component": "CatalogImporter",
-    "path": "/admin/app/catalog-importer"
+    "component": "CatalogImporterWizard",
+    "path": "/admin/app/catalog-importer/wizard"
   },
   "admin.app.catalog-importer-history": {
     "component": "CatalogImporterHistory",
-    "path": "/admin/app/history-catalog-importer"
+    "path": "/admin/app/catalog-importer/history"
   }
 }

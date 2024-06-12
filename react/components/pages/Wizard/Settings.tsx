@@ -19,12 +19,12 @@ import type {
   MutationUpdateAppSettingsArgs,
 } from 'ssesandbox04.catalog-importer'
 
+import type { CheckedCategories } from '.'
+import { messages } from '../../common'
 import {
   UPDATE_APP_SETTINGS_MUTATION,
   getGraphQLMessageDescriptor,
 } from '../../graphql'
-import messages from '../../messages'
-import type { CheckedCategories } from '../ImportWizard'
 
 type Props = {
   state: TabState

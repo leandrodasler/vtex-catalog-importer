@@ -17,8 +17,7 @@ import type { MessageDescriptor } from 'react-intl'
 import { useIntl } from 'react-intl'
 import { useRuntime } from 'vtex.render-runtime'
 
-import messages from '../messages'
-import { SuspenseFallback } from './common'
+import { SuspenseFallback, messages } from '.'
 
 type Props = {
   children: React.ReactNode

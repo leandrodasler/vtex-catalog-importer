@@ -15,8 +15,8 @@ import {
 import React from 'react'
 import { useIntl } from 'react-intl'
 
-import messages from '../../messages'
-import type { Options } from '../ImportWizard'
+import type { Options } from '.'
+import { messages } from '../../common'
 
 interface Props {
   state: TabState

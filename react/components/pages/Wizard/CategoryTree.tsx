@@ -19,10 +19,9 @@ import type {
   QueryCategoriesArgs,
 } from 'ssesandbox04.catalog-importer'
 
+import type { CheckedCategories } from '.'
+import { ErrorMessage, SuspenseFallback, messages } from '../../common'
 import { CATEGORIES_QUERY, useQueryCustom } from '../../graphql'
-import messages from '../../messages'
-import type { CheckedCategories } from '../ImportWizard'
-import { ErrorMessage, SuspenseFallback } from '../common'
 
 interface CategoryTreeProps {
   state: TabState

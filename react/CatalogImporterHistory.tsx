@@ -1,14 +1,13 @@
 import React, { lazy } from 'react'
 
-import MainTemplate from './components/MainTemplate'
-import messages from './messages'
+import { MainTemplate, messages } from './components/common'
 
-const ImportHistory = lazy(() => import('./components/ImportHistory'))
+const History = lazy(() => import('./components/pages/History'))
 
-const CatalogImporter = () => (
+const CatalogImporterHistory = () => (
   <MainTemplate subtitle={messages.historyTitle}>
-    <ImportHistory />
+    <History />
   </MainTemplate>
 )
 
-export default CatalogImporter
+export default CatalogImporterHistory

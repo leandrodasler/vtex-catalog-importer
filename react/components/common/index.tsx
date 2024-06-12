@@ -3,8 +3,8 @@ import React from 'react'
 import type { MessageDescriptor } from 'react-intl'
 import { useIntl } from 'react-intl'
 
-import type { GraphQLError } from '../../graphql'
-import { getGraphQLMessageDescriptor } from '../../graphql'
+import type { GraphQLError } from '../graphql'
+import { getGraphQLMessageDescriptor } from '../graphql'
 
 type ErrorMessageProps = { error: GraphQLError; title?: MessageDescriptor }
 
@@ -28,3 +28,6 @@ export const ErrorMessage = ({ error, title }: ErrorMessageProps) => {
     </Center>
   )
 }
+
+export { default as MainTemplate } from './MainTemplate'
+export { messages } from './messages'

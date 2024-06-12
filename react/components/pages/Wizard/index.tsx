@@ -15,15 +15,14 @@ import React, { Suspense, lazy, useState } from 'react'
 import { useIntl } from 'react-intl'
 import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
-import { APP_SETTINGS_QUERY, useQueryCustom } from '../graphql'
-import messages from '../messages'
-import { ErrorMessage, SuspenseFallback } from './common'
-import { IMPORT_OPTIONS, STOCK_OPTIONS } from './steps/ImportOptions'
+import { ErrorMessage, SuspenseFallback, messages } from '../../common'
+import { APP_SETTINGS_QUERY, useQueryCustom } from '../../graphql'
+import { IMPORT_OPTIONS, STOCK_OPTIONS } from './ImportOptions'
 
-const Settings = lazy(() => import('./steps/Settings'))
-const CategoryTree = lazy(() => import('./steps/CategoryTree'))
-const ImportOptions = lazy(() => import('./steps/ImportOptions'))
-const StartProcessing = lazy(() => import('./steps/StartProcessing'))
+const Settings = lazy(() => import('./Settings'))
+const CategoryTree = lazy(() => import('./CategoryTree'))
+const ImportOptions = lazy(() => import('./ImportOptions'))
+const StartProcessing = lazy(() => import('./StartProcessing'))
 
 export interface CheckedCategories {
   [key: string]: { checked: boolean; name: string }
@@ -54,7 +53,7 @@ const tabListTheme = csx({
 
 const tabPanelTheme = csx({ padding: '$space-4' })
 
-export default function ImportWizard() {
+export default function Wizard() {
   const { formatMessage } = useIntl()
   const state = useTabState({
     focusLoop: false,

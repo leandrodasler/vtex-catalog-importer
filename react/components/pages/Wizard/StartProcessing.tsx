@@ -9,7 +9,7 @@ import {
 import React from 'react'
 import { useIntl } from 'react-intl'
 
-import messages from '../../messages'
+import { messages } from '../../common'
 import { IMPORT_OPTIONS, STOCK_OPTIONS } from './ImportOptions'
 
 interface StartProcessingProps {
