@@ -3,14 +3,20 @@ import {
   Button,
   Flex,
   IconArrowRight,
+  Modal,
+  ModalDismiss,
+  ModalFooter,
+  ModalHeader,
+  ModalTitle,
   Radio,
   RadioGroup,
   Stack,
+  useModalState,
   useRadioState,
   useToast,
 } from '@vtex/admin-ui'
 import { Form, TextInput, useFormState } from '@vtex/admin-ui-form'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback } from 'react'
 import { useMutation } from 'react-apollo'
 import { useIntl } from 'react-intl'
 import type {
@@ -43,7 +49,7 @@ const Settings = (props: Props) => {
   const showToast = useToast()
   const { state, settings, setSettings, setCheckedTreeOptions } = props
   const form = useFormState<AppSettingsInput>({ defaultValues: settings })
-  const [isReset, setIsReset] = useState(false)
+  const resetModal = useModalState()
   const stateDefaultSettings = useRadioState({
     defaultValue:
       settings?.useDefault ?? SETTINGS_OPTIONS.DEFAULT
@@ -64,13 +70,11 @@ const Settings = (props: Props) => {
         variant: 'critical',
         key: 'settings-message',
       })
-
-      setIsReset(false)
     },
     onCompleted(data) {
       setSettings(data.updateAppSettings)
 
-      if (!isReset) {
+      if (!resetModal.open) {
         state.select(state.next())
       } else {
         showToast({
@@ -79,7 +83,7 @@ const Settings = (props: Props) => {
           key: 'settings-message',
         })
 
-        setIsReset(false)
+        resetModal.hide()
         stateDefaultSettings.setValue(SETTINGS_OPTIONS.DEFAULT)
         form.reset(data.updateAppSettings)
       }
@@ -112,28 +116,43 @@ const Settings = (props: Props) => {
     },
     [
       defaultSettingsValue,
-      setCheckedTreeOptions,
-      updateAppSettings,
-      showToast,
       formatMessage,
+      setCheckedTreeOptions,
+      showToast,
+      updateAppSettings,
     ]
   )
 
   const handleResetSettings = useCallback(() => {
-    // TODO: add a modal dialog instead of window.confirm
-    // eslint-disable-next-line no-alert
-    if (window.confirm(formatMessage(messages.settingsResetConfirmation))) {
-      setIsReset(true)
-      updateAppSettings({ variables: { settings: {} } })
-    }
-  }, [formatMessage, updateAppSettings])
+    updateAppSettings({ variables: { settings: {} } })
+  }, [updateAppSettings])
 
-  const handleTrim = (e: React.FormEvent<HTMLInputElement>) => {
+  const handleTrim = useCallback((e: React.FormEvent<HTMLInputElement>) => {
     e.currentTarget.value = e.currentTarget.value.trim()
-  }
+  }, [])
 
   return (
     <Form state={form} onSubmit={handleSubmit}>
+      <Modal state={resetModal}>
+        <ModalHeader>
+          <ModalTitle>
+            {formatMessage(messages.settingsResetConfirmation)}
+          </ModalTitle>
+          <ModalDismiss />
+        </ModalHeader>
+        <ModalFooter>
+          <Button variant="criticalSecondary" onClick={() => resetModal.hide()}>
+            {formatMessage(messages.noLabel)}
+          </Button>
+          <Button
+            variant="critical"
+            onClick={handleResetSettings}
+            loading={resetModal.open && loadingUpdate}
+          >
+            {formatMessage(messages.yesLabel)}
+          </Button>
+        </ModalFooter>
+      </Modal>
       <Stack space="$space-4" fluid>
         <RadioGroup
           state={stateDefaultSettings}
@@ -153,10 +172,9 @@ const Settings = (props: Props) => {
               label={formatMessage(messages.settingsCustomLabel)}
             />
             <Button
-              variant="secondary"
-              loading={isReset && loadingUpdate}
-              disabled={isReset && loadingUpdate}
-              onClick={handleResetSettings}
+              variant="tertiary"
+              disabled={!resetModal.open && loadingUpdate}
+              onClick={() => resetModal.show()}
             >
               {formatMessage(messages.settingsResetLabel)}
             </Button>
@@ -190,8 +208,8 @@ const Settings = (props: Props) => {
         <Flex justify="end">
           <Button
             type="submit"
-            loading={loadingUpdate}
-            disabled={loadingUpdate}
+            loading={!resetModal.open && loadingUpdate}
+            disabled={!resetModal.open && loadingUpdate}
             icon={<IconArrowRight />}
             iconPosition="end"
           >

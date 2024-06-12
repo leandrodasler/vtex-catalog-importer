@@ -22,7 +22,6 @@
   "admin/settings.reset.confirmation": "Tem certeza de que deseja redefinir as configurações?",
   "admin/settings.reset.success": "Configurações redefinidas com sucesso",
   "admin/settings.missing.error": "É necessário informar Conta VTEX de Origem, VTEX App Key e VTEX App Token ao fornecer configurações personalizadas",
-  "admin/settings.link.label": "Ir para as configurações da app",
   "admin/settings.error": "Não foi possível obter as configurações",
   "admin/settings.default.error": "Não foi possível obter as configurações padrão. Forneça configurações personalizadas em vez disso.",
 

@@ -684,13 +684,13 @@
   resolved "https://registry.npmjs.org/@types/scheduler/-/scheduler-0.16.2.tgz"
   integrity sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==
 
-"@vtex/admin-ui-core@^0.15.2":
-  version "0.15.2"
-  resolved "https://registry.yarnpkg.com/@vtex/admin-ui-core/-/admin-ui-core-0.15.2.tgz#e29cefeca8224b3c09ab6c30c98e0a7a0868eb1e"
-  integrity sha512-n8go4rkH6rD3RIUrsv2oXXWJ3V+Lyt+CxMvwjd3uEeQbpAGfLeQtJSt+Pt7ZWsC/D5LMkKiC8oDBTYE1Zgs4Ug==
+"@vtex/admin-ui-core@^0.15.3":
+  version "0.15.3"
+  resolved "https://registry.yarnpkg.com/@vtex/admin-ui-core/-/admin-ui-core-0.15.3.tgz#c0dd37c803fe5915bd68aefe58fb86846e129c14"
+  integrity sha512-tel3Hl7l4NrVN3RNHJ77fnrYmU0rdvsdF2cmR23U38rPBVF+beEmsHFr3V2Bjn+V2lOzESQNXLjms8mQDigZjA==
   dependencies:
     "@stitches/react" "1.2.8"
-    "@vtex/admin-ui-util" "^0.7.2"
+    "@vtex/admin-ui-util" "^0.7.3"
     csstype "3.0.10"
 
 "@vtex/admin-ui-form@^0.8.3":
@@ -701,26 +701,26 @@
     "@hookform/resolvers" "2.8.8"
     react-hook-form "7.21.0"
 
-"@vtex/admin-ui-hooks@^0.8.0":
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/@vtex/admin-ui-hooks/-/admin-ui-hooks-0.8.0.tgz#ee18def8e81939d0ed5ffa1932aefd14799c5164"
-  integrity sha512-vxlZ65DLbloCl6V0mvsmkVx8bTc/wsxrwGY0qOshQ1xJ1fFQ34WMsucECKsQ+JLCqeOiXtBGQLZMk4kaacDtXw==
+"@vtex/admin-ui-hooks@^0.8.1":
+  version "0.8.1"
+  resolved "https://registry.yarnpkg.com/@vtex/admin-ui-hooks/-/admin-ui-hooks-0.8.1.tgz#3e57b2e5107a56aab1996e145062350b51cce5ed"
+  integrity sha512-x36QysFCk7L2SiQ5rb99OAkqcGGCPYw67TyImmhQ3bVdCh3l+Y+WBM0y6b2wJ6ddbdoZ2Ed72487LCi1bcMVbw==
   dependencies:
-    "@vtex/admin-ui-util" "^0.7.2"
+    "@vtex/admin-ui-util" "^0.7.3"
     tiny-invariant "^1.2.0"
     use-debounce "^7.0.0"
 
-"@vtex/admin-ui-util@^0.7.2":
-  version "0.7.2"
-  resolved "https://registry.yarnpkg.com/@vtex/admin-ui-util/-/admin-ui-util-0.7.2.tgz#719b994bbb010ccca6a781316b667645f56fb20b"
-  integrity sha512-viWmRIC4YnkQy1KfktgibQKTNKDBZNQqAO87OFILoU6nU9vQkx7uhPoSfKX2J9Txd579xcIOnbXY/nJtJJ/dmQ==
+"@vtex/admin-ui-util@^0.7.3":
+  version "0.7.3"
+  resolved "https://registry.yarnpkg.com/@vtex/admin-ui-util/-/admin-ui-util-0.7.3.tgz#edd9d2d966b3206cb75edc7175862eea558c7301"
+  integrity sha512-F6pMF/y8fqmwGDl86Y0Zpl2Q+33jQSn+zWzUTe1HA3oylzo9iXSt0UefHY/eZN1z1wXHIzws2jdUgmZ2Cvfs+g==
   dependencies:
     deepmerge "4.2.2"
 
-"@vtex/admin-ui@^0.138.2":
-  version "0.138.2"
-  resolved "https://registry.yarnpkg.com/@vtex/admin-ui/-/admin-ui-0.138.2.tgz#da4649e4cb5a96ed6d6dd5b75b49cff80c1e526b"
-  integrity sha512-1abtbdxqa4ZWcGKre8PRVwN2uc/1it5Bb4PdZrg7uJByx0c1ddj7xQrTvlBkYFUSW+x9OBkr4n2GFRfUW0bJLw==
+"@vtex/admin-ui@^0.138.3":
+  version "0.138.3"
+  resolved "https://registry.yarnpkg.com/@vtex/admin-ui/-/admin-ui-0.138.3.tgz#a9606422e28a4f8c114f3062550b6e8ecd36d557"
+  integrity sha512-hEs9lgrzlSOMEelJI3nnW1NMVZz1GcRv3Tvw+JUiEdBLa8xl73BPbBcRVOJ8+ZF16xeuZHo4CdeYT1ICpvHBtw==
   dependencies:
     "@babel/core" "^7.17.10"
     "@internationalized/date" "3.3.0"
@@ -731,9 +731,9 @@
     "@react-stately/collections" "^3.3.5"
     "@react-stately/list" "^3.4.1"
     "@react-types/shared" "3.18.1"
-    "@vtex/admin-ui-core" "^0.15.2"
-    "@vtex/admin-ui-hooks" "^0.8.0"
-    "@vtex/admin-ui-util" "^0.7.2"
+    "@vtex/admin-ui-core" "^0.15.3"
+    "@vtex/admin-ui-hooks" "^0.8.1"
+    "@vtex/admin-ui-util" "^0.7.3"
     "@vtex/phosphor-icons" "0.2.8"
     ariakit "2.0.0-next.39"
     csstype "3.0.10"

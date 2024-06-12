@@ -17,7 +17,6 @@ export const messages = defineMessages({
   settingsResetLabel: { id: 'admin/settings.reset.label' },
   settingsResetConfirmation: { id: 'admin/settings.reset.confirmation' },
   settingsResetSuccess: { id: 'admin/settings.reset.success' },
-  settingsLinkLabel: { id: 'admin/settings.link.label' },
   settingsError: { id: 'admin/settings.error' },
   settingsDefaultError: { id: 'admin/settings.default.error' },
   categoriesLabel: { id: 'admin/categories.label' },
