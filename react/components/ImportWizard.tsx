@@ -17,7 +17,7 @@ import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
 import { APP_SETTINGS_QUERY, useQueryCustom } from '../graphql'
 import messages from '../messages'
-import { ErrorMessage, PageTitle, SuspenseFallback } from './common'
+import { ErrorMessage, SuspenseFallback } from './common'
 import { IMPORT_OPTIONS, STOCK_OPTIONS } from './steps/ImportOptions'
 
 const Settings = lazy(() => import('./steps/Settings'))
@@ -82,116 +82,113 @@ export default function ImportWizard() {
   })
 
   return (
-    <>
-      <PageTitle>{formatMessage(messages.wizardTitle)}</PageTitle>
-      <Card>
-        <TabList state={state} className={tabListTheme}>
-          <Tab id="1">
-            <Center>
-              <IconGear className="mr1" size="small" />
-              {formatMessage(messages.settingsLabel)}
-            </Center>
-          </Tab>
-          <Tab disabled={state.selectedId === '1'} id="2">
-            <Center>
-              <IconListDashes className="mr1" size="small" />
-              {formatMessage(messages.categoriesLabel)}
-            </Center>
-          </Tab>
-          <Tab
-            disabled={state.selectedId === '1' || state.selectedId === '2'}
-            id="3"
-          >
-            <Center>
-              <IconFaders className="mr1" size="small" />
-              {formatMessage(messages.optionsLabel)}
-            </Center>
-          </Tab>
-          <Tab
-            disabled={
-              state.selectedId === '1' ||
-              state.selectedId === '2' ||
-              state.selectedId === '3'
-            }
-            id="4"
-          >
-            <Center>
-              <IconArrowLineDown className="mr1" size="small" />
-              {formatMessage(messages.startLabel)}
-            </Center>
-          </Tab>
-        </TabList>
-        <TabPanel
-          state={state}
-          id="1"
-          hidden={state.selectedId !== '1'}
-          className={tabPanelTheme}
-        >
-          <Suspense fallback={<SuspenseFallback />}>
-            {state.selectedId === '1' && loading && <SuspenseFallback />}
-            {state.selectedId === '1' && error && (
-              <ErrorMessage error={error} title={messages.settingsError} />
-            )}
-            {state.selectedId === '1' && !loading && !error && (
-              <Settings
-                state={state}
-                settings={settings}
-                setSettings={setSettings}
-                setCheckedTreeOptions={setCheckedTreeOptions}
-              />
-            )}
-          </Suspense>
-        </TabPanel>
-        <TabPanel
-          state={state}
-          id="2"
-          hidden={state.selectedId !== '2'}
-          className={tabPanelTheme}
-        >
-          <Suspense fallback={<SuspenseFallback />}>
-            {state.selectedId === '2' && (
-              <CategoryTree
-                state={state}
-                settings={settings}
-                checkedTreeOptions={checkedTreeOptions}
-                setCheckedTreeOptions={setCheckedTreeOptions}
-              />
-            )}
-          </Suspense>
-        </TabPanel>
-        <TabPanel
-          state={state}
+    <Card>
+      <TabList state={state} className={tabListTheme}>
+        <Tab id="1">
+          <Center>
+            <IconGear className="mr1" size="small" />
+            {formatMessage(messages.settingsLabel)}
+          </Center>
+        </Tab>
+        <Tab disabled={state.selectedId === '1'} id="2">
+          <Center>
+            <IconListDashes className="mr1" size="small" />
+            {formatMessage(messages.categoriesLabel)}
+          </Center>
+        </Tab>
+        <Tab
+          disabled={state.selectedId === '1' || state.selectedId === '2'}
           id="3"
-          hidden={state.selectedId !== '3'}
-          className={tabPanelTheme}
         >
-          <Suspense fallback={<SuspenseFallback />}>
-            {state.selectedId === '3' && (
-              <ImportOptions
-                state={state}
-                optionsChecked={optionsChecked}
-                setOptionsChecked={setOptionsChecked}
-              />
-            )}
-          </Suspense>
-        </TabPanel>
-        <TabPanel
-          state={state}
+          <Center>
+            <IconFaders className="mr1" size="small" />
+            {formatMessage(messages.optionsLabel)}
+          </Center>
+        </Tab>
+        <Tab
+          disabled={
+            state.selectedId === '1' ||
+            state.selectedId === '2' ||
+            state.selectedId === '3'
+          }
           id="4"
-          hidden={state.selectedId !== '4'}
-          className={tabPanelTheme}
         >
-          <Suspense fallback={<SuspenseFallback />}>
-            {state.selectedId === '4' && (
-              <StartProcessing
-                checkedTreeOptions={checkedTreeOptions}
-                optionsChecked={optionsChecked}
-                state={state}
-              />
-            )}
-          </Suspense>
-        </TabPanel>
-      </Card>
-    </>
+          <Center>
+            <IconArrowLineDown className="mr1" size="small" />
+            {formatMessage(messages.startLabel)}
+          </Center>
+        </Tab>
+      </TabList>
+      <TabPanel
+        state={state}
+        id="1"
+        hidden={state.selectedId !== '1'}
+        className={tabPanelTheme}
+      >
+        <Suspense fallback={<SuspenseFallback />}>
+          {state.selectedId === '1' && loading && <SuspenseFallback />}
+          {state.selectedId === '1' && error && (
+            <ErrorMessage error={error} title={messages.settingsError} />
+          )}
+          {state.selectedId === '1' && !loading && !error && (
+            <Settings
+              state={state}
+              settings={settings}
+              setSettings={setSettings}
+              setCheckedTreeOptions={setCheckedTreeOptions}
+            />
+          )}
+        </Suspense>
+      </TabPanel>
+      <TabPanel
+        state={state}
+        id="2"
+        hidden={state.selectedId !== '2'}
+        className={tabPanelTheme}
+      >
+        <Suspense fallback={<SuspenseFallback />}>
+          {state.selectedId === '2' && (
+            <CategoryTree
+              state={state}
+              settings={settings}
+              checkedTreeOptions={checkedTreeOptions}
+              setCheckedTreeOptions={setCheckedTreeOptions}
+            />
+          )}
+        </Suspense>
+      </TabPanel>
+      <TabPanel
+        state={state}
+        id="3"
+        hidden={state.selectedId !== '3'}
+        className={tabPanelTheme}
+      >
+        <Suspense fallback={<SuspenseFallback />}>
+          {state.selectedId === '3' && (
+            <ImportOptions
+              state={state}
+              optionsChecked={optionsChecked}
+              setOptionsChecked={setOptionsChecked}
+            />
+          )}
+        </Suspense>
+      </TabPanel>
+      <TabPanel
+        state={state}
+        id="4"
+        hidden={state.selectedId !== '4'}
+        className={tabPanelTheme}
+      >
+        <Suspense fallback={<SuspenseFallback />}>
+          {state.selectedId === '4' && (
+            <StartProcessing
+              checkedTreeOptions={checkedTreeOptions}
+              optionsChecked={optionsChecked}
+              state={state}
+            />
+          )}
+        </Suspense>
+      </TabPanel>
+    </Card>
   )
 }

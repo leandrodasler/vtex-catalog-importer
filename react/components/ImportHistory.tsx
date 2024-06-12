@@ -17,13 +17,9 @@ import {
 } from '@vtex/admin-ui'
 import faker from 'faker'
 import React from 'react'
-import { useIntl } from 'react-intl'
-
-import messages from '../messages'
-import { PageTitle } from './common'
 
 const NUMBER_OF_ITEMS = 100
-const ITEMS_PER_PAGE = 5
+const ITEMS_PER_PAGE = 25
 
 const items = Array(NUMBER_OF_ITEMS)
   .fill({}, 0, NUMBER_OF_ITEMS)
@@ -108,7 +104,6 @@ const columns = createColumns([
 ])
 
 export default function WithPagination() {
-  const { formatMessage } = useIntl()
   const view = useDataViewState()
   const pagination = usePaginationState({
     pageSize: ITEMS_PER_PAGE,
@@ -123,39 +118,36 @@ export default function WithPagination() {
   })
 
   return (
-    <>
-      <PageTitle>{formatMessage(messages.historyTitle)}</PageTitle>
-      <DataView state={view}>
-        <Pagination state={pagination} className="w-100 flex justify-end" />
-        <Table {...getTable()} width="100%">
-          <THead>
-            {columns.map((column, index) => (
-              <THeadCell {...getHeadCell(column)} key={`header-${index}`} />
-            ))}
-          </THead>
-          <TBody>
-            {data.map((item, index) => {
-              return (
-                <TBodyRow
-                  key={`row-${index}`}
-                  // eslint-disable-next-line no-alert
-                  onClick={() => alert(`Item: ${item.name}`)}
-                >
-                  {columns.map((column, indexColumn) => {
-                    return (
-                      <TBodyCell
-                        {...getBodyCell(column, item)}
-                        key={`column-${indexColumn}`}
-                      />
-                    )
-                  })}
-                </TBodyRow>
-              )
-            })}
-          </TBody>
-        </Table>
-        <Pagination state={pagination} className="w-100 flex justify-end" />
-      </DataView>
-    </>
+    <DataView state={view}>
+      <Pagination state={pagination} />
+      <Table {...getTable()} width="100%">
+        <THead>
+          {columns.map((column, index) => (
+            <THeadCell {...getHeadCell(column)} key={`header-${index}`} />
+          ))}
+        </THead>
+        <TBody>
+          {data.map((item, index) => {
+            return (
+              <TBodyRow
+                key={`row-${index}`}
+                // eslint-disable-next-line no-alert
+                onClick={() => alert(`Item: ${item.name}`)}
+              >
+                {columns.map((column, indexColumn) => {
+                  return (
+                    <TBodyCell
+                      {...getBodyCell(column, item)}
+                      key={`column-${indexColumn}`}
+                    />
+                  )
+                })}
+              </TBodyRow>
+            )
+          })}
+        </TBody>
+      </Table>
+      <Pagination state={pagination} />
+    </DataView>
   )
 }
