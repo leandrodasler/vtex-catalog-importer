@@ -9,8 +9,8 @@ import {
 import React from 'react'
 import { useIntl } from 'react-intl'
 
+import { IMPORT_OPTIONS, STOCK_OPTIONS } from '.'
 import { messages } from '../../common'
-import { IMPORT_OPTIONS, STOCK_OPTIONS } from './ImportOptions'
 
 interface StartProcessingProps {
   checkedTreeOptions: { [key: string]: { checked: boolean; name: string } }

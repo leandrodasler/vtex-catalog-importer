@@ -17,7 +17,6 @@ import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
 import { ErrorMessage, SuspenseFallback, messages } from '../../common'
 import { APP_SETTINGS_QUERY, useQueryCustom } from '../../graphql'
-import { IMPORT_OPTIONS, STOCK_OPTIONS } from './ImportOptions'
 
 const Settings = lazy(() => import('./Settings'))
 const CategoryTree = lazy(() => import('./CategoryTree'))
@@ -32,6 +31,17 @@ export interface Options {
   checkedItems: number[]
   value: string
   stockOption: number
+}
+
+export const STOCK_OPTIONS = {
+  KEEP_SOURCE: 1,
+  UNLIMITED: 2,
+  TO_BE_DEFINED: 3,
+}
+
+export const IMPORT_OPTIONS = {
+  IMPORT_IMAGE: 1,
+  IMPORT_PRICE: 2,
 }
 
 const tabListTheme = csx({
@@ -124,7 +134,7 @@ export default function Wizard() {
         hidden={state.selectedId !== '1'}
         className={tabPanelTheme}
       >
-        <Suspense fallback={<SuspenseFallback />}>
+        <Suspense key="step-1" fallback={<SuspenseFallback />}>
           {state.selectedId === '1' && loading && <SuspenseFallback />}
           {state.selectedId === '1' && error && (
             <ErrorMessage error={error} title={messages.settingsError} />
@@ -145,7 +155,7 @@ export default function Wizard() {
         hidden={state.selectedId !== '2'}
         className={tabPanelTheme}
       >
-        <Suspense fallback={<SuspenseFallback />}>
+        <Suspense key="step-2" fallback={<SuspenseFallback />}>
           {state.selectedId === '2' && (
             <CategoryTree
               state={state}
@@ -162,7 +172,7 @@ export default function Wizard() {
         hidden={state.selectedId !== '3'}
         className={tabPanelTheme}
       >
-        <Suspense fallback={<SuspenseFallback />}>
+        <Suspense key="step-3" fallback={<SuspenseFallback />}>
           {state.selectedId === '3' && (
             <ImportOptions
               state={state}
@@ -178,7 +188,7 @@ export default function Wizard() {
         hidden={state.selectedId !== '4'}
         className={tabPanelTheme}
       >
-        <Suspense fallback={<SuspenseFallback />}>
+        <Suspense key="step-4" fallback={<SuspenseFallback />}>
           {state.selectedId === '4' && (
             <StartProcessing
               checkedTreeOptions={checkedTreeOptions}

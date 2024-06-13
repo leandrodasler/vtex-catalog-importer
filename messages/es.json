@@ -8,6 +8,7 @@
   "admin/next.label": "Próximo",
   "admin/yes.label": "Sí",
   "admin/no.label": "No",
+  "admin/cancel.label": "Cancelar",
 
   "admin/settings.label": "Configuraciones",
   "admin/settings.default.label": "Utilizar configuraciones predeterminadas",
@@ -20,6 +21,7 @@
   "admin/settings.appToken.helpText": "App token de la cuenta de origen",
   "admin/settings.reset.label": "Reiniciar",
   "admin/settings.reset.confirmation": "¿Está seguro de que desea reiniciar las configuraciones?",
+  "admin/settings.reset.text": "Las configuraciones personalizadas serán eliminadas.",
   "admin/settings.reset.success": "Configuraciones reiniciadas con éxito",
   "admin/settings.missing.error": "Es necesario informar Cuenta VTEX de Origen, VTEX APP Key y VTEX App Token al proporcionar configuraciones personalizadas",
   "admin/settings.error": "No se puede obtener las configuraciones",

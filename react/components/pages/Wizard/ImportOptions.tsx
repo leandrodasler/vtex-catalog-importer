@@ -16,23 +16,13 @@ import React from 'react'
 import { useIntl } from 'react-intl'
 
 import type { Options } from '.'
+import { IMPORT_OPTIONS, STOCK_OPTIONS } from '.'
 import { messages } from '../../common'
 
 interface Props {
   state: TabState
   optionsChecked: Options
   setOptionsChecked: React.Dispatch<React.SetStateAction<Options>>
-}
-
-export const STOCK_OPTIONS = {
-  KEEP_SOURCE: 1,
-  UNLIMITED: 2,
-  TO_BE_DEFINED: 3,
-}
-
-export const IMPORT_OPTIONS = {
-  IMPORT_IMAGE: 1,
-  IMPORT_PRICE: 2,
 }
 
 export default function ImportOptions({

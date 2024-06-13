@@ -4,6 +4,7 @@ import {
   Flex,
   IconArrowRight,
   Modal,
+  ModalContent,
   ModalDismiss,
   ModalFooter,
   ModalHeader,
@@ -26,7 +27,7 @@ import type {
 } from 'ssesandbox04.catalog-importer'
 
 import type { CheckedCategories } from '.'
-import { messages } from '../../common'
+import { handleTrim, messages } from '../../common'
 import {
   UPDATE_APP_SETTINGS_MUTATION,
   getGraphQLMessageDescriptor,
@@ -50,14 +51,14 @@ const Settings = (props: Props) => {
   const { state, settings, setSettings, setCheckedTreeOptions } = props
   const form = useFormState<AppSettingsInput>({ defaultValues: settings })
   const resetModal = useModalState()
-  const stateDefaultSettings = useRadioState({
+  const defaultSettingsState = useRadioState({
     defaultValue:
       settings?.useDefault ?? SETTINGS_OPTIONS.DEFAULT
         ? SETTINGS_OPTIONS.DEFAULT
         : SETTINGS_OPTIONS.CUSTOM,
   })
 
-  const defaultSettingsValue = stateDefaultSettings.value
+  const defaultSettingsValue = defaultSettingsState.value
 
   const [updateAppSettings, { loading: loadingUpdate }] = useMutation<
     Mutation,
@@ -73,6 +74,7 @@ const Settings = (props: Props) => {
     },
     onCompleted(data) {
       setSettings(data.updateAppSettings)
+      form.reset(data.updateAppSettings)
 
       if (!resetModal.open) {
         state.select(state.next())
@@ -84,8 +86,7 @@ const Settings = (props: Props) => {
         })
 
         resetModal.hide()
-        stateDefaultSettings.setValue(SETTINGS_OPTIONS.DEFAULT)
-        form.reset(data.updateAppSettings)
+        defaultSettingsState.setValue(SETTINGS_OPTIONS.DEFAULT)
       }
     },
   })
@@ -127,10 +128,6 @@ const Settings = (props: Props) => {
     updateAppSettings({ variables: { settings: {} } })
   }, [updateAppSettings])
 
-  const handleTrim = useCallback((e: React.FormEvent<HTMLInputElement>) => {
-    e.currentTarget.value = e.currentTarget.value.trim()
-  }, [])
-
   return (
     <Form state={form} onSubmit={handleSubmit}>
       <Modal state={resetModal}>
@@ -140,22 +137,27 @@ const Settings = (props: Props) => {
           </ModalTitle>
           <ModalDismiss />
         </ModalHeader>
+        <ModalContent>{formatMessage(messages.settingsResetText)}</ModalContent>
         <ModalFooter>
-          <Button variant="criticalSecondary" onClick={() => resetModal.hide()}>
-            {formatMessage(messages.noLabel)}
+          <Button
+            disabled={loadingUpdate}
+            variant="secondary"
+            onClick={() => resetModal.hide()}
+          >
+            {formatMessage(messages.cancelLabel)}
           </Button>
           <Button
-            variant="critical"
             onClick={handleResetSettings}
+            disabled={loadingUpdate}
             loading={resetModal.open && loadingUpdate}
           >
-            {formatMessage(messages.yesLabel)}
+            {formatMessage(messages.settingsResetLabel)}
           </Button>
         </ModalFooter>
       </Modal>
       <Stack space="$space-4" fluid>
         <RadioGroup
-          state={stateDefaultSettings}
+          state={defaultSettingsState}
           aria-label="radio-group"
           label=""
         >
@@ -173,14 +175,14 @@ const Settings = (props: Props) => {
             />
             <Button
               variant="tertiary"
-              disabled={!resetModal.open && loadingUpdate}
+              disabled={loadingUpdate}
               onClick={() => resetModal.show()}
             >
               {formatMessage(messages.settingsResetLabel)}
             </Button>
           </Stack>
         </RadioGroup>
-        {stateDefaultSettings.value === SETTINGS_OPTIONS.CUSTOM && (
+        {defaultSettingsState.value === SETTINGS_OPTIONS.CUSTOM && (
           <>
             <TextInput
               label={formatMessage(messages.settingsAccountLabel)}
@@ -209,7 +211,7 @@ const Settings = (props: Props) => {
           <Button
             type="submit"
             loading={!resetModal.open && loadingUpdate}
-            disabled={!resetModal.open && loadingUpdate}
+            disabled={loadingUpdate}
             icon={<IconArrowRight />}
             iconPosition="end"
           >

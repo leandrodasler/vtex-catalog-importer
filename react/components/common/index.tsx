@@ -29,5 +29,9 @@ export const ErrorMessage = ({ error, title }: ErrorMessageProps) => {
   )
 }
 
+export const handleTrim = (e: React.FormEvent<HTMLInputElement>) => {
+  e.currentTarget.value = e.currentTarget.value.trim()
+}
+
 export { default as MainTemplate } from './MainTemplate'
 export { messages } from './messages'

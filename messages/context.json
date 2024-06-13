@@ -8,6 +8,7 @@
   "admin/next.label": "Next",
   "admin/yes.label": "Yes",
   "admin/no.label": "No",
+  "admin/cancel.label": "Cancel",
 
   "admin/settings.label": "Settings",
   "admin/settings.default.label": "Use default settings",
@@ -20,6 +21,7 @@
   "admin/settings.appToken.helpText": "Source account app token",
   "admin/settings.reset.label": "Reset",
   "admin/settings.reset.confirmation": "Are you sure you want to reset settings?",
+  "admin/settings.reset.text": "The custom settings have been removed.",
   "admin/settings.reset.success": "Settings reseted successfully",
   "admin/settings.missing.error": "It's mandatory to input Source VTEX Account, VTEX App Key and VTEX App Token when provide custom settings",
   "admin/settings.error": "Unable to get settings",
