@@ -27,6 +27,9 @@ type Props = {
 const MainTemplate = ({ children, subtitle }: Props) => {
   const { culture } = useRuntime()
   const { formatMessage } = useIntl()
+  const versionText = formatMessage(messages.versionLabel, {
+    version: process.env.VTEX_APP_VERSION,
+  })
 
   return (
     <ThemeProvider>
@@ -39,18 +42,14 @@ const MainTemplate = ({ children, subtitle }: Props) => {
                   {formatMessage(messages.appTitle)}
                 </PageHeaderTitle>
                 <PageHeaderActions>
-                  <Tag
-                    label={formatMessage(messages.versionLabel, {
-                      version: process.env.VTEX_APP_VERSION,
-                    })}
-                  />
+                  <Tag label={versionText} />
                 </PageHeaderActions>
               </PageHeaderTop>
               <PageHeaderBottom>
                 <h2 className="fw1 t-body">{formatMessage(subtitle)}</h2>
               </PageHeaderBottom>
             </PageHeader>
-            <PageContent layout="wide" className={csx({ gap: 0 })}>
+            <PageContent layout="wide">
               <Suspense fallback={<SuspenseFallback />}>{children}</Suspense>
             </PageContent>
           </Page>
