@@ -7,7 +7,7 @@ export const updateAppSettings = async (
 ) => {
   const payload = { ...context.state.body.settings, ...newSettings }
 
-  await context.clients.apps.saveAppSettings(
+  context.clients.apps.saveAppSettings(
     process.env.VTEX_APP_ID as string,
     payload
   )

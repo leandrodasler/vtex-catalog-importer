@@ -40,6 +40,7 @@ export default {
       timeout: 3000,
       concurrency: 10,
       memoryCache,
+      asyncSetCache: true,
     },
     events: {
       exponentialTimeoutCoefficient: 2,

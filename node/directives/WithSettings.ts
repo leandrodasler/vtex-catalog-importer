@@ -26,7 +26,7 @@ export default class WithSettings extends SchemaDirectiveVisitor {
         throw new Error('admin/settings.missing.error')
       }
 
-      await context.clients.events.sendEvent('', 'settings', settings)
+      context.clients.events.sendEvent('', 'settings', settings)
       context.clients.httpClient.setSettings(settings)
       context.state.body = { settings }
 
