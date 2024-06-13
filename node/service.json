@@ -4,5 +4,11 @@
   "timeout": 180,
   "minReplicas": 8,
   "maxReplicas": 60,
-  "workers": 4
+  "workers": 4,
+  "events": {
+    "runImport": {
+      "sender": "ssesandbox04.catalog-importer",
+      "keys": ["settings"]
+    }
+  }
 }

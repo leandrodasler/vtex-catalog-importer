@@ -1,6 +1,7 @@
 import type {
   Cached,
   ClientsConfig,
+  EventContext,
   RecorderState,
   ServiceContext,
 } from '@vtex/api'
@@ -23,6 +24,7 @@ declare global {
   }
 
   type Context = ServiceContext<Clients, State>
+  type AppEventContext = EventContext<Clients, State>
 }
 
 const memoryCache = new LRUCache<string, Cached>({ max: 5000 })
@@ -38,6 +40,14 @@ export default {
       timeout: 3000,
       concurrency: 10,
       memoryCache,
+    },
+    events: {
+      exponentialTimeoutCoefficient: 2,
+      exponentialBackoffCoefficient: 2,
+      initialBackoffDelay: 50,
+      retries: 1,
+      timeout: 3000,
+      concurrency: 10,
     },
   },
 } as ClientsConfig<Clients>
