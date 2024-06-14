@@ -115,20 +115,20 @@ const CategoryTree = ({
 
       const newState = {
         ...prevState,
-        [categoryId]: { checked: isChecked, name: category?.name ?? '' },
+        [categoryId]: { ...category, checked: isChecked },
       }
 
-      const markchildren = (subCategory: Category, checked: boolean) => {
+      const markChildren = (subCategory: Category, checked: boolean) => {
         if (subCategory.children) {
           subCategory.children.forEach((childCategory: Category) => {
-            newState[childCategory.id] = { checked, name: childCategory.name }
-            markchildren(childCategory, checked)
+            newState[childCategory.id] = { ...childCategory, checked }
+            markChildren(childCategory, checked)
           })
         }
       }
 
       if (category) {
-        markchildren(category, isChecked)
+        markChildren(category, isChecked)
       }
 
       if (isChecked) {
@@ -136,8 +136,8 @@ const CategoryTree = ({
 
         while (parentCategory) {
           newState[parentCategory.id] = {
+            ...parentCategory,
             checked: true,
-            name: parentCategory.name,
           }
           parentCategory = findParentCategory(
             data?.categories,
@@ -146,7 +146,10 @@ const CategoryTree = ({
         }
       }
 
-      return newState
+      // eslint-disable-next-line no-console
+      console.log('newState:', newState)
+
+      return newState as CheckedCategories
     })
   }
 

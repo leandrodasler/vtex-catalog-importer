@@ -19,6 +19,7 @@ import { useMutation } from 'react-apollo'
 import { useIntl } from 'react-intl'
 import type {
   AppSettingsInput,
+  Category,
   Mutation,
   MutationExecuteImportArgs,
   StocksOption,
@@ -32,7 +33,7 @@ import {
 } from '../../graphql'
 
 interface StartProcessingProps {
-  checkedTreeOptions: { [key: string]: { checked: boolean; name: string } }
+  checkedTreeOptions: { [key: string]: Category & { checked: boolean } }
   optionsChecked: {
     checkedItems: number[]
     value: string
@@ -42,20 +43,12 @@ interface StartProcessingProps {
   settings: AppSettingsInput
 }
 
-const StartProcessing = ({
+const StartProcessing: React.FC<StartProcessingProps> = ({
   checkedTreeOptions,
   optionsChecked,
   state,
   settings,
-}: StartProcessingProps) => {
-  const checkedCategories = useMemo(
-    () =>
-      Object.values(checkedTreeOptions)
-        .filter((option) => option.checked)
-        .map((option) => option.name),
-    [checkedTreeOptions]
-  )
-
+}) => {
   const { formatMessage } = useIntl()
   const showToast = useToast()
   const confirmationImportModal = useModalState()
@@ -83,6 +76,40 @@ const StartProcessing = ({
       }
     },
   })
+
+  const convertChildrenToObject = (
+    children: Category[]
+  ): { [key: string]: Category & { checked: boolean } } => {
+    return children.reduce(
+      (acc, child) => ({ ...acc, [child.id]: { ...child, checked: true } }),
+      {} as { [key: string]: Category & { checked: boolean } }
+    )
+  }
+
+  const renderTree = (
+    tree: { [key: string]: Category & { checked: boolean } },
+    level = 0
+  ) => (
+    <ul style={{ paddingLeft: '1rem' }}>
+      {Object.entries(tree).map(([key, value]) => (
+        <li key={key} style={{ marginLeft: '1rem' }}>
+          <span>{value.name}</span>
+          {value.children &&
+            value.children.length > 0 &&
+            renderTree(convertChildrenToObject(value.children), level + 1)}
+        </li>
+      ))}
+    </ul>
+  )
+
+  const renderOption = (label: string, condition: boolean) => (
+    <div>
+      {label}:
+      {condition
+        ? formatMessage(messages.yesLabel)
+        : formatMessage(messages.noLabel)}
+    </div>
+  )
 
   const handleStartImport = useCallback(
     () =>
@@ -121,33 +148,25 @@ const StartProcessing = ({
   return (
     <Flex style={{ flexDirection: 'column' }}>
       <h3>{formatMessage(messages.optionsCategories)}</h3>
-      {checkedCategories.map((categoryName, index) => (
-        <div key={index}>{categoryName}</div>
-      ))}
+      {renderTree(checkedTreeOptions)}
       <h3>{formatMessage(messages.optionsLabel)}</h3>
-      <div>
-        {formatMessage(messages.importImage)}:{' '}
-        {optionsChecked.checkedItems.includes(IMPORT_OPTIONS.IMPORT_IMAGE)
-          ? formatMessage(messages.yesLabel)
-          : formatMessage(messages.noLabel)}
-      </div>
-      <div>
-        {formatMessage(messages.importPrice)}:{' '}
-        {optionsChecked.checkedItems.includes(IMPORT_OPTIONS.IMPORT_PRICE)
-          ? formatMessage(messages.yesLabel)
-          : formatMessage(messages.noLabel)}
-      </div>
+      {renderOption(
+        formatMessage(messages.importImage),
+        optionsChecked.checkedItems.includes(IMPORT_OPTIONS.IMPORT_IMAGE)
+      )}
+      {renderOption(
+        formatMessage(messages.importPrice),
+        optionsChecked.checkedItems.includes(IMPORT_OPTIONS.IMPORT_PRICE)
+      )}
       <div>
         {formatMessage(messages.importStocks)}:{' '}
-        {optionsChecked.stockOption === STOCK_OPTIONS.KEEP_SOURCE ? (
-          formatMessage(messages.optionsSource)
-        ) : optionsChecked.stockOption === STOCK_OPTIONS.UNLIMITED ? (
-          formatMessage(messages.optionsUnlimited)
-        ) : (
-          <>
-            {formatMessage(messages.optionsDefined)}: {optionsChecked.value}
-          </>
-        )}
+        {optionsChecked.stockOption === STOCK_OPTIONS.KEEP_SOURCE
+          ? formatMessage(messages.optionsSource)
+          : optionsChecked.stockOption === STOCK_OPTIONS.UNLIMITED
+          ? formatMessage(messages.optionsUnlimited)
+          : `${formatMessage(messages.optionsDefined)}: ${
+              optionsChecked.value
+            }`}
       </div>
       <Flex justify="space-between" className={csx({ marginTop: '$space-4' })}>
         <Button
