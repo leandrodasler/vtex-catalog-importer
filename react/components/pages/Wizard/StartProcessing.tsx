@@ -4,10 +4,17 @@ import {
   Flex,
   IconArrowLeft,
   IconArrowLineDown,
+  Modal,
+  ModalContent,
+  ModalDismiss,
+  ModalFooter,
+  ModalHeader,
+  ModalTitle,
   csx,
+  useModalState,
   useToast,
 } from '@vtex/admin-ui'
-import React from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useMutation } from 'react-apollo'
 import { useIntl } from 'react-intl'
 import type {
@@ -44,6 +51,8 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
 }) => {
   const { formatMessage } = useIntl()
   const showToast = useToast()
+  const confirmationImportModal = useModalState()
+
   const [executeImport, { loading }] = useMutation<
     Mutation,
     MutationExecuteImportArgs
@@ -58,9 +67,9 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
     },
     onCompleted(data) {
       if (data.executeImport) {
+        confirmationImportModal.hide()
         showToast({
-          message:
-            'Import started successfully. Full logs will be available in the Importer History page.',
+          message: formatMessage(messages.startSuccess),
           variant: 'positive',
           key: 'execute-import-message',
         })
@@ -102,27 +111,39 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
     </div>
   )
 
-  const handleImport = () => {
-    executeImport({
-      variables: {
-        args: {
-          categoryTree: Object.entries(
-            checkedTreeOptions
-          ).map(([id, { name }]) => ({ id, name })),
-          settings,
-          importImages: optionsChecked.checkedItems.includes(
-            IMPORT_OPTIONS.IMPORT_IMAGE
-          ),
-          importPrices: optionsChecked.checkedItems.includes(
-            IMPORT_OPTIONS.IMPORT_PRICE
-          ),
-          stocksOption: optionsChecked.stockOption,
-          ...(optionsChecked.stockOption === STOCK_OPTIONS.TO_BE_DEFINED &&
-            optionsChecked.value && { stockValue: +optionsChecked.value }),
+  const handleStartImport = useCallback(
+    () =>
+      executeImport({
+        variables: {
+          args: {
+            categoryTree: Object.entries(checkedTreeOptions).map((c) => ({
+              id: c[0],
+              name: c[1].name,
+            })),
+            settings,
+            importImages: optionsChecked.checkedItems.includes(
+              IMPORT_OPTIONS.IMPORT_IMAGE
+            ),
+            importPrices: optionsChecked.checkedItems.includes(
+              IMPORT_OPTIONS.IMPORT_PRICE
+            ),
+            stocksOption: optionsChecked.stockOption,
+            ...(optionsChecked.stockOption === STOCK_OPTIONS.TO_BE_DEFINED &&
+              optionsChecked.value && {
+                stockValue: +optionsChecked.value,
+              }),
+          },
         },
-      },
-    })
-  }
+      }),
+    [
+      checkedTreeOptions,
+      executeImport,
+      optionsChecked.checkedItems,
+      optionsChecked.stockOption,
+      optionsChecked.value,
+      settings,
+    ]
+  )
 
   return (
     <Flex style={{ flexDirection: 'column' }}>
@@ -159,11 +180,35 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
           icon={<IconArrowLineDown />}
           disabled={loading}
           loading={loading}
-          onClick={handleImport}
+          onClick={() => confirmationImportModal.show()}
         >
           {formatMessage(messages.startLabel)}
         </Button>
       </Flex>
+      <Modal state={confirmationImportModal}>
+        <ModalHeader>
+          <ModalTitle>{formatMessage(messages.startConfirmation)}</ModalTitle>
+          <ModalDismiss />
+        </ModalHeader>
+        <ModalContent>{formatMessage(messages.startText)}</ModalContent>
+        <ModalFooter>
+          <Button
+            disabled={loading}
+            variant="secondary"
+            onClick={() => confirmationImportModal.hide()}
+          >
+            {formatMessage(messages.cancelLabel)}
+          </Button>
+          <Button
+            icon={<IconArrowLineDown />}
+            disabled={loading}
+            loading={confirmationImportModal.open && loading}
+            onClick={handleStartImport}
+          >
+            {formatMessage(messages.startLabel)}
+          </Button>
+        </ModalFooter>
+      </Modal>
     </Flex>
   )
 }

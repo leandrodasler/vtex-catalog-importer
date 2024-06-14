@@ -12,7 +12,7 @@ import {
   TextInput,
   useRadioState,
 } from '@vtex/admin-ui'
-import React from 'react'
+import React, { useCallback } from 'react'
 import { useIntl } from 'react-intl'
 import type { StocksOption } from 'ssesandbox04.catalog-importer'
 
@@ -32,7 +32,7 @@ export default function ImportOptions({
   setOptionsChecked,
 }: Props) {
   const { formatMessage } = useIntl()
-  const stateSelect = useRadioState({
+  const stockOptionState = useRadioState({
     defaultValue: optionsChecked.stockOption,
   })
 
@@ -54,14 +54,15 @@ export default function ImportOptions({
   }
 
   const disabledNext =
-    stateSelect.value === STOCK_OPTIONS.TO_BE_DEFINED && !optionsChecked.value
+    stockOptionState.value === STOCK_OPTIONS.TO_BE_DEFINED &&
+    !optionsChecked.value
 
-  function handleSelectOptions() {
+  const handleSelectOptions = useCallback(() => {
     setOptionsChecked({
       ...optionsChecked,
-      stockOption: stateSelect.value as StocksOption,
+      stockOption: stockOptionState.value as StocksOption,
     })
-  }
+  }, [optionsChecked, setOptionsChecked, stockOptionState.value])
 
   return (
     <Stack space="$space-4" fluid>
@@ -88,7 +89,7 @@ export default function ImportOptions({
         />
       </CheckboxGroup>
       <RadioGroup
-        state={stateSelect}
+        state={stockOptionState}
         label={formatMessage(messages.importStocks)}
       >
         <Radio
@@ -103,7 +104,7 @@ export default function ImportOptions({
           value={STOCK_OPTIONS.TO_BE_DEFINED}
           label={formatMessage(messages.optionsDefined)}
         />
-        {stateSelect.value === STOCK_OPTIONS.TO_BE_DEFINED && (
+        {stockOptionState.value === STOCK_OPTIONS.TO_BE_DEFINED && (
           <TextInput
             value={optionsChecked.value}
             onChange={(e: { target: { value: string } }) =>
