@@ -14,7 +14,7 @@ import {
   useModalState,
   useToast,
 } from '@vtex/admin-ui'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback } from 'react'
 import { useMutation } from 'react-apollo'
 import { useIntl } from 'react-intl'
 import type {
@@ -25,6 +25,7 @@ import type {
   StocksOption,
 } from 'ssesandbox04.catalog-importer'
 
+import type { CheckedCategories } from '.'
 import { IMPORT_OPTIONS, STOCK_OPTIONS } from '.'
 import { messages } from '../../common'
 import {
@@ -33,7 +34,7 @@ import {
 } from '../../graphql'
 
 interface StartProcessingProps {
-  checkedTreeOptions: { [key: string]: Category & { checked: boolean } }
+  checkedTreeOptions: CheckedCategories
   optionsChecked: {
     checkedItems: number[]
     value: string
@@ -77,19 +78,14 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
     },
   })
 
-  const convertChildrenToObject = (
-    children: Category[]
-  ): { [key: string]: Category & { checked: boolean } } => {
+  const convertChildrenToObject = (children: Category[]) => {
     return children.reduce(
       (acc, child) => ({ ...acc, [child.id]: { ...child, checked: true } }),
-      {} as { [key: string]: Category & { checked: boolean } }
+      {} as CheckedCategories
     )
   }
 
-  const renderTree = (
-    tree: { [key: string]: Category & { checked: boolean } },
-    level = 0
-  ) => (
+  const renderTree = (tree: CheckedCategories, level = 0) => (
     <ul style={{ paddingLeft: '1rem' }}>
       {Object.entries(tree).map(([key, value]) => (
         <li key={key} style={{ marginLeft: '1rem' }}>
