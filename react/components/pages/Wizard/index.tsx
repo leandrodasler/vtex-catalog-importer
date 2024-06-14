@@ -15,6 +15,7 @@ import React, { Suspense, lazy, useState } from 'react'
 import { useIntl } from 'react-intl'
 import type {
   AppSettingsInput,
+  Category,
   StocksOption,
 } from 'ssesandbox04.catalog-importer'
 
@@ -27,7 +28,7 @@ const ImportOptions = lazy(() => import('./ImportOptions'))
 const StartProcessing = lazy(() => import('./StartProcessing'))
 
 export interface CheckedCategories {
-  [key: string]: { checked: boolean; name: string }
+  [key: string]: Category & { checked: boolean }
 }
 
 export interface Options {
