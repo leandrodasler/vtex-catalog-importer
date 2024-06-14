@@ -12,6 +12,7 @@ import { useMutation } from 'react-apollo'
 import { useIntl } from 'react-intl'
 import type {
   AppSettingsInput,
+  Category,
   Mutation,
   MutationExecuteImportArgs,
   StocksOption,
@@ -25,7 +26,7 @@ import {
 } from '../../graphql'
 
 interface StartProcessingProps {
-  checkedTreeOptions: { [key: string]: { checked: boolean; name: string } }
+  checkedTreeOptions: { [key: string]: Category & { checked: boolean } }
   optionsChecked: {
     checkedItems: number[]
     value: string
@@ -41,10 +42,6 @@ const StartProcessing = ({
   state,
   settings,
 }: StartProcessingProps) => {
-  const checkedCategories = Object.values(checkedTreeOptions)
-    .filter((option) => option.checked)
-    .map((option) => option.name)
-
   const { formatMessage } = useIntl()
   const showToast = useToast()
 
@@ -72,12 +69,38 @@ const StartProcessing = ({
     },
   })
 
+  const convertChildrenToObject = (
+    children: Category[]
+  ): { [key: string]: Category & { checked: boolean } } => {
+    return children.reduce((acc, child) => {
+      acc[child.id] = { ...child, checked: true }
+
+      return acc
+    }, {} as { [key: string]: Category & { checked: boolean } })
+  }
+
+  const renderTree = (
+    tree: { [key: string]: Category & { checked: boolean } },
+    level = 0
+  ) => {
+    return (
+      <ul style={{ paddingLeft: level * 20 }}>
+        {Object.entries(tree).map(([key, value]) => (
+          <li key={key}>
+            <span>{value.name}</span>
+            {value.children &&
+              value.children.length > 0 &&
+              renderTree(convertChildrenToObject(value.children), level + 1)}
+          </li>
+        ))}
+      </ul>
+    )
+  }
+
   return (
     <Flex style={{ flexDirection: 'column' }}>
       <h3>{formatMessage(messages.optionsCategories)}</h3>
-      {checkedCategories.map((categoryName, index) => (
-        <div key={index}>{categoryName}</div>
-      ))}
+      {renderTree(checkedTreeOptions)}
       <h3>{formatMessage(messages.optionsLabel)}</h3>
       <div>
         {formatMessage(messages.importImage)}:{' '}
