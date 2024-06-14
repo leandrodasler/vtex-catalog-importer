@@ -39,4 +39,7 @@ export const messages = defineMessages({
   settingsAppTokenLabel: { id: 'admin/settings.appToken.label' },
   settingsAppTokenHelpText: { id: 'admin/settings.appToken.helpText' },
   startLabel: { id: 'admin/start.label' },
+  startConfirmation: { id: 'admin/start.confirmation' },
+  startText: { id: 'admin/start.text' },
+  startSuccess: { id: 'admin/start.success' },
 })

@@ -40,5 +40,8 @@
   "admin/options.defined": "Por definir",
   "admin/options.source": "Mantener como en origen",
 
-  "admin/start.label": "Iniciar importación"
+  "admin/start.label": "Iniciar importación",
+  "admin/start.confirmation": "¿Estás seguro de que deseas iniciar la importación?",
+  "admin/start.text": "La importación comenzará en segundo plano y el catálogo se actualizará. Los registros de la importación estarán disponibles en la página Historial de Importaciones.",
+  "admin/start.success": "La importación comenzó exitosamente. Los registros completos estarán disponibles en la página Historial de Importaciones."
 }

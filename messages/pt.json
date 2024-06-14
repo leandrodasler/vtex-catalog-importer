@@ -20,7 +20,7 @@
   "admin/settings.appToken.label": "VTEX App Token",
   "admin/settings.appToken.helpText": "App token da conta de origem",
   "admin/settings.reset.label": "Redefinir",
-  "admin/settings.reset.confirmation": "Tem certeza de que deseja redefinir as configurações?",
+  "admin/settings.reset.confirmation": "Está certo de que deseja redefinir as configurações?",
   "admin/settings.reset.text": "As configurações personalizadas serão excluídas.",
   "admin/settings.reset.success": "Configurações redefinidas com sucesso",
   "admin/settings.missing.error": "É necessário informar Conta VTEX de Origem, VTEX App Key e VTEX App Token ao fornecer configurações personalizadas",
@@ -40,5 +40,8 @@
   "admin/options.defined": "A ser definido",
   "admin/options.source": "Manter como na origem",
 
-  "admin/start.label": "Iniciar importação"
+  "admin/start.label": "Iniciar importação",
+  "admin/start.confirmation": "Está certo de que deseja iniciar a importação?",
+  "admin/start.text": "A importação iniciará em segundo plano e o catálogo será atualizado. Os registros da importação estarão disponíveis na página Histórico de Importações.",
+  "admin/start.success": "A importação foi iniciada com sucesso. Os registros completos estarão disponíveis na página Histórico de Importações."
 }
