@@ -8,7 +8,7 @@
   "events": {
     "runImport": {
       "sender": "ssesandbox04.catalog-importer",
-      "keys": ["settings"]
+      "keys": ["runImport"]
     }
   }
 }

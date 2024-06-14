@@ -16,7 +16,7 @@ export const getDefaultSettings = async ({
     throw new Error('admin/settings.default.error')
   })
 
-export const getResolverFactory = <Response>(url: string) => async (
+export const httpGetResolverFactory = <Response>(url: string) => async (
   _: unknown,
   __: unknown,
   context: Context

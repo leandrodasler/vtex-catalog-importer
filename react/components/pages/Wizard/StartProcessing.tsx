@@ -5,29 +5,72 @@ import {
   IconArrowLeft,
   IconArrowLineDown,
   csx,
+  useToast,
 } from '@vtex/admin-ui'
 import React from 'react'
+import { useMutation } from 'react-apollo'
 import { useIntl } from 'react-intl'
+import type {
+  AppSettingsInput,
+  Mutation,
+  MutationExecuteImportArgs,
+  StocksOption,
+} from 'ssesandbox04.catalog-importer'
 
 import { IMPORT_OPTIONS, STOCK_OPTIONS } from '.'
 import { messages } from '../../common'
+import {
+  EXECUTE_IMPORT_MUTATION,
+  getGraphQLMessageDescriptor,
+} from '../../graphql'
 
 interface StartProcessingProps {
   checkedTreeOptions: { [key: string]: { checked: boolean; name: string } }
-  optionsChecked: { checkedItems: number[]; value: string; stockOption: number }
+  optionsChecked: {
+    checkedItems: number[]
+    value: string
+    stockOption: StocksOption
+  }
   state: TabState
+  settings: AppSettingsInput
 }
 
 const StartProcessing = ({
   checkedTreeOptions,
   optionsChecked,
   state,
+  settings,
 }: StartProcessingProps) => {
   const checkedCategories = Object.values(checkedTreeOptions)
     .filter((option) => option.checked)
     .map((option) => option.name)
 
   const { formatMessage } = useIntl()
+  const showToast = useToast()
+
+  const [executeImport, { loading }] = useMutation<
+    Mutation,
+    MutationExecuteImportArgs
+  >(EXECUTE_IMPORT_MUTATION, {
+    notifyOnNetworkStatusChange: true,
+    onError(error) {
+      showToast({
+        message: formatMessage(getGraphQLMessageDescriptor(error)),
+        variant: 'critical',
+        key: 'execute-import-message',
+      })
+    },
+    onCompleted(data) {
+      if (data.executeImport) {
+        showToast({
+          message:
+            'Import started successfully. Full logs will be available in the Importer History page.',
+          variant: 'positive',
+          key: 'execute-import-message',
+        })
+      }
+    },
+  })
 
   return (
     <Flex style={{ flexDirection: 'column' }}>
@@ -64,10 +107,40 @@ const StartProcessing = ({
         <Button
           onClick={() => state.select(state.previous())}
           icon={<IconArrowLeft />}
+          disabled={loading}
         >
           {formatMessage(messages.previousLabel)}
         </Button>
-        <Button icon={<IconArrowLineDown />}>
+        <Button
+          icon={<IconArrowLineDown />}
+          disabled={loading}
+          loading={loading}
+          onClick={() => {
+            executeImport({
+              variables: {
+                args: {
+                  categoryTree: Object.entries(checkedTreeOptions).map((c) => ({
+                    id: c[0],
+                    name: c[1].name,
+                  })),
+                  settings,
+                  importImages: optionsChecked.checkedItems.includes(
+                    IMPORT_OPTIONS.IMPORT_IMAGE
+                  ),
+                  importPrices: optionsChecked.checkedItems.includes(
+                    IMPORT_OPTIONS.IMPORT_PRICE
+                  ),
+                  stocksOption: optionsChecked.stockOption,
+                  ...(optionsChecked.stockOption ===
+                    STOCK_OPTIONS.TO_BE_DEFINED &&
+                    optionsChecked.value && {
+                      stockValue: +optionsChecked.value,
+                    }),
+                },
+              },
+            })
+          }}
+        >
           {formatMessage(messages.startLabel)}
         </Button>
       </Flex>

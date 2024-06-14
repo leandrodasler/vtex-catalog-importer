@@ -14,6 +14,7 @@ import {
 } from '@vtex/admin-ui'
 import React from 'react'
 import { useIntl } from 'react-intl'
+import type { StocksOption } from 'ssesandbox04.catalog-importer'
 
 import type { Options } from '.'
 import { IMPORT_OPTIONS, STOCK_OPTIONS } from '.'
@@ -58,7 +59,7 @@ export default function ImportOptions({
   function handleSelectOptions() {
     setOptionsChecked({
       ...optionsChecked,
-      stockOption: stateSelect.value as number,
+      stockOption: stateSelect.value as StocksOption,
     })
   }
 

@@ -15,9 +15,30 @@ input AppSettingsInput {
 }
 
 type Category {
-  id: String!
+  id: ID!
   name: String!
   children: [Category!]
+}
+
+input CategoryInput {
+  id: ID!
+  name: String!
+  children: [CategoryInput!]
+}
+
+enum StocksOption {
+  KEEP_SOURCE
+  UNLIMITED
+  TO_BE_DEFINED
+}
+
+input ImportInput {
+  settings: AppSettingsInput!
+  categoryTree: [CategoryInput!]!
+  importImages: Boolean!
+  importPrices: Boolean!
+  stocksOption: StocksOption!
+  stockValue: Int
 }
 
 type Brand {
@@ -37,4 +58,5 @@ type Query {
 
 type Mutation {
   updateAppSettings(settings: AppSettingsInput): AppSettings! @WithSettings
+  executeImport(args: ImportInput!): ID!
 }

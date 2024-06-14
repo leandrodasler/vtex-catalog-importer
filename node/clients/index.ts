@@ -6,13 +6,24 @@ import type {
   ServiceContext,
 } from '@vtex/api'
 import { IOClients, LRUCache } from '@vtex/api'
-import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
+import { masterDataFor } from '@vtex/clients'
+import type {
+  AppSettingsInput,
+  ImportExecution,
+} from 'ssesandbox04.catalog-importer'
 
 import HttpClient from './HttpClient'
 
 class Clients extends IOClients {
   public get httpClient() {
     return this.getOrSet('httpClient', HttpClient)
+  }
+
+  public get importExecution() {
+    return this.getOrSet(
+      'importExecution',
+      masterDataFor<ImportExecution>('importExecution')
+    )
   }
 }
 

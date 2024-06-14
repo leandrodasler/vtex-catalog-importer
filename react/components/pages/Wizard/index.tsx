@@ -13,7 +13,10 @@ import {
 } from '@vtex/admin-ui'
 import React, { Suspense, lazy, useState } from 'react'
 import { useIntl } from 'react-intl'
-import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
+import type {
+  AppSettingsInput,
+  StocksOption,
+} from 'ssesandbox04.catalog-importer'
 
 import { ErrorMessage, SuspenseFallback, messages } from '../../common'
 import { APP_SETTINGS_QUERY, useQueryCustom } from '../../graphql'
@@ -30,13 +33,13 @@ export interface CheckedCategories {
 export interface Options {
   checkedItems: number[]
   value: string
-  stockOption: number
+  stockOption: StocksOption
 }
 
-export const STOCK_OPTIONS = {
-  KEEP_SOURCE: 1,
-  UNLIMITED: 2,
-  TO_BE_DEFINED: 3,
+export const STOCK_OPTIONS: Record<string, StocksOption> = {
+  KEEP_SOURCE: 'KEEP_SOURCE',
+  UNLIMITED: 'UNLIMITED',
+  TO_BE_DEFINED: 'TO_BE_DEFINED',
 }
 
 export const IMPORT_OPTIONS = {
@@ -189,11 +192,12 @@ export default function Wizard() {
         className={tabPanelTheme}
       >
         <Suspense key="step-4" fallback={<SuspenseFallback />}>
-          {state.selectedId === '4' && (
+          {state.selectedId === '4' && settings && (
             <StartProcessing
               checkedTreeOptions={checkedTreeOptions}
               optionsChecked={optionsChecked}
               state={state}
+              settings={settings}
             />
           )}
         </Suspense>

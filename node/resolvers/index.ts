@@ -1,13 +1,14 @@
 import type { Query as ResolverQuery } from 'ssesandbox04.catalog-importer'
 
-import { ENDPOINTS, getResolverFactory } from '../helpers'
+import { ENDPOINTS, httpGetResolverFactory } from '../helpers'
 import { brands } from './brands'
+import { executeImport } from './executeImport'
 import { updateAppSettings } from './updateAppSettings'
 
 const appSettings = async (_: unknown, __: unknown, context: Context) =>
   context.state.body.settings
 
-const categories = getResolverFactory<ResolverQuery['categories']>(
+const categories = httpGetResolverFactory<ResolverQuery['categories']>(
   ENDPOINTS.categories
 )
 
@@ -19,5 +20,6 @@ export default {
   },
   Mutation: {
     updateAppSettings,
+    executeImport,
   },
 }
