@@ -8,14 +8,16 @@
     "importImages": { "type": "boolean" },
     "importPrices": { "type": "boolean" },
     "stocksOption": { "type": "string" },
-    "stockValue": { "type": ["integer", "null"] }
+    "stockValue": { "type": ["integer", "null"] },
+    "status": { "type": "string" }
   },
   "required": [
     "settings",
     "categoryTree",
     "importImages",
     "importPrices",
-    "stocksOption"
+    "stocksOption",
+    "status"
   ],
   "v-cache": false
 }

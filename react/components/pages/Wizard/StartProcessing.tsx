@@ -28,10 +28,11 @@ import type {
   MutationExecuteImportArgs,
   StocksOption,
 } from 'ssesandbox04.catalog-importer'
+import { useRuntime } from 'vtex.render-runtime'
 
 import type { CheckedCategories } from '.'
 import { IMPORT_OPTIONS, STOCK_OPTIONS } from '.'
-import { messages } from '../../common'
+import { Countdown, messages } from '../../common'
 import {
   EXECUTE_IMPORT_MUTATION,
   getGraphQLMessageDescriptor,
@@ -48,6 +49,8 @@ interface StartProcessingProps {
   settings: AppSettingsInput
 }
 
+const NAVIGATE_DELAY = 10000
+
 const StartProcessing: React.FC<StartProcessingProps> = ({
   checkedTreeOptions,
   optionsChecked,
@@ -57,6 +60,7 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
   const { formatMessage } = useIntl()
   const showToast = useToast()
   const confirmationImportModal = useModalState()
+  const { navigate } = useRuntime()
 
   const [executeImport, { loading }] = useMutation<
     Mutation,
@@ -71,14 +75,25 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
       })
     },
     onCompleted(data) {
-      if (data.executeImport) {
-        confirmationImportModal.hide()
-        showToast({
-          message: formatMessage(messages.startSuccess),
-          variant: 'positive',
-          key: 'execute-import-message',
-        })
+      if (!data.executeImport) {
+        return
       }
+
+      confirmationImportModal.hide()
+
+      showToast({
+        message: formatMessage(messages.startSuccess, {
+          seconds: <Countdown seconds={NAVIGATE_DELAY / 1000} />,
+        }),
+        duration: NAVIGATE_DELAY,
+        variant: 'positive',
+        key: 'execute-import-message',
+      })
+
+      setTimeout(
+        () => navigate({ page: 'admin.app.catalog-importer-history' }),
+        NAVIGATE_DELAY
+      )
     },
   })
 

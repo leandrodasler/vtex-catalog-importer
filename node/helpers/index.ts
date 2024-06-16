@@ -1,5 +1,8 @@
 import type { MasterDataEntity } from '@vtex/clients/build/clients/masterData/MasterDataEntity'
-import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
+import type {
+  AppSettingsInput,
+  ImportStatus,
+} from 'ssesandbox04.catalog-importer'
 
 export const ENDPOINTS = {
   defaultSettings:
@@ -8,14 +11,33 @@ export const ENDPOINTS = {
   categories: 'api/catalog_system/pub/category/tree/1000',
 }
 
-export const IMPORT_FIELDS = [
+export const IMPORT_EXECUTION_FIELDS = [
+  'user',
   'settings',
   'categoryTree',
   'importImages',
   'importPrices',
   'stocksOption',
   'stockValue',
+  'status',
 ]
+
+export const IMPORT_ENTITY_FIELDS = [
+  'name',
+  'executionImportId',
+  'sourceAccount',
+  'sourceId',
+  'targetId',
+  'pathParams',
+  'payload',
+]
+
+export const IMPORT_STATUS: { [key in ImportStatus]: ImportStatus } = {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR',
+}
 
 export const getCurrentSettings = async ({ clients: { apps } }: Context) =>
   apps.getAppSettings(process.env.VTEX_APP_ID as string) as AppSettingsInput

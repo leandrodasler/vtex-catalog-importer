@@ -44,5 +44,5 @@
   "admin/start.label": "Start import",
   "admin/start.confirmation": "Are you sure you want to start import?",
   "admin/start.text": "The import will start in background and the catalog will be updated. Import logs will be available at the Import History page.",
-  "admin/start.success": "The import process started successfully. Full logs will be available at the Import History page."
+  "admin/start.success": "The import process started successfully. You will be redirected to the Import History page in {seconds} seconds to view the import logs."
 }

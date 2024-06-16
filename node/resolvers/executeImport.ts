@@ -1,5 +1,7 @@
 import type { MutationExecuteImportArgs } from 'ssesandbox04.catalog-importer'
 
+import { IMPORT_STATUS } from '../helpers'
+
 export const executeImport = async (
   _: unknown,
   { args }: MutationExecuteImportArgs,
@@ -8,16 +10,21 @@ export const executeImport = async (
   const { user } = await context.clients.vtexId.getUser()
   const { useDefault } = args.settings
   const settings = useDefault ? { useDefault } : args.settings
+  const status = IMPORT_STATUS.PENDING
+  const entityPayload = { ...args, user, settings, status }
 
   const importId = await context.clients.importExecution
-    .save({ ...args, user, settings })
+    .save(entityPayload)
     .then((response) => response.DocumentId)
 
-  context.clients.events.sendEvent('', 'runImport', {
-    user,
-    settings: context.state.body.settings,
+  const eventPayload = {
+    ...entityPayload,
     importId,
-  })
+    settings: context.state.body.settings,
+    categoryTree: undefined,
+  }
+
+  context.clients.events.sendEvent('', 'runImport', eventPayload)
 
   return importId
 }

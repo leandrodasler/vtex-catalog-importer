@@ -32,6 +32,13 @@ enum StocksOption {
   TO_BE_DEFINED
 }
 
+enum ImportStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  ERROR
+}
+
 input ImportInput {
   settings: AppSettingsInput!
   categoryTree: [CategoryInput!]!
@@ -39,6 +46,7 @@ input ImportInput {
   importPrices: Boolean!
   stocksOption: StocksOption!
   stockValue: Int
+  status: ImportStatus
 }
 
 type Brand {

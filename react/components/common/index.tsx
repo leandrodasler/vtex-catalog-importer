@@ -1,5 +1,5 @@
 import { Alert, Center, Spinner, Stack, csx } from '@vtex/admin-ui'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import type { MessageDescriptor } from 'react-intl'
 import { useIntl } from 'react-intl'
 
@@ -31,6 +31,23 @@ export const ErrorMessage = ({ error, title }: ErrorMessageProps) => {
 
 export const handleTrim = (e: React.FormEvent<HTMLInputElement>) => {
   e.currentTarget.value = e.currentTarget.value.trim()
+}
+
+type CountdownProps = { seconds: number }
+export const Countdown = ({ seconds }: CountdownProps) => {
+  const [currentSeconds, setCurrentSeconds] = useState(seconds)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setCurrentSeconds(currentSeconds - 1)
+    }, 1000)
+
+    return () => {
+      clearTimeout(timer)
+    }
+  }, [currentSeconds])
+
+  return <>{currentSeconds}</>
 }
 
 export { default as MainTemplate } from './MainTemplate'

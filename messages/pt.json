@@ -44,5 +44,5 @@
   "admin/start.label": "Iniciar importação",
   "admin/start.confirmation": "Está certo de que deseja iniciar a importação?",
   "admin/start.text": "A importação iniciará em segundo plano e o catálogo será atualizado. Os registros da importação estarão disponíveis na página Histórico de Importações.",
-  "admin/start.success": "O processo de importação foi iniciado com sucesso. Os registros completos estarão disponíveis na página Histórico de Importações."
+  "admin/start.success": "O processo de importação foi iniciado com sucesso. Você será redirecionado para a página Histórico de Importações em {seconds} segundos para visualizar os registros da importação."
 }
