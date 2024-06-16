@@ -32,16 +32,17 @@
   "admin/categories.refresh.label": "Refresh",
 
   "admin/options.label": "Import options",
-  "admin/options.categories": "Selected Categories",
+  "admin/options.categories": "Selected categories",
   "admin/options.import.image": "Import images",
   "admin/options.import.price": "Import prices",
   "admin/options.import.stocks": "Stocks",
   "admin/options.unlimited": "Unlimited",
   "admin/options.defined": "To be defined",
   "admin/options.source": "Keep the source",
+  "admin/options.stockValue": "Stock to be defined for all SKUs",
 
   "admin/start.label": "Start import",
   "admin/start.confirmation": "Are you sure you want to start import?",
   "admin/start.text": "The import will start in background and the catalog will be updated. Import logs will be available at the Import History page.",
-  "admin/start.success": "Import started successfully. Full logs will be available at the Import History page."
+  "admin/start.success": "The import process started successfully. Full logs will be available at the Import History page."
 }

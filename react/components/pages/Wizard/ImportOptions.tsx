@@ -106,6 +106,7 @@ export default function ImportOptions({
         />
         {stockOptionState.value === STOCK_OPTIONS.TO_BE_DEFINED && (
           <TextInput
+            label={formatMessage(messages.stockValue)}
             value={optionsChecked.value}
             onChange={(e: { target: { value: string } }) =>
               setOptionsChecked({

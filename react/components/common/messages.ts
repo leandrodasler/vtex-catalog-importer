@@ -32,6 +32,7 @@ export const messages = defineMessages({
   optionsUnlimited: { id: 'admin/options.unlimited' },
   optionsDefined: { id: 'admin/options.defined' },
   optionsSource: { id: 'admin/options.source' },
+  stockValue: { id: 'admin/options.stockValue' },
   settingsAccountLabel: { id: 'admin/settings.account.label' },
   settingsAccountHelpText: { id: 'admin/settings.account.helpText' },
   settingsAppKeyLabel: { id: 'admin/settings.appKey.label' },

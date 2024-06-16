@@ -111,7 +111,12 @@ const Settings = (props: Props) => {
         useDefault: defaultSettingsValue === SETTINGS_OPTIONS.DEFAULT,
       }
 
-      setCheckedTreeOptions({})
+      if (
+        newSettings.account !== settings?.account ||
+        newSettings.useDefault !== settings?.useDefault
+      ) {
+        setCheckedTreeOptions({})
+      }
 
       updateAppSettings({ variables: { settings: newSettings } })
     },
@@ -119,6 +124,8 @@ const Settings = (props: Props) => {
       defaultSettingsValue,
       formatMessage,
       setCheckedTreeOptions,
+      settings?.account,
+      settings?.useDefault,
       showToast,
       updateAppSettings,
     ]

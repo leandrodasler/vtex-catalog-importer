@@ -104,7 +104,7 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
 
   const renderOption = (label: string, condition: boolean) => (
     <Stack direction="row" space="$space-1">
-      <span>{label}:</span>
+      <span>{label}</span>
       {condition ? (
         <IconCheckCircle
           title={formatMessage(messages.yesLabel)}
@@ -180,6 +180,14 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
         </div>
         <div>
           <h3>{formatMessage(messages.optionsLabel)}</h3>
+          <div>
+            {formatMessage(messages.settingsAccountLabel)}:{' '}
+            <b>
+              {settings.useDefault
+                ? formatMessage(messages.settingsDefaultLabel).toLowerCase()
+                : settings.account}
+            </b>
+          </div>
           {renderOption(
             formatMessage(messages.importImage),
             optionsChecked.checkedItems.includes(IMPORT_OPTIONS.IMPORT_IMAGE)
@@ -190,14 +198,20 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
           )}
           <div>
             {formatMessage(messages.importStocks)}:{' '}
-            {optionsChecked.stockOption === STOCK_OPTIONS.KEEP_SOURCE
-              ? formatMessage(messages.optionsSource)
-              : optionsChecked.stockOption === STOCK_OPTIONS.UNLIMITED
-              ? formatMessage(messages.optionsUnlimited)
-              : `${formatMessage(messages.optionsDefined)}: ${
-                  optionsChecked.value
-                }`}
+            <b>
+              {optionsChecked.stockOption === STOCK_OPTIONS.KEEP_SOURCE
+                ? formatMessage(messages.optionsSource).toLowerCase()
+                : optionsChecked.stockOption === STOCK_OPTIONS.UNLIMITED
+                ? formatMessage(messages.optionsUnlimited).toLowerCase()
+                : formatMessage(messages.optionsDefined).toLowerCase()}
+            </b>
           </div>
+          {optionsChecked.stockOption === STOCK_OPTIONS.TO_BE_DEFINED && (
+            <div>
+              {formatMessage(messages.stockValue)}:{' '}
+              <b>{optionsChecked.value}</b>
+            </div>
+          )}
         </div>
       </Flex>
       <Flex justify="space-between" className={csx({ marginTop: '$space-4' })}>

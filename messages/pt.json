@@ -32,16 +32,17 @@
   "admin/categories.refresh.label": "Recarregar",
 
   "admin/options.label": "Opções da importação",
-  "admin/options.categories": "Categorias Selecionadas",
+  "admin/options.categories": "Categorias selecionadas",
   "admin/options.import.image": "Importar imagens",
   "admin/options.import.price": "Importar preços",
   "admin/options.import.stocks": "Estoques",
   "admin/options.unlimited": "Ilimitado",
   "admin/options.defined": "A ser definido",
   "admin/options.source": "Manter como na origem",
+  "admin/options.stockValue": "Estoque a ser definido para todos os SKUs",
 
   "admin/start.label": "Iniciar importação",
   "admin/start.confirmation": "Está certo de que deseja iniciar a importação?",
   "admin/start.text": "A importação iniciará em segundo plano e o catálogo será atualizado. Os registros da importação estarão disponíveis na página Histórico de Importações.",
-  "admin/start.success": "A importação foi iniciada com sucesso. Os registros completos estarão disponíveis na página Histórico de Importações."
+  "admin/start.success": "O processo de importação foi iniciado com sucesso. Os registros completos estarão disponíveis na página Histórico de Importações."
 }
