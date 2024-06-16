@@ -61,7 +61,6 @@ type Brand {
 type Query {
   appSettings: AppSettings! @WithSettings
   categories(settings: AppSettingsInput): [Category!] @WithSettings
-  brands: [Brand!] @WithSettings
 }
 
 type Mutation {
