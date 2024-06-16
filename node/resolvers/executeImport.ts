@@ -5,14 +5,19 @@ export const executeImport = async (
   { args }: MutationExecuteImportArgs,
   context: Context
 ) => {
+  const { user } = await context.clients.vtexId.getUser()
+  const { useDefault } = args.settings
+  const settings = useDefault ? { useDefault } : args.settings
+
   const importId = await context.clients.importExecution
-    .save({
-      ...args,
-      categoryTree: JSON.stringify(args.categoryTree),
-    })
+    .save({ ...args, user, settings })
     .then((response) => response.DocumentId)
 
-  context.clients.events.sendEvent('', 'runImport', { args, importId })
+  context.clients.events.sendEvent('', 'runImport', {
+    user,
+    settings: context.state.body.settings,
+    importId,
+  })
 
   return importId
 }

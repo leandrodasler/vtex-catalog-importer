@@ -2,12 +2,20 @@
   "title": "Import Execution",
   "type": "object",
   "properties": {
-    "categoryTree": { "type": "string" },
+    "user": { "type": "string" },
+    "settings": { "type": "object" },
+    "categoryTree": { "type": "array" },
     "importImages": { "type": "boolean" },
     "importPrices": { "type": "boolean" },
     "stocksOption": { "type": "string" },
     "stockValue": { "type": ["integer", "null"] }
   },
-  "required": ["categoryTree", "importImages", "importPrices", "stocksOption"],
+  "required": [
+    "settings",
+    "categoryTree",
+    "importImages",
+    "importPrices",
+    "stocksOption"
+  ],
   "v-cache": false
 }

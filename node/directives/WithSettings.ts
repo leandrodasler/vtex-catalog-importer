@@ -5,7 +5,10 @@ import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
 import { getCurrentSettings, getDefaultSettings } from '../helpers'
 
-type WithSettingsArgs = { settings?: AppSettingsInput }
+type WithSettingsArgs = {
+  settings?: AppSettingsInput
+  args?: { settings?: AppSettingsInput }
+}
 type Field = GraphQLField<unknown, Context, WithSettingsArgs>
 
 export default class WithSettings extends SchemaDirectiveVisitor {
@@ -15,14 +18,16 @@ export default class WithSettings extends SchemaDirectiveVisitor {
     field.resolve = async (...params) => {
       const [root, args, context, info] = params
 
-      const settings = args.settings?.useDefault
+      const settingsArg = args.settings ?? args.args?.settings
+      const settings = settingsArg?.useDefault
         ? await getDefaultSettings(context)
-        : args.settings ?? (await getCurrentSettings(context))
+        : settingsArg ?? (await getCurrentSettings(context))
 
-      if (
-        args.settings?.useDefault !== undefined &&
-        (!settings.account || !settings.vtexAppKey || !settings.vtexAppToken)
-      ) {
+      const { account, vtexAppKey, vtexAppToken } = settings
+      const settingEmpty =
+        !account?.trim() || !vtexAppKey?.trim() || !vtexAppToken?.trim()
+
+      if (typeof settingsArg?.useDefault === 'boolean' && settingEmpty) {
         throw new Error('admin/settings.missing.error')
       }
 

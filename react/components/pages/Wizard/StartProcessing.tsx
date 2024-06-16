@@ -4,12 +4,15 @@ import {
   Flex,
   IconArrowLeft,
   IconArrowLineDown,
+  IconCheckCircle,
+  IconXCircle,
   Modal,
   ModalContent,
   ModalDismiss,
   ModalFooter,
   ModalHeader,
   ModalTitle,
+  Stack,
   csx,
   useModalState,
   useToast,
@@ -20,6 +23,7 @@ import { useIntl } from 'react-intl'
 import type {
   AppSettingsInput,
   Category,
+  CategoryInput,
   Mutation,
   MutationExecuteImportArgs,
   StocksOption,
@@ -99,12 +103,35 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
   )
 
   const renderOption = (label: string, condition: boolean) => (
-    <div>
-      {label}:
-      {condition
-        ? formatMessage(messages.yesLabel)
-        : formatMessage(messages.noLabel)}
-    </div>
+    <Stack direction="row" space="$space-1">
+      <span>{label}:</span>
+      {condition ? (
+        <IconCheckCircle
+          title={formatMessage(messages.yesLabel)}
+          weight="fill"
+          className={csx({ color: '$positive' })}
+        />
+      ) : (
+        <IconXCircle
+          title={formatMessage(messages.noLabel)}
+          weight="fill"
+          className={csx({ color: '$critical' })}
+        />
+      )}
+    </Stack>
+  )
+
+  const convertEntry: (
+    entry: [string, Category]
+  ) => CategoryInput = useCallback(
+    (entry: [string, Category]) => ({
+      id: entry[0],
+      name: entry[1].name,
+      ...(!!entry[1]?.children?.length && {
+        children: Object.entries(entry[1].children).map(convertEntry),
+      }),
+    }),
+    []
   )
 
   const handleStartImport = useCallback(
@@ -112,10 +139,7 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
       executeImport({
         variables: {
           args: {
-            categoryTree: Object.entries(checkedTreeOptions).map((c) => ({
-              id: c[0],
-              name: c[1].name,
-            })),
+            categoryTree: Object.entries(checkedTreeOptions).map(convertEntry),
             settings,
             importImages: optionsChecked.checkedItems.includes(
               IMPORT_OPTIONS.IMPORT_IMAGE
@@ -133,6 +157,7 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
       }),
     [
       checkedTreeOptions,
+      convertEntry,
       executeImport,
       optionsChecked.checkedItems,
       optionsChecked.stockOption,
@@ -142,28 +167,39 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
   )
 
   return (
-    <Flex style={{ flexDirection: 'column' }}>
-      <h3>{formatMessage(messages.optionsCategories)}</h3>
-      {renderTree(checkedTreeOptions)}
-      <h3>{formatMessage(messages.optionsLabel)}</h3>
-      {renderOption(
-        formatMessage(messages.importImage),
-        optionsChecked.checkedItems.includes(IMPORT_OPTIONS.IMPORT_IMAGE)
-      )}
-      {renderOption(
-        formatMessage(messages.importPrice),
-        optionsChecked.checkedItems.includes(IMPORT_OPTIONS.IMPORT_PRICE)
-      )}
-      <div>
-        {formatMessage(messages.importStocks)}:{' '}
-        {optionsChecked.stockOption === STOCK_OPTIONS.KEEP_SOURCE
-          ? formatMessage(messages.optionsSource)
-          : optionsChecked.stockOption === STOCK_OPTIONS.UNLIMITED
-          ? formatMessage(messages.optionsUnlimited)
-          : `${formatMessage(messages.optionsDefined)}: ${
-              optionsChecked.value
-            }`}
-      </div>
+    <Stack space="$space-4" fluid>
+      <Flex
+        direction={{ mobile: 'column', tablet: 'row' }}
+        align={{ mobile: 'center', tablet: 'start' }}
+        justify="space-evenly"
+        className={csx({ gap: '$space-4' })}
+      >
+        <div>
+          <h3>{formatMessage(messages.optionsCategories)}</h3>
+          {renderTree(checkedTreeOptions)}
+        </div>
+        <div>
+          <h3>{formatMessage(messages.optionsLabel)}</h3>
+          {renderOption(
+            formatMessage(messages.importImage),
+            optionsChecked.checkedItems.includes(IMPORT_OPTIONS.IMPORT_IMAGE)
+          )}
+          {renderOption(
+            formatMessage(messages.importPrice),
+            optionsChecked.checkedItems.includes(IMPORT_OPTIONS.IMPORT_PRICE)
+          )}
+          <div>
+            {formatMessage(messages.importStocks)}:{' '}
+            {optionsChecked.stockOption === STOCK_OPTIONS.KEEP_SOURCE
+              ? formatMessage(messages.optionsSource)
+              : optionsChecked.stockOption === STOCK_OPTIONS.UNLIMITED
+              ? formatMessage(messages.optionsUnlimited)
+              : `${formatMessage(messages.optionsDefined)}: ${
+                  optionsChecked.value
+                }`}
+          </div>
+        </div>
+      </Flex>
       <Flex justify="space-between" className={csx({ marginTop: '$space-4' })}>
         <Button
           onClick={() => state.select(state.previous())}
@@ -205,7 +241,7 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
           </Button>
         </ModalFooter>
       </Modal>
-    </Flex>
+    </Stack>
   )
 }
 

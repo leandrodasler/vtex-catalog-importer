@@ -58,5 +58,6 @@ type Query {
 
 type Mutation {
   updateAppSettings(settings: AppSettingsInput): AppSettings! @WithSettings
-  executeImport(args: ImportInput!): ID!
+  executeImport(args: ImportInput!): ID! @WithSettings
+  clearImports: Int!
 }

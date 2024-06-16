@@ -2,6 +2,7 @@ import type { Query as ResolverQuery } from 'ssesandbox04.catalog-importer'
 
 import { ENDPOINTS, httpGetResolverFactory } from '../helpers'
 import { brands } from './brands'
+import { clearImports } from './clearImports'
 import { executeImport } from './executeImport'
 import { updateAppSettings } from './updateAppSettings'
 
@@ -21,5 +22,6 @@ export default {
   Mutation: {
     updateAppSettings,
     executeImport,
+    clearImports,
   },
 }

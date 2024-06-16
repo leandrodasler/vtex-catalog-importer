@@ -13,10 +13,15 @@ import type {
 } from 'ssesandbox04.catalog-importer'
 
 import HttpClient from './HttpClient'
+import VtexId from './VtexId'
 
 class Clients extends IOClients {
   public get httpClient() {
     return this.getOrSet('httpClient', HttpClient)
+  }
+
+  public get vtexId() {
+    return this.getOrSet('vtexId', VtexId)
   }
 
   public get importExecution() {
@@ -28,10 +33,16 @@ class Clients extends IOClients {
 }
 
 declare global {
-  interface State extends RecorderState {
+  type State = RecorderState & {
     body: {
       settings?: AppSettingsInput
+      importId?: string
     }
+  }
+
+  type WithInternalFields<T> = T & {
+    id: string
+    createdIn: Date
   }
 
   type Context = ServiceContext<Clients, State>
