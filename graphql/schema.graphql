@@ -39,6 +39,20 @@ enum ImportStatus {
   ERROR
 }
 
+type Import {
+  id: ID!
+  createdIn: String!
+  lastInteractionIn: String!
+  user: String!
+  settings: AppSettings!
+  categoryTree: [Category!]!
+  importImages: Boolean!
+  importPrices: Boolean!
+  stocksOption: StocksOption!
+  stockValue: Int
+  status: ImportStatus!
+}
+
 input ImportInput {
   settings: AppSettingsInput!
   categoryTree: [CategoryInput!]!
@@ -49,9 +63,28 @@ input ImportInput {
   status: ImportStatus
 }
 
+input SearchInput {
+  page: Int
+  pageSize: Int
+  sort: String
+  where: String
+}
+
+type Pagination {
+  page: Int
+  pageSize: Int
+  total: Int
+}
+
+type ImportsResult {
+  data: [Import!]
+  pagination: Pagination!
+}
+
 type Query {
   appSettings: AppSettings! @WithSettings
   categories(settings: AppSettingsInput): [Category!] @WithSettings
+  imports(args: SearchInput!): ImportsResult
 }
 
 type Mutation {

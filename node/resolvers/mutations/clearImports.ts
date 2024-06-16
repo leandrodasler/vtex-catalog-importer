@@ -1,4 +1,4 @@
-import { entityGetAll } from '../helpers'
+import { entityGetAll } from '../../helpers'
 
 export const clearImports = async (
   _: unknown,

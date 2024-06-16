@@ -12,6 +12,9 @@ export const ENDPOINTS = {
 }
 
 export const IMPORT_EXECUTION_FIELDS = [
+  'id',
+  'createdIn',
+  'lastInteractionIn',
   'user',
   'settings',
   'categoryTree',

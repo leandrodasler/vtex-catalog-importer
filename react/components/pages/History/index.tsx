@@ -17,6 +17,10 @@ import {
 } from '@vtex/admin-ui'
 import faker from 'faker'
 import React from 'react'
+import type { Query, QueryImportsArgs } from 'ssesandbox04.catalog-importer'
+
+import { SuspenseFallback } from '../../common'
+import { IMPORTS_QUERY, useQueryCustom } from '../../graphql'
 
 const NUMBER_OF_ITEMS = 100
 const ITEMS_PER_PAGE = 25
@@ -50,21 +54,12 @@ const columns = createColumns([
       type: 'text',
       columnType: 'name',
       mapText: (item) => item.name,
-      render: ({ data }) => (
-        <div className={csx({ minWidth: '10rem' })}>{data}</div>
-      ),
     },
   },
   {
     id: 'brand',
     header: 'Brand',
     width: '1fr',
-    resolver: {
-      type: 'root',
-      render: ({ item }) => {
-        return <div className={csx({ minWidth: '6rem' })}>{item.brand}</div>
-      },
-    },
   },
   {
     id: 'price',
@@ -104,6 +99,20 @@ const columns = createColumns([
 ])
 
 export default function History() {
+  const { data: importsData, loading } = useQueryCustom<
+    Query,
+    QueryImportsArgs
+  >(IMPORTS_QUERY, {
+    variables: {
+      args: {
+        page: 1,
+        pageSize: 5,
+        sort: 'createdIn desc',
+        where: '',
+      },
+    },
+  })
+
   const view = useDataViewState()
   const pagination = usePaginationState({
     pageSize: ITEMS_PER_PAGE,
@@ -119,6 +128,13 @@ export default function History() {
 
   return (
     <DataView state={view}>
+      {loading && <SuspenseFallback />}
+      {importsData?.imports && (
+        <textarea className={csx({ width: '100%', height: 500 })}>
+          {JSON.stringify(importsData.imports, null, 2)}
+        </textarea>
+      )}
+
       <Pagination state={pagination} />
       <Table {...getTable()} width="100%">
         <THead>

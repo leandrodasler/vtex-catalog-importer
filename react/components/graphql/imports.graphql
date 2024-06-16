@@ -1,0 +1,24 @@
+query getImports($args: SearchInput!) {
+  imports(args: $args) {
+    pagination {
+      page
+      pageSize
+      total
+    }
+    data {
+      id
+      createdIn
+      lastInteractionIn
+      user
+      settings {
+        useDefault
+        account
+      }
+      importImages
+      importPrices
+      stocksOption
+      stockValue
+      status
+    }
+  }
+}

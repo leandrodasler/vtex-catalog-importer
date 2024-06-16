@@ -12,6 +12,7 @@
     "status": { "type": "string" }
   },
   "required": [
+    "user",
     "settings",
     "categoryTree",
     "importImages",

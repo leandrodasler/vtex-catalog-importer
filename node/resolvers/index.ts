@@ -1,25 +1,7 @@
-import type { Query as ResolverQuery } from 'ssesandbox04.catalog-importer'
-
-import { ENDPOINTS, httpGetResolverFactory } from '../helpers'
-import { clearImports } from './clearImports'
-import { executeImport } from './executeImport'
-import { updateAppSettings } from './updateAppSettings'
-
-const appSettings = async (_: unknown, __: unknown, context: Context) =>
-  context.state.body.settings
-
-const categories = httpGetResolverFactory<ResolverQuery['categories']>(
-  ENDPOINTS.categories
-)
+import Mutation from './mutations'
+import Query from './queries'
 
 export default {
-  Query: {
-    appSettings,
-    categories,
-  },
-  Mutation: {
-    updateAppSettings,
-    executeImport,
-    clearImports,
-  },
+  Query,
+  Mutation,
 }

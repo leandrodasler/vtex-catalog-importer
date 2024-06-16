@@ -43,6 +43,7 @@ declare global {
   type WithInternalFields<T> = T & {
     id: string
     createdIn: Date
+    lastInteractionIn: Date
   }
 
   type Context = ServiceContext<Clients, State>
