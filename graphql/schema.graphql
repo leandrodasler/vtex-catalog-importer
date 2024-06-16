@@ -49,15 +49,6 @@ input ImportInput {
   status: ImportStatus
 }
 
-type Brand {
-  id: ID!
-  name: String!
-  isActive: Boolean!
-  title: String
-  metaTagDescription: String
-  imageUrl: String
-}
-
 type Query {
   appSettings: AppSettings! @WithSettings
   categories(settings: AppSettingsInput): [Category!] @WithSettings
