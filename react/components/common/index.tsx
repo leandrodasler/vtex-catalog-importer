@@ -9,7 +9,7 @@ import { getGraphQLMessageDescriptor } from '../graphql'
 type ErrorMessageProps = { error: GraphQLError; title?: MessageDescriptor }
 
 export const SuspenseFallback = () => (
-  <Center className={csx({ height: '25vh' })}>
+  <Center className={csx({ height: '25vh', width: '100%' })}>
     <Spinner />
   </Center>
 )

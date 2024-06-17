@@ -1,6 +1,7 @@
 import {
   DataView,
   IconEye,
+  IconTrash,
   Pagination,
   TBody,
   TBodyCell,
@@ -41,7 +42,6 @@ const items = Array(NUMBER_OF_ITEMS)
       ]),
       price: faker.commerce.price(),
       status: 'Inactive',
-      actions: 'Actions',
     }
   })
 
@@ -50,11 +50,6 @@ const columns = createColumns([
     id: 'name',
     header: 'Name',
     width: '2fr',
-    resolver: {
-      type: 'text',
-      columnType: 'name',
-      mapText: (item) => item.name,
-    },
   },
   {
     id: 'brand',
@@ -83,7 +78,7 @@ const columns = createColumns([
     },
   },
   {
-    id: 'actions',
+    id: 'id',
     resolver: {
       type: 'menu',
       actions: [
@@ -93,25 +88,32 @@ const columns = createColumns([
           // eslint-disable-next-line no-alert
           onClick: (item) => alert(`Item: ${item.name}`),
         },
+        {
+          label: 'Delete',
+          critical: true,
+          icon: <IconTrash />,
+          // eslint-disable-next-line no-alert
+          onClick: (item) => alert(`Delete item: ${item.name}?`),
+        },
       ],
     },
   },
 ])
 
 export default function History() {
-  const { data: importsData, loading } = useQueryCustom<
-    Query,
-    QueryImportsArgs
-  >(IMPORTS_QUERY, {
-    variables: {
-      args: {
-        page: 1,
-        pageSize: 5,
-        sort: 'createdIn desc',
-        where: '',
+  const { data, loading } = useQueryCustom<Query, QueryImportsArgs>(
+    IMPORTS_QUERY,
+    {
+      variables: {
+        args: {
+          page: 1,
+          pageSize: 5,
+          sort: 'createdIn desc',
+          where: '',
+        },
       },
-    },
-  })
+    }
+  )
 
   const view = useDataViewState()
   const pagination = usePaginationState({
@@ -119,19 +121,21 @@ export default function History() {
     total: NUMBER_OF_ITEMS,
   })
 
-  const { data, getBodyCell, getHeadCell, getTable } = useTableState({
-    status: view.status,
-    columns,
-    items: items.slice(pagination.range[0] - 1, pagination.range[1]),
-    length: ITEMS_PER_PAGE,
-  })
+  const { data: tableData, getBodyCell, getHeadCell, getTable } = useTableState(
+    {
+      status: view.status,
+      columns,
+      items: items.slice(pagination.range[0] - 1, pagination.range[1]),
+      length: ITEMS_PER_PAGE,
+    }
+  )
 
   return (
     <DataView state={view}>
       {loading && <SuspenseFallback />}
-      {importsData?.imports && (
+      {data?.imports && (
         <textarea className={csx({ width: '100%', height: 500 })}>
-          {JSON.stringify(importsData.imports, null, 2)}
+          {JSON.stringify(data.imports, null, 2)}
         </textarea>
       )}
 
@@ -143,7 +147,7 @@ export default function History() {
           ))}
         </THead>
         <TBody>
-          {data.map((item, index) => {
+          {tableData.map((item, index) => {
             return (
               <TBodyRow
                 key={`row-${index}`}
