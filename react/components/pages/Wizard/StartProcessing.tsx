@@ -97,23 +97,28 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
     },
   })
 
-  const convertChildrenToObject = (children: Category[]) => {
-    return children.reduce(
-      (acc, child) => ({ ...acc, [child.id]: { ...child, checked: true } }),
-      {} as CheckedCategories
-    )
-  }
-
   const renderTree = (tree: CheckedCategories, level = 0) => (
-    <ul style={{ paddingLeft: '1rem' }}>
-      {Object.entries(tree).map(([key, value]) => (
-        <li key={key} style={{ marginLeft: '1rem' }}>
-          <span>{value.name}</span>
-          {value.children &&
-            value.children.length > 0 &&
-            renderTree(convertChildrenToObject(value.children), level + 1)}
-        </li>
-      ))}
+    <ul style={{ paddingLeft: level === 0 ? 0 : '1rem' }}>
+      {Object.entries(tree).map(([key, value]) => {
+        if (value.isRoot) {
+          return (
+            <li key={key} style={{ marginLeft: '1rem' }}>
+              <span>{value.name}</span>
+              {value.children && value.children.length > 0 && (
+                <ul>
+                  {value.children.map((child: Category) => (
+                    <li key={child.id} style={{ marginLeft: '1rem' }}>
+                      <span>{child.name}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          )
+        }
+
+        return null
+      })}
     </ul>
   )
 

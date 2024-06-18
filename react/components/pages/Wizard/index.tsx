@@ -28,7 +28,11 @@ const ImportOptions = lazy(() => import('./ImportOptions'))
 const StartProcessing = lazy(() => import('./StartProcessing'))
 
 export interface CheckedCategories {
-  [key: string]: Category & { checked: boolean }
+  [key: string]: Category & {
+    checked: boolean
+    isRoot?: boolean
+    children?: Category
+  }
 }
 
 export interface Options {

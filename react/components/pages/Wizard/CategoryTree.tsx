@@ -115,13 +115,21 @@ const CategoryTree = ({
 
       const newState = {
         ...prevState,
-        [categoryId]: { ...category, checked: isChecked },
+        [categoryId]: {
+          ...category,
+          checked: isChecked,
+          isRoot: !findParentCategory(data?.categories, categoryId),
+        },
       }
 
       const markChildren = (subCategory: Category, checked: boolean) => {
         if (subCategory.children) {
           subCategory.children.forEach((childCategory: Category) => {
-            newState[childCategory.id] = { ...childCategory, checked }
+            newState[childCategory.id] = {
+              ...childCategory,
+              checked,
+              isRoot: false,
+            }
             markChildren(childCategory, checked)
           })
         }
@@ -138,6 +146,7 @@ const CategoryTree = ({
           newState[parentCategory.id] = {
             ...parentCategory,
             checked: true,
+            isRoot: !findParentCategory(data?.categories, parentCategory.id),
           }
           parentCategory = findParentCategory(
             data?.categories,
