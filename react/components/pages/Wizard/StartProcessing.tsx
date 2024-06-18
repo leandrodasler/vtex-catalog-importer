@@ -97,29 +97,17 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
     },
   })
 
-  const renderTree = (tree: CheckedCategories, level = 0) => (
-    <ul style={{ paddingLeft: level === 0 ? 0 : '1rem' }}>
-      {Object.entries(tree).map(([key, value]) => {
-        if (value.isRoot) {
-          return (
-            <li key={key} style={{ marginLeft: '1rem' }}>
-              <span>{value.name}</span>
-              {value.children && value.children.length > 0 && (
-                <ul>
-                  {value.children.map((child: Category) => (
-                    <li key={child.id} style={{ marginLeft: '1rem' }}>
-                      <span>{child.name}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          )
-        }
-
-        return null
-      })}
-    </ul>
+  const renderTree = (category: Category, level = 0) => (
+    <li key={category.id} style={{ marginLeft: level ? 30 : 0 }}>
+      <span>{category.name}</span>
+      {category.children && (
+        <ul>
+          {category.children.map((child: Category) =>
+            renderTree(child, level + 1)
+          )}
+        </ul>
+      )}
+    </li>
   )
 
   const renderOption = (label: string, condition: boolean) => (
@@ -196,7 +184,11 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
       >
         <div>
           <h3>{formatMessage(messages.optionsCategories)}</h3>
-          {renderTree(checkedTreeOptions)}
+          <ul>
+            {Object.values(checkedTreeOptions).map((category) =>
+              category.isRoot ? renderTree(category) : null
+            )}
+          </ul>
         </div>
         <div>
           <h3>{formatMessage(messages.optionsLabel)}</h3>
