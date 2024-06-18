@@ -1,0 +1,3 @@
+mutation deleteImports($ids: [ID!]) {
+  deleteImports(ids: $ids)
+}

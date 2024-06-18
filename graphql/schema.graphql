@@ -71,24 +71,24 @@ input SearchInput {
 }
 
 type Pagination {
-  page: Int
-  pageSize: Int
-  total: Int
+  page: Int!
+  pageSize: Int!
+  total: Int!
 }
 
 type ImportsResult {
-  data: [Import!]
+  data: [Import!]!
   pagination: Pagination!
 }
 
 type Query {
   appSettings: AppSettings! @WithSettings
   categories(settings: AppSettingsInput): [Category!] @WithSettings
-  imports(args: SearchInput!): ImportsResult
+  imports(args: SearchInput!): ImportsResult!
 }
 
 type Mutation {
   updateAppSettings(settings: AppSettingsInput): AppSettings! @WithSettings
   executeImport(args: ImportInput!): ID! @WithSettings
-  clearImports: Int!
+  deleteImports(ids: [ID!]): [ID!]!
 }

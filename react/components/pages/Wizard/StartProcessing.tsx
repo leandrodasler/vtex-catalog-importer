@@ -4,8 +4,6 @@ import {
   Flex,
   IconArrowLeft,
   IconArrowLineDown,
-  IconCheckCircle,
-  IconXCircle,
   Modal,
   ModalContent,
   ModalDismiss,
@@ -28,11 +26,17 @@ import type {
   MutationExecuteImportArgs,
   StocksOption,
 } from 'ssesandbox04.catalog-importer'
-import { useRuntime } from 'vtex.render-runtime'
 
 import type { CheckedCategories } from '.'
 import { IMPORT_OPTIONS, STOCK_OPTIONS } from '.'
-import { Countdown, messages } from '../../common'
+import {
+  Checked,
+  Countdown,
+  Unchecked,
+  goToHistoryPage,
+  messages,
+  useStockOptionLabel,
+} from '../../common'
 import {
   EXECUTE_IMPORT_MUTATION,
   getGraphQLMessageDescriptor,
@@ -60,9 +64,9 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
   const { formatMessage } = useIntl()
   const showToast = useToast()
   const confirmationImportModal = useModalState()
-  const { navigate } = useRuntime()
+  const getStockOptionLabel = useStockOptionLabel()
 
-  const [executeImport, { loading }] = useMutation<
+  const [executeImport, { loading, data: importData }] = useMutation<
     Mutation,
     MutationExecuteImportArgs
   >(EXECUTE_IMPORT_MUTATION, {
@@ -83,19 +87,24 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
 
       showToast({
         message: formatMessage(messages.startSuccess, {
-          seconds: <Countdown seconds={NAVIGATE_DELAY / 1000} />,
+          seconds: (
+            <Countdown key="countdown" seconds={NAVIGATE_DELAY / 1000} />
+          ),
         }),
+        action: {
+          label: formatMessage(messages.historyAction),
+          onClick: goToHistoryPage,
+        },
         duration: NAVIGATE_DELAY,
         variant: 'positive',
         key: 'execute-import-message',
       })
 
-      setTimeout(
-        () => navigate({ page: 'admin.app.catalog-importer-history' }),
-        NAVIGATE_DELAY
-      )
+      setTimeout(goToHistoryPage, NAVIGATE_DELAY)
     },
   })
+
+  const disabledButtons = loading || !!importData?.executeImport
 
   const convertChildrenToObject = (children: Category[]) => {
     return children.reduce(
@@ -120,19 +129,7 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
   const renderOption = (label: string, condition: boolean) => (
     <Stack direction="row" space="$space-1">
       <span>{label}</span>
-      {condition ? (
-        <IconCheckCircle
-          title={formatMessage(messages.yesLabel)}
-          weight="fill"
-          className={csx({ color: '$positive' })}
-        />
-      ) : (
-        <IconXCircle
-          title={formatMessage(messages.noLabel)}
-          weight="fill"
-          className={csx({ color: '$critical' })}
-        />
-      )}
+      {condition ? <Checked /> : <Unchecked />}
     </Stack>
   )
 
@@ -199,7 +196,7 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
             {formatMessage(messages.settingsAccountLabel)}:{' '}
             <b>
               {settings.useDefault
-                ? formatMessage(messages.settingsDefaultLabel).toLowerCase()
+                ? formatMessage(messages.settingsDefaultShort)
                 : settings.account}
             </b>
           </div>
@@ -214,11 +211,7 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
           <div>
             {formatMessage(messages.importStocks)}:{' '}
             <b>
-              {optionsChecked.stockOption === STOCK_OPTIONS.KEEP_SOURCE
-                ? formatMessage(messages.optionsSource).toLowerCase()
-                : optionsChecked.stockOption === STOCK_OPTIONS.UNLIMITED
-                ? formatMessage(messages.optionsUnlimited).toLowerCase()
-                : formatMessage(messages.optionsDefined).toLowerCase()}
+              {getStockOptionLabel(optionsChecked.stockOption).toLowerCase()}
             </b>
           </div>
           {optionsChecked.stockOption === STOCK_OPTIONS.TO_BE_DEFINED && (
@@ -233,13 +226,13 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
         <Button
           onClick={() => state.select(state.previous())}
           icon={<IconArrowLeft />}
-          disabled={loading}
+          disabled={disabledButtons}
         >
           {formatMessage(messages.previousLabel)}
         </Button>
         <Button
           icon={<IconArrowLineDown />}
-          disabled={loading}
+          disabled={disabledButtons}
           loading={loading}
           onClick={() => confirmationImportModal.show()}
         >
@@ -254,7 +247,7 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
         <ModalContent>{formatMessage(messages.startText)}</ModalContent>
         <ModalFooter>
           <Button
-            disabled={loading}
+            disabled={disabledButtons}
             variant="secondary"
             onClick={() => confirmationImportModal.hide()}
           >
@@ -262,7 +255,7 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
           </Button>
           <Button
             icon={<IconArrowLineDown />}
-            disabled={loading}
+            disabled={disabledButtons}
             loading={confirmationImportModal.open && loading}
             onClick={handleStartImport}
           >

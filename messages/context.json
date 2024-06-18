@@ -1,7 +1,9 @@
 {
   "admin/app.title": "Catalog Importer",
   "admin/wizard.title": "Import Wizard",
+  "admin/wizard.action": "Go to Import Wizard",
   "admin/history.title": "Import History",
+  "admin/history.action": "Go to Import History",
   "admin/search.kws": "manage,catalog,import,importer",
   "admin/version.label": "Version {version}",
   "admin/previous.label": "Previous",
@@ -9,9 +11,13 @@
   "admin/yes.label": "Yes",
   "admin/no.label": "No",
   "admin/cancel.label": "Cancel",
+  "admin/delete.label": "Delete",
+  "admin/load.label": "Load more",
+  "admin/pagination.label": "Showing {current} out of {total}",
 
   "admin/settings.label": "Settings",
   "admin/settings.default.label": "Use default settings",
+  "admin/settings.default.short": "Default",
   "admin/settings.custom.label": "Provide custom settings",
   "admin/settings.account.label": "Source VTEX Account",
   "admin/settings.account.helpText": "VTEX account from where the catalog will be imported",
@@ -44,5 +50,16 @@
   "admin/start.label": "Start import",
   "admin/start.confirmation": "Are you sure you want to start import?",
   "admin/start.text": "The import will start in background and the catalog will be updated. Import logs will be available at the Import History page.",
-  "admin/start.success": "The import process started successfully. You will be redirected to the Import History page in {seconds} seconds to view the import logs."
+  "admin/start.success": "The import process started successfully. You will be redirected to the Import History page in {seconds} seconds to view the import logs.",
+
+  "admin/import.user.label": "User",
+  "admin/import.createdIn.label": "Started at",
+  "admin/import.images.label": "Images",
+  "admin/import.prices.label": "Prices",
+  "admin/import.status.label": "Status",
+  "admin/import.status.pending.label": "PENDING",
+  "admin/import.status.running.label": "RUNNING",
+  "admin/import.status.success.label": "SUCCESS",
+  "admin/import.status.error.label": "ERROR",
+  "admin/import.view.label": "View logs"
 }

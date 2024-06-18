@@ -1,7 +1,9 @@
 {
   "admin/app.title": "Importador de Catálogo",
   "admin/wizard.title": "Assistente de Importação",
+  "admin/wizard.action": "Ir para Assistente de Importação",
   "admin/history.title": "Histórico de Importações",
+  "admin/history.action": "Ir para Histórico de Importações",
   "admin/search.kws": "gerenciar,administrar,catalogo,catalog,import,importer,importador",
   "admin/version.label": "Versão {version}",
   "admin/previous.label": "Anterior",
@@ -9,9 +11,13 @@
   "admin/yes.label": "Sim",
   "admin/no.label": "Não",
   "admin/cancel.label": "Cancelar",
+  "admin/delete.label": "Excluir",
+  "admin/load.label": "Carregar mais",
+  "admin/pagination.label": "Exibindo {current} de um total de {total}",
 
   "admin/settings.label": "Configurações",
   "admin/settings.default.label": "Utilizar configurações padrão",
+  "admin/settings.default.short": "Padrão",
   "admin/settings.custom.label": "Fornecer configurações personalizadas",
   "admin/settings.account.label": "Conta VTEX de Origem",
   "admin/settings.account.helpText": "Conta VTEX de onde o catálogo será importado",
@@ -44,5 +50,16 @@
   "admin/start.label": "Iniciar importação",
   "admin/start.confirmation": "Está certo de que deseja iniciar a importação?",
   "admin/start.text": "A importação iniciará em segundo plano e o catálogo será atualizado. Os registros da importação estarão disponíveis na página Histórico de Importações.",
-  "admin/start.success": "O processo de importação foi iniciado com sucesso. Você será redirecionado para a página Histórico de Importações em {seconds} segundos para visualizar os registros da importação."
+  "admin/start.success": "O processo de importação foi iniciado com sucesso. Você será redirecionado para a página Histórico de Importações em {seconds} segundos para visualizar os registros da importação.",
+
+  "admin/import.user.label": "Usuário",
+  "admin/import.createdIn.label": "Iniciada em",
+  "admin/import.images.label": "Imagens",
+  "admin/import.prices.label": "Preços",
+  "admin/import.status.label": "Estado",
+  "admin/import.status.pending.label": "PENDENTE",
+  "admin/import.status.running.label": "PROCESSANDO",
+  "admin/import.status.success.label": "SUCESSO",
+  "admin/import.status.error.label": "ERRO",
+  "admin/import.view.label": "Visualizar registros"
 }
