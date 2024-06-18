@@ -1,7 +1,9 @@
 {
   "admin/app.title": "Importador de Catálogo",
   "admin/wizard.title": "Asistente de Importación",
+  "admin/wizard.action": "Ir para Asistente de Importación",
   "admin/history.title": "Historial de Importaciones",
+  "admin/history.action": "Ir para Historial de Importaciones",
   "admin/search.kws": "gerenciar,administrar,catalogo,catalog,import,importer,importador,importación,importaciones",
   "admin/version.label": "Versión {version}",
   "admin/previous.label": "Anterior",
@@ -9,9 +11,13 @@
   "admin/yes.label": "Sí",
   "admin/no.label": "No",
   "admin/cancel.label": "Cancelar",
+  "admin/delete.label": "Eliminar",
+  "admin/load.label": "Cargar más",
+  "admin/pagination.label": "Mostando {current} de un total de {total}",
 
   "admin/settings.label": "Configuraciones",
   "admin/settings.default.label": "Utilizar configuraciones predeterminadas",
+  "admin/settings.default.short": "Predeterminada",
   "admin/settings.custom.label": "Proporcionar configuraciones personalizadas",
   "admin/settings.account.label": "Cuenta VTEX de Origen",
   "admin/settings.account.helpText": "Cuenta VTEX de donde se importará el catálogo",
@@ -44,5 +50,16 @@
   "admin/start.label": "Iniciar importación",
   "admin/start.confirmation": "¿Estás seguro de que deseas iniciar la importación?",
   "admin/start.text": "La importación comenzará en segundo plano y el catálogo se actualizará. Los registros de la importación estarán disponibles en la página Historial de Importaciones.",
-  "admin/start.success": "El proceso de importación comenzó exitosamente. Usted se redireccionará a la página Historial de Importaciones en {seconds} segundos para visualizar los registros de la importación."
+  "admin/start.success": "El proceso de importación comenzó exitosamente. Usted se redireccionará a la página Historial de Importaciones en {seconds} segundos para visualizar los registros de la importación.",
+
+  "admin/import.user.label": "Usuario",
+  "admin/import.createdIn.label": "Inició en",
+  "admin/import.images.label": "Imágenes",
+  "admin/import.prices.label": "Precios",
+  "admin/import.status.label": "Estado",
+  "admin/import.status.pending.label": "PENDIENTE",
+  "admin/import.status.running.label": "PROCESANDO",
+  "admin/import.status.success.label": "ÉXITO",
+  "admin/import.status.error.label": "ERROR",
+  "admin/import.view.label": "Visualizar registros"
 }

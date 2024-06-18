@@ -94,15 +94,15 @@ export default function ImportOptions({
       >
         <Radio
           value={STOCK_OPTIONS.KEEP_SOURCE}
-          label={formatMessage(messages.optionsSource)}
+          label={formatMessage(messages.optionsKEEP_SOURCE)}
         />
         <Radio
           value={STOCK_OPTIONS.UNLIMITED}
-          label={formatMessage(messages.optionsUnlimited)}
+          label={formatMessage(messages.optionsUNLIMITED)}
         />
         <Radio
           value={STOCK_OPTIONS.TO_BE_DEFINED}
-          label={formatMessage(messages.optionsDefined)}
+          label={formatMessage(messages.optionsTO_BE_DEFINED)}
         />
         {stockOptionState.value === STOCK_OPTIONS.TO_BE_DEFINED && (
           <TextInput
