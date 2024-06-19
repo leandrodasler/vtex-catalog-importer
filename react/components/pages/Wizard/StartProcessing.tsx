@@ -177,7 +177,7 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
   const renderTree = (categories: Category[], level = 0) => {
     return categories.map((category) => (
       <div key={category.id} style={{ marginLeft: level * 20 }}>
-        <div>{category.name}</div>
+        {category.checked && <div>{category.name}</div>}
         {category.children &&
           category.children.length > 0 &&
           renderTree(category.children, level + 1)}
@@ -197,7 +197,7 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
       >
         <div>
           <h3>{formatMessage(messages.optionsCategories)}</h3>
-          <ul>{renderTree(treeData)}</ul> {/* RENDERIZAR ARVORE */}
+          <ul>{renderTree(treeData)}</ul>
         </div>
         <div>
           <h3>{formatMessage(messages.optionsLabel)}</h3>
