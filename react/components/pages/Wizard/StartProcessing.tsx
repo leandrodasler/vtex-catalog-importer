@@ -20,12 +20,10 @@ import { useMutation } from 'react-apollo'
 import { useIntl } from 'react-intl'
 import type {
   AppSettingsInput,
+  Category,
   CategoryInput,
-  Maybe,
   Mutation,
   MutationExecuteImportArgs,
-  Category as OriginalCategory,
-  Scalars,
   StocksOption,
 } from 'ssesandbox04.catalog-importer'
 
@@ -106,9 +104,6 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
     },
   })
 
-  interface LocalCategory extends OriginalCategory {
-    parentId?: Maybe<Scalars['ID']>
-  }
   const disabledButtons = loading || !!importData?.executeImport
 
   const renderOption = (label: string, condition: boolean) => (
@@ -119,9 +114,9 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
   )
 
   const convertEntry: (
-    entry: [string, LocalCategory]
+    entry: [string, Category]
   ) => CategoryInput = useCallback(
-    (entry: [string, LocalCategory]) => ({
+    (entry: [string, Category]) => ({
       id: entry[0],
       name: entry[1].name,
       ...(!!entry[1]?.children?.length && {
@@ -164,9 +159,7 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
   )
 
   const buildTree = (categories: CheckedCategories) => {
-    const tree: {
-      [key: string]: LocalCategory & { children: LocalCategory[] }
-    } = {}
+    const tree: { [key: string]: Category & { children: Category[] } } = {}
 
     Object.values(categories).forEach((category) => {
       tree[category.id] = { ...category, children: [] }
@@ -181,7 +174,7 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
     return Object.values(tree).filter((category) => !category.parentId)
   }
 
-  const renderTree = (categories: LocalCategory[], level = 0) => {
+  const renderTree = (categories: Category[], level = 0) => {
     return categories.map((category) => (
       <div key={category.id} style={{ marginLeft: level * 20 }}>
         <div>{category.name}</div>
