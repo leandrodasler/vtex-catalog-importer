@@ -106,19 +106,20 @@ const CategoryTree = ({
     parentChecked?: boolean
   ) => {
     setCheckedTreeOptions((prevState) => {
+      const categories = data?.categories ?? []
       const isChecked =
         parentChecked !== undefined
           ? parentChecked
           : !prevState[categoryId]?.checked
 
-      const category = findCategoryById(data?.categories, categoryId)
+      const category = findCategoryById(categories, categoryId)
 
       const newState = {
         ...prevState,
         [categoryId]: {
           ...category,
           checked: isChecked,
-          isRoot: !findParentCategory(data?.categories, categoryId),
+          parentId: findParentCategory(categories, categoryId)?.id ?? null,
         },
       }
 
@@ -128,7 +129,7 @@ const CategoryTree = ({
             newState[childCategory.id] = {
               ...childCategory,
               checked,
-              isRoot: false,
+              parentId: subCategory.id, // Propagando parentId para os filhos
             }
             markChildren(childCategory, checked)
           })
@@ -140,20 +141,25 @@ const CategoryTree = ({
       }
 
       if (isChecked) {
-        let parentCategory = findParentCategory(data?.categories, categoryId)
+        let parentCategory = findParentCategory(categories, categoryId)
 
         while (parentCategory) {
           newState[parentCategory.id] = {
             ...parentCategory,
             checked: true,
-            isRoot: !findParentCategory(data?.categories, parentCategory.id),
+            parentId:
+              findParentCategory(categories, parentCategory.id)?.id ?? null,
           }
-          parentCategory = findParentCategory(
-            data?.categories,
-            parentCategory.id
-          )
+          parentCategory = findParentCategory(categories, parentCategory.id)
         }
       }
+
+      Object.keys(newState).forEach((key) => {
+        newState[key] = {
+          ...newState[key],
+          __typename: categories.find((c: any) => c.id === key)?.__typename,
+        }
+      })
 
       // eslint-disable-next-line no-console
       console.log('newState:', newState)

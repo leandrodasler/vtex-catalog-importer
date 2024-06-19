@@ -20,10 +20,12 @@ import { useMutation } from 'react-apollo'
 import { useIntl } from 'react-intl'
 import type {
   AppSettingsInput,
-  Category,
   CategoryInput,
+  Maybe,
   Mutation,
   MutationExecuteImportArgs,
+  Category as OriginalCategory,
+  Scalars,
   StocksOption,
 } from 'ssesandbox04.catalog-importer'
 
@@ -104,20 +106,10 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
     },
   })
 
+  interface LocalCategory extends OriginalCategory {
+    parentId?: Maybe<Scalars['ID']>
+  }
   const disabledButtons = loading || !!importData?.executeImport
-
-  const renderTree = (category: Category, level = 0) => (
-    <li key={category.id} style={{ marginLeft: level ? 30 : 0 }}>
-      <span>{category.name}</span>
-      {category.children && (
-        <ul>
-          {category.children.map((child: Category) =>
-            renderTree(child, level + 1)
-          )}
-        </ul>
-      )}
-    </li>
-  )
 
   const renderOption = (label: string, condition: boolean) => (
     <Stack direction="row" space="$space-1">
@@ -127,9 +119,9 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
   )
 
   const convertEntry: (
-    entry: [string, Category]
+    entry: [string, LocalCategory]
   ) => CategoryInput = useCallback(
-    (entry: [string, Category]) => ({
+    (entry: [string, LocalCategory]) => ({
       id: entry[0],
       name: entry[1].name,
       ...(!!entry[1]?.children?.length && {
@@ -171,6 +163,37 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
     ]
   )
 
+  const buildTree = (categories: CheckedCategories) => {
+    const tree: {
+      [key: string]: LocalCategory & { children: LocalCategory[] }
+    } = {}
+
+    Object.values(categories).forEach((category) => {
+      tree[category.id] = { ...category, children: [] }
+    })
+
+    Object.values(tree).forEach((category) => {
+      if (category.parentId && tree[category.parentId]) {
+        tree[category.parentId].children.push(category)
+      }
+    })
+
+    return Object.values(tree).filter((category) => !category.parentId)
+  }
+
+  const renderTree = (categories: LocalCategory[], level = 0) => {
+    return categories.map((category) => (
+      <div key={category.id} style={{ marginLeft: level * 20 }}>
+        <div>{category.name}</div>
+        {category.children &&
+          category.children.length > 0 &&
+          renderTree(category.children, level + 1)}
+      </div>
+    ))
+  }
+
+  const treeData = buildTree(checkedTreeOptions)
+
   return (
     <Stack space="$space-4" fluid>
       <Flex
@@ -181,11 +204,7 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
       >
         <div>
           <h3>{formatMessage(messages.optionsCategories)}</h3>
-          <ul>
-            {Object.values(checkedTreeOptions).map((category) =>
-              category.isRoot ? renderTree(category) : null
-            )}
-          </ul>
+          <ul>{renderTree(treeData)}</ul> {/* RENDERIZAR ARVORE */}
         </div>
         <div>
           <h3>{formatMessage(messages.optionsLabel)}</h3>
