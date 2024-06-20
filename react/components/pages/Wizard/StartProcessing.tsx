@@ -106,26 +106,6 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
 
   const disabledButtons = loading || !!importData?.executeImport
 
-  const convertChildrenToObject = (children: Category[]) => {
-    return children.reduce(
-      (acc, child) => ({ ...acc, [child.id]: { ...child, checked: true } }),
-      {} as CheckedCategories
-    )
-  }
-
-  const renderTree = (tree: CheckedCategories, level = 0) => (
-    <ul style={{ paddingLeft: '1rem' }}>
-      {Object.entries(tree).map(([key, value]) => (
-        <li key={key} style={{ marginLeft: '1rem' }}>
-          <span>{value.name}</span>
-          {value.children &&
-            value.children.length > 0 &&
-            renderTree(convertChildrenToObject(value.children), level + 1)}
-        </li>
-      ))}
-    </ul>
-  )
-
   const renderOption = (label: string, condition: boolean) => (
     <Stack direction="row" space="$space-1">
       <span>{label}</span>
@@ -178,6 +158,35 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
     ]
   )
 
+  const buildTree = (categories: CheckedCategories) => {
+    const tree: { [key: string]: Category & { children: Category[] } } = {}
+
+    Object.values(categories).forEach((category) => {
+      tree[category.id] = { ...category, children: [] }
+    })
+
+    Object.values(tree).forEach((category) => {
+      if (category.parentId && tree[category.parentId]) {
+        tree[category.parentId].children.push(category)
+      }
+    })
+
+    return Object.values(tree).filter((category) => !category.parentId)
+  }
+
+  const renderTree = (categories: Category[], level = 0) => {
+    return categories.map((category) => (
+      <div key={category.id} style={{ marginLeft: level * 20 }}>
+        {category.checked && <div>{category.name}</div>}
+        {category.children &&
+          category.children.length > 0 &&
+          renderTree(category.children, level + 1)}
+      </div>
+    ))
+  }
+
+  const treeData = buildTree(checkedTreeOptions)
+
   return (
     <Stack space="$space-4" fluid>
       <Flex
@@ -188,7 +197,7 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
       >
         <div>
           <h3>{formatMessage(messages.optionsCategories)}</h3>
-          {renderTree(checkedTreeOptions)}
+          <ul>{renderTree(treeData)}</ul>
         </div>
         <div>
           <h3>{formatMessage(messages.optionsLabel)}</h3>
