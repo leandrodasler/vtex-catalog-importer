@@ -1,7 +1,4 @@
 import {
-  Button,
-  Center,
-  DataView,
   Stack,
   TBody,
   TBodyCell,
@@ -11,10 +8,9 @@ import {
   Table,
   Text,
   csx,
-  useDataViewState,
   useTableState,
 } from '@vtex/admin-ui'
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
 import type {
   Import,
@@ -22,37 +18,45 @@ import type {
   QueryImportsArgs,
 } from 'ssesandbox04.catalog-importer'
 
-import { SuspenseFallback, goToWizardPage, messages } from '../../common'
+import {
+  EmptyView,
+  SuspenseFallback,
+  goToWizardPage,
+  messages,
+} from '../../common'
 import { IMPORTS_QUERY, useQueryCustom } from '../../graphql'
 import useImportColumns from './useImportColumns'
 
-const ITEMS_PER_PAGE = 5
+const DEFAULT_ARGS = {
+  page: 1,
+  pageSize: 100,
+  sort: 'createdIn desc',
+  where: '',
+}
 
 export default function History() {
   const { formatMessage } = useIntl()
   const [deleted, setDeleted] = useState<string[]>([])
+  const columns = useImportColumns({ setDeleted })
 
   const { data, loading } = useQueryCustom<Query, QueryImportsArgs>(
     IMPORTS_QUERY,
-    {
-      variables: {
-        args: {
-          page: 1,
-          pageSize: ITEMS_PER_PAGE,
-          sort: 'createdIn desc',
-          where: '',
-        },
-      },
-    }
+    { variables: { args: DEFAULT_ARGS } }
   )
 
-  const columns = useImportColumns({ setDeleted })
-  const total = (data?.imports.pagination.total ?? 0) - deleted.length
-  const items = data?.imports.data.filter(
-    (item: Import) => !deleted?.includes(item.id)
+  const imports = data?.imports.data
+  const paginationTotal = data?.imports.pagination.total ?? 0
+
+  const items = useMemo(
+    () => imports?.filter((item: Import) => !deleted?.includes(item.id)) ?? [],
+    [deleted, imports]
   )
 
-  const pageSize = items?.length ?? 0
+  const pageSize = items?.length
+  const total = useMemo(() => paginationTotal - deleted.length, [
+    deleted,
+    paginationTotal,
+  ])
 
   const {
     data: tableData,
@@ -61,67 +65,57 @@ export default function History() {
     getTable,
   } = useTableState<Import>({ columns, items })
 
-  const emptyView = useDataViewState({
-    notFound: false,
-    loading: false,
-    empty: {
-      action: {
-        text: formatMessage(messages.wizardAction),
-        onClick: goToWizardPage,
-      },
-    },
-    error: null,
-  })
-
   if (loading) {
     return <SuspenseFallback />
   }
 
-  if (!pageSize) {
-    return <DataView state={emptyView} />
+  if (!total) {
+    return (
+      <EmptyView
+        text={formatMessage(messages.wizardAction)}
+        onClick={goToWizardPage}
+      />
+    )
   }
 
   return (
-    <Stack space="$space-4" fluid>
+    <Stack
+      space="$space-4"
+      fluid
+      className={csx({ maxWidth: '100%', overflow: 'auto' })}
+    >
       <Text variant="detail" className={csx({ paddingLeft: '$space-4' })}>
-        {formatMessage(messages.paginationLabel, { current: pageSize, total })}
+        {formatMessage(messages.importPaginationLabel, { pageSize, total })}
       </Text>
       <Table {...getTable()}>
         <THead>
           {columns.map((column, index) => (
-            <THeadCell {...getHeadCell(column)} key={`header-${index}`} />
+            <THeadCell
+              {...getHeadCell(column)}
+              key={`header-${index}`}
+              className="b"
+            />
           ))}
         </THead>
         <TBody>
-          {tableData.map((item, index) => {
-            return (
-              <TBodyRow
-                key={`row-${index}`}
-                onClick={() =>
-                  // eslint-disable-next-line no-alert
-                  alert(`Import: ${JSON.stringify(item, null, 2)}`)
-                }
-              >
-                {columns.map((column, indexColumn) => {
-                  return (
-                    <TBodyCell
-                      {...getBodyCell(column, item)}
-                      key={`column-${indexColumn}`}
-                    />
-                  )
-                })}
-              </TBodyRow>
-            )
-          })}
+          {tableData.map((item, index) => (
+            <TBodyRow
+              key={`row-${index}`}
+              onClick={() =>
+                // eslint-disable-next-line no-alert
+                alert(`Import: ${JSON.stringify(item, null, 2)}`)
+              }
+            >
+              {columns.map((column, indexColumn) => (
+                <TBodyCell
+                  {...getBodyCell(column, item)}
+                  key={`column-${indexColumn}`}
+                />
+              ))}
+            </TBodyRow>
+          ))}
         </TBody>
       </Table>
-      {total > pageSize && (
-        <Center>
-          <Button variant="secondary">
-            {formatMessage(messages.loadLabel)}
-          </Button>
-        </Center>
-      )}
     </Stack>
   )
 }

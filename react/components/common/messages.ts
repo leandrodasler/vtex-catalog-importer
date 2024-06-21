@@ -15,7 +15,6 @@ export const messages = defineMessages({
   cancelLabel: { id: 'admin/cancel.label' },
   deleteLabel: { id: 'admin/delete.label' },
   loadLabel: { id: 'admin/load.label' },
-  paginationLabel: { id: 'admin/pagination.label' },
   settingsMissingError: { id: 'admin/settings.missing.error' },
   settingsLabel: { id: 'admin/settings.label' },
   settingsDefaultLabel: { id: 'admin/settings.default.label' },
@@ -59,4 +58,5 @@ export const messages = defineMessages({
   importStatusSUCCESSLabel: { id: 'admin/import.status.success.label' },
   importStatusERRORLabel: { id: 'admin/import.status.error.label' },
   importViewLabel: { id: 'admin/import.view.label' },
+  importPaginationLabel: { id: 'admin/import.pagination.label' },
 })

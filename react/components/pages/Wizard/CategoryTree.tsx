@@ -154,16 +154,6 @@ const CategoryTree = ({
         }
       }
 
-      Object.keys(newState).forEach((key) => {
-        newState[key] = {
-          ...newState[key],
-          __typename: categories.find((c: any) => c.id === key)?.__typename,
-        }
-      })
-
-      // eslint-disable-next-line no-console
-      console.log('newState:', newState)
-
       return newState as CheckedCategories
     })
   }
@@ -221,9 +211,6 @@ const CategoryTree = ({
   )
 
   const categories = data?.categories
-
-  // eslint-disable-next-line no-console
-  console.log('checkedCategories:', checkedTreeOptions)
 
   return (
     <div className={csx({ position: 'relative' })}>

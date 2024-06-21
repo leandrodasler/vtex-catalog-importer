@@ -64,8 +64,8 @@ input ImportInput {
 }
 
 input SearchInput {
-  page: Int
-  pageSize: Int
+  page: Int!
+  pageSize: Int!
   sort: String
   where: String
 }

@@ -1,13 +1,15 @@
 import {
   Alert,
   Center,
+  DataView,
   IconCheckCircle,
   IconXCircle,
   Spinner,
   Stack,
   csx,
+  useDataViewState,
 } from '@vtex/admin-ui'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import type { MessageDescriptor } from 'react-intl'
 import { useIntl } from 'react-intl'
 import type { Import } from 'ssesandbox04.catalog-importer'
@@ -43,28 +45,6 @@ export const handleTrim = (e: React.FormEvent<HTMLInputElement>) => {
   e.currentTarget.value = e.currentTarget.value.trim()
 }
 
-type CountdownProps = { seconds: number }
-export const Countdown = ({ seconds }: CountdownProps) => {
-  const [currentSeconds, setCurrentSeconds] = useState(seconds)
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setCurrentSeconds((prev) => prev - 1)
-    }, 1000)
-
-    return () => {
-      clearTimeout(timer)
-    }
-  }, [currentSeconds])
-
-  return (
-    <>
-      {currentSeconds < 10 && '0'}
-      {currentSeconds}
-    </>
-  )
-}
-
 export const Checked = () => {
   const { formatMessage } = useIntl()
 
@@ -87,6 +67,19 @@ export const Unchecked = () => {
       className={csx({ color: '$critical' })}
     />
   )
+}
+
+type EmptyViewProps = { text: string; onClick: () => void }
+
+export const EmptyView = ({ text, onClick }: EmptyViewProps) => {
+  const state = useDataViewState({
+    notFound: false,
+    loading: false,
+    empty: { action: { text, onClick } },
+    error: null,
+  })
+
+  return <DataView state={state} />
 }
 
 export const useStatusLabel = () => {

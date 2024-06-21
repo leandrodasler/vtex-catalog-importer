@@ -13,7 +13,6 @@
   "admin/cancel.label": "Cancelar",
   "admin/delete.label": "Excluir",
   "admin/load.label": "Carregar mais",
-  "admin/pagination.label": "Exibindo {current} de um total de {total}",
 
   "admin/settings.label": "Configurações",
   "admin/settings.default.label": "Utilizar configurações padrão",
@@ -61,5 +60,6 @@
   "admin/import.status.running.label": "PROCESSANDO",
   "admin/import.status.success.label": "SUCESSO",
   "admin/import.status.error.label": "ERRO",
-  "admin/import.view.label": "Visualizar registros"
+  "admin/import.view.label": "Visualizar registros",
+  "admin/import.pagination.label": "Exibindo {pageSize} de um total de {total} {total, plural, one {importação} other {importações}}"
 }

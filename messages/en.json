@@ -13,7 +13,6 @@
   "admin/cancel.label": "Cancel",
   "admin/delete.label": "Delete",
   "admin/load.label": "Load more",
-  "admin/pagination.label": "Showing {current} out of {total}",
 
   "admin/settings.label": "Settings",
   "admin/settings.default.label": "Use default settings",
@@ -61,5 +60,6 @@
   "admin/import.status.running.label": "RUNNING",
   "admin/import.status.success.label": "SUCCESS",
   "admin/import.status.error.label": "ERROR",
-  "admin/import.view.label": "View logs"
+  "admin/import.view.label": "View logs",
+  "admin/import.pagination.label": "Showing {pageSize} out of {total} {total, plural, one {import} other {imports}}"
 }

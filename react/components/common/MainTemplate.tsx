@@ -1,4 +1,5 @@
 import {
+  Flex,
   experimental_I18nProvider as I18nProvider,
   Page,
   PageContent,
@@ -46,7 +47,9 @@ const MainTemplate = ({ children, subtitle, onPopNavigation }: Props) => {
                   {formatMessage(messages.appTitle)}
                 </PageHeaderTitle>
                 <PageHeaderActions>
-                  <Tag label={versionText} />
+                  <Flex className={csx({ minWidth: 95 })}>
+                    <Tag label={versionText} />
+                  </Flex>
                 </PageHeaderActions>
               </PageHeaderTop>
               <PageHeaderBottom>

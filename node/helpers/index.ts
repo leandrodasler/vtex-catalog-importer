@@ -17,7 +17,6 @@ export const IMPORT_EXECUTION_FIELDS = [
   'lastInteractionIn',
   'user',
   'settings',
-  'categoryTree',
   'importImages',
   'importPrices',
   'stocksOption',

@@ -15,13 +15,11 @@ import {
   useModalState,
   useToast,
 } from '@vtex/admin-ui'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useMutation } from 'react-apollo'
 import { useIntl } from 'react-intl'
 import type {
   AppSettingsInput,
-  Category,
-  CategoryInput,
   Mutation,
   MutationExecuteImportArgs,
   StocksOption,
@@ -29,18 +27,17 @@ import type {
 
 import type { CheckedCategories } from '.'
 import { IMPORT_OPTIONS, STOCK_OPTIONS } from '.'
-import {
-  Checked,
-  Countdown,
-  Unchecked,
-  goToHistoryPage,
-  messages,
-  useStockOptionLabel,
-} from '../../common'
+import { goToHistoryPage, messages, useStockOptionLabel } from '../../common'
 import {
   EXECUTE_IMPORT_MUTATION,
   getGraphQLMessageDescriptor,
 } from '../../graphql'
+import {
+  CategoryTreeView,
+  ImportOption,
+  buildTree,
+  handleTreeArgs,
+} from './common'
 
 interface StartProcessingProps {
   checkedTreeOptions: CheckedCategories
@@ -87,9 +84,7 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
 
       showToast({
         message: formatMessage(messages.startSuccess, {
-          seconds: (
-            <Countdown key="countdown" seconds={NAVIGATE_DELAY / 1000} />
-          ),
+          seconds: NAVIGATE_DELAY / 1000,
         }),
         action: {
           label: formatMessage(messages.historyAction),
@@ -106,32 +101,16 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
 
   const disabledButtons = loading || !!importData?.executeImport
 
-  const renderOption = (label: string, condition: boolean) => (
-    <Stack direction="row" space="$space-1">
-      <span>{label}</span>
-      {condition ? <Checked /> : <Unchecked />}
-    </Stack>
-  )
-
-  const convertEntry: (
-    entry: [string, Category]
-  ) => CategoryInput = useCallback(
-    (entry: [string, Category]) => ({
-      id: entry[0],
-      name: entry[1].name,
-      ...(!!entry[1]?.children?.length && {
-        children: Object.entries(entry[1].children).map(convertEntry),
-      }),
-    }),
-    []
-  )
+  const treeData = useMemo(() => buildTree(checkedTreeOptions), [
+    checkedTreeOptions,
+  ])
 
   const handleStartImport = useCallback(
     () =>
       executeImport({
         variables: {
           args: {
-            categoryTree: Object.entries(checkedTreeOptions).map(convertEntry),
+            categoryTree: handleTreeArgs(treeData),
             settings,
             importImages: optionsChecked.checkedItems.includes(
               IMPORT_OPTIONS.IMPORT_IMAGE
@@ -148,44 +127,14 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
         },
       }),
     [
-      checkedTreeOptions,
-      convertEntry,
       executeImport,
       optionsChecked.checkedItems,
       optionsChecked.stockOption,
       optionsChecked.value,
       settings,
+      treeData,
     ]
   )
-
-  const buildTree = (categories: CheckedCategories) => {
-    const tree: { [key: string]: Category & { children: Category[] } } = {}
-
-    Object.values(categories).forEach((category) => {
-      tree[category.id] = { ...category, children: [] }
-    })
-
-    Object.values(tree).forEach((category) => {
-      if (category.parentId && tree[category.parentId]) {
-        tree[category.parentId].children.push(category)
-      }
-    })
-
-    return Object.values(tree).filter((category) => !category.parentId)
-  }
-
-  const renderTree = (categories: Category[], level = 0) => {
-    return categories.map((category) => (
-      <div key={category.id} style={{ marginLeft: level * 20 }}>
-        {category.checked && <div>{category.name}</div>}
-        {category.children &&
-          category.children.length > 0 &&
-          renderTree(category.children, level + 1)}
-      </div>
-    ))
-  }
-
-  const treeData = buildTree(checkedTreeOptions)
 
   return (
     <Stack space="$space-4" fluid>
@@ -197,7 +146,9 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
       >
         <div>
           <h3>{formatMessage(messages.optionsCategories)}</h3>
-          <ul>{renderTree(treeData)}</ul>
+          <ul>
+            <CategoryTreeView categories={treeData} />
+          </ul>
         </div>
         <div>
           <h3>{formatMessage(messages.optionsLabel)}</h3>
@@ -209,14 +160,18 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
                 : settings.account}
             </b>
           </div>
-          {renderOption(
-            formatMessage(messages.importImage),
-            optionsChecked.checkedItems.includes(IMPORT_OPTIONS.IMPORT_IMAGE)
-          )}
-          {renderOption(
-            formatMessage(messages.importPrice),
-            optionsChecked.checkedItems.includes(IMPORT_OPTIONS.IMPORT_PRICE)
-          )}
+          <ImportOption
+            condition={optionsChecked.checkedItems.includes(
+              IMPORT_OPTIONS.IMPORT_IMAGE
+            )}
+            label={formatMessage(messages.importImage)}
+          />
+          <ImportOption
+            condition={optionsChecked.checkedItems.includes(
+              IMPORT_OPTIONS.IMPORT_PRICE
+            )}
+            label={formatMessage(messages.importPrice)}
+          />
           <div>
             {formatMessage(messages.importStocks)}:{' '}
             <b>
