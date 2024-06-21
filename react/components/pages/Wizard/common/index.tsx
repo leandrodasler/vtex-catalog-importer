@@ -53,7 +53,7 @@ export const CategoryTreeView = ({ categories }: CategoryTreeViewProps) => {
   )
 }
 
-export const handleTreeArgs: (
+export const mapToCategoryInput: (
   categories?: CheckedCategory[]
 ) => CategoryInput[] = (categories) => {
   return categories?.map((category) => ({
@@ -61,6 +61,6 @@ export const handleTreeArgs: (
     checked: undefined,
     parentId: undefined,
     isRoot: undefined,
-    children: handleTreeArgs(category.children),
+    children: mapToCategoryInput(category.children),
   })) as CategoryInput[]
 }

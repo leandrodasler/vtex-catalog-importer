@@ -36,7 +36,7 @@ import {
   CategoryTreeView,
   ImportOption,
   buildTree,
-  handleTreeArgs,
+  mapToCategoryInput,
 } from './common'
 
 interface StartProcessingProps {
@@ -110,7 +110,7 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
       executeImport({
         variables: {
           args: {
-            categoryTree: handleTreeArgs(treeData),
+            categoryTree: mapToCategoryInput(treeData),
             settings,
             importImages: optionsChecked.checkedItems.includes(
               IMPORT_OPTIONS.IMPORT_IMAGE
