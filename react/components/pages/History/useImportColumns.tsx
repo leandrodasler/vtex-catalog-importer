@@ -143,6 +143,9 @@ const useImportColumns = ({ setDeleted }: Props) => {
             icon: <IconEye />,
             onClick: (item, event) => {
               event.preventDefault()
+              // eslint-disable-next-line no-alert, no-console
+              console.log('item', item)
+
               // eslint-disable-next-line no-alert
               alert(`Import: ${JSON.stringify(item, null, 2)}`)
             },

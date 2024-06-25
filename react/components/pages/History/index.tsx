@@ -1,4 +1,9 @@
 import {
+  Modal,
+  ModalContent,
+  ModalDismiss,
+  ModalHeader,
+  ModalTitle,
   Stack,
   TBody,
   TBodyCell,
@@ -8,6 +13,7 @@ import {
   Table,
   Text,
   csx,
+  useModalState,
   useTableState,
 } from '@vtex/admin-ui'
 import React, { useMemo, useState } from 'react'
@@ -38,6 +44,11 @@ export default function History() {
   const { formatMessage } = useIntl()
   const [deleted, setDeleted] = useState<string[]>([])
   const columns = useImportColumns({ setDeleted })
+  const openInfosImportmodal = useModalState()
+  const [infoModal, setInfoModal] = useState<Import>()
+
+  // eslint-disable-next-line no-console
+  console.log('infoModal', infoModal)
 
   const { data, loading } = useQueryCustom<Query, QueryImportsArgs>(
     IMPORTS_QUERY,
@@ -101,10 +112,12 @@ export default function History() {
           {tableData.map((item, index) => (
             <TBodyRow
               key={`row-${index}`}
-              onClick={() =>
-                // eslint-disable-next-line no-alert
-                alert(`Import: ${JSON.stringify(item, null, 2)}`)
-              }
+              onClick={() => {
+                openInfosImportmodal.show()
+                setInfoModal(item)
+                // eslint-disable-next-line no-console
+                console.log('item onclick', item)
+              }}
             >
               {columns.map((column, indexColumn) => (
                 <TBodyCell
@@ -116,6 +129,37 @@ export default function History() {
           ))}
         </TBody>
       </Table>
+      <Modal state={openInfosImportmodal}>
+        <ModalHeader>
+          <ModalTitle>Modal title</ModalTitle>
+          <ModalDismiss />
+        </ModalHeader>
+        <ModalContent>
+          {infoModal && (
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <Text>ID: {infoModal.id}</Text>
+              <Text>
+                Created In:{' '}
+                {new Date(infoModal.createdIn).toLocaleDateString('pt-BR')}
+              </Text>
+              <Text>
+                Last Interaction in:{' '}
+                {new Date(infoModal.lastInteractionIn).toLocaleDateString(
+                  'pt-BR'
+                )}
+              </Text>
+              <Text>User: {infoModal.user}</Text>
+              <Text>Import Images: {infoModal.importImages}</Text>
+              <Text>Import Prices: {infoModal.importPrices}</Text>
+              <Text>Stock Value: {infoModal.stockValue}</Text>
+              <Text>Stock Option: {infoModal.stocksOption}</Text>
+              <Text>Category Tree: {infoModal.categoryTree}</Text>
+              <Text>Status: {infoModal.status}</Text>
+              <Text>Settings: {JSON.stringify(infoModal.settings)}</Text>
+            </div>
+          )}
+        </ModalContent>
+      </Modal>
     </Stack>
   )
 }
