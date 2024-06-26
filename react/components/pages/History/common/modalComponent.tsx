@@ -103,7 +103,7 @@ type DeleteConfirmationModalProps = {
   deleteId: string | undefined
   setDeleted: React.Dispatch<React.SetStateAction<string[]>>
 }
-const DeleteConfirmationModal = ({
+export const DeleteConfirmationModal = ({
   openDeleteConfirmationModal,
   deleteId,
   setDeleted,
@@ -133,5 +133,3 @@ const DeleteConfirmationModal = ({
     </Modal>
   )
 }
-
-export default DeleteConfirmationModal

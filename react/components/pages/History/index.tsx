@@ -26,7 +26,7 @@ import {
   messages,
 } from '../../common'
 import { IMPORTS_QUERY, useQueryCustom } from '../../graphql'
-import DeleteConfirmationModal, { ConfirmeModal } from './common/modalComponent'
+import { ConfirmeModal, DeleteConfirmationModal } from './common/modalComponent'
 import useImportColumns from './useImportColumns'
 
 const DEFAULT_ARGS = {
