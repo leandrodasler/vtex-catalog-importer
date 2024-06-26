@@ -3,19 +3,13 @@ import {
   Flex,
   IconEye,
   IconTrash,
-  Spinner,
   Tag,
   createColumns,
   csx,
 } from '@vtex/admin-ui'
 import React from 'react'
-import { useMutation } from 'react-apollo'
 import { useIntl } from 'react-intl'
-import type {
-  Import,
-  Mutation,
-  MutationDeleteImportsArgs,
-} from 'ssesandbox04.catalog-importer'
+import type { Import } from 'ssesandbox04.catalog-importer'
 import { useRuntime } from 'vtex.render-runtime'
 
 import {
@@ -25,7 +19,6 @@ import {
   useStatusLabel,
   useStockOptionLabel,
 } from '../../common'
-import { DELETE_IMPORTS_MUTATION } from '../../graphql'
 
 const mapStatusToVariant: Record<Import['status'], TagProps['variant']> = {
   PENDING: 'gray',
@@ -43,7 +36,6 @@ type Props = {
 }
 
 const useImportColumns = ({
-  setDeleted,
   openInfosImportmodal,
   setInfoModal,
   openDeleteConfirmationModal,
@@ -55,15 +47,6 @@ const useImportColumns = ({
   const {
     culture: { locale },
   } = useRuntime()
-
-  const [, { loading }] = useMutation<Mutation, MutationDeleteImportsArgs>(
-    DELETE_IMPORTS_MUTATION,
-    {
-      onCompleted(data) {
-        setDeleted((prev) => [...prev, ...data.deleteImports])
-      },
-    }
-  )
 
   return createColumns<Import>([
     {
@@ -160,7 +143,7 @@ const useImportColumns = ({
           {
             label: formatMessage(messages.deleteLabel),
             critical: true,
-            icon: loading ? <Spinner /> : <IconTrash />,
+            icon: <IconTrash />,
             onClick: (item, event) => {
               event.preventDefault()
               openDeleteConfirmationModal.show()

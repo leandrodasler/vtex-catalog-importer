@@ -7,19 +7,15 @@ import {
   ModalFooter,
   ModalHeader,
   ModalTitle,
+  Spinner,
   Text,
 } from '@vtex/admin-ui'
 import React from 'react'
-import { useMutation } from 'react-apollo'
-import type {
-  Import,
-  Mutation,
-  MutationDeleteImportsArgs,
-} from 'ssesandbox04.catalog-importer'
+import type { Import } from 'ssesandbox04.catalog-importer'
 import { useRuntime } from 'vtex.render-runtime'
 
+import { useDeleteImport } from '.'
 import { Checked, Unchecked, useStockOptionLabel } from '../../../common'
-import { DELETE_IMPORTS_MUTATION } from '../../../graphql'
 
 type ConfirmeModalProps = {
   openInfosImportmodal: ReturnType<typeof useModalState>
@@ -102,30 +98,24 @@ export const ConfirmeModal: React.FC<ConfirmeModalProps> = ({
   )
 }
 
-type Props = {
+type DeleteConfirmationModalProps = {
   openDeleteConfirmationModal: ReturnType<typeof useModalState>
   deleteId: string | undefined
   setDeleted: React.Dispatch<React.SetStateAction<string[]>>
 }
-
 const DeleteConfirmationModal = ({
   openDeleteConfirmationModal,
   deleteId,
   setDeleted,
-}: Props) => {
-  const [deleteImports] = useMutation<Mutation, MutationDeleteImportsArgs>(
-    DELETE_IMPORTS_MUTATION,
-    {
-      onCompleted(data) {
-        setDeleted((prev) => [...prev, ...data.deleteImports])
-        openDeleteConfirmationModal.hide()
-      },
-    }
+}: DeleteConfirmationModalProps) => {
+  const { loading, deleteImport } = useDeleteImport(
+    setDeleted,
+    openDeleteConfirmationModal
   )
 
   const handleDelete = () => {
     if (deleteId) {
-      deleteImports({ variables: { ids: [deleteId] } })
+      deleteImport(deleteId)
     }
   }
 
@@ -136,13 +126,8 @@ const DeleteConfirmationModal = ({
         <ModalDismiss />
       </ModalHeader>
       <ModalFooter>
-        <Button
-          onClick={() => {
-            handleDelete()
-          }}
-          style={{ backgroundColor: 'red' }}
-        >
-          Excluir
+        <Button onClick={handleDelete} style={{ backgroundColor: 'red' }}>
+          {loading ? <Spinner /> : 'Excluir'}
         </Button>
       </ModalFooter>
     </Modal>
