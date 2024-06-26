@@ -1,9 +1,4 @@
 import {
-  Modal,
-  ModalContent,
-  ModalDismiss,
-  ModalHeader,
-  ModalTitle,
   Stack,
   TBody,
   TBodyCell,
@@ -31,6 +26,7 @@ import {
   messages,
 } from '../../common'
 import { IMPORTS_QUERY, useQueryCustom } from '../../graphql'
+import DeleteConfirmationModal, { ConfirmeModal } from './common/modalComponent'
 import useImportColumns from './useImportColumns'
 
 const DEFAULT_ARGS = {
@@ -43,12 +39,18 @@ const DEFAULT_ARGS = {
 export default function History() {
   const { formatMessage } = useIntl()
   const [deleted, setDeleted] = useState<string[]>([])
-  const columns = useImportColumns({ setDeleted })
   const openInfosImportmodal = useModalState()
+  const openDeleteConfirmationModal = useModalState()
   const [infoModal, setInfoModal] = useState<Import>()
+  const [deleteId, setDeleteId] = useState<string | undefined>()
 
-  // eslint-disable-next-line no-console
-  console.log('infoModal', infoModal)
+  const columns = useImportColumns({
+    setDeleted,
+    openInfosImportmodal,
+    setInfoModal,
+    openDeleteConfirmationModal,
+    setDeleteId,
+  })
 
   const { data, loading } = useQueryCustom<Query, QueryImportsArgs>(
     IMPORTS_QUERY,
@@ -115,8 +117,6 @@ export default function History() {
               onClick={() => {
                 openInfosImportmodal.show()
                 setInfoModal(item)
-                // eslint-disable-next-line no-console
-                console.log('item onclick', item)
               }}
             >
               {columns.map((column, indexColumn) => (
@@ -129,37 +129,15 @@ export default function History() {
           ))}
         </TBody>
       </Table>
-      <Modal state={openInfosImportmodal}>
-        <ModalHeader>
-          <ModalTitle>Modal title</ModalTitle>
-          <ModalDismiss />
-        </ModalHeader>
-        <ModalContent>
-          {infoModal && (
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <Text>ID: {infoModal.id}</Text>
-              <Text>
-                Created In:{' '}
-                {new Date(infoModal.createdIn).toLocaleDateString('pt-BR')}
-              </Text>
-              <Text>
-                Last Interaction in:{' '}
-                {new Date(infoModal.lastInteractionIn).toLocaleDateString(
-                  'pt-BR'
-                )}
-              </Text>
-              <Text>User: {infoModal.user}</Text>
-              <Text>Import Images: {infoModal.importImages}</Text>
-              <Text>Import Prices: {infoModal.importPrices}</Text>
-              <Text>Stock Value: {infoModal.stockValue}</Text>
-              <Text>Stock Option: {infoModal.stocksOption}</Text>
-              <Text>Category Tree: {infoModal.categoryTree}</Text>
-              <Text>Status: {infoModal.status}</Text>
-              <Text>Settings: {JSON.stringify(infoModal.settings)}</Text>
-            </div>
-          )}
-        </ModalContent>
-      </Modal>
+      <ConfirmeModal
+        openInfosImportmodal={openInfosImportmodal}
+        infoModal={infoModal}
+      />
+      <DeleteConfirmationModal
+        openDeleteConfirmationModal={openDeleteConfirmationModal}
+        deleteId={deleteId}
+        setDeleted={setDeleted}
+      />
     </Stack>
   )
 }

@@ -1,4 +1,4 @@
-import type { TagProps } from '@vtex/admin-ui'
+import type { TagProps, useModalState } from '@vtex/admin-ui'
 import {
   Flex,
   IconEye,
@@ -36,9 +36,19 @@ const mapStatusToVariant: Record<Import['status'], TagProps['variant']> = {
 
 type Props = {
   setDeleted: React.Dispatch<React.SetStateAction<string[]>>
+  openInfosImportmodal: ReturnType<typeof useModalState>
+  setInfoModal: React.Dispatch<React.SetStateAction<Import | undefined>>
+  openDeleteConfirmationModal: ReturnType<typeof useModalState>
+  setDeleteId: React.Dispatch<React.SetStateAction<string | undefined>>
 }
 
-const useImportColumns = ({ setDeleted }: Props) => {
+const useImportColumns = ({
+  setDeleted,
+  openInfosImportmodal,
+  setInfoModal,
+  openDeleteConfirmationModal,
+  setDeleteId,
+}: Props) => {
   const { formatMessage } = useIntl()
   const getStatusLabel = useStatusLabel()
   const getStockOptionLabel = useStockOptionLabel()
@@ -46,14 +56,14 @@ const useImportColumns = ({ setDeleted }: Props) => {
     culture: { locale },
   } = useRuntime()
 
-  const [deleteImports, { loading }] = useMutation<
-    Mutation,
-    MutationDeleteImportsArgs
-  >(DELETE_IMPORTS_MUTATION, {
-    onCompleted(data) {
-      setDeleted((prev) => [...prev, ...data.deleteImports])
-    },
-  })
+  const [, { loading }] = useMutation<Mutation, MutationDeleteImportsArgs>(
+    DELETE_IMPORTS_MUTATION,
+    {
+      onCompleted(data) {
+        setDeleted((prev) => [...prev, ...data.deleteImports])
+      },
+    }
+  )
 
   return createColumns<Import>([
     {
@@ -143,11 +153,8 @@ const useImportColumns = ({ setDeleted }: Props) => {
             icon: <IconEye />,
             onClick: (item, event) => {
               event.preventDefault()
-              // eslint-disable-next-line no-alert, no-console
-              console.log('item', item)
-
-              // eslint-disable-next-line no-alert
-              alert(`Import: ${JSON.stringify(item, null, 2)}`)
+              openInfosImportmodal.show()
+              setInfoModal(item)
             },
           },
           {
@@ -156,7 +163,8 @@ const useImportColumns = ({ setDeleted }: Props) => {
             icon: loading ? <Spinner /> : <IconTrash />,
             onClick: (item, event) => {
               event.preventDefault()
-              deleteImports({ variables: { ids: [item.id] } })
+              openDeleteConfirmationModal.show()
+              setDeleteId(item.id)
             },
           },
         ],
