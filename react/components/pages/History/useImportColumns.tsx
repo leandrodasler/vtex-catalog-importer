@@ -1,21 +1,15 @@
-import type { TagProps } from '@vtex/admin-ui'
+import type { TagProps, useModalState } from '@vtex/admin-ui'
 import {
   Flex,
   IconEye,
   IconTrash,
-  Spinner,
   Tag,
   createColumns,
   csx,
 } from '@vtex/admin-ui'
 import React from 'react'
-import { useMutation } from 'react-apollo'
 import { useIntl } from 'react-intl'
-import type {
-  Import,
-  Mutation,
-  MutationDeleteImportsArgs,
-} from 'ssesandbox04.catalog-importer'
+import type { Import } from 'ssesandbox04.catalog-importer'
 import { useRuntime } from 'vtex.render-runtime'
 
 import {
@@ -25,7 +19,6 @@ import {
   useStatusLabel,
   useStockOptionLabel,
 } from '../../common'
-import { DELETE_IMPORTS_MUTATION } from '../../graphql'
 
 const mapStatusToVariant: Record<Import['status'], TagProps['variant']> = {
   PENDING: 'gray',
@@ -36,24 +29,24 @@ const mapStatusToVariant: Record<Import['status'], TagProps['variant']> = {
 
 type Props = {
   setDeleted: React.Dispatch<React.SetStateAction<string[]>>
+  openInfosImportmodal: ReturnType<typeof useModalState>
+  setInfoModal: React.Dispatch<React.SetStateAction<Import | undefined>>
+  openDeleteConfirmationModal: ReturnType<typeof useModalState>
+  setDeleteId: React.Dispatch<React.SetStateAction<string | undefined>>
 }
 
-const useImportColumns = ({ setDeleted }: Props) => {
+const useImportColumns = ({
+  openInfosImportmodal,
+  setInfoModal,
+  openDeleteConfirmationModal,
+  setDeleteId,
+}: Props) => {
   const { formatMessage } = useIntl()
   const getStatusLabel = useStatusLabel()
   const getStockOptionLabel = useStockOptionLabel()
   const {
     culture: { locale },
   } = useRuntime()
-
-  const [deleteImports, { loading }] = useMutation<
-    Mutation,
-    MutationDeleteImportsArgs
-  >(DELETE_IMPORTS_MUTATION, {
-    onCompleted(data) {
-      setDeleted((prev) => [...prev, ...data.deleteImports])
-    },
-  })
 
   return createColumns<Import>([
     {
@@ -143,17 +136,18 @@ const useImportColumns = ({ setDeleted }: Props) => {
             icon: <IconEye />,
             onClick: (item, event) => {
               event.preventDefault()
-              // eslint-disable-next-line no-alert
-              alert(`Import: ${JSON.stringify(item, null, 2)}`)
+              openInfosImportmodal.show()
+              setInfoModal(item)
             },
           },
           {
             label: formatMessage(messages.deleteLabel),
             critical: true,
-            icon: loading ? <Spinner /> : <IconTrash />,
+            icon: <IconTrash />,
             onClick: (item, event) => {
               event.preventDefault()
-              deleteImports({ variables: { ids: [item.id] } })
+              openDeleteConfirmationModal.show()
+              setDeleteId(item.id)
             },
           },
         ],
