@@ -1,13 +1,15 @@
 import type { useModalState } from '@vtex/admin-ui'
 import {
   Button,
+  IconTrash,
   Modal,
   ModalContent,
   ModalDismiss,
   ModalFooter,
   ModalHeader,
   ModalTitle,
-  Spinner,
+  Stack,
+  Tag,
   Text,
 } from '@vtex/admin-ui'
 import React from 'react'
@@ -15,7 +17,13 @@ import type { Import } from 'ssesandbox04.catalog-importer'
 import { useRuntime } from 'vtex.render-runtime'
 
 import { useDeleteImport } from '.'
-import { Checked, Unchecked, useStockOptionLabel } from '../../../common'
+import {
+  Checked,
+  Unchecked,
+  useStatusLabel,
+  useStockOptionLabel,
+} from '../../../common'
+import { mapStatusToVariant } from '../useImportColumns'
 
 type ConfirmeModalProps = {
   openInfosImportmodal: ReturnType<typeof useModalState>
@@ -31,6 +39,7 @@ export const ConfirmeModal: React.FC<ConfirmeModalProps> = ({
   } = useRuntime()
 
   const getStockOptionLabel = useStockOptionLabel()
+  const getStatusLabel = useStatusLabel()
 
   return (
     <Modal state={openInfosImportmodal}>
@@ -40,7 +49,7 @@ export const ConfirmeModal: React.FC<ConfirmeModalProps> = ({
       </ModalHeader>
       <ModalContent>
         {infoModal && (
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <Stack space="$space-2">
             <Text style={{ display: 'flex', gap: '0.5rem' }}>
               <h6>ID:</h6> {infoModal.id}
             </Text>
@@ -80,7 +89,11 @@ export const ConfirmeModal: React.FC<ConfirmeModalProps> = ({
               </Text>
             )}
             <Text style={{ display: 'flex', gap: '0.5rem' }}>
-              <h6>Status:</h6> {infoModal.status.toLowerCase()}
+              <h6>Status:</h6>{' '}
+              <Tag
+                label={getStatusLabel(infoModal.status)}
+                variant={mapStatusToVariant[infoModal.status]}
+              />
             </Text>
 
             <Text style={{ display: 'flex', gap: '0.5rem' }}>
@@ -91,7 +104,7 @@ export const ConfirmeModal: React.FC<ConfirmeModalProps> = ({
                 <Text> {infoModal.settings.account}</Text>
               )}
             </Text>
-          </div>
+          </Stack>
         )}
       </ModalContent>
     </Modal>
@@ -126,9 +139,12 @@ export const DeleteConfirmationModal = ({
         <ModalDismiss />
       </ModalHeader>
       <ModalFooter>
-        <Button onClick={handleDelete} style={{ backgroundColor: 'red' }}>
-          {loading ? <Spinner /> : 'Excluir'}
-        </Button>
+        <Button
+          loading={loading}
+          onClick={handleDelete}
+          variant="critical"
+          icon={<IconTrash />}
+        />
       </ModalFooter>
     </Modal>
   )

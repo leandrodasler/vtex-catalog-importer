@@ -20,7 +20,10 @@ import {
   useStockOptionLabel,
 } from '../../common'
 
-const mapStatusToVariant: Record<Import['status'], TagProps['variant']> = {
+export const mapStatusToVariant: Record<
+  Import['status'],
+  TagProps['variant']
+> = {
   PENDING: 'gray',
   RUNNING: 'lightBlue',
   SUCCESS: 'green',
@@ -134,8 +137,7 @@ const useImportColumns = ({
           {
             label: formatMessage(messages.importViewLabel),
             icon: <IconEye />,
-            onClick: (item, event) => {
-              event.preventDefault()
+            onClick: (item) => {
               openInfosImportmodal.show()
               setInfoModal(item)
             },
@@ -144,8 +146,7 @@ const useImportColumns = ({
             label: formatMessage(messages.deleteLabel),
             critical: true,
             icon: <IconTrash />,
-            onClick: (item, event) => {
-              event.preventDefault()
+            onClick: (item) => {
               openDeleteConfirmationModal.show()
               setDeleteId(item.id)
             },
