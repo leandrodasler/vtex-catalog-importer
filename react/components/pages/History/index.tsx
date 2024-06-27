@@ -8,6 +8,7 @@ import {
   Table,
   Text,
   csx,
+  useModalState,
   useTableState,
 } from '@vtex/admin-ui'
 import React, { useMemo, useState } from 'react'
@@ -25,6 +26,7 @@ import {
   messages,
 } from '../../common'
 import { IMPORTS_QUERY, useQueryCustom } from '../../graphql'
+import { ConfirmeModal, DeleteConfirmationModal } from './common/modalComponent'
 import useImportColumns from './useImportColumns'
 
 const DEFAULT_ARGS = {
@@ -37,7 +39,18 @@ const DEFAULT_ARGS = {
 export default function History() {
   const { formatMessage } = useIntl()
   const [deleted, setDeleted] = useState<string[]>([])
-  const columns = useImportColumns({ setDeleted })
+  const openInfosImportmodal = useModalState()
+  const openDeleteConfirmationModal = useModalState()
+  const [infoModal, setInfoModal] = useState<Import>()
+  const [deleteId, setDeleteId] = useState<string | undefined>()
+
+  const columns = useImportColumns({
+    setDeleted,
+    openInfosImportmodal,
+    setInfoModal,
+    openDeleteConfirmationModal,
+    setDeleteId,
+  })
 
   const { data, loading } = useQueryCustom<Query, QueryImportsArgs>(
     IMPORTS_QUERY,
@@ -101,10 +114,10 @@ export default function History() {
           {tableData.map((item, index) => (
             <TBodyRow
               key={`row-${index}`}
-              onClick={() =>
-                // eslint-disable-next-line no-alert
-                alert(`Import: ${JSON.stringify(item, null, 2)}`)
-              }
+              onClick={() => {
+                openInfosImportmodal.show()
+                setInfoModal(item)
+              }}
             >
               {columns.map((column, indexColumn) => (
                 <TBodyCell
@@ -116,6 +129,15 @@ export default function History() {
           ))}
         </TBody>
       </Table>
+      <ConfirmeModal
+        openInfosImportmodal={openInfosImportmodal}
+        infoModal={infoModal}
+      />
+      <DeleteConfirmationModal
+        openDeleteConfirmationModal={openDeleteConfirmationModal}
+        deleteId={deleteId}
+        setDeleted={setDeleted}
+      />
     </Stack>
   )
 }
