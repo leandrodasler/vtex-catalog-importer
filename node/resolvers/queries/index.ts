@@ -10,7 +10,7 @@ import {
 } from '../../helpers'
 
 const appSettings = async (_: unknown, __: unknown, context: Context) =>
-  context.state.body.settings
+  context.state.settings
 
 const categories = httpGetResolverFactory<ResolverQuery['categories']>(
   ENDPOINTS.categories

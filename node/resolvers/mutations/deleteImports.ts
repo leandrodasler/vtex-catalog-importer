@@ -7,11 +7,22 @@ export const deleteImports = async (
   { ids }: MutationDeleteImportsArgs,
   context: Context
 ) => {
-  const { importExecution } = context.clients
-  const allImportIds =
-    ids ?? (await entityGetAll(importExecution, ['id'])).map((i) => i.id)
+  const { importExecution, importEntity } = context.clients
 
-  await Promise.all(allImportIds.map((id) => importExecution.delete(id)))
+  if (!ids.length) {
+    return []
+  }
 
-  return allImportIds
+  await Promise.all(ids.map((id) => importExecution.delete(id)))
+
+  const importEntities = await entityGetAll(importEntity, {
+    fields: ['id'],
+    where: ids.map((id) => `(executionImportId=${id})`).join(' OR '),
+  })
+
+  if (importEntities.length) {
+    await Promise.all(importEntities.map(({ id }) => importEntity.delete(id)))
+  }
+
+  return ids
 }

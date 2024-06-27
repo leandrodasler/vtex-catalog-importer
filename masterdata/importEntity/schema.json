@@ -17,5 +17,24 @@
     "sourceId",
     "payload"
   ],
-  "v-cache": false
+  "v-cache": false,
+  "v-indexed": ["name", "executionImportId", "sourceAccount"],
+  "v-default-fields": ["name", "executionImportId", "sourceAccount"],
+  "v-security": {
+    "allowGetAll": true,
+    "publicRead": [
+      "name",
+      "executionImportId",
+      "sourceAccount",
+      "sourceId",
+      "targetId"
+    ],
+    "publicFilter": [
+      "name",
+      "executionImportId",
+      "sourceAccount",
+      "sourceId",
+      "targetId"
+    ]
+  }
 }

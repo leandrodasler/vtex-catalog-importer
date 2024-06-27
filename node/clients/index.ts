@@ -9,6 +9,8 @@ import { IOClients, LRUCache } from '@vtex/api'
 import { masterDataFor } from '@vtex/clients'
 import type {
   AppSettingsInput,
+  Import,
+  ImportEntity,
   ImportExecution,
 } from 'ssesandbox04.catalog-importer'
 
@@ -30,24 +32,27 @@ class Clients extends IOClients {
       masterDataFor<ImportExecution>('importExecution')
     )
   }
+
+  public get importEntity() {
+    return this.getOrSet(
+      'importEntity',
+      masterDataFor<ImportEntity>('importEntity')
+    )
+  }
 }
 
 declare global {
-  type State = RecorderState & {
-    body: {
-      settings?: AppSettingsInput
-      importId?: string
-    }
-  }
+  type ServiceState = RecorderState & { settings?: AppSettingsInput }
+  type Context = ServiceContext<Clients, ServiceState>
+
+  type EventState = { body: Omit<Import, 'categoryTree'> }
+  type AppEventContext = EventContext<Clients, EventState>
 
   type WithInternalFields<T> = T & {
     id: string
     createdIn: Date
     lastInteractionIn: Date
   }
-
-  type Context = ServiceContext<Clients, State>
-  type AppEventContext = EventContext<Clients, State>
 }
 
 const memoryCache = new LRUCache<string, Cached>({ max: 5000 })

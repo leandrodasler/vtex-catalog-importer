@@ -22,7 +22,7 @@ export default class HttpClient extends ExternalClient {
       ...this.options,
       headers: {
         ...this.options?.headers,
-        VtexIdclientAutcookie: this.context.adminUserAuthToken as string,
+        // VtexIdclientAutcookie: this.context.adminUserAuthToken as string,
         ...(vtexAppKey && { 'X-VTEX-API-AppKey': vtexAppKey }),
         ...(vtexAppToken && { 'X-VTEX-API-AppToken': vtexAppToken }),
       },
@@ -31,7 +31,7 @@ export default class HttpClient extends ExternalClient {
 
   protected getUrl(path: string) {
     return this.settings?.account
-      ? `http://${this.settings.account}.myvtex.com/${path}`
+      ? `http://${this.settings.account}.vtexcommercestable.com.br/${path}`
       : path
   }
 

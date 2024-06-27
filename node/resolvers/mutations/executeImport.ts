@@ -13,18 +13,18 @@ export const executeImport = async (
   const status = args.status ?? IMPORT_STATUS.PENDING
   const entityPayload = { ...args, user, settings, status }
 
-  const importId = await context.clients.importExecution
+  const id = await context.clients.importExecution
     .save(entityPayload)
     .then((response) => response.DocumentId)
 
   const eventPayload = {
     ...entityPayload,
-    importId,
-    settings: context.state.body.settings,
+    id,
+    settings: context.state.settings,
     categoryTree: undefined,
   }
 
   context.clients.events.sendEvent('', 'runImport', eventPayload)
 
-  return importId
+  return id
 }

@@ -32,7 +32,7 @@ export default class WithSettings extends SchemaDirectiveVisitor {
       }
 
       context.clients.httpClient.setSettings(settings)
-      context.state.body = { settings }
+      context.state.settings = settings
 
       return resolve(root, args, context, info)
     }
