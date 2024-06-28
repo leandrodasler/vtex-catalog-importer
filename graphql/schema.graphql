@@ -51,6 +51,7 @@ type Import {
   stocksOption: StocksOption!
   stockValue: Int
   status: ImportStatus!
+  error: String
 }
 
 input ImportInput {

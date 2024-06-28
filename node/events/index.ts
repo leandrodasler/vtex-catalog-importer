@@ -14,49 +14,55 @@ const runImport = async (context: AppEventContext) => {
   console.log('RUN IMPORT EVENT')
   console.log(context.state.body)
   const { id, settings } = context.state.body
+  const { importExecution, importEntity, httpClient } = context.clients
 
   if (!id || !settings) {
     throw new Error('admin/settings.missing.error')
   }
 
-  const { importExecution, importEntity, httpClient } = context.clients
+  try {
+    const importData = await importExecution.get(
+      id,
+      IMPORT_EXECUTION_FULL_FIELDS
+    )
 
-  httpClient.setSettings(settings)
+    console.log({ importData })
 
-  const importData = await importExecution
-    .get(id, IMPORT_EXECUTION_FULL_FIELDS)
-    .catch((e) => {
-      importExecution.update(id, {
-        ...context.state.body,
-        status: IMPORT_STATUS.ERROR,
-        error: e.message,
-      })
-
-      throw e
+    await importExecution.update(id, {
+      ...importData,
+      status: IMPORT_STATUS.RUNNING,
     })
 
-  console.log({ importData })
+    context.state.body = { ...importData, status: IMPORT_STATUS.RUNNING }
 
-  importExecution.update(id, { ...importData, status: IMPORT_STATUS.RUNNING })
+    httpClient.setSettings(settings)
+    const brands = await context.clients.httpClient
+      .get<Maybe<Brand[]>>(ENDPOINTS.brands.get)
+      .catch((e) => {
+        throw new Error(`Error getting brands: ${e.message}`)
+      })
 
-  const brands = await context.clients.httpClient.get<Maybe<Brand[]>>(
-    ENDPOINTS.brands.get
-  )
+    console.log({ brands })
 
-  console.log({ brands })
-
-  if (brands) {
-    await Promise.all(
-      brands.map(brandMapper).map(async (brand) =>
-        importEntity.save({
-          executionImportId: id,
-          name: 'brand',
-          sourceAccount: settings.account ?? '',
-          sourceId: String(brand.Id),
-          payload: { ...brand, Id: undefined },
-        })
+    if (brands) {
+      await Promise.all(
+        brands.map(brandMapper).map(async (brand) =>
+          importEntity.save({
+            executionImportId: id,
+            name: 'brand',
+            sourceAccount: settings.account ?? '',
+            sourceId: String(brand.Id),
+            payload: { ...brand, Id: undefined },
+          })
+        )
       )
-    )
+    }
+  } catch (e) {
+    await importExecution.update(id, {
+      ...context.state.body,
+      status: IMPORT_STATUS.ERROR,
+      error: e.message,
+    })
   }
 }
 

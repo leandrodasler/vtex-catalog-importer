@@ -19,6 +19,7 @@ query getImports($args: SearchInput!) {
       stocksOption
       stockValue
       status
+      error
     }
   }
 }

@@ -45,7 +45,7 @@ declare global {
   type ServiceState = RecorderState & { settings?: AppSettingsInput }
   type Context = ServiceContext<Clients, ServiceState>
 
-  type EventState = { body: Omit<Import, 'categoryTree'> }
+  type EventState = { body: Partial<Import> }
   type AppEventContext = EventContext<Clients, EventState>
 
   type WithInternalFields<T> = T & {

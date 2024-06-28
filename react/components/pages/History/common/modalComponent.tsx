@@ -13,6 +13,7 @@ import {
   Text,
 } from '@vtex/admin-ui'
 import React from 'react'
+import { useIntl } from 'react-intl'
 import type { Import } from 'ssesandbox04.catalog-importer'
 import { useRuntime } from 'vtex.render-runtime'
 
@@ -20,6 +21,7 @@ import { useDeleteImport } from '.'
 import {
   Checked,
   Unchecked,
+  messages,
   useStatusLabel,
   useStockOptionLabel,
 } from '../../../common'
@@ -50,6 +52,14 @@ export const ConfirmeModal: React.FC<ConfirmeModalProps> = ({
       <ModalContent>
         {infoModal && (
           <Stack space="$space-2">
+            <Text style={{ display: 'flex', gap: '0.5rem' }}>
+              <h6>Source VTEX Account: </h6>
+              {infoModal.settings.useDefault ? (
+                <Text>Default</Text>
+              ) : (
+                <Text> {infoModal.settings.account}</Text>
+              )}
+            </Text>
             <Text style={{ display: 'flex', gap: '0.5rem' }}>
               <h6>ID:</h6> {infoModal.id}
             </Text>
@@ -95,15 +105,12 @@ export const ConfirmeModal: React.FC<ConfirmeModalProps> = ({
                 variant={mapStatusToVariant[infoModal.status]}
               />
             </Text>
-
-            <Text style={{ display: 'flex', gap: '0.5rem' }}>
-              <h6>Source VTEX Account: </h6>
-              {infoModal.settings.useDefault ? (
-                <Text>Default</Text>
-              ) : (
-                <Text> {infoModal.settings.account}</Text>
-              )}
-            </Text>
+            {infoModal.error && (
+              <Text style={{ display: 'flex', gap: '0.5rem' }}>
+                <h6>Error: </h6>
+                {infoModal.error}
+              </Text>
+            )}
           </Stack>
         )}
       </ModalContent>
@@ -121,6 +128,7 @@ export const DeleteConfirmationModal = ({
   deleteId,
   setDeleted,
 }: DeleteConfirmationModalProps) => {
+  const { formatMessage } = useIntl()
   const { loading, deleteImport } = useDeleteImport(
     setDeleted,
     openDeleteConfirmationModal
@@ -144,7 +152,9 @@ export const DeleteConfirmationModal = ({
           onClick={handleDelete}
           variant="critical"
           icon={<IconTrash />}
-        />
+        >
+          {formatMessage(messages.deleteLabel)}
+        </Button>
       </ModalFooter>
     </Modal>
   )
