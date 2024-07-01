@@ -27,23 +27,27 @@ export const httpGetResolverFactory = <Response>(url: string) => async (
 
 export const entityGetAll = async <T extends Record<string, T | unknown>>(
   client: MasterDataEntity<WithInternalFields<T>>,
-  input: ScrollInput<T>
+  { fields, where, sort }: ScrollInput<T>
 ) => {
   const allData: Array<WithInternalFields<T>> = []
-  let currentMdToken = ''
+  let currentPage = 1
 
   const getAll = async () => {
-    const { data, mdToken } = await client.scroll({
-      ...input,
-      size: 1000,
-      mdToken: currentMdToken || undefined,
-    })
+    const {
+      data,
+      pagination: { total },
+    } = await client.searchRaw(
+      { page: currentPage, pageSize: 100 },
+      fields,
+      sort,
+      where
+    )
 
     allData.push(...((data as unknown) as Array<WithInternalFields<T>>))
 
-    currentMdToken = currentMdToken || mdToken
+    currentPage++
 
-    if (data.length > 0) {
+    if (total > allData.length) {
       await getAll()
     }
   }

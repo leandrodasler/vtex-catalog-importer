@@ -42,17 +42,17 @@ class Clients extends IOClients {
 }
 
 declare global {
-  type ServiceState = RecorderState & { settings?: AppSettingsInput }
-  type Context = ServiceContext<Clients, ServiceState>
-
-  type EventState = { body: Partial<Import> }
-  type AppEventContext = EventContext<Clients, EventState>
-
   type WithInternalFields<T> = T & {
     id: string
     createdIn: Date
     lastInteractionIn: Date
   }
+
+  type ProcessImport = WithInternalFields<Import>
+  type ServiceState = RecorderState & { settings?: AppSettingsInput }
+  type Context = ServiceContext<Clients, ServiceState>
+  type EventState = { body: Partial<ProcessImport> }
+  type AppEventContext = EventContext<Clients, EventState>
 }
 
 const memoryCache = new LRUCache<string, Cached>({ max: 5000 })
@@ -75,7 +75,7 @@ export default {
       exponentialBackoffCoefficient: 2,
       initialBackoffDelay: 50,
       retries: 1,
-      timeout: 3000,
+      timeout: 60000,
       concurrency: 10,
     },
   },

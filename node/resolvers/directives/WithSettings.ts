@@ -3,7 +3,7 @@ import { defaultFieldResolver } from 'graphql'
 import { SchemaDirectiveVisitor } from 'graphql-tools'
 import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
-import { getCurrentSettings, getDefaultSettings } from '../helpers'
+import { getCurrentSettings, getDefaultSettings } from '../../helpers'
 
 type WithSettingsArgs = {
   settings?: AppSettingsInput
