@@ -67,7 +67,7 @@ export default function History() {
       return
     }
 
-    const importToOpen = imports?.find((item: Import) => item.id === id)
+    const importToOpen = imports.find((item: Import) => item.id === id)
 
     if (
       !importToOpen ||
@@ -79,7 +79,7 @@ export default function History() {
       return
     }
 
-    if (openInfosImportmodal.open) setInfoModal(importToOpen)
+    setInfoModal(importToOpen)
     openInfosImportmodal.show()
   }, [imports, infoModal, openInfosImportmodal])
 
