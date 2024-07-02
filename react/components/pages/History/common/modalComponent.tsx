@@ -46,7 +46,7 @@ export const ConfirmeModal: React.FC<ConfirmeModalProps> = ({
   return (
     <Modal state={openInfosImportmodal}>
       <ModalHeader>
-        <ModalTitle>Modal title</ModalTitle>
+        <ModalTitle>Import Details</ModalTitle>
         <ModalDismiss />
       </ModalHeader>
       <ModalContent>
@@ -143,9 +143,12 @@ export const DeleteConfirmationModal = ({
   return (
     <Modal state={openDeleteConfirmationModal}>
       <ModalHeader>
-        <ModalTitle>Deseja mesmo excluir o import?</ModalTitle>
+        <ModalTitle>Deseja mesmo excluir a importação?</ModalTitle>
         <ModalDismiss />
       </ModalHeader>
+      <ModalContent>
+        Os respectivos logs de importação também serão excluídos.
+      </ModalContent>
       <ModalFooter>
         <Button
           loading={loading}

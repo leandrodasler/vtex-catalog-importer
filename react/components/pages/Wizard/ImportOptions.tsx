@@ -119,16 +119,13 @@ export default function ImportOptions({
         )}
       </RadioGroup>
       <Flex justify="space-between">
-        <Button
-          onClick={() => state.select(state.previous())}
-          icon={<IconArrowLeft />}
-        >
+        <Button onClick={() => state.select('2')} icon={<IconArrowLeft />}>
           {formatMessage(messages.previousLabel)}
         </Button>
         <Button
           onClick={() => {
             handleSelectOptions()
-            state.select(state.next())
+            state.select('4')
           }}
           icon={<IconArrowRight />}
           iconPosition="end"

@@ -138,6 +138,10 @@ const useImportColumns = ({
             label: formatMessage(messages.importViewLabel),
             icon: <IconEye />,
             onClick: (item) => {
+              const url = new URL(window.parent.location.href)
+
+              url.searchParams.set('id', item.id)
+              window.parent.history.replaceState(null, '', url.toString())
               openInfosImportmodal.show()
               setInfoModal(item)
             },

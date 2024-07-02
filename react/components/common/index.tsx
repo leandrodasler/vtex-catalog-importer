@@ -98,8 +98,10 @@ export const useStockOptionLabel = () => {
     formatMessage(messages[`options${option}` as keyof typeof messages])
 }
 
-export const goToHistoryPage = () => {
-  window.parent.location.href = '/admin/catalog-importer/history'
+export const goToHistoryPage = (id?: string) => {
+  const queryId = id ? `?id=${id}` : ''
+
+  window.parent.location.href = `/admin/catalog-importer/history${queryId}`
 }
 
 export const goToWizardPage = () => {

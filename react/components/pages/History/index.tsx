@@ -11,7 +11,7 @@ import {
   useModalState,
   useTableState,
 } from '@vtex/admin-ui'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
 import type {
   Import,
@@ -58,6 +58,31 @@ export default function History() {
   )
 
   const imports = data?.imports.data
+
+  useEffect(() => {
+    const url = new URL(window.parent.location.href)
+    const id = url.searchParams.get('id')
+
+    if (!id || !imports?.length) {
+      return
+    }
+
+    const importToOpen = imports?.find((item: Import) => item.id === id)
+
+    if (
+      !importToOpen ||
+      (!openInfosImportmodal.open && importToOpen.id === infoModal?.id)
+    ) {
+      url.searchParams.delete('id')
+      window.parent.history.replaceState(null, '', url.toString())
+
+      return
+    }
+
+    if (openInfosImportmodal.open) setInfoModal(importToOpen)
+    openInfosImportmodal.show()
+  }, [imports, infoModal, openInfosImportmodal])
+
   const paginationTotal = data?.imports.pagination.total ?? 0
 
   const items = useMemo(
@@ -115,6 +140,10 @@ export default function History() {
             <TBodyRow
               key={`row-${index}`}
               onClick={() => {
+                const url = new URL(window.parent.location.href)
+
+                url.searchParams.set('id', item.id)
+                window.parent.history.replaceState(null, '', url.toString())
                 openInfosImportmodal.show()
                 setInfoModal(item)
               }}

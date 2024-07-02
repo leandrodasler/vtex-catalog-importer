@@ -236,14 +236,11 @@ const CategoryTree = ({
         categories.map((category: Category) => renderCategory(category))}
 
       <Flex justify="space-between" className={csx({ marginTop: '$space-4' })}>
-        <Button
-          onClick={() => state.select(state.previous())}
-          icon={<IconArrowLeft />}
-        >
+        <Button onClick={() => state.select('1')} icon={<IconArrowLeft />}>
           {formatMessage(messages.previousLabel)}
         </Button>
         <Button
-          onClick={() => state.select(state.next())}
+          onClick={() => state.select('3')}
           icon={<IconArrowRight />}
           iconPosition="end"
           disabled={

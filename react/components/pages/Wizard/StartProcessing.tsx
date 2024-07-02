@@ -88,14 +88,14 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
         }),
         action: {
           label: formatMessage(messages.historyAction),
-          onClick: goToHistoryPage,
+          onClick: () => goToHistoryPage(data.executeImport),
         },
         duration: NAVIGATE_DELAY,
         variant: 'positive',
         key: 'execute-import-message',
       })
 
-      setTimeout(goToHistoryPage, NAVIGATE_DELAY)
+      setTimeout(() => goToHistoryPage(data.executeImport), NAVIGATE_DELAY)
     },
   })
 
@@ -188,7 +188,7 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
       </Flex>
       <Flex justify="space-between" className={csx({ marginTop: '$space-4' })}>
         <Button
-          onClick={() => state.select(state.previous())}
+          onClick={() => state.select('3')}
           icon={<IconArrowLeft />}
           disabled={disabledButtons}
         >

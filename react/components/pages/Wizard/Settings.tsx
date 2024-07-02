@@ -77,7 +77,7 @@ const Settings = (props: Props) => {
       form.reset(data.updateAppSettings)
 
       if (!resetModal.open) {
-        state.select(state.next())
+        state.select('2')
       } else {
         showToast({
           message: formatMessage(messages.settingsResetSuccess),
