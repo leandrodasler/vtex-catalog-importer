@@ -26,7 +26,8 @@ import {
   messages,
 } from '../../common'
 import { IMPORTS_QUERY, useQueryCustom } from '../../graphql'
-import { ConfirmeModal, DeleteConfirmationModal } from './common/modalComponent'
+import { DeleteConfirmationModal } from './common/DeleteConfirmationModal'
+import { ShowImportModal } from './common/ShowImportModal'
 import useImportColumns from './useImportColumns'
 
 const DEFAULT_ARGS = {
@@ -158,7 +159,7 @@ export default function History() {
           ))}
         </TBody>
       </Table>
-      <ConfirmeModal
+      <ShowImportModal
         openInfosImportmodal={openInfosImportmodal}
         infoModal={infoModal}
       />

@@ -1,0 +1,56 @@
+fragment CategoryFields on Category {
+  id
+  name
+}
+
+query getImport($id: ID!) {
+  getImport(id: $id) {
+    id
+    createdIn
+    lastInteractionIn
+    user
+    categoryTree {
+      ...CategoryFields
+      children {
+        ...CategoryFields
+        children {
+          ...CategoryFields
+          children {
+            ...CategoryFields
+            children {
+              ...CategoryFields
+              children {
+                ...CategoryFields
+                children {
+                  ...CategoryFields
+                  children {
+                    ...CategoryFields
+                    children {
+                      ...CategoryFields
+                      children {
+                        ...CategoryFields
+                        children {
+                          ...CategoryFields
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    settings {
+      useDefault
+      account
+    }
+    importImages
+    importPrices
+    stocksOption
+    stockValue
+    status
+    error
+  }
+}

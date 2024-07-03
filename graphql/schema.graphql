@@ -86,6 +86,7 @@ type Query {
   appSettings: AppSettings! @WithSettings
   categories(settings: AppSettingsInput): [Category!] @WithSettings
   imports(args: SearchInput!): ImportsResult!
+  getImport(id: ID!): Import!
 }
 
 type Mutation {
