@@ -51,8 +51,11 @@
   "admin/start.text": "The import will start in background and the catalog will be updated. Import logs will be available at the Import History page.",
   "admin/start.success": "The import process started successfully. You will be redirected to the Import History page in {seconds} seconds to view the import logs.",
 
+  "admin/import.label": "Import Details",
   "admin/import.user.label": "User",
+  "admin/import.id.label": "ID",
   "admin/import.createdIn.label": "Started at",
+  "admin/import.lastInteractionIn.label": "Last Interaction in",
   "admin/import.images.label": "Images",
   "admin/import.prices.label": "Prices",
   "admin/import.status.label": "Status",

@@ -15,6 +15,7 @@ import {
 } from '@vtex/admin-ui'
 import React from 'react'
 import TreeView, { flattenTree } from 'react-accessible-treeview'
+import { useIntl } from 'react-intl'
 import type {
   Category,
   Import,
@@ -27,6 +28,7 @@ import {
   Checked,
   SuspenseFallback,
   Unchecked,
+  messages,
   useStatusLabel,
   useStockOptionLabel,
 } from '../../../common'
@@ -64,6 +66,8 @@ export const ShowImportModal: React.FC<ConfirmeModalProps> = ({
     culture: { locale },
   } = useRuntime()
 
+  const { formatMessage } = useIntl()
+
   const { data, loading } = useQueryCustom<Query, QueryGetImportArgs>(
     GET_IMPORT_QUERY,
     {
@@ -96,29 +100,43 @@ export const ShowImportModal: React.FC<ConfirmeModalProps> = ({
         {loading && <SuspenseFallback />}
         {!loading && infoModal && (
           <Stack space="$space-2">
-            <Text style={{ display: 'flex', gap: '0.5rem' }}>
-              <h6>Source VTEX Account: </h6>
+            <Stack direction="row">
+              <Text variant="title1">
+                {formatMessage(messages.settingsAccountLabel)}:
+              </Text>
               {infoModal.settings.useDefault ? (
-                <Text>Default</Text>
+                <Stack direction="row">Default</Stack>
               ) : (
-                <Text> {infoModal.settings.account}</Text>
+                <Stack> {infoModal.settings.account}</Stack>
               )}
-            </Text>
-            <Text style={{ display: 'flex', gap: '0.5rem' }}>
-              <h6>ID:</h6> {infoModal.id}
-            </Text>
-            <Text style={{ display: 'flex', gap: '0.5rem' }}>
-              <h6>Created In:</h6>
-              {new Date(infoModal.createdIn).toLocaleString(locale)}
-            </Text>
-            <Text style={{ display: 'flex', gap: '0.5rem' }}>
-              <h6> Last Interaction in:</h6>
-              {new Date(infoModal.lastInteractionIn).toLocaleString(locale)}
-            </Text>
-            <Text style={{ display: 'flex', gap: '0.5rem' }}>
-              <h6>User: </h6>
-              {infoModal.user}
-            </Text>
+            </Stack>
+            <Stack direction="row">
+              <Text variant="title1">ID:</Text>
+              <Text variant="body">{infoModal.id}</Text>
+            </Stack>
+            <Stack direction="row">
+              <Text variant="title1">
+                {formatMessage(messages.importCreatedInLabel)}:
+              </Text>
+              <Text variant="body">
+                {new Date(infoModal.createdIn).toLocaleString(locale)}
+              </Text>
+            </Stack>
+            <Stack direction="row">
+              <Text variant="title1">
+                {formatMessage(messages.importLastInteractionInLabel)}:
+              </Text>
+
+              <Text variant="body">
+                {new Date(infoModal.lastInteractionIn).toLocaleString(locale)}
+              </Text>
+            </Stack>
+            <Stack direction="row">
+              <Text variant="title1">
+                {formatMessage(messages.importUserLabel)}:
+              </Text>
+              <Text variant="body">{infoModal.user}</Text>
+            </Stack>
             {categoryTree.length && (
               <div className={treeNodeTheme}>
                 <TreeView
@@ -153,41 +171,60 @@ export const ShowImportModal: React.FC<ConfirmeModalProps> = ({
                 />
               </div>
             )}
-            <Text style={{ display: 'flex', gap: '0.5rem' }}>
-              <h6>Import Images:</h6>
-              {infoModal.importImages ? <Checked /> : <Unchecked />}
-            </Text>
-            <Text style={{ display: 'flex', gap: '0.5rem' }}>
-              <h6> Import Prices:</h6>
-              {infoModal.importPrices ? <Checked /> : <Unchecked />}
-            </Text>
+            <Stack direction="row">
+              <Text variant="title1">
+                {formatMessage(messages.importImage)}:
+              </Text>
+              <Text variant="body">
+                {infoModal.importImages ? <Checked /> : <Unchecked />}
+              </Text>
+            </Stack>
+            <Stack direction="row">
+              <Text variant="title1">
+                {formatMessage(messages.importPrice)}:
+              </Text>
+              <Text variant="body">
+                {infoModal.importPrices ? <Checked /> : <Unchecked />}
+              </Text>
+            </Stack>
             {infoModal.stockValue && (
-              <Text style={{ display: 'flex', gap: '0.5rem' }}>
-                <h6>Stock to be defined for all SKUs:</h6>{' '}
-                {infoModal.stockValue}
-              </Text>
+              <Stack direction="row">
+                <Text variant="title1">
+                  {formatMessage(messages.stockValue)}:
+                </Text>
+                <Text variant="body">{infoModal.stockValue}</Text>
+              </Stack>
             )}
-            <Text style={{ display: 'flex', gap: '0.5rem' }}>
-              <h6>Stock Option: </h6>
-              {getStockOptionLabel(infoModal.stocksOption).toLowerCase()}
-            </Text>
+            <Stack direction="row">
+              <Text variant="title1">
+                {formatMessage(messages.importStocks)}:
+              </Text>
+              <Text variant="body">
+                {getStockOptionLabel(infoModal.stocksOption).toLowerCase()}
+              </Text>
+            </Stack>
             {infoModal.categoryTree && (
-              <Text style={{ display: 'flex', gap: '0.5rem' }}>
-                <h6>Category Tree:</h6> {infoModal.categoryTree}
-              </Text>
+              <Stack>
+                <Text variant="title1">Category Tree:</Text>
+                <Text variant="title1">{infoModal.categoryTree}</Text>
+              </Stack>
             )}
-            <Text style={{ display: 'flex', gap: '0.5rem' }}>
-              <h6>Status:</h6>{' '}
+            <Stack direction="row">
+              <Text variant="title1">
+                {formatMessage(messages.importStatusLabel)}:
+              </Text>
               <Tag
                 label={getStatusLabel(infoModal.status)}
                 variant={mapStatusToVariant[infoModal.status]}
               />
-            </Text>
+            </Stack>
             {infoModal.error && (
-              <Text style={{ display: 'flex', gap: '0.5rem' }}>
-                <h6>Error: </h6>
-                {infoModal.error}
-              </Text>
+              <Stack direction="row">
+                <Text variant="title1">
+                  {formatMessage(messages.importStatusERRORLabel)}:
+                </Text>
+                <Text variant="body">{infoModal.error}</Text>
+              </Stack>
             )}
           </Stack>
         )}
