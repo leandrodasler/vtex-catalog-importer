@@ -62,4 +62,6 @@ export const messages = defineMessages({
   importStatusERRORLabel: { id: 'admin/import.status.error.label' },
   importViewLabel: { id: 'admin/import.view.label' },
   importPaginationLabel: { id: 'admin/import.pagination.label' },
+  importDelete: { id: 'admin/import.delete' },
+  importDeleteText: { id: 'admin/import.delete.text' },
 })
