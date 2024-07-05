@@ -1,8 +1,5 @@
 import type { useModalState } from '@vtex/admin-ui'
 import {
-  Flex,
-  IconCaretDown,
-  IconCaretRight,
   Modal,
   ModalContent,
   ModalDismiss,
@@ -11,13 +8,12 @@ import {
   Stack,
   Tag,
   Text,
-  csx,
 } from '@vtex/admin-ui'
-import React from 'react'
-import TreeView, { flattenTree } from 'react-accessible-treeview'
+import React, { useMemo } from 'react'
+import { flattenTree } from 'react-accessible-treeview'
 import { useIntl } from 'react-intl'
 import type {
-  Category,
+  Entity,
   Import,
   Query,
   QueryGetEntitiesArgs,
@@ -28,7 +24,9 @@ import { useRuntime } from 'vtex.render-runtime'
 import {
   Checked,
   SuspenseFallback,
+  Tree,
   Unchecked,
+  categoryTreeMapper,
   messages,
   useStatusLabel,
   useStockOptionLabel,
@@ -40,30 +38,12 @@ import {
 } from '../../../graphql'
 import { mapStatusToVariant } from '../useImportColumns'
 
-type ConfirmeModalProps = {
+type ShowImportModalProps = {
   openInfosImportmodal: ReturnType<typeof useModalState>
   infoModal?: Import
 }
 
-type CategoryWithChildren = Category & { children: CategoryWithChildren[] }
-
-const categoryTreeMapper: (category: Category) => CategoryWithChildren = ({
-  id,
-  name,
-  children,
-}) => ({
-  id,
-  name,
-  children: children?.length ? children.map(categoryTreeMapper) : [],
-})
-
-const treeNodeTheme = csx({
-  '.tree, .tree-node, .tree-node-group': { listStyleType: 'none' },
-  '.tree-node': { cursor: 'pointer' },
-  '> .tree > .tree-branch-wrapper > .tree-node > .name': { fontWeight: 'bold' },
-})
-
-export const ShowImportModal: React.FC<ConfirmeModalProps> = ({
+export const ShowImportModal: React.FC<ShowImportModalProps> = ({
   openInfosImportmodal,
   infoModal,
 }) => {
@@ -72,6 +52,8 @@ export const ShowImportModal: React.FC<ConfirmeModalProps> = ({
   } = useRuntime()
 
   const { formatMessage } = useIntl()
+  const getStockOptionLabel = useStockOptionLabel()
+  const getStatusLabel = useStatusLabel()
 
   const { data, loading: loadingImport } = useQueryCustom<
     Query,
@@ -81,7 +63,7 @@ export const ShowImportModal: React.FC<ConfirmeModalProps> = ({
     variables: { id: infoModal?.id as string },
   })
 
-  const { data: entities, loading: loadingEntities } = useQueryCustom<
+  const { data: brandsData, loading: loadingEntities } = useQueryCustom<
     Query,
     QueryGetEntitiesArgs
   >(GET_ENTITIES_QUERY, {
@@ -89,20 +71,51 @@ export const ShowImportModal: React.FC<ConfirmeModalProps> = ({
     variables: { importId: infoModal?.id as string, entityName: 'brand' },
   })
 
-  const folder = {
-    name: '',
-    children: [
-      {
-        name: 'Category Tree',
-        children: data?.getImport.categoryTree.map(categoryTreeMapper) ?? [],
-      },
-    ],
-  }
+  const categories = useMemo(() => data?.getImport.categoryTree ?? [], [
+    data?.getImport.categoryTree,
+  ])
 
-  const loading = loadingImport || loadingEntities
-  const categoryTree = flattenTree(folder)
-  const getStockOptionLabel = useStockOptionLabel()
-  const getStatusLabel = useStatusLabel()
+  const brands = useMemo(() => brandsData?.getEntities ?? [], [
+    brandsData?.getEntities,
+  ])
+
+  const brandsFolder = useMemo(
+    () =>
+      flattenTree({
+        name: '',
+        children: [
+          {
+            name: formatMessage(messages.importBrandsLabel, {
+              total: brands.length,
+            }),
+            children: brands.map(({ id, payload }: Entity) => ({
+              name: JSON.parse(payload).Name,
+              id,
+            })),
+          },
+        ],
+      }),
+    [brands, formatMessage]
+  )
+
+  const categoryTreeFolder = useMemo(
+    () =>
+      flattenTree({
+        name: '',
+        children: [
+          {
+            name: formatMessage(messages.optionsCategories),
+            children: categories.map(categoryTreeMapper) ?? [],
+          },
+        ],
+      }),
+    [categories, formatMessage]
+  )
+
+  const loading = useMemo(() => loadingEntities || loadingImport, [
+    loadingEntities,
+    loadingImport,
+  ])
 
   return (
     <Modal state={openInfosImportmodal}>
@@ -113,13 +126,15 @@ export const ShowImportModal: React.FC<ConfirmeModalProps> = ({
       <ModalContent>
         {loading && <SuspenseFallback />}
         {!loading && infoModal && (
-          <Stack space="$space-2">
+          <Stack space="$space-2" fluid>
             <Stack direction="row">
               <Text variant="title1">
                 {formatMessage(messages.settingsAccountLabel)}:
               </Text>
               {infoModal.settings.useDefault ? (
-                <Stack direction="row">Default</Stack>
+                <Stack direction="row">
+                  {formatMessage(messages.settingsDefaultShort)}
+                </Stack>
               ) : (
                 <Stack> {infoModal.settings.account}</Stack>
               )}
@@ -151,40 +166,7 @@ export const ShowImportModal: React.FC<ConfirmeModalProps> = ({
               </Text>
               <Text variant="body">{infoModal.user}</Text>
             </Stack>
-            {categoryTree.length && (
-              <div className={treeNodeTheme}>
-                <TreeView
-                  data={categoryTree}
-                  nodeRenderer={({
-                    element,
-                    isBranch,
-                    isExpanded,
-                    getNodeProps,
-                    level,
-                    handleExpand,
-                  }) => {
-                    return (
-                      <Flex
-                        align="center"
-                        {...getNodeProps({ onClick: handleExpand })}
-                        style={{ marginLeft: 30 * (level - 1) }}
-                      >
-                        {!isBranch && (
-                          <IconCaretRight size="small" style={{ opacity: 0 }} />
-                        )}
-                        {isBranch && !isExpanded && (
-                          <IconCaretRight size="small" />
-                        )}
-                        {isBranch && isExpanded && (
-                          <IconCaretDown size="small" />
-                        )}
-                        <span className="name">{element.name}</span>
-                      </Flex>
-                    )
-                  }}
-                />
-              </div>
-            )}
+            {categoryTreeFolder.length && <Tree data={categoryTreeFolder} />}
             <Stack direction="row">
               <Text variant="title1">
                 {formatMessage(messages.importImage)}:
@@ -217,12 +199,6 @@ export const ShowImportModal: React.FC<ConfirmeModalProps> = ({
                 {getStockOptionLabel(infoModal.stocksOption).toLowerCase()}
               </Text>
             </Stack>
-            {infoModal.categoryTree && (
-              <Stack>
-                <Text variant="title1">Category Tree:</Text>
-                <Text variant="title1">{infoModal.categoryTree}</Text>
-              </Stack>
-            )}
             <Stack direction="row">
               <Text variant="title1">
                 {formatMessage(messages.importStatusLabel)}:
@@ -234,19 +210,10 @@ export const ShowImportModal: React.FC<ConfirmeModalProps> = ({
             </Stack>
             {infoModal.error && (
               <Stack direction="row">
-                <Text variant="title1">
-                  {formatMessage(messages.importStatusERRORLabel)}:
-                </Text>
                 <Text variant="body">{infoModal.error}</Text>
               </Stack>
             )}
-            <Text style={{ display: 'flex', gap: '0.5rem' }}>
-              <h6>Brands imported</h6>
-              {entities?.getEntities.length}
-            </Text>
-            <textarea style={{ width: '100%', height: 350 }}>
-              {JSON.stringify(entities?.getEntities ?? [], null, 2)}
-            </textarea>
+            <Tree data={brandsFolder} />
           </Stack>
         )}
       </ModalContent>

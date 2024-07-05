@@ -2,6 +2,9 @@ import {
   Alert,
   Center,
   DataView,
+  Flex,
+  IconCaretDown,
+  IconCaretRight,
   IconCheckCircle,
   IconXCircle,
   Spinner,
@@ -10,13 +13,18 @@ import {
   useDataViewState,
 } from '@vtex/admin-ui'
 import React from 'react'
+import type { INode } from 'react-accessible-treeview'
+import TreeView from 'react-accessible-treeview'
 import type { MessageDescriptor } from 'react-intl'
 import { useIntl } from 'react-intl'
-import type { Import } from 'ssesandbox04.catalog-importer'
+import type { Category, Import } from 'ssesandbox04.catalog-importer'
 
 import type { GraphQLError } from '../graphql'
 import { getGraphQLMessageDescriptor } from '../graphql'
 import { messages } from './messages'
+
+export { default as MainTemplate } from './MainTemplate'
+export { messages } from './messages'
 
 type ErrorMessageProps = { error: GraphQLError; title?: MessageDescriptor }
 
@@ -108,5 +116,57 @@ export const goToWizardPage = () => {
   window.parent.location.href = '/admin/catalog-importer/wizard'
 }
 
-export { default as MainTemplate } from './MainTemplate'
-export { messages } from './messages'
+type TreeProps = { data: INode[] }
+
+type CategoryWithChildren = Category & { children: CategoryWithChildren[] }
+
+export const categoryTreeMapper: (
+  category: Category
+) => CategoryWithChildren = ({ id, name, children }) => ({
+  id,
+  name,
+  children: children?.length ? children.map(categoryTreeMapper) : [],
+})
+
+const treeNodeTheme = csx({
+  '.tree, .tree-node, .tree-node-group': { listStyleType: 'none' },
+  '.tree-node': { cursor: 'pointer' },
+  '> .tree': {
+    '> .tree-branch-wrapper, > .tree-leaf-list-item': {
+      '> .tree-node > .name': { text: '$title1' },
+      '.name': { lineHeight: 'var(--admin-ui-text-title1-lineHeight)' },
+    },
+  },
+})
+
+export const Tree = ({ data }: TreeProps) => (
+  <div className={treeNodeTheme}>
+    <TreeView
+      data={data}
+      propagateCollapse
+      nodeRenderer={({
+        element,
+        isBranch,
+        isExpanded,
+        getNodeProps,
+        level,
+        handleExpand,
+      }) => {
+        return (
+          <Flex
+            align="center"
+            {...getNodeProps({ onClick: handleExpand })}
+            style={{ marginLeft: 20 * (level - 1) }}
+          >
+            {!isBranch && level > 1 && (
+              <IconCaretRight style={{ opacity: 0 }} />
+            )}
+            {isBranch && !isExpanded && <IconCaretRight />}
+            {isBranch && isExpanded && <IconCaretDown />}
+            <span className="name">{element.name}</span>
+          </Flex>
+        )
+      }}
+    />
+  </div>
+)
