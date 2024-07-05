@@ -120,7 +120,7 @@ export const ShowImportModal: React.FC<ShowImportModalProps> = ({
   return (
     <Modal state={openInfosImportmodal}>
       <ModalHeader>
-        <ModalTitle>Import Details</ModalTitle>
+        <ModalTitle>{formatMessage(messages.importDetailsLabel)}:</ModalTitle>
         <ModalDismiss />
       </ModalHeader>
       <ModalContent>
