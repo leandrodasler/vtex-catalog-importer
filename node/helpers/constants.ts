@@ -31,6 +31,9 @@ export const IMPORT_EXECUTION_FULL_FIELDS = [
 ]
 
 export const IMPORT_ENTITY_FIELDS = [
+  'id',
+  'createdIn',
+  'lastInteractionIn',
   'name',
   'executionImportId',
   'sourceAccount',

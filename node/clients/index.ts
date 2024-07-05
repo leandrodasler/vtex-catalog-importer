@@ -44,8 +44,8 @@ class Clients extends IOClients {
 declare global {
   type WithInternalFields<T> = T & {
     id: string
-    createdIn: Date
-    lastInteractionIn: Date
+    createdIn: string
+    lastInteractionIn: string
   }
 
   type ProcessImport = WithInternalFields<Import>

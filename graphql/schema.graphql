@@ -82,11 +82,25 @@ type ImportsResult {
   pagination: Pagination!
 }
 
+type Entity {
+  id: ID!
+  createdIn: String!
+  lastInteractionIn: String!
+  name: String!
+  importId: ID!
+  sourceAccount: String!
+  sourceId: String!
+  targetId: String
+  pathParams: String
+  payload: String!
+}
+
 type Query {
   appSettings: AppSettings! @WithSettings
   categories(settings: AppSettingsInput): [Category!] @WithSettings
   imports(args: SearchInput!): ImportsResult!
   getImport(id: ID!): Import!
+  getEntities(importId: ID!, entityName: String!): [Entity!]!
 }
 
 type Mutation {

@@ -1,0 +1,14 @@
+query getEntities($importId: ID!, $entityName: String!) {
+  getEntities(importId: $importId, entityName: $entityName) {
+    id
+    createdIn
+    lastInteractionIn
+    name
+    importId
+    sourceAccount
+    sourceId
+    targetId
+    pathParams
+    payload
+  }
+}
