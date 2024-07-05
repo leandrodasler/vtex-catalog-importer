@@ -20,6 +20,7 @@ import type {
   Category,
   Import,
   Query,
+  QueryGetEntitiesArgs,
   QueryGetImportArgs,
 } from 'ssesandbox04.catalog-importer'
 import { useRuntime } from 'vtex.render-runtime'
@@ -32,7 +33,11 @@ import {
   useStatusLabel,
   useStockOptionLabel,
 } from '../../../common'
-import { GET_IMPORT_QUERY, useQueryCustom } from '../../../graphql'
+import {
+  GET_ENTITIES_QUERY,
+  GET_IMPORT_QUERY,
+  useQueryCustom,
+} from '../../../graphql'
 import { mapStatusToVariant } from '../useImportColumns'
 
 type ConfirmeModalProps = {
@@ -68,13 +73,21 @@ export const ShowImportModal: React.FC<ConfirmeModalProps> = ({
 
   const { formatMessage } = useIntl()
 
-  const { data, loading } = useQueryCustom<Query, QueryGetImportArgs>(
-    GET_IMPORT_QUERY,
-    {
-      skip: !infoModal?.id,
-      variables: { id: infoModal?.id as string },
-    }
-  )
+  const { data, loading: loadingImport } = useQueryCustom<
+    Query,
+    QueryGetImportArgs
+  >(GET_IMPORT_QUERY, {
+    skip: !infoModal?.id,
+    variables: { id: infoModal?.id as string },
+  })
+
+  const { data: entities, loading: loadingEntities } = useQueryCustom<
+    Query,
+    QueryGetEntitiesArgs
+  >(GET_ENTITIES_QUERY, {
+    skip: !infoModal?.id,
+    variables: { importId: infoModal?.id as string, entityName: 'brand' },
+  })
 
   const folder = {
     name: '',
@@ -86,6 +99,7 @@ export const ShowImportModal: React.FC<ConfirmeModalProps> = ({
     ],
   }
 
+  const loading = loadingImport || loadingEntities
   const categoryTree = flattenTree(folder)
   const getStockOptionLabel = useStockOptionLabel()
   const getStatusLabel = useStatusLabel()
@@ -226,6 +240,13 @@ export const ShowImportModal: React.FC<ConfirmeModalProps> = ({
                 <Text variant="body">{infoModal.error}</Text>
               </Stack>
             )}
+            <Text style={{ display: 'flex', gap: '0.5rem' }}>
+              <h6>Brands imported</h6>
+              {entities?.getEntities.length}
+            </Text>
+            <textarea style={{ width: '100%', height: 350 }}>
+              {JSON.stringify(entities?.getEntities ?? [], null, 2)}
+            </textarea>
           </Stack>
         )}
       </ModalContent>
