@@ -16,6 +16,7 @@ import {
   useToast,
 } from '@vtex/admin-ui'
 import React, { useCallback, useMemo } from 'react'
+import { flattenTree } from 'react-accessible-treeview'
 import { useMutation } from 'react-apollo'
 import { useIntl } from 'react-intl'
 import type {
@@ -27,17 +28,18 @@ import type {
 
 import type { CheckedCategories } from '.'
 import { IMPORT_OPTIONS, STOCK_OPTIONS } from '.'
-import { goToHistoryPage, messages, useStockOptionLabel } from '../../common'
+import {
+  Tree,
+  categoryTreeMapper,
+  goToHistoryPage,
+  messages,
+  useStockOptionLabel,
+} from '../../common'
 import {
   EXECUTE_IMPORT_MUTATION,
   getGraphQLMessageDescriptor,
 } from '../../graphql'
-import {
-  CategoryTreeView,
-  ImportOption,
-  buildTree,
-  mapToCategoryInput,
-} from './common'
+import { ImportOption, buildTree, mapToCategoryInput } from './common'
 
 interface StartProcessingProps {
   checkedTreeOptions: CheckedCategories
@@ -136,6 +138,20 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
     ]
   )
 
+  const categoryTreeFolder = useMemo(
+    () =>
+      flattenTree({
+        name: '',
+        children: [
+          {
+            name: formatMessage(messages.optionsCategories),
+            children: treeData.map(categoryTreeMapper) ?? [],
+          },
+        ],
+      }),
+    [treeData, formatMessage]
+  )
+
   return (
     <Stack space="$space-4" fluid>
       <Flex
@@ -144,12 +160,12 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
         justify="space-evenly"
         className={csx({ gap: '$space-4' })}
       >
-        <div>
+        <Flex justify="flex-start" direction="column">
           <h3>{formatMessage(messages.optionsCategories)}</h3>
-          <ul>
-            <CategoryTreeView categories={treeData} />
-          </ul>
-        </div>
+          <Flex direction="row">
+            {categoryTreeFolder.length && <Tree data={categoryTreeFolder} />}
+          </Flex>
+        </Flex>
         <div>
           <h3>{formatMessage(messages.optionsLabel)}</h3>
           <div>
