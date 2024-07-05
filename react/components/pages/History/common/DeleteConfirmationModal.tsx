@@ -40,12 +40,10 @@ export const DeleteConfirmationModal = ({
   return (
     <Modal state={openDeleteConfirmationModal}>
       <ModalHeader>
-        <ModalTitle>Deseja mesmo excluir a importação?</ModalTitle>
+        <ModalTitle> {formatMessage(messages.importDelete)}</ModalTitle>
         <ModalDismiss />
       </ModalHeader>
-      <ModalContent>
-        Os respectivos logs de importação também serão excluídos.
-      </ModalContent>
+      <ModalContent>{formatMessage(messages.importDeleteText)}</ModalContent>
       <ModalFooter>
         <Button
           loading={loading}

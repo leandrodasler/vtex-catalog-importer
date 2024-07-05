@@ -51,8 +51,11 @@
   "admin/start.text": "The import will start in background and the catalog will be updated. Import logs will be available at the Import History page.",
   "admin/start.success": "The import process started successfully. You will be redirected to the Import History page in {seconds} seconds to view the import logs.",
 
+  "admin/import.label": "Import Details",
   "admin/import.user.label": "User",
+  "admin/import.id.label": "ID",
   "admin/import.createdIn.label": "Started at",
+  "admin/import.lastInteractionIn.label": "Last Interaction in",
   "admin/import.images.label": "Images",
   "admin/import.prices.label": "Prices",
   "admin/import.status.label": "Status",
@@ -61,5 +64,7 @@
   "admin/import.status.success.label": "SUCCESS",
   "admin/import.status.error.label": "ERROR",
   "admin/import.view.label": "View logs",
-  "admin/import.pagination.label": "Showing {pageSize} out of {total} {total, plural, one {import} other {imports}}"
+  "admin/import.pagination.label": "Showing {pageSize} out of {total} {total, plural, one {import} other {imports}}",
+  "admin/import.delete": "Do you really want to delete the import?",
+  "admin/import.delete.text": "The respective import logs will also be deleted."
 }

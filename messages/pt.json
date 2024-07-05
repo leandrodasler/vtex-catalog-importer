@@ -51,8 +51,11 @@
   "admin/start.text": "A importação iniciará em segundo plano e o catálogo será atualizado. Os registros da importação estarão disponíveis na página Histórico de Importações.",
   "admin/start.success": "O processo de importação foi iniciado com sucesso. Você será redirecionado para a página Histórico de Importações em {seconds} segundos para visualizar os registros da importação.",
 
+  "admin/import.label": "Importar Detalhes",
   "admin/import.user.label": "Usuário",
+  "admin/import.id.label": "ID",
   "admin/import.createdIn.label": "Iniciada em",
+  "admin/import.lastInteractionIn.label": "Última Interação",
   "admin/import.images.label": "Imagens",
   "admin/import.prices.label": "Preços",
   "admin/import.status.label": "Estado",
@@ -61,5 +64,7 @@
   "admin/import.status.success.label": "SUCESSO",
   "admin/import.status.error.label": "ERRO",
   "admin/import.view.label": "Visualizar registros",
-  "admin/import.pagination.label": "Exibindo {pageSize} de um total de {total} {total, plural, one {importação} other {importações}}"
+  "admin/import.pagination.label": "Exibindo {pageSize} de um total de {total} {total, plural, one {importação} other {importações}}",
+  "admin/import.delete": "Deseja mesmo excluir a importação?",
+  "admin/import.delete.text": "Os respectivos logs de importação também serão excluídos."
 }
