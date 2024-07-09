@@ -10,18 +10,11 @@
     "pathParams": { "type": ["object", "null"] },
     "payload": { "type": "object" }
   },
-  "required": [
-    "name",
-    "executionImportId",
-    "sourceAccount",
-    "sourceId",
-    "payload"
-  ],
   "v-cache": false,
   "v-indexed": ["name", "executionImportId", "sourceAccount"],
   "v-default-fields": ["name", "executionImportId", "sourceAccount"],
   "v-security": {
-    "allowGetAll": true,
+    "allowGetAll": false,
     "publicRead": [
       "name",
       "executionImportId",

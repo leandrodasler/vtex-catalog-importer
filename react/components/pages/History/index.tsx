@@ -26,6 +26,7 @@ import {
   messages,
 } from '../../common'
 import { IMPORTS_QUERY, useQueryCustom } from '../../graphql'
+import type { ImportChangedStatus } from './common'
 import { DeleteConfirmationModal, ShowImportModal } from './common'
 import useImportColumns from './useImportColumns'
 
@@ -39,10 +40,13 @@ const DEFAULT_ARGS = {
 export default function History() {
   const { formatMessage } = useIntl()
   const [deleted, setDeleted] = useState<string[]>([])
+
   const openInfosImportmodal = useModalState()
   const openDeleteConfirmationModal = useModalState()
   const [importIdModal, setImportIdModal] = useState('')
   const [deleteId, setDeleteId] = useState('')
+
+  const [changedStatus, setChangedStatus] = useState<ImportChangedStatus>()
 
   const columns = useImportColumns({
     setDeleted,
@@ -86,8 +90,20 @@ export default function History() {
   const paginationTotal = data?.imports.pagination.total ?? 0
 
   const items = useMemo(
-    () => imports?.filter((item: Import) => !deleted?.includes(item.id)) ?? [],
-    [deleted, imports]
+    () =>
+      imports
+        ?.filter((item: Import) => !deleted?.includes(item.id))
+        ?.map((item: Import) => {
+          const newStatus = Object.entries(changedStatus ?? {}).find(
+            ([key]) => key === item.id
+          )?.[1]
+
+          return {
+            ...item,
+            ...(newStatus && { status: newStatus }),
+          }
+        }) ?? [],
+    [changedStatus, deleted, imports]
   )
 
   const pageSize = items?.length
@@ -122,9 +138,11 @@ export default function History() {
       fluid
       className={csx({ maxWidth: '100%', overflow: 'auto' })}
     >
-      <Text variant="detail" className={csx({ paddingLeft: '$space-4' })}>
-        {formatMessage(messages.importPaginationLabel, { pageSize, total })}
-      </Text>
+      {total > pageSize && (
+        <Text variant="detail" className={csx({ paddingLeft: '$space-4' })}>
+          {formatMessage(messages.importPaginationLabel, { pageSize, total })}
+        </Text>
+      )}
       <Table {...getTable()}>
         <THead>
           {columns.map((column, index) => (
@@ -158,15 +176,20 @@ export default function History() {
           ))}
         </TBody>
       </Table>
-      <ShowImportModal
-        openInfosImportmodal={openInfosImportmodal}
-        id={importIdModal}
-      />
-      <DeleteConfirmationModal
-        openDeleteConfirmationModal={openDeleteConfirmationModal}
-        deleteId={deleteId}
-        setDeleted={setDeleted}
-      />
+      {openInfosImportmodal.open && (
+        <ShowImportModal
+          openInfosImportmodal={openInfosImportmodal}
+          setChangedStatus={setChangedStatus}
+          id={importIdModal}
+        />
+      )}
+      {openDeleteConfirmationModal.open && (
+        <DeleteConfirmationModal
+          openDeleteConfirmationModal={openDeleteConfirmationModal}
+          deleteId={deleteId}
+          setDeleted={setDeleted}
+        />
+      )}
     </Stack>
   )
 }

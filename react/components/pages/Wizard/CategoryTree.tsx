@@ -226,7 +226,7 @@ const CategoryTree = ({
         onClick={() => refetchCategories()}
         variant="tertiary"
       >
-        {formatMessage(messages.categoriesRefreshLabel)}
+        {formatMessage(messages.reloadLabel)}
       </Button>
       {errorCategories && (
         <ErrorMessage

@@ -15,6 +15,7 @@ export const messages = defineMessages({
   cancelLabel: { id: 'admin/cancel.label' },
   deleteLabel: { id: 'admin/delete.label' },
   loadLabel: { id: 'admin/load.label' },
+  reloadLabel: { id: 'admin/reload.label' },
   settingsMissingError: { id: 'admin/settings.missing.error' },
   settingsLabel: { id: 'admin/settings.label' },
   settingsDefaultLabel: { id: 'admin/settings.default.label' },
@@ -28,7 +29,6 @@ export const messages = defineMessages({
   settingsDefaultError: { id: 'admin/settings.default.error' },
   categoriesLabel: { id: 'admin/categories.label' },
   categoriesSourceError: { id: 'admin/categories.source.error' },
-  categoriesRefreshLabel: { id: 'admin/categories.refresh.label' },
   optionsLabel: { id: 'admin/options.label' },
   optionsCategories: { id: 'admin/options.categories' },
   importImage: { id: 'admin/options.import.image' },
@@ -64,5 +64,6 @@ export const messages = defineMessages({
   importPaginationLabel: { id: 'admin/import.pagination.label' },
   importDelete: { id: 'admin/import.delete' },
   importDeleteText: { id: 'admin/import.delete.text' },
+  importResultsLabel: { id: 'admin/import.results.label' },
   importBrandsLabel: { id: 'admin/import.brands.label' },
 })

@@ -1,6 +1,7 @@
 import type { useModalState } from '@vtex/admin-ui'
 import { useMutation } from 'react-apollo'
 import type {
+  ImportStatus,
   Mutation,
   MutationDeleteImportsArgs,
 } from 'ssesandbox04.catalog-importer'
@@ -9,6 +10,7 @@ import { DELETE_IMPORTS_MUTATION } from '../../../graphql'
 
 export { DeleteConfirmationModal } from './DeleteConfirmationModal'
 export { ShowImportModal } from './ShowImportModal'
+export type ImportChangedStatus = Record<string, ImportStatus>
 
 export const useDeleteImport = (
   setDeleted: React.Dispatch<React.SetStateAction<string[]>>,
