@@ -11,12 +11,12 @@ import {
   ModalHeader,
   ModalTitle,
   Stack,
+  Text,
   csx,
   useModalState,
   useToast,
 } from '@vtex/admin-ui'
 import React, { useCallback, useMemo } from 'react'
-import { flattenTree } from 'react-accessible-treeview'
 import { useMutation } from 'react-apollo'
 import { useIntl } from 'react-intl'
 import type {
@@ -33,6 +33,7 @@ import {
   categoryTreeMapper,
   goToHistoryPage,
   messages,
+  treeSorter,
   useStockOptionLabel,
 } from '../../common'
 import {
@@ -50,6 +51,7 @@ interface StartProcessingProps {
   }
   state: TabState
   settings: AppSettingsInput
+  setSuccessImport: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const NAVIGATE_DELAY = 10000
@@ -59,6 +61,7 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
   optionsChecked,
   state,
   settings,
+  setSuccessImport,
 }) => {
   const { formatMessage } = useIntl()
   const showToast = useToast()
@@ -82,6 +85,7 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
         return
       }
 
+      setSuccessImport(true)
       confirmationImportModal.hide()
 
       showToast({
@@ -106,6 +110,11 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
   const treeData = useMemo(() => buildTree(checkedTreeOptions), [
     checkedTreeOptions,
   ])
+
+  const categoryTree = useMemo(
+    () => treeData.sort(treeSorter).map(categoryTreeMapper),
+    [treeData]
+  )
 
   const handleStartImport = useCallback(
     () =>
@@ -138,20 +147,6 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
     ]
   )
 
-  const categoryTreeFolder = useMemo(
-    () =>
-      flattenTree({
-        name: '',
-        children: [
-          {
-            name: formatMessage(messages.optionsCategories),
-            children: treeData.map(categoryTreeMapper) ?? [],
-          },
-        ],
-      }),
-    [treeData, formatMessage]
-  )
-
   return (
     <Stack space="$space-4" fluid>
       <Flex
@@ -161,13 +156,17 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
         className={csx({ gap: '$space-4' })}
       >
         <Flex justify="flex-start" direction="column">
-          <h3>{formatMessage(messages.optionsCategories)}</h3>
           <Flex direction="row">
-            {categoryTreeFolder.length && <Tree data={categoryTreeFolder} />}
+            {categoryTree.length && (
+              <Tree
+                data={categoryTree}
+                title={formatMessage(messages.optionsCategories)}
+              />
+            )}
           </Flex>
         </Flex>
         <div>
-          <h3>{formatMessage(messages.optionsLabel)}</h3>
+          <Text variant="title1">{formatMessage(messages.optionsLabel)}</Text>
           <div>
             {formatMessage(messages.settingsAccountLabel)}:{' '}
             <b>

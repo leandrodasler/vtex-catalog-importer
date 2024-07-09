@@ -12,14 +12,5 @@
     "status": { "type": "string" },
     "error": { "type": ["string", "null"] }
   },
-  "required": [
-    "user",
-    "settings",
-    "categoryTree",
-    "importImages",
-    "importPrices",
-    "stocksOption",
-    "status"
-  ],
   "v-cache": false
 }

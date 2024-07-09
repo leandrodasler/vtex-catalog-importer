@@ -5298,9 +5298,9 @@ splunk-events@^1.3.1:
   resolved "https://registry.yarnpkg.com/splunk-events/-/splunk-events-1.7.0.tgz#4400c2b224387e598806c8fb7e6e687cf9143fe4"
   integrity sha512-OdqBiyE45GIYWWzeNZVcZHqvagRwBINy26+u2Iu2nWQYzPtD7HnL6hSgWzFXNBzRxdQuUQWeAKE58I6pvJ9xjA==
 
-"ssesandbox04.catalog-importer@https://teste--cubostecnologia.myvtex.com/_v/private/typings/linked/v1/ssesandbox04.catalog-importer@0.0.2+build1720182415/public/@types/ssesandbox04.catalog-importer":
+"ssesandbox04.catalog-importer@https://dev--ssesandbox04.myvtex.com/_v/private/typings/linked/v1/ssesandbox04.catalog-importer@0.0.2+build1720191994/public/@types/ssesandbox04.catalog-importer":
   version "0.0.2"
-  resolved "https://teste--cubostecnologia.myvtex.com/_v/private/typings/linked/v1/ssesandbox04.catalog-importer@0.0.2+build1720182415/public/@types/ssesandbox04.catalog-importer#49b8a0b9b4a1148cdfd2c9e278314cde923da9b5"
+  resolved "https://dev--ssesandbox04.myvtex.com/_v/private/typings/linked/v1/ssesandbox04.catalog-importer@0.0.2+build1720191994/public/@types/ssesandbox04.catalog-importer#fcfd8e87d0ed527c54b453d07f59269606267c4f"
 
 sshpk@^1.7.0:
   version "1.16.1"

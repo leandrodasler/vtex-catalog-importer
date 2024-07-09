@@ -26,8 +26,7 @@ import {
   messages,
 } from '../../common'
 import { IMPORTS_QUERY, useQueryCustom } from '../../graphql'
-import { DeleteConfirmationModal } from './common/DeleteConfirmationModal'
-import { ShowImportModal } from './common/ShowImportModal'
+import { DeleteConfirmationModal, ShowImportModal } from './common'
 import useImportColumns from './useImportColumns'
 
 const DEFAULT_ARGS = {
@@ -42,13 +41,13 @@ export default function History() {
   const [deleted, setDeleted] = useState<string[]>([])
   const openInfosImportmodal = useModalState()
   const openDeleteConfirmationModal = useModalState()
-  const [infoModal, setInfoModal] = useState<Import>()
-  const [deleteId, setDeleteId] = useState<string | undefined>()
+  const [importIdModal, setImportIdModal] = useState('')
+  const [deleteId, setDeleteId] = useState('')
 
   const columns = useImportColumns({
     setDeleted,
     openInfosImportmodal,
-    setInfoModal,
+    setImportIdModal,
     openDeleteConfirmationModal,
     setDeleteId,
   })
@@ -72,7 +71,7 @@ export default function History() {
 
     if (
       !importToOpen ||
-      (!openInfosImportmodal.open && importToOpen.id === infoModal?.id)
+      (!openInfosImportmodal.open && importToOpen.id === importIdModal)
     ) {
       url.searchParams.delete('id')
       window.parent.history.replaceState(null, '', url.toString())
@@ -80,9 +79,9 @@ export default function History() {
       return
     }
 
-    setInfoModal(importToOpen)
+    setImportIdModal(importToOpen.id)
     openInfosImportmodal.show()
-  }, [imports, infoModal, openInfosImportmodal])
+  }, [importIdModal, imports, openInfosImportmodal])
 
   const paginationTotal = data?.imports.pagination.total ?? 0
 
@@ -146,7 +145,7 @@ export default function History() {
                 url.searchParams.set('id', item.id)
                 window.parent.history.replaceState(null, '', url.toString())
                 openInfosImportmodal.show()
-                setInfoModal(item)
+                setImportIdModal(item.id)
               }}
             >
               {columns.map((column, indexColumn) => (
@@ -161,7 +160,7 @@ export default function History() {
       </Table>
       <ShowImportModal
         openInfosImportmodal={openInfosImportmodal}
-        infoModal={infoModal}
+        id={importIdModal}
       />
       <DeleteConfirmationModal
         openDeleteConfirmationModal={openDeleteConfirmationModal}

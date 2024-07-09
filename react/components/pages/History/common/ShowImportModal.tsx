@@ -1,5 +1,7 @@
 import type { useModalState } from '@vtex/admin-ui'
 import {
+  Button,
+  IconArrowsClockwise,
   Modal,
   ModalContent,
   ModalDismiss,
@@ -10,11 +12,8 @@ import {
   Text,
 } from '@vtex/admin-ui'
 import React, { useMemo } from 'react'
-import { flattenTree } from 'react-accessible-treeview'
 import { useIntl } from 'react-intl'
 import type {
-  Entity,
-  Import,
   Query,
   QueryGetEntitiesArgs,
   QueryGetImportArgs,
@@ -26,8 +25,10 @@ import {
   SuspenseFallback,
   Tree,
   Unchecked,
+  brandsTreeMapper,
   categoryTreeMapper,
   messages,
+  treeSorter,
   useStatusLabel,
   useStockOptionLabel,
 } from '../../../common'
@@ -40,12 +41,12 @@ import { mapStatusToVariant } from '../useImportColumns'
 
 type ShowImportModalProps = {
   openInfosImportmodal: ReturnType<typeof useModalState>
-  infoModal?: Import
+  id: string
 }
 
 export const ShowImportModal: React.FC<ShowImportModalProps> = ({
   openInfosImportmodal,
-  infoModal,
+  id,
 }) => {
   const {
     culture: { locale },
@@ -55,100 +56,90 @@ export const ShowImportModal: React.FC<ShowImportModalProps> = ({
   const getStockOptionLabel = useStockOptionLabel()
   const getStatusLabel = useStatusLabel()
 
-  const { data, loading: loadingImport } = useQueryCustom<
-    Query,
-    QueryGetImportArgs
-  >(GET_IMPORT_QUERY, {
-    skip: !infoModal?.id,
-    variables: { id: infoModal?.id as string },
+  const {
+    data,
+    loading: loadingImport,
+    refetch: refetchImport,
+  } = useQueryCustom<Query, QueryGetImportArgs>(GET_IMPORT_QUERY, {
+    skip: !id,
+    variables: { id },
   })
 
-  const { data: brandsData, loading: loadingEntities } = useQueryCustom<
-    Query,
-    QueryGetEntitiesArgs
-  >(GET_ENTITIES_QUERY, {
-    skip: !infoModal?.id,
-    variables: { importId: infoModal?.id as string, entityName: 'brand' },
+  const importExecution = data?.getImport
+
+  const {
+    data: brandsData,
+    loading: loadingBrands,
+    refetch: refetchBrands,
+  } = useQueryCustom<Query, QueryGetEntitiesArgs>(GET_ENTITIES_QUERY, {
+    skip: !id,
+    variables: { importId: id, entityName: 'brand' },
   })
 
-  const categories = useMemo(() => data?.getImport.categoryTree ?? [], [
-    data?.getImport.categoryTree,
-  ])
-
-  const brands = useMemo(() => brandsData?.getEntities ?? [], [
-    brandsData?.getEntities,
-  ])
-
-  const brandsFolder = useMemo(
+  const categories = useMemo(
     () =>
-      flattenTree({
-        name: '',
-        children: [
-          {
-            name: formatMessage(messages.importBrandsLabel, {
-              total: brands.length,
-            }),
-            children: brands.map(({ id, payload }: Entity) => ({
-              name: JSON.parse(payload).Name,
-              id,
-            })),
-          },
-        ],
-      }),
-    [brands, formatMessage]
+      data?.getImport.categoryTree.sort(treeSorter).map(categoryTreeMapper) ??
+      [],
+    [data?.getImport.categoryTree]
   )
 
-  const categoryTreeFolder = useMemo(
-    () =>
-      flattenTree({
-        name: '',
-        children: [
-          {
-            name: formatMessage(messages.optionsCategories),
-            children: categories.map(categoryTreeMapper) ?? [],
-          },
-        ],
-      }),
-    [categories, formatMessage]
+  const brands = useMemo(
+    () => brandsData?.getEntities.map(brandsTreeMapper).sort(treeSorter) ?? [],
+    [brandsData?.getEntities]
   )
 
-  const loading = useMemo(() => loadingEntities || loadingImport, [
-    loadingEntities,
+  const loading = useMemo(() => loadingBrands || loadingImport, [
+    loadingBrands,
     loadingImport,
   ])
+
+  const refetchAll = () => {
+    refetchBrands()
+    refetchImport()
+  }
 
   return (
     <Modal state={openInfosImportmodal}>
       <ModalHeader>
-        <ModalTitle>{formatMessage(messages.importDetailsLabel)}:</ModalTitle>
-        <ModalDismiss />
+        <ModalTitle>{formatMessage(messages.importDetailsLabel)}</ModalTitle>
+        <Stack direction="row" space="$space-1">
+          <Button
+            disabled={loading}
+            icon={<IconArrowsClockwise />}
+            onClick={() => refetchAll()}
+            variant="tertiary"
+          >
+            {formatMessage(messages.categoriesRefreshLabel)}
+          </Button>
+          <ModalDismiss />
+        </Stack>
       </ModalHeader>
       <ModalContent>
         {loading && <SuspenseFallback />}
-        {!loading && infoModal && (
+        {!loading && importExecution && (
           <Stack space="$space-2" fluid>
             <Stack direction="row">
               <Text variant="title1">
                 {formatMessage(messages.settingsAccountLabel)}:
               </Text>
-              {infoModal.settings.useDefault ? (
+              {importExecution.settings.useDefault ? (
                 <Stack direction="row">
                   {formatMessage(messages.settingsDefaultShort)}
                 </Stack>
               ) : (
-                <Stack> {infoModal.settings.account}</Stack>
+                <Stack> {importExecution.settings.account}</Stack>
               )}
             </Stack>
             <Stack direction="row">
               <Text variant="title1">ID:</Text>
-              <Text variant="body">{infoModal.id}</Text>
+              <Text variant="body">{importExecution.id}</Text>
             </Stack>
             <Stack direction="row">
               <Text variant="title1">
                 {formatMessage(messages.importCreatedInLabel)}:
               </Text>
               <Text variant="body">
-                {new Date(infoModal.createdIn).toLocaleString(locale)}
+                {new Date(importExecution.createdIn).toLocaleString(locale)}
               </Text>
             </Stack>
             <Stack direction="row">
@@ -157,22 +148,29 @@ export const ShowImportModal: React.FC<ShowImportModalProps> = ({
               </Text>
 
               <Text variant="body">
-                {new Date(infoModal.lastInteractionIn).toLocaleString(locale)}
+                {new Date(importExecution.lastInteractionIn).toLocaleString(
+                  locale
+                )}
               </Text>
             </Stack>
             <Stack direction="row">
               <Text variant="title1">
                 {formatMessage(messages.importUserLabel)}:
               </Text>
-              <Text variant="body">{infoModal.user}</Text>
+              <Text variant="body">{importExecution.user}</Text>
             </Stack>
-            {categoryTreeFolder.length && <Tree data={categoryTreeFolder} />}
+            {categories.length && (
+              <Tree
+                data={categories}
+                title={formatMessage(messages.optionsCategories)}
+              />
+            )}
             <Stack direction="row">
               <Text variant="title1">
                 {formatMessage(messages.importImage)}:
               </Text>
               <Text variant="body">
-                {infoModal.importImages ? <Checked /> : <Unchecked />}
+                {importExecution.importImages ? <Checked /> : <Unchecked />}
               </Text>
             </Stack>
             <Stack direction="row">
@@ -180,15 +178,15 @@ export const ShowImportModal: React.FC<ShowImportModalProps> = ({
                 {formatMessage(messages.importPrice)}:
               </Text>
               <Text variant="body">
-                {infoModal.importPrices ? <Checked /> : <Unchecked />}
+                {importExecution.importPrices ? <Checked /> : <Unchecked />}
               </Text>
             </Stack>
-            {infoModal.stockValue && (
+            {importExecution.stockValue && (
               <Stack direction="row">
                 <Text variant="title1">
                   {formatMessage(messages.stockValue)}:
                 </Text>
-                <Text variant="body">{infoModal.stockValue}</Text>
+                <Text variant="body">{importExecution.stockValue}</Text>
               </Stack>
             )}
             <Stack direction="row">
@@ -196,7 +194,9 @@ export const ShowImportModal: React.FC<ShowImportModalProps> = ({
                 {formatMessage(messages.importStocks)}:
               </Text>
               <Text variant="body">
-                {getStockOptionLabel(infoModal.stocksOption).toLowerCase()}
+                {getStockOptionLabel(
+                  importExecution.stocksOption
+                ).toLowerCase()}
               </Text>
             </Stack>
             <Stack direction="row">
@@ -204,16 +204,21 @@ export const ShowImportModal: React.FC<ShowImportModalProps> = ({
                 {formatMessage(messages.importStatusLabel)}:
               </Text>
               <Tag
-                label={getStatusLabel(infoModal.status)}
-                variant={mapStatusToVariant[infoModal.status]}
+                label={getStatusLabel(importExecution.status)}
+                variant={mapStatusToVariant[importExecution.status]}
               />
             </Stack>
-            {infoModal.error && (
+            {importExecution.error && (
               <Stack direction="row">
-                <Text variant="body">{infoModal.error}</Text>
+                <Text variant="body">{importExecution.error}</Text>
               </Stack>
             )}
-            <Tree data={brandsFolder} />
+            <Tree
+              data={brands}
+              title={formatMessage(messages.importBrandsLabel, {
+                total: brands.length,
+              })}
+            />
           </Stack>
         )}
       </ModalContent>

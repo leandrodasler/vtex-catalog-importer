@@ -20,7 +20,13 @@ import type {
 } from 'ssesandbox04.catalog-importer'
 
 import type { CheckedCategories } from '.'
-import { ErrorMessage, SuspenseFallback, messages } from '../../common'
+import {
+  ErrorMessage,
+  SuspenseFallback,
+  categoryTreeMapper,
+  messages,
+  treeSorter,
+} from '../../common'
 import { CATEGORIES_QUERY, useQueryCustom } from '../../graphql'
 
 interface CategoryTreeProps {
@@ -57,12 +63,14 @@ const CategoryTree = ({
     setExpandedCategories,
   ] = useState<ExpandedCategories>({})
 
+  const categories = data?.categories?.sort(treeSorter).map(categoryTreeMapper)
+
   const findCategoryById = (
-    categories: Category[] | null | undefined,
+    rootCategories: Category[] | null | undefined,
     categoryId: string
   ): Category | undefined => {
-    if (!categories) return undefined
-    for (const category of categories) {
+    if (!rootCategories) return undefined
+    for (const category of rootCategories) {
       if (category.id === categoryId) {
         return category
       }
@@ -80,11 +88,11 @@ const CategoryTree = ({
   }
 
   const findParentCategory = (
-    categories: Category[] | null | undefined,
+    rootCategories: Category[] | null | undefined,
     categoryId: string
   ): Category | undefined => {
-    if (!categories) return undefined
-    for (const category of categories) {
+    if (!rootCategories) return undefined
+    for (const category of rootCategories) {
       if (category.children?.some((sub: Category) => sub.id === categoryId)) {
         return category
       }
@@ -106,7 +114,6 @@ const CategoryTree = ({
     parentChecked?: boolean
   ) => {
     setCheckedTreeOptions((prevState) => {
-      const categories = data?.categories ?? []
       const isChecked =
         parentChecked !== undefined
           ? parentChecked
@@ -129,7 +136,7 @@ const CategoryTree = ({
             newState[childCategory.id] = {
               ...childCategory,
               checked,
-              parentId: subCategory.id, // Propagando parentId para os filhos
+              parentId: subCategory.id,
             }
             markChildren(childCategory, checked)
           })
@@ -209,8 +216,6 @@ const CategoryTree = ({
         )}
     </div>
   )
-
-  const categories = data?.categories
 
   return (
     <div className={csx({ position: 'relative' })}>

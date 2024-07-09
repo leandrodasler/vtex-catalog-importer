@@ -64,7 +64,7 @@
   "admin/import.status.success.label": "SUCESSO",
   "admin/import.status.error.label": "ERRO",
   "admin/import.view.label": "Visualizar registros",
-  "admin/import.pagination.label": "Exibindo {pageSize} de um total de {total} {total, plural, one {importação} other {importações}}",
+  "admin/import.pagination.label": "Exibindo últimos {pageSize} de um total de {total} {total, plural, one {importação} other {importações}}",
   "admin/import.delete": "Deseja mesmo excluir a importação?",
   "admin/import.delete.text": "Os respectivos logs de importação também serão excluídos.",
   "admin/import.brands.label": "Marcas importadas ({total})"

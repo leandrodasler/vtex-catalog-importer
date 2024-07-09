@@ -1,6 +1,6 @@
 import type { MutationDeleteImportsArgs } from 'ssesandbox04.catalog-importer'
 
-import { entityGetAll } from '../../helpers'
+import { batch, entityGetAll } from '../../helpers'
 
 export const deleteImports = async (
   _: unknown,
@@ -13,7 +13,7 @@ export const deleteImports = async (
     return []
   }
 
-  await Promise.all(ids.map((id) => importExecution.delete(id)))
+  batch(ids, (id) => importExecution.delete(id))
 
   const importEntities = await entityGetAll(importEntity, {
     fields: ['id'],
@@ -21,7 +21,7 @@ export const deleteImports = async (
   })
 
   if (importEntities.length) {
-    await Promise.all(importEntities.map(({ id }) => importEntity.delete(id)))
+    batch(importEntities, ({ id }) => importEntity.delete(id))
   }
 
   return ids

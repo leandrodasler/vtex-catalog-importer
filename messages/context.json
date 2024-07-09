@@ -64,7 +64,7 @@
   "admin/import.status.success.label": "SUCCESS",
   "admin/import.status.error.label": "ERROR",
   "admin/import.view.label": "View logs",
-  "admin/import.pagination.label": "Showing {pageSize} out of {total} {total, plural, one {import} other {imports}}",
+  "admin/import.pagination.label": "Showing last {pageSize} out of {total} {total, plural, one {import} other {imports}}",
   "admin/import.delete": "Do you really want to delete the import?",
   "admin/import.delete.text": "The respective import logs will also be deleted.",
   "admin/import.brands.label": "Imported brands ({total})"

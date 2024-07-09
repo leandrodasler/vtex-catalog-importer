@@ -1,8 +1,12 @@
+/* eslint-disable no-console */
 import type {
   MasterDataEntity,
   ScrollInput,
 } from '@vtex/clients/build/clients/masterData/MasterDataEntity'
-import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
+import type {
+  AppSettingsInput,
+  ImportStatus,
+} from 'ssesandbox04.catalog-importer'
 
 import { ENDPOINTS } from '.'
 
@@ -25,34 +29,99 @@ export const httpGetResolverFactory = <Response>(url: string) => async (
   context: Context
 ) => context.clients.httpClient.get<Response>(url)
 
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
 export const entityGetAll = async <T extends Record<string, T | unknown>>(
   client: MasterDataEntity<WithInternalFields<T>>,
-  { fields, where, sort }: ScrollInput<T>
+  input: ScrollInput<T>
 ) => {
   const allData: Array<WithInternalFields<T>> = []
-  let currentPage = 1
+  let currentMdToken = ''
 
   const getAll = async () => {
-    const {
-      data,
-      pagination: { total },
-    } = await client.searchRaw(
-      { page: currentPage, pageSize: 100 },
-      fields,
-      sort,
-      where
-    )
+    const { data, mdToken } = await client.scroll({
+      // { page: currentPage, pageSize: 100 },
+      ...input,
+      size: 1000,
+      mdToken: currentMdToken || undefined,
+    })
 
     allData.push(...((data as unknown) as Array<WithInternalFields<T>>))
 
-    currentPage++
+    currentMdToken = currentMdToken || mdToken
 
-    if (total > allData.length) {
+    console.log({ size: allData.length })
+
+    if (data.length) {
+      if (allData.length % 5000 === 0) {
+        await delay(1000)
+      }
+
       await getAll()
     }
   }
 
+  console.log('getAll:', {
+    ...input,
+    entity: client.dataEntity,
+    schema: client.schema,
+  })
+
   await getAll()
 
+  console.log('finished getAll:', { size: allData.length })
+
   return allData
+}
+
+const BATCH_CONCURRENCY = 1000
+
+export const batch = async <T>(
+  data: T[],
+  elementCallback: (element: T) => Promise<unknown>
+) => {
+  const cloneData = [...data]
+
+  const processBatch = async (): Promise<void> => {
+    if (!cloneData.length) {
+      return
+    }
+
+    console.log(
+      'batch remaining size:',
+      cloneData.length < 10 ? cloneData : cloneData.length
+    )
+
+    await Promise.all(
+      cloneData.splice(0, BATCH_CONCURRENCY).map(elementCallback)
+    )
+
+    await processBatch()
+  }
+
+  console.log('init process batch')
+
+  await processBatch()
+
+  console.log('finished process batch with total:', data.length)
+}
+
+export const updateImportStatus = async (
+  context: AppEventContext,
+  status: ImportStatus,
+  error?: Error
+) => {
+  if (!context.state.body.id) {
+    return
+  }
+
+  await context.clients.importExecution
+    .update(context.state.body.id, {
+      ...(error && { error: error.message }),
+      status,
+    })
+    .then(() => {
+      context.state.body.status = status
+    })
+    .catch(() => {})
 }

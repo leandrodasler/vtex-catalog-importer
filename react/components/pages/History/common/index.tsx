@@ -7,6 +7,9 @@ import type {
 
 import { DELETE_IMPORTS_MUTATION } from '../../../graphql'
 
+export { DeleteConfirmationModal } from './DeleteConfirmationModal'
+export { ShowImportModal } from './ShowImportModal'
+
 export const useDeleteImport = (
   setDeleted: React.Dispatch<React.SetStateAction<string[]>>,
   openDeleteConfirmationModal: ReturnType<typeof useModalState>

@@ -46,6 +46,7 @@ declare global {
     id: string
     createdIn: string
     lastInteractionIn: string
+    dataEntityId: string
   }
 
   type ProcessImport = WithInternalFields<Import>
@@ -57,6 +58,8 @@ declare global {
 
 const memoryCache = new LRUCache<string, Cached>({ max: 5000 })
 
+const CONCURRENCY = 10
+
 export default {
   implementation: Clients,
   options: {
@@ -65,8 +68,8 @@ export default {
       exponentialBackoffCoefficient: 2,
       initialBackoffDelay: 100,
       retries: 10,
-      timeout: 3000,
-      concurrency: 10,
+      timeout: 60000,
+      concurrency: CONCURRENCY,
       memoryCache,
       asyncSetCache: true,
     },
@@ -76,7 +79,7 @@ export default {
       initialBackoffDelay: 50,
       retries: 1,
       timeout: 60000,
-      concurrency: 10,
+      concurrency: CONCURRENCY,
     },
   },
 } as ClientsConfig<Clients>

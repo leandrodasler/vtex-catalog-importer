@@ -2,7 +2,7 @@
 import type { Maybe } from '@vtex/api'
 import type { Brand } from '@vtex/clients'
 
-import { ENDPOINTS, brandMapper } from '../../helpers'
+import { ENDPOINTS, batch, brandMapper } from '../../helpers'
 
 export const brands = async (context: AppEventContext) => {
   console.log('========================')
@@ -20,17 +20,17 @@ export const brands = async (context: AppEventContext) => {
 
   console.log({ brands: brandsData })
 
-  if (brandsData) {
-    await Promise.all(
-      brandsData.map(brandMapper).map(async (brand) =>
-        importEntity.save({
-          executionImportId: id,
-          name: 'brand',
-          sourceAccount: settings.account ?? '',
-          sourceId: String(brand.Id),
-          payload: { ...brand, Id: undefined },
-        })
-      )
-    )
+  if (!brandsData?.length) {
+    return
   }
+
+  await batch(brandsData.map(brandMapper), (brand) =>
+    importEntity.save({
+      executionImportId: id,
+      name: 'brand',
+      sourceAccount: settings.account ?? '',
+      sourceId: String(brand.Id),
+      payload: { ...brand, Id: undefined },
+    })
+  )
 }

@@ -11,7 +11,7 @@ import {
   csx,
   useTabState,
 } from '@vtex/admin-ui'
-import React, { Suspense, lazy, useState } from 'react'
+import React, { Suspense, lazy, useCallback, useState } from 'react'
 import { useIntl } from 'react-intl'
 import type {
   AppSettingsInput,
@@ -94,6 +94,8 @@ export default function Wizard() {
     stockOption: STOCK_OPTIONS.KEEP_SOURCE,
   })
 
+  const [successImport, setSuccessImport] = useState(false)
+
   const { loading, error } = useQueryCustom(APP_SETTINGS_QUERY, {
     toastError: false,
     onCompleted(data) {
@@ -101,38 +103,35 @@ export default function Wizard() {
     },
   })
 
+  const selectedId = state.selectedId ?? ''
+
+  const isStepDisabled = useCallback(
+    (steps: string[]) => successImport || steps.includes(selectedId),
+    [selectedId, successImport]
+  )
+
   return (
     <Card>
       <TabList state={state} className={tabListTheme}>
-        <Tab id="1">
+        <Tab id="1" disabled={successImport}>
           <Center>
             <IconGear className="mr1" size="small" />
             {formatMessage(messages.settingsLabel)}
           </Center>
         </Tab>
-        <Tab disabled={state.selectedId === '1'} id="2">
+        <Tab disabled={isStepDisabled(['1'])} id="2">
           <Center>
             <IconListDashes className="mr1" size="small" />
             {formatMessage(messages.categoriesLabel)}
           </Center>
         </Tab>
-        <Tab
-          disabled={state.selectedId === '1' || state.selectedId === '2'}
-          id="3"
-        >
+        <Tab disabled={isStepDisabled(['1', '2'])} id="3">
           <Center>
             <IconFaders className="mr1" size="small" />
             {formatMessage(messages.optionsLabel)}
           </Center>
         </Tab>
-        <Tab
-          disabled={
-            state.selectedId === '1' ||
-            state.selectedId === '2' ||
-            state.selectedId === '3'
-          }
-          id="4"
-        >
+        <Tab disabled={isStepDisabled(['1', '2', '3'])} id="4">
           <Center>
             <IconArrowLineDown className="mr1" size="small" />
             {formatMessage(messages.startLabel)}
@@ -206,6 +205,7 @@ export default function Wizard() {
               optionsChecked={optionsChecked}
               state={state}
               settings={settings}
+              setSuccessImport={setSuccessImport}
             />
           )}
         </Suspense>

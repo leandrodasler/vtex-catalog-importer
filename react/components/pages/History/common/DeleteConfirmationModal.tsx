@@ -20,6 +20,7 @@ type DeleteConfirmationModalProps = {
   deleteId: string | undefined
   setDeleted: React.Dispatch<React.SetStateAction<string[]>>
 }
+
 export const DeleteConfirmationModal = ({
   openDeleteConfirmationModal,
   deleteId,
@@ -41,7 +42,7 @@ export const DeleteConfirmationModal = ({
     <Modal state={openDeleteConfirmationModal}>
       <ModalHeader>
         <ModalTitle> {formatMessage(messages.importDelete)}</ModalTitle>
-        <ModalDismiss />
+        <ModalDismiss disabled={loading} />
       </ModalHeader>
       <ModalContent>{formatMessage(messages.importDeleteText)}</ModalContent>
       <ModalFooter>

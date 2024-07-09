@@ -12,12 +12,11 @@ import {
   csx,
   useDataViewState,
 } from '@vtex/admin-ui'
-import React from 'react'
-import type { INode } from 'react-accessible-treeview'
-import TreeView from 'react-accessible-treeview'
+import React, { useMemo } from 'react'
+import TreeView, { flattenTree } from 'react-accessible-treeview'
 import type { MessageDescriptor } from 'react-intl'
 import { useIntl } from 'react-intl'
-import type { Category, Import } from 'ssesandbox04.catalog-importer'
+import type { Category, Entity, Import } from 'ssesandbox04.catalog-importer'
 
 import type { GraphQLError } from '../graphql'
 import { getGraphQLMessageDescriptor } from '../graphql'
@@ -116,16 +115,34 @@ export const goToWizardPage = () => {
   window.parent.location.href = '/admin/catalog-importer/wizard'
 }
 
-type TreeProps = { data: INode[] }
+type TreeSorterField = { name: string }
 
-type CategoryWithChildren = Category & { children: CategoryWithChildren[] }
+export const treeSorter = (a: TreeSorterField, b: TreeSorterField) =>
+  a.name.localeCompare(b.name)
 
-export const categoryTreeMapper: (
-  category: Category
-) => CategoryWithChildren = ({ id, name, children }) => ({
+export const categoryTreeMapper: (category: Category) => Category = (
+  category
+) => ({
+  ...category,
+  children: category.children?.sort(treeSorter).map(categoryTreeMapper),
+})
+
+export const brandsTreeMapper = ({
   id,
-  name,
-  children: children?.length ? children.map(categoryTreeMapper) : [],
+  payload,
+  sourceId,
+  targetId,
+}: Entity) => ({
+  name: JSON.parse(payload).Name,
+  id,
+  children: [
+    { name: `id: ${id}`, id: `id-${id}` },
+    { name: `sourceId: ${sourceId}`, id: `sourceId-${id}` },
+    {
+      name: `targetId: ${targetId ?? '---'}`,
+      id: `targetId-${id}`,
+    },
+  ],
 })
 
 const treeNodeTheme = csx({
@@ -139,34 +156,46 @@ const treeNodeTheme = csx({
   },
 })
 
-export const Tree = ({ data }: TreeProps) => (
-  <div className={treeNodeTheme}>
-    <TreeView
-      data={data}
-      propagateCollapse
-      nodeRenderer={({
-        element,
-        isBranch,
-        isExpanded,
-        getNodeProps,
-        level,
-        handleExpand,
-      }) => {
-        return (
-          <Flex
-            align="center"
-            {...getNodeProps({ onClick: handleExpand })}
-            style={{ marginLeft: 20 * (level - 1) }}
-          >
-            {!isBranch && level > 1 && (
-              <IconCaretRight style={{ opacity: 0 }} />
-            )}
-            {isBranch && !isExpanded && <IconCaretRight />}
-            {isBranch && isExpanded && <IconCaretDown />}
-            <span className="name">{element.name}</span>
-          </Flex>
-        )
-      }}
-    />
-  </div>
-)
+type NodeTree = { name: string }
+type TreeProps<T extends NodeTree> = { data: T[]; title: string }
+
+export const Tree = <T extends NodeTree>({ data, title }: TreeProps<T>) => {
+  const children = useMemo(() => [{ name: title, children: data ?? [] }], [
+    data,
+    title,
+  ])
+
+  const folder = useMemo(() => flattenTree({ name: '', children }), [children])
+
+  return (
+    <div className={treeNodeTheme}>
+      <TreeView
+        data={folder}
+        propagateCollapse
+        nodeRenderer={({
+          element,
+          isBranch,
+          isExpanded,
+          getNodeProps,
+          level,
+          handleExpand,
+        }) => {
+          return (
+            <Flex
+              align="center"
+              {...getNodeProps({ onClick: handleExpand })}
+              style={{ marginLeft: 20 * (level - 1) }}
+            >
+              {!isBranch && level > 1 && (
+                <IconCaretRight style={{ opacity: 0 }} />
+              )}
+              {isBranch && !isExpanded && <IconCaretRight />}
+              {isBranch && isExpanded && <IconCaretDown />}
+              <span className="name">{element.name}</span>
+            </Flex>
+          )
+        }}
+      />
+    </div>
+  )
+}
