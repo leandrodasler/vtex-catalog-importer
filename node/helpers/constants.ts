@@ -49,3 +49,12 @@ export const IMPORT_STATUS: { [key in ImportStatus]: ImportStatus } = {
   SUCCESS: 'SUCCESS',
   ERROR: 'ERROR',
 }
+
+export const STEPS_ENTITIES = [
+  'brand',
+  'category',
+  'product',
+  'sku',
+  'price',
+  'stock',
+]

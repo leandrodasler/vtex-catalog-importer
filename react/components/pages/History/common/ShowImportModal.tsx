@@ -17,8 +17,7 @@ import React, { useMemo } from 'react'
 import { useIntl } from 'react-intl'
 import type {
   Query,
-  QueryGetEntitiesArgs,
-  QueryGetImportArgs,
+  QueryImportProgressArgs,
 } from 'ssesandbox04.catalog-importer'
 import { useRuntime } from 'vtex.render-runtime'
 
@@ -28,18 +27,13 @@ import {
   SuspenseFallback,
   Tree,
   Unchecked,
-  brandsTreeMapper,
   categoryTreeMapper,
   messages,
   treeSorter,
   useStatusLabel,
   useStockOptionLabel,
 } from '../../../common'
-import {
-  GET_ENTITIES_QUERY,
-  GET_IMPORT_QUERY,
-  useQueryCustom,
-} from '../../../graphql'
+import { IMPORT_PROGRESS_QUERY, useQueryCustom } from '../../../graphql'
 import { mapStatusToVariant } from '../useImportColumns'
 
 type ShowImportModalProps = {
@@ -62,6 +56,7 @@ const firstColumnTheme = csx({
 })
 
 const secondColumnTheme = csx({ overflow: 'auto' })
+const POLLING_INTERVAL = 3000
 
 export const ShowImportModal: React.FC<ShowImportModalProps> = ({
   openInfosImportmodal,
@@ -81,184 +76,150 @@ export const ShowImportModal: React.FC<ShowImportModalProps> = ({
     loading: loadingImport,
     startPolling: startPollingImport,
     stopPolling: stopPollingImport,
-  } = useQueryCustom<Query, QueryGetImportArgs>(GET_IMPORT_QUERY, {
+  } = useQueryCustom<Query, QueryImportProgressArgs>(IMPORT_PROGRESS_QUERY, {
     fetchPolicy: 'network-only',
     skip: !id,
     variables: { id },
     onCompleted(result) {
-      const { status } = result.getImport
+      const { status } = result.importProgress.currentImport
 
       setChangedStatus((prev) => ({ ...prev, [id]: status }))
 
       if (status === 'PENDING' || status === 'RUNNING') {
-        startPollingImport(3000)
+        startPollingImport(POLLING_INTERVAL)
       } else {
         stopPollingImport()
       }
     },
   })
 
-  const importExecution = data?.getImport
+  const importExecution = data?.importProgress.currentImport
   const status = importExecution?.status
 
-  const {
-    data: brandsData,
-    loading: loadingBrands,
-    startPolling: startPollingBrands,
-    stopPolling: stopPollingBrands,
-  } = useQueryCustom<Query, QueryGetEntitiesArgs>(GET_ENTITIES_QUERY, {
-    fetchPolicy: 'network-only',
-    skip: !id,
-    variables: { importId: id, entityName: 'brand' },
-    onCompleted() {
-      if (status === 'PENDING' || status === 'RUNNING') {
-        startPollingBrands(1000)
-      } else {
-        stopPollingBrands()
-      }
-    },
-  })
+  const importProgress = data?.importProgress ?? {
+    brands: 0,
+    categories: 0,
+    products: 0,
+    skus: 0,
+    prices: 0,
+    stocks: 0,
+  }
+
+  const { brands, categories, products, skus, prices, stocks } = importProgress
 
   const loading = useMemo(
-    () =>
-      loadingImport ||
-      loadingBrands ||
-      status === 'PENDING' ||
-      status === 'RUNNING',
-    [loadingBrands, loadingImport, status]
+    () => loadingImport || status === 'PENDING' || status === 'RUNNING',
+    [loadingImport, status]
   )
 
-  const categories = useMemo(
+  const categoryTree = useMemo(
     () =>
-      data?.getImport.categoryTree.sort(treeSorter).map(categoryTreeMapper) ??
+      importExecution?.categoryTree.sort(treeSorter).map(categoryTreeMapper) ??
       [],
-    [data?.getImport.categoryTree]
-  )
-
-  const brands = useMemo(
-    () => brandsData?.getEntities.map(brandsTreeMapper).sort(treeSorter) ?? [],
-    [brandsData?.getEntities]
-  )
-
-  const beforeLoaded = useMemo(
-    () => importExecution && brandsData?.getEntities,
-    [brandsData?.getEntities, importExecution]
+    [importExecution?.categoryTree]
   )
 
   return (
     <Modal state={openInfosImportmodal} size="large">
       <ModalHeader>
         <ModalTitle>{formatMessage(messages.importDetailsLabel)}</ModalTitle>
-        <Stack direction="row" space="$space-2">
-          {loading && beforeLoaded && <Spinner />}
+        <Stack direction="row" space="$space-4">
+          {loading && importExecution && <Spinner />}
           <ModalDismiss />
         </Stack>
       </ModalHeader>
       <ModalContent>
-        {loading && !beforeLoaded && <SuspenseFallback />}
-        {importExecution && beforeLoaded && (
+        {loading && !importExecution && <SuspenseFallback />}
+        {importExecution && (
           <Columns space={{ mobile: '$space-0', tablet: '$space-2' }}>
             <Column
               units={{ mobile: 12, tablet: 6 }}
               className={firstColumnTheme}
             >
               <Stack space="$space-2" fluid>
-                <Stack direction="row">
+                <section>
                   <Text variant="title1">
-                    {formatMessage(messages.settingsAccountLabel)}:
-                  </Text>
-                  {importExecution.settings.useDefault ? (
-                    <Stack direction="row">
-                      {formatMessage(messages.settingsDefaultShort)}
-                    </Stack>
-                  ) : (
-                    <Stack> {importExecution.settings.account}</Stack>
-                  )}
-                </Stack>
-                <Stack direction="row">
-                  <Text variant="title1">ID:</Text>
-                  <Text variant="body">{importExecution.id}</Text>
-                </Stack>
-                <Stack direction="row">
-                  <Text variant="title1">
-                    {formatMessage(messages.importCreatedInLabel)}:
-                  </Text>
-                  <Text variant="body">
-                    {new Date(importExecution.createdIn).toLocaleString(locale)}
-                  </Text>
-                </Stack>
-                <Stack direction="row">
-                  <Text variant="title1">
-                    {formatMessage(messages.importLastInteractionInLabel)}:
-                  </Text>
-
-                  <Text variant="body">
-                    {new Date(importExecution.lastInteractionIn).toLocaleString(
-                      locale
-                    )}
-                  </Text>
-                </Stack>
-                <Stack direction="row">
-                  <Text variant="title1">
-                    {formatMessage(messages.importUserLabel)}:
-                  </Text>
-                  <Text variant="body">{importExecution.user}</Text>
-                </Stack>
-                {categories.length && (
-                  <Tree
-                    data={categories}
-                    title={formatMessage(messages.optionsCategories)}
-                  />
-                )}
-                <Stack direction="row">
-                  <Text variant="title1">
-                    {formatMessage(messages.importImage)}
-                  </Text>
-                  <Text variant="body">
-                    {importExecution.importImages ? <Checked /> : <Unchecked />}
-                  </Text>
-                </Stack>
-                <Stack direction="row">
-                  <Text variant="title1">
-                    {formatMessage(messages.importPrice)}
-                  </Text>
-                  <Text variant="body">
-                    {importExecution.importPrices ? <Checked /> : <Unchecked />}
-                  </Text>
-                </Stack>
-                {importExecution.stockValue && (
-                  <Stack direction="row">
-                    <Text variant="title1">
-                      {formatMessage(messages.stockValue)}:
-                    </Text>
-                    <Text variant="body">{importExecution.stockValue}</Text>
-                  </Stack>
-                )}
-                <Stack direction="row">
-                  <Text variant="title1">
-                    {formatMessage(messages.importStocks)}:
-                  </Text>
-                  <Text variant="body">
-                    {getStockOptionLabel(
-                      importExecution.stocksOption
-                    ).toLowerCase()}
-                  </Text>
-                </Stack>
-                <Stack direction="row">
-                  <Text variant="title1">
-                    {formatMessage(messages.importStatusLabel)}:
+                    {formatMessage(messages.importStatusLabel)}:{' '}
                   </Text>
                   <Tag
                     label={getStatusLabel(importExecution.status)}
                     variant={mapStatusToVariant[importExecution.status]}
                   />
-                </Stack>
+                </section>
                 {importExecution.error && (
+                  <section>
+                    <Text tone="critical">{importExecution.error}</Text>
+                  </section>
+                )}
+                <section>
+                  <Text variant="title1">
+                    {formatMessage(messages.settingsAccountLabel)}:{' '}
+                  </Text>
+                  {importExecution.settings.useDefault
+                    ? formatMessage(messages.settingsDefaultShort)
+                    : importExecution.settings.account}
+                </section>
+                <section>
+                  <Text variant="title1">ID: </Text>
+                  {importExecution.id}
+                </section>
+                <section>
+                  <Text variant="title1">
+                    {formatMessage(messages.importCreatedInLabel)}:{' '}
+                  </Text>
+                  {new Date(importExecution.createdIn).toLocaleString(locale)}
+                </section>
+                <section>
+                  <Text variant="title1">
+                    {formatMessage(messages.importLastInteractionInLabel)}:{' '}
+                  </Text>
+                  {new Date(importExecution.lastInteractionIn).toLocaleString(
+                    locale
+                  )}
+                </section>
+                <section>
+                  <Text variant="title1">
+                    {formatMessage(messages.importUserLabel)}:{' '}
+                  </Text>
+                  {importExecution.user}
+                </section>
+                <section>
                   <Stack direction="row">
-                    <Text variant="body" tone="critical">
-                      {importExecution.error}
+                    <Text variant="title1">
+                      {formatMessage(messages.importImage)}
                     </Text>
+                    {importExecution.importImages ? <Checked /> : <Unchecked />}
                   </Stack>
+                </section>
+                <section>
+                  <Stack direction="row">
+                    <Text variant="title1">
+                      {formatMessage(messages.importPrice)}
+                    </Text>
+                    {importExecution.importPrices ? <Checked /> : <Unchecked />}
+                  </Stack>
+                </section>
+                {importExecution.stockValue && (
+                  <section>
+                    <Text variant="title1">
+                      {formatMessage(messages.stockValue)}:{' '}
+                    </Text>
+                    {importExecution.stockValue}
+                  </section>
+                )}
+                <section>
+                  <Text variant="title1">
+                    {formatMessage(messages.importStocks)}:{' '}
+                  </Text>
+                  {getStockOptionLabel(importExecution.stocksOption)}
+                </section>
+                {categoryTree.length && (
+                  <section>
+                    <Tree
+                      data={categoryTree}
+                      title={formatMessage(messages.optionsCategories)}
+                    />
+                  </section>
                 )}
               </Stack>
             </Column>
@@ -267,15 +228,57 @@ export const ShowImportModal: React.FC<ShowImportModalProps> = ({
               className={secondColumnTheme}
             >
               <Stack space="$space-2" fluid>
-                <Text variant="title2">
-                  {formatMessage(messages.importResultsLabel)}:
+                <Text variant="title1" tone="info">
+                  {formatMessage(messages.importResultsLabel)}
                 </Text>
-                <Tree
-                  data={brands}
-                  title={formatMessage(messages.importBrandsLabel, {
-                    total: brands.length,
-                  })}
-                />
+                {!!brands && (
+                  <section>
+                    <Text variant="title1">
+                      {formatMessage(messages.importResultsBrandsLabel)}:{' '}
+                    </Text>
+                    {brands}
+                  </section>
+                )}
+                {!!categories && (
+                  <section>
+                    <Text variant="title1">
+                      {formatMessage(messages.importResultsCategoriesLabel)}:{' '}
+                    </Text>
+                    {categories}
+                  </section>
+                )}
+                {!!products && (
+                  <section>
+                    <Text variant="title1">
+                      {formatMessage(messages.importResultsProductsLabel)}:{' '}
+                    </Text>
+                    {products}
+                  </section>
+                )}
+                {!!skus && (
+                  <section>
+                    <Text variant="title1">
+                      {formatMessage(messages.importResultsSkusLabel)}:{' '}
+                    </Text>
+                    {skus}
+                  </section>
+                )}
+                {!!prices && (
+                  <section>
+                    <Text variant="title1">
+                      {formatMessage(messages.importResultsPricesLabel)}:{' '}
+                    </Text>
+                    {prices}
+                  </section>
+                )}
+                {!!stocks && (
+                  <section>
+                    <Text variant="title1">
+                      {formatMessage(messages.importResultsStocksLabel)}:{' '}
+                    </Text>
+                    {stocks}
+                  </section>
+                )}
               </Stack>
             </Column>
           </Columns>

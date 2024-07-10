@@ -95,11 +95,22 @@ type Entity {
   payload: String!
 }
 
+type ImportProgress {
+  currentImport: Import!
+  brands: Int!
+  categories: Int!
+  products: Int!
+  skus: Int!
+  prices: Int!
+  stocks: Int!
+}
+
 type Query {
   appSettings: AppSettings! @WithSettings
   categories(settings: AppSettingsInput): [Category!] @WithSettings
   imports(args: SearchInput!): ImportsResult!
   getImport(id: ID!): Import!
+  importProgress(id: ID!): ImportProgress!
   getEntities(importId: ID!, entityName: String!): [Entity!]!
 }
 

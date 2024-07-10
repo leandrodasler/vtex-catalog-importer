@@ -67,6 +67,12 @@
   "admin/import.pagination.label": "Mostrando las últimas {pageSize} de un total de {total} {total, plural, one {importación} other {importaciones}}",
   "admin/import.delete": "¿Realmente desea eliminar la importación?",
   "admin/import.delete.text": "Los respectivos registros de importación también se eliminarán.",
+
   "admin/import.results.label": "Resultados",
-  "admin/import.brands.label": "Marcas importadas ({total})"
+  "admin/import.results.brands.label": "Marcas importadas",
+  "admin/import.results.categories.label": "Categorías importadas",
+  "admin/import.results.products.label": "Productos importados",
+  "admin/import.results.skus.label": "SKUs importados",
+  "admin/import.results.prices.label": "Precios importados",
+  "admin/import.results.stocks.label": "Inventarios importados"
 }

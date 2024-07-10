@@ -67,6 +67,12 @@
   "admin/import.pagination.label": "Showing last {pageSize} out of {total} {total, plural, one {import} other {imports}}",
   "admin/import.delete": "Do you really want to delete the import?",
   "admin/import.delete.text": "The respective import logs will also be deleted.",
+
   "admin/import.results.label": "Results",
-  "admin/import.brands.label": "Imported brands ({total})"
+  "admin/import.results.brands.label": "Imported brands",
+  "admin/import.results.categories.label": "Imported categories",
+  "admin/import.results.products.label": "Imported products",
+  "admin/import.results.skus.label": "Imported SKUs",
+  "admin/import.results.prices.label": "Imported prices",
+  "admin/import.results.stocks.label": "Imported stocks"
 }

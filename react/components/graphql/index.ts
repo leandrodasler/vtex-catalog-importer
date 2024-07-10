@@ -11,6 +11,7 @@ export { default as DELETE_IMPORTS_MUTATION } from './deleteImports.graphql'
 export { default as EXECUTE_IMPORT_MUTATION } from './executeImport.graphql'
 export { default as GET_ENTITIES_QUERY } from './getEntities.graphql'
 export { default as GET_IMPORT_QUERY } from './getImport.graphql'
+export { default as IMPORT_PROGRESS_QUERY } from './importProgress.graphql'
 export { default as IMPORTS_QUERY } from './imports.graphql'
 export { default as UPDATE_APP_SETTINGS_MUTATION } from './updateAppSettings.graphql'
 

@@ -65,5 +65,10 @@ export const messages = defineMessages({
   importDelete: { id: 'admin/import.delete' },
   importDeleteText: { id: 'admin/import.delete.text' },
   importResultsLabel: { id: 'admin/import.results.label' },
-  importBrandsLabel: { id: 'admin/import.brands.label' },
+  importResultsBrandsLabel: { id: 'admin/import.results.brands.label' },
+  importResultsCategoriesLabel: { id: 'admin/import.results.categories.label' },
+  importResultsProductsLabel: { id: 'admin/import.results.products.label' },
+  importResultsSkusLabel: { id: 'admin/import.results.skus.label' },
+  importResultsPricesLabel: { id: 'admin/import.results.prices.label' },
+  importResultsStocksLabel: { id: 'admin/import.results.stocks.label' },
 })
