@@ -50,9 +50,6 @@ type ShowImportModalProps = {
   id: string
 }
 
-const columnHeight = 325
-const columnsTheme = csx({ minHeight: columnHeight })
-
 const firstColumnTheme = csx({
   borderBottom: '1px solid $gray20',
   paddingBottom: '$space-2',
@@ -64,10 +61,7 @@ const firstColumnTheme = csx({
   },
 })
 
-const secondColumnTheme = csx({
-  maxHeight: columnHeight,
-  overflow: 'auto',
-})
+const secondColumnTheme = csx({ overflow: 'auto' })
 
 export const ShowImportModal: React.FC<ShowImportModalProps> = ({
   openInfosImportmodal,
@@ -163,10 +157,7 @@ export const ShowImportModal: React.FC<ShowImportModalProps> = ({
       <ModalContent>
         {loading && !beforeLoaded && <SuspenseFallback />}
         {importExecution && beforeLoaded && (
-          <Columns
-            className={columnsTheme}
-            space={{ mobile: '$space-0', tablet: '$space-2' }}
-          >
+          <Columns space={{ mobile: '$space-0', tablet: '$space-2' }}>
             <Column
               units={{ mobile: 12, tablet: 6 }}
               className={firstColumnTheme}

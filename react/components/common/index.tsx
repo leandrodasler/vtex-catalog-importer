@@ -146,6 +146,8 @@ export const brandsTreeMapper = ({
 })
 
 const treeNodeTheme = csx({
+  maxHeight: 275,
+  overflow: 'auto',
   '.tree, .tree-node, .tree-node-group': { listStyleType: 'none' },
   '.tree-node': { cursor: 'pointer' },
   '> .tree': {

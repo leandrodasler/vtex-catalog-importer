@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import type {
   MasterDataEntity,
   ScrollInput,
@@ -40,17 +39,13 @@ export const entityGetAll = async <T extends Record<string, T | unknown>>(
 
   const getAll = async () => {
     const { data, mdToken } = await client.scroll({
-      // { page: currentPage, pageSize: 100 },
       ...input,
       size: 1000,
       mdToken: currentMdToken || undefined,
     })
 
     allData.push(...((data as unknown) as Array<WithInternalFields<T>>))
-
     currentMdToken = currentMdToken || mdToken
-
-    console.log({ size: allData.length })
 
     if (data.length) {
       if (allData.length % 5000 === 0) {
@@ -61,15 +56,7 @@ export const entityGetAll = async <T extends Record<string, T | unknown>>(
     }
   }
 
-  console.log('getAll:', {
-    ...input,
-    entity: client.dataEntity,
-    schema: client.schema,
-  })
-
   await getAll()
-
-  console.log('finished getAll:', { size: allData.length })
 
   return allData
 }
@@ -87,11 +74,6 @@ export const batch = async <T>(
       return
     }
 
-    console.log(
-      'batch remaining size:',
-      cloneData.length < 10 ? cloneData : cloneData.length
-    )
-
     await Promise.all(
       cloneData.splice(0, BATCH_CONCURRENCY).map(elementCallback)
     )
@@ -99,11 +81,7 @@ export const batch = async <T>(
     await processBatch()
   }
 
-  console.log('init process batch')
-
   await processBatch()
-
-  console.log('finished process batch with total:', data.length)
 }
 
 export const updateImportStatus = async (
@@ -111,17 +89,14 @@ export const updateImportStatus = async (
   status: ImportStatus,
   error?: Error
 ) => {
-  if (!context.state.body.id) {
+  const { id } = context.state.body
+
+  if (!id) {
     return
   }
 
   await context.clients.importExecution
-    .update(context.state.body.id, {
-      ...(error && { error: error.message }),
-      status,
-    })
-    .then(() => {
-      context.state.body.status = status
-    })
+    .update(id, { ...(error && { error: error.message }), status })
+    .then(() => (context.state.body.status = status))
     .catch(() => {})
 }

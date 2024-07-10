@@ -40,12 +40,10 @@ const DEFAULT_ARGS = {
 export default function History() {
   const { formatMessage } = useIntl()
   const [deleted, setDeleted] = useState<string[]>([])
-
   const openInfosImportmodal = useModalState()
   const openDeleteConfirmationModal = useModalState()
   const [importIdModal, setImportIdModal] = useState('')
   const [deleteId, setDeleteId] = useState('')
-
   const [changedStatus, setChangedStatus] = useState<ImportChangedStatus>()
 
   const columns = useImportColumns({
