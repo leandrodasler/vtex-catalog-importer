@@ -16,7 +16,7 @@ import React, { useMemo } from 'react'
 import TreeView, { flattenTree } from 'react-accessible-treeview'
 import type { MessageDescriptor } from 'react-intl'
 import { useIntl } from 'react-intl'
-import type { Category, Entity, Import } from 'ssesandbox04.catalog-importer'
+import type { Category, Import } from 'ssesandbox04.catalog-importer'
 
 import type { GraphQLError } from '../graphql'
 import { getGraphQLMessageDescriptor } from '../graphql'
@@ -125,24 +125,6 @@ export const categoryTreeMapper: (category: Category) => Category = (
 ) => ({
   ...category,
   children: category.children?.sort(treeSorter).map(categoryTreeMapper),
-})
-
-export const brandsTreeMapper = ({
-  id,
-  payload,
-  sourceId,
-  targetId,
-}: Entity) => ({
-  name: JSON.parse(payload).Name,
-  id,
-  children: [
-    { name: `id: ${id}`, id: `id-${id}` },
-    { name: `sourceId: ${sourceId}`, id: `sourceId-${id}` },
-    {
-      name: `targetId: ${targetId ?? '---'}`,
-      id: `targetId-${id}`,
-    },
-  ],
 })
 
 const treeNodeTheme = csx({

@@ -55,7 +55,7 @@
   "admin/import.user.label": "User",
   "admin/import.id.label": "ID",
   "admin/import.createdIn.label": "Started at",
-  "admin/import.lastInteractionIn.label": "Last update",
+  "admin/import.lastInteractionIn.label": "Finished at",
   "admin/import.images.label": "Images",
   "admin/import.prices.label": "Prices",
   "admin/import.status.label": "Status",

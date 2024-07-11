@@ -9,7 +9,10 @@ import type {
 import { DELETE_IMPORTS_MUTATION } from '../../../graphql'
 
 export { DeleteConfirmationModal } from './DeleteConfirmationModal'
+export { ImportDetails } from './ImportDetails'
+export { ImportEntities } from './ImportEntities'
 export { ShowImportModal } from './ShowImportModal'
+
 export type ImportChangedStatus = Record<string, ImportStatus>
 
 export const useDeleteImport = (
