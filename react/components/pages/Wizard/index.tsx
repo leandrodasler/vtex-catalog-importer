@@ -1,3 +1,4 @@
+import type { NumberInputValue } from '@vtex/admin-ui'
 import {
   Card,
   Center,
@@ -40,7 +41,7 @@ export interface CheckedCategories {
 
 export interface Options {
   checkedItems: number[]
-  value: string
+  value: NumberInputValue
   stockOption: StocksOption
 }
 

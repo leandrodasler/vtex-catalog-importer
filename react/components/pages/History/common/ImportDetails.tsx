@@ -105,7 +105,7 @@ export const ImportDetails = ({ currentImport }: Props) => {
         <Text variant="title1">{formatMessage(messages.importStocks)}: </Text>
         {getStockOptionLabel(currentImport.stocksOption)}
       </section>
-      {currentImport.stockValue && (
+      {currentImport.stocksOption === 'TO_BE_DEFINED' && (
         <section>
           <Text variant="title1">{formatMessage(messages.stockValue)}: </Text>
           {currentImport.stockValue}

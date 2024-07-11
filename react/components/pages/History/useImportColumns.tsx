@@ -111,7 +111,7 @@ const useImportColumns = ({
         type: 'root',
         render: ({ item }) => {
           return `${getStockOptionLabel(item.stocksOption)}${
-            item.stockValue ? `: ${item.stockValue}` : ''
+            item.stocksOption === 'TO_BE_DEFINED' ? `: ${item.stockValue}` : ''
           }`
         },
       },

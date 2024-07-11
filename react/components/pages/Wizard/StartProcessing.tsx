@@ -23,10 +23,9 @@ import type {
   AppSettingsInput,
   Mutation,
   MutationExecuteImportArgs,
-  StocksOption,
 } from 'ssesandbox04.catalog-importer'
 
-import type { CheckedCategories } from '.'
+import type { CheckedCategories, Options } from '.'
 import { IMPORT_OPTIONS, STOCK_OPTIONS } from '.'
 import {
   Tree,
@@ -44,11 +43,7 @@ import { ImportOption, buildTree, mapToCategoryInput } from './common'
 
 interface StartProcessingProps {
   checkedTreeOptions: CheckedCategories
-  optionsChecked: {
-    checkedItems: number[]
-    value: string
-    stockOption: StocksOption
-  }
+  optionsChecked: Options
   state: TabState
   settings: AppSettingsInput
   setSuccessImport: React.Dispatch<React.SetStateAction<boolean>>

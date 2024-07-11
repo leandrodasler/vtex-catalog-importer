@@ -6,10 +6,10 @@ import {
   Flex,
   IconArrowLeft,
   IconArrowRight,
+  NumberInput,
   Radio,
   RadioGroup,
   Stack,
-  TextInput,
   useRadioState,
 } from '@vtex/admin-ui'
 import React, { useCallback } from 'react'
@@ -55,7 +55,7 @@ export default function ImportOptions({
 
   const disabledNext =
     stockOptionState.value === STOCK_OPTIONS.TO_BE_DEFINED &&
-    !optionsChecked.value
+    typeof optionsChecked.value !== 'number'
 
   const handleSelectOptions = useCallback(() => {
     setOptionsChecked({
@@ -105,16 +105,13 @@ export default function ImportOptions({
           label={formatMessage(messages.optionsTO_BE_DEFINED)}
         />
         {stockOptionState.value === STOCK_OPTIONS.TO_BE_DEFINED && (
-          <TextInput
+          <NumberInput
             label={formatMessage(messages.stockValue)}
             value={optionsChecked.value}
-            onChange={(e: { target: { value: string } }) =>
-              setOptionsChecked({
-                ...optionsChecked,
-                value: e.target.value,
-              })
+            min={optionsChecked.value === '' ? 0 : -1}
+            onChange={(v) =>
+              setOptionsChecked((prev) => ({ ...prev, value: +v < 0 ? '' : v }))
             }
-            type="number"
           />
         )}
       </RadioGroup>
