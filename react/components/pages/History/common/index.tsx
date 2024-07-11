@@ -1,4 +1,6 @@
 import type { useModalState } from '@vtex/admin-ui'
+import { Skeleton, csx } from '@vtex/admin-ui'
+import React from 'react'
 import { useMutation } from 'react-apollo'
 import type {
   ImportStatus,
@@ -10,7 +12,7 @@ import { DELETE_IMPORTS_MUTATION } from '../../../graphql'
 
 export { DeleteConfirmationModal } from './DeleteConfirmationModal'
 export { ImportDetails } from './ImportDetails'
-export { ImportEntities } from './ImportEntities'
+export { ImportResults } from './ImportResults'
 export { ShowImportModal } from './ShowImportModal'
 
 export type ImportChangedStatus = Record<string, ImportStatus>
@@ -35,3 +37,5 @@ export const useDeleteImport = (
 
   return { loading, deleteImport }
 }
+
+export const EntitySkeleton = () => <Skeleton className={csx({ height: 20 })} />

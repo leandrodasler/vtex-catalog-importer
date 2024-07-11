@@ -19,7 +19,7 @@ import type {
 } from 'ssesandbox04.catalog-importer'
 
 import type { ImportChangedStatus } from '.'
-import { ImportDetails, ImportEntities } from '.'
+import { ImportDetails, ImportResults } from '.'
 import { SuspenseFallback, messages } from '../../../common'
 import { IMPORT_PROGRESS_QUERY, useQueryCustom } from '../../../graphql'
 
@@ -52,12 +52,10 @@ export const ShowImportModal = ({
 }: ShowImportModalProps) => {
   const { formatMessage } = useIntl()
 
-  const {
-    data,
-    loading,
-    startPolling: startPollingImport,
-    stopPolling: stopPollingImport,
-  } = useQueryCustom<Query, QueryImportProgressArgs>(IMPORT_PROGRESS_QUERY, {
+  const { data, loading, startPolling, stopPolling } = useQueryCustom<
+    Query,
+    QueryImportProgressArgs
+  >(IMPORT_PROGRESS_QUERY, {
     skip: !id,
     variables: { id },
     onCompleted(result) {
@@ -66,9 +64,9 @@ export const ShowImportModal = ({
       setChangedStatus((prev) => ({ ...prev, [id]: status }))
 
       if (status === 'PENDING' || status === 'RUNNING') {
-        startPollingImport(POLLING_INTERVAL)
+        startPolling(POLLING_INTERVAL)
       } else {
-        stopPollingImport()
+        stopPolling()
       }
     },
   })
@@ -76,7 +74,6 @@ export const ShowImportModal = ({
   const importProgress = data?.importProgress
   const currentImport = importProgress?.currentImport
   const status = currentImport?.status
-
   const isLoading = useMemo(
     () => loading || status === 'PENDING' || status === 'RUNNING',
     [loading, status]
@@ -105,7 +102,7 @@ export const ShowImportModal = ({
               units={{ mobile: 12, tablet: 6 }}
               className={secondColumnTheme}
             >
-              <ImportEntities
+              <ImportResults
                 importProgress={importProgress}
                 loading={isLoading}
               />

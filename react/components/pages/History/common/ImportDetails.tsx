@@ -59,11 +59,6 @@ export const ImportDetails = ({ currentImport }: Props) => {
           variant={mapStatusToVariant[currentImport.status]}
         />
       </section>
-      {currentImport.error && (
-        <section>
-          <Text tone="critical">{currentImport.error}</Text>
-        </section>
-      )}
       <section>
         <Text variant="title1">
           {formatMessage(messages.settingsAccountLabel)}:{' '}
