@@ -15,8 +15,6 @@ export { ImportDetails } from './ImportDetails'
 export { ImportResults } from './ImportResults'
 export { ShowImportModal } from './ShowImportModal'
 
-export type ImportChangedStatus = Record<string, ImportStatus>
-
 export const useDeleteImport = (
   setDeleted: React.Dispatch<React.SetStateAction<string[]>>,
   openDeleteConfirmationModal: ReturnType<typeof useModalState>
@@ -37,5 +35,19 @@ export const useDeleteImport = (
 
   return { loading, deleteImport }
 }
+
+export const POLLING_INTERVAL = 3000
+
+export const getStartedAt = (date: string, locale: string) =>
+  new Date(date).toLocaleString(locale)
+
+export const getFinishedAt = (
+  date: string,
+  locale: string,
+  status: ImportStatus
+) =>
+  status === 'ERROR' || status === 'SUCCESS'
+    ? new Date(date).toLocaleString(locale)
+    : '---'
 
 export const EntitySkeleton = () => <Skeleton className={csx({ height: 20 })} />

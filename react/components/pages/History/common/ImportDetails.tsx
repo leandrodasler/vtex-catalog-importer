@@ -4,6 +4,7 @@ import { useIntl } from 'react-intl'
 import type { Import } from 'ssesandbox04.catalog-importer'
 import { useRuntime } from 'vtex.render-runtime'
 
+import { getFinishedAt, getStartedAt } from '.'
 import {
   Checked,
   Tree,
@@ -35,16 +36,13 @@ export const ImportDetails = ({ currentImport }: Props) => {
     [currentImport?.categoryTree]
   )
 
-  const startedAt = useMemo(() => new Date(createdIn).toLocaleString(locale), [
+  const startedAt = useMemo(() => getStartedAt(createdIn, locale), [
     createdIn,
     locale,
   ])
 
   const finishedAt = useMemo(
-    () =>
-      status === 'ERROR' || status === 'SUCCESS'
-        ? new Date(lastInteractionIn).toLocaleString(locale)
-        : '---',
+    () => getFinishedAt(lastInteractionIn, locale, status),
     [lastInteractionIn, status, locale]
   )
 
@@ -61,18 +59,6 @@ export const ImportDetails = ({ currentImport }: Props) => {
       </section>
       <section>
         <Text variant="title1">
-          {formatMessage(messages.settingsAccountLabel)}:{' '}
-        </Text>
-        {currentImport.settings.useDefault
-          ? formatMessage(messages.settingsDefaultShort)
-          : currentImport.settings.account}
-      </section>
-      <section>
-        <Text variant="title1">ID: </Text>
-        {currentImport.id}
-      </section>
-      <section>
-        <Text variant="title1">
           {formatMessage(messages.importCreatedInLabel)}:{' '}
         </Text>
         {startedAt}
@@ -82,6 +68,18 @@ export const ImportDetails = ({ currentImport }: Props) => {
           {formatMessage(messages.importLastInteractionInLabel)}:{' '}
         </Text>
         {finishedAt}
+      </section>
+      <section>
+        <Text variant="title1">
+          {formatMessage(messages.settingsAccountLabel)}:{' '}
+        </Text>
+        {currentImport.settings.useDefault
+          ? formatMessage(messages.settingsDefaultShort)
+          : currentImport.settings.account}
+      </section>
+      <section>
+        <Text variant="title1">ID: </Text>
+        {currentImport.id}
       </section>
       <section>
         <Text variant="title1">

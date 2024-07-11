@@ -18,16 +18,12 @@ import type {
   QueryImportProgressArgs,
 } from 'ssesandbox04.catalog-importer'
 
-import type { ImportChangedStatus } from '.'
-import { ImportDetails, ImportResults } from '.'
+import { ImportDetails, ImportResults, POLLING_INTERVAL } from '.'
 import { SuspenseFallback, messages } from '../../../common'
 import { IMPORT_PROGRESS_QUERY, useQueryCustom } from '../../../graphql'
 
 type ShowImportModalProps = {
   openInfosImportmodal: ReturnType<typeof useModalState>
-  setChangedStatus: React.Dispatch<
-    React.SetStateAction<ImportChangedStatus | undefined>
-  >
   id: string
 }
 
@@ -43,11 +39,9 @@ const firstColumnTheme = csx({
 })
 
 const secondColumnTheme = csx({ overflow: 'auto' })
-const POLLING_INTERVAL = 3000
 
 export const ShowImportModal = ({
   openInfosImportmodal,
-  setChangedStatus,
   id,
 }: ShowImportModalProps) => {
   const { formatMessage } = useIntl()
@@ -58,10 +52,8 @@ export const ShowImportModal = ({
   >(IMPORT_PROGRESS_QUERY, {
     skip: !id,
     variables: { id },
-    onCompleted(result) {
-      const { status } = result.importProgress.currentImport
-
-      setChangedStatus((prev) => ({ ...prev, [id]: status }))
+    onCompleted({ importProgress: { currentImport } }) {
+      const { status } = currentImport
 
       if (status === 'PENDING' || status === 'RUNNING') {
         startPolling(POLLING_INTERVAL)

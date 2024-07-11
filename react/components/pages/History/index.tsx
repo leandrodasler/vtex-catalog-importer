@@ -26,8 +26,11 @@ import {
   messages,
 } from '../../common'
 import { IMPORTS_QUERY, useQueryCustom } from '../../graphql'
-import type { ImportChangedStatus } from './common'
-import { DeleteConfirmationModal, ShowImportModal } from './common'
+import {
+  DeleteConfirmationModal,
+  POLLING_INTERVAL,
+  ShowImportModal,
+} from './common'
 import useImportColumns from './useImportColumns'
 
 const DEFAULT_ARGS = {
@@ -44,7 +47,6 @@ export default function History() {
   const openDeleteConfirmationModal = useModalState()
   const [importIdModal, setImportIdModal] = useState('')
   const [deleteId, setDeleteId] = useState('')
-  const [changedStatus, setChangedStatus] = useState<ImportChangedStatus>()
 
   const columns = useImportColumns({
     setDeleted,
@@ -54,10 +56,24 @@ export default function History() {
     setDeleteId,
   })
 
-  const { data, loading } = useQueryCustom<Query, QueryImportsArgs>(
-    IMPORTS_QUERY,
-    { variables: { args: DEFAULT_ARGS } }
-  )
+  const { data, loading, startPolling, stopPolling } = useQueryCustom<
+    Query,
+    QueryImportsArgs
+  >(IMPORTS_QUERY, {
+    variables: { args: DEFAULT_ARGS },
+    onCompleted({ imports: { data: imports } }) {
+      if (
+        imports.some(
+          (item: Import) =>
+            item.status === 'PENDING' || item.status === 'RUNNING'
+        )
+      ) {
+        startPolling(POLLING_INTERVAL)
+      } else {
+        stopPolling()
+      }
+    },
+  })
 
   const imports = data?.imports.data
 
@@ -88,20 +104,8 @@ export default function History() {
   const paginationTotal = data?.imports.pagination.total ?? 0
 
   const items = useMemo(
-    () =>
-      imports
-        ?.filter((item: Import) => !deleted?.includes(item.id))
-        ?.map((item: Import) => {
-          const newStatus = Object.entries(changedStatus ?? {}).find(
-            ([key]) => key === item.id
-          )?.[1]
-
-          return {
-            ...item,
-            ...(newStatus && { status: newStatus }),
-          }
-        }) ?? [],
-    [changedStatus, deleted, imports]
+    () => imports?.filter((item: Import) => !deleted?.includes(item.id)) ?? [],
+    [deleted, imports]
   )
 
   const pageSize = items?.length
@@ -117,7 +121,7 @@ export default function History() {
     getTable,
   } = useTableState<Import>({ columns, items })
 
-  if (loading) {
+  if (loading && !imports) {
     return <SuspenseFallback />
   }
 
@@ -177,7 +181,6 @@ export default function History() {
       {openInfosImportmodal.open && (
         <ShowImportModal
           openInfosImportmodal={openInfosImportmodal}
-          setChangedStatus={setChangedStatus}
           id={importIdModal}
         />
       )}

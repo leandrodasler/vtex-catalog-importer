@@ -19,6 +19,7 @@ import {
   useStatusLabel,
   useStockOptionLabel,
 } from '../../common'
+import { getFinishedAt, getStartedAt } from './common'
 
 export const mapStatusToVariant: Record<
   Import['status'],
@@ -57,7 +58,16 @@ const useImportColumns = ({
       header: formatMessage(messages.importCreatedInLabel),
       resolver: {
         type: 'root',
-        render: ({ item }) => new Date(item.createdIn).toLocaleString(locale),
+        render: ({ item: { createdIn } }) => getStartedAt(createdIn, locale),
+      },
+    },
+    {
+      id: 'lastInteractionIn',
+      header: formatMessage(messages.importLastInteractionInLabel),
+      resolver: {
+        type: 'root',
+        render: ({ item: { lastInteractionIn, status } }) =>
+          getFinishedAt(lastInteractionIn, locale, status),
       },
     },
     {
