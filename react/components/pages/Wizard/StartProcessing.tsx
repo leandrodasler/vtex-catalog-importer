@@ -125,10 +125,9 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
               IMPORT_OPTIONS.IMPORT_PRICE
             ),
             stocksOption: optionsChecked.stockOption,
-            ...(optionsChecked.stockOption === STOCK_OPTIONS.TO_BE_DEFINED &&
-              optionsChecked.value && {
-                stockValue: +optionsChecked.value,
-              }),
+            ...(optionsChecked.stockOption === STOCK_OPTIONS.TO_BE_DEFINED && {
+              stockValue: +optionsChecked.value,
+            }),
           },
         },
       }),
