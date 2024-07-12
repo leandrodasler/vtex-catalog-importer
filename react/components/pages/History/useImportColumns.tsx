@@ -31,17 +31,16 @@ export const mapStatusToVariant: Record<
 }
 
 type Props = {
-  setDeleted: React.Dispatch<React.SetStateAction<string[]>>
-  openInfosImportmodal: ReturnType<typeof useModalState>
+  importModal: ReturnType<typeof useModalState>
   setImportIdModal: React.Dispatch<React.SetStateAction<string>>
-  openDeleteConfirmationModal: ReturnType<typeof useModalState>
+  deleteConfirmationModal: ReturnType<typeof useModalState>
   setDeleteId: React.Dispatch<React.SetStateAction<string>>
 }
 
 const useImportColumns = ({
-  openInfosImportmodal,
+  importModal,
   setImportIdModal,
-  openDeleteConfirmationModal,
+  deleteConfirmationModal,
   setDeleteId,
 }: Props) => {
   const { formatMessage } = useIntl()
@@ -149,7 +148,7 @@ const useImportColumns = ({
 
               url.searchParams.set('id', item.id)
               window.parent.history.replaceState(null, '', url.toString())
-              openInfosImportmodal.show()
+              importModal.show()
               setImportIdModal(item.id)
             },
           },
@@ -158,7 +157,7 @@ const useImportColumns = ({
             critical: true,
             icon: <IconTrash />,
             onClick: (item) => {
-              openDeleteConfirmationModal.show()
+              deleteConfirmationModal.show()
               setDeleteId(item.id)
             },
           },

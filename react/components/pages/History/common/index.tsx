@@ -13,7 +13,7 @@ import { DELETE_IMPORTS_MUTATION } from '../../../graphql'
 
 export const useDeleteImport = (
   setDeleted: React.Dispatch<React.SetStateAction<string[]>>,
-  openDeleteConfirmationModal: ReturnType<typeof useModalState>
+  modalState: ReturnType<typeof useModalState>
 ) => {
   const [deleteImports, { loading }] = useMutation<
     Mutation,
@@ -21,7 +21,7 @@ export const useDeleteImport = (
   >(DELETE_IMPORTS_MUTATION, {
     onCompleted(data) {
       setDeleted((prev) => [...prev, ...data.deleteImports])
-      openDeleteConfirmationModal.hide()
+      modalState.hide()
     },
   })
 

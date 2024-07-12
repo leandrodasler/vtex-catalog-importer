@@ -41,16 +41,15 @@ const DEFAULT_ARGS = {
 export default function History() {
   const { formatMessage } = useIntl()
   const [deleted, setDeleted] = useState<string[]>([])
-  const openInfosImportmodal = useModalState()
-  const openDeleteConfirmationModal = useModalState()
+  const importModal = useModalState()
+  const deleteConfirmationModal = useModalState()
   const [importIdModal, setImportIdModal] = useState('')
   const [deleteId, setDeleteId] = useState('')
 
   const columns = useImportColumns({
-    setDeleted,
-    openInfosImportmodal,
+    importModal,
     setImportIdModal,
-    openDeleteConfirmationModal,
+    deleteConfirmationModal,
     setDeleteId,
   })
 
@@ -87,7 +86,7 @@ export default function History() {
 
     if (
       !importToOpen ||
-      (!openInfosImportmodal.open && importToOpen.id === importIdModal)
+      (!importModal.open && importToOpen.id === importIdModal)
     ) {
       url.searchParams.delete('id')
       window.parent.history.replaceState(null, '', url.toString())
@@ -96,8 +95,8 @@ export default function History() {
     }
 
     setImportIdModal(importToOpen.id)
-    openInfosImportmodal.show()
-  }, [importIdModal, imports, openInfosImportmodal])
+    importModal.show()
+  }, [importIdModal, importModal, imports])
 
   const paginationTotal = data?.imports.pagination.total ?? 0
 
@@ -138,11 +137,9 @@ export default function History() {
       fluid
       className={csx({ maxWidth: '100%', overflow: 'auto' })}
     >
-      {total > pageSize && (
-        <Text variant="detail" className={csx({ paddingLeft: '$space-4' })}>
-          {formatMessage(messages.importPaginationLabel, { pageSize, total })}
-        </Text>
-      )}
+      <Text variant="detail" className={csx({ paddingLeft: '$space-4' })}>
+        {formatMessage(messages.importPaginationLabel, { pageSize })}
+      </Text>
       <Table {...getTable()}>
         <THead>
           {columns.map((column, index) => (
@@ -162,7 +159,7 @@ export default function History() {
 
                 url.searchParams.set('id', item.id)
                 window.parent.history.replaceState(null, '', url.toString())
-                openInfosImportmodal.show()
+                importModal.show()
                 setImportIdModal(item.id)
               }}
             >
@@ -176,15 +173,12 @@ export default function History() {
           ))}
         </TBody>
       </Table>
-      {openInfosImportmodal.open && (
-        <ShowImportModal
-          openInfosImportmodal={openInfosImportmodal}
-          id={importIdModal}
-        />
+      {importModal.open && (
+        <ShowImportModal modalState={importModal} id={importIdModal} />
       )}
-      {openDeleteConfirmationModal.open && (
+      {deleteConfirmationModal.open && (
         <DeleteConfirmationModal
-          openDeleteConfirmationModal={openDeleteConfirmationModal}
+          modalState={deleteConfirmationModal}
           deleteId={deleteId}
           setDeleted={setDeleted}
         />

@@ -15,22 +15,19 @@ import { useIntl } from 'react-intl'
 import { messages } from '../../common'
 import { useDeleteImport } from './common'
 
-type DeleteConfirmationModalProps = {
-  openDeleteConfirmationModal: ReturnType<typeof useModalState>
+type Props = {
+  modalState: ReturnType<typeof useModalState>
   deleteId: string | undefined
   setDeleted: React.Dispatch<React.SetStateAction<string[]>>
 }
 
 const DeleteConfirmationModal = ({
-  openDeleteConfirmationModal,
+  modalState,
   deleteId,
   setDeleted,
-}: DeleteConfirmationModalProps) => {
+}: Props) => {
   const { formatMessage } = useIntl()
-  const { loading, deleteImport } = useDeleteImport(
-    setDeleted,
-    openDeleteConfirmationModal
-  )
+  const { loading, deleteImport } = useDeleteImport(setDeleted, modalState)
 
   const handleDelete = () => {
     if (deleteId) {
@@ -39,7 +36,7 @@ const DeleteConfirmationModal = ({
   }
 
   return (
-    <Modal state={openDeleteConfirmationModal}>
+    <Modal state={modalState}>
       <ModalHeader>
         <ModalTitle> {formatMessage(messages.importDelete)}</ModalTitle>
         <ModalDismiss disabled={loading} />

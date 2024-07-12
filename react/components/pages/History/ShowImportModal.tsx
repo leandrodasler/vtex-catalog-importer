@@ -24,8 +24,8 @@ import { POLLING_INTERVAL } from './common'
 import ImportDetails from './ImportDetails'
 import ImportResults from './ImportResults'
 
-type ShowImportModalProps = {
-  openInfosImportmodal: ReturnType<typeof useModalState>
+type Props = {
+  modalState: ReturnType<typeof useModalState>
   id: string
 }
 
@@ -42,10 +42,7 @@ const firstColumnTheme = csx({
 
 const secondColumnTheme = csx({ overflow: 'auto' })
 
-const ShowImportModal = ({
-  openInfosImportmodal,
-  id,
-}: ShowImportModalProps) => {
+const ShowImportModal = ({ modalState, id }: Props) => {
   const { formatMessage } = useIntl()
 
   const { data, loading, startPolling, stopPolling } = useQueryCustom<
@@ -74,7 +71,7 @@ const ShowImportModal = ({
   )
 
   return (
-    <Modal state={openInfosImportmodal} size="large">
+    <Modal state={modalState} size="large">
       <ModalHeader>
         <ModalTitle>{formatMessage(messages.importDetailsLabel)}</ModalTitle>
         <Stack direction="row" space="$space-4">
