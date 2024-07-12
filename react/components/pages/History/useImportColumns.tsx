@@ -10,7 +10,6 @@ import {
 import React from 'react'
 import { useIntl } from 'react-intl'
 import type { Import } from 'ssesandbox04.catalog-importer'
-import { useRuntime } from 'vtex.render-runtime'
 
 import {
   Checked,
@@ -19,7 +18,7 @@ import {
   useStatusLabel,
   useStockOptionLabel,
 } from '../../common'
-import { getFinishedAt, getStartedAt } from './common'
+import { useLocaleDate } from './common'
 
 export const mapStatusToVariant: Record<
   Import['status'],
@@ -47,10 +46,8 @@ const useImportColumns = ({
 }: Props) => {
   const { formatMessage } = useIntl()
   const getStatusLabel = useStatusLabel()
+  const { getStartedAt, getFinishedAt } = useLocaleDate()
   const getStockOptionLabel = useStockOptionLabel()
-  const {
-    culture: { locale },
-  } = useRuntime()
 
   return createColumns<Import>([
     {
@@ -58,7 +55,7 @@ const useImportColumns = ({
       header: formatMessage(messages.importCreatedInLabel),
       resolver: {
         type: 'root',
-        render: ({ item: { createdIn } }) => getStartedAt(createdIn, locale),
+        render: ({ item: { createdIn } }) => getStartedAt(createdIn),
       },
     },
     {
@@ -67,7 +64,7 @@ const useImportColumns = ({
       resolver: {
         type: 'root',
         render: ({ item: { lastInteractionIn, status } }) =>
-          getFinishedAt(lastInteractionIn, locale, status),
+          getFinishedAt(lastInteractionIn, status),
       },
     },
     {

@@ -2,9 +2,7 @@ import { Stack, Tag, Text } from '@vtex/admin-ui'
 import React, { useMemo } from 'react'
 import { useIntl } from 'react-intl'
 import type { Import } from 'ssesandbox04.catalog-importer'
-import { useRuntime } from 'vtex.render-runtime'
 
-import { getFinishedAt, getStartedAt } from '.'
 import {
   Checked,
   Tree,
@@ -14,36 +12,23 @@ import {
   treeSorter,
   useStatusLabel,
   useStockOptionLabel,
-} from '../../../common'
-import { mapStatusToVariant } from '../useImportColumns'
+} from '../../common'
+import { useLocaleDate } from './common'
+import { mapStatusToVariant } from './useImportColumns'
 
 type Props = { currentImport: Import }
 
-export const ImportDetails = ({ currentImport }: Props) => {
-  const {
-    culture: { locale },
-  } = useRuntime()
-
+const ImportDetails = ({ currentImport }: Props) => {
   const { formatMessage } = useIntl()
-  const getStockOptionLabel = useStockOptionLabel()
   const getStatusLabel = useStatusLabel()
-  const { createdIn, lastInteractionIn, status } = currentImport
+  const { getStartedAt, getFinishedAt } = useLocaleDate()
+  const getStockOptionLabel = useStockOptionLabel()
 
   const categoryTree = useMemo(
     () =>
       currentImport?.categoryTree.sort(treeSorter).map(categoryTreeMapper) ??
       [],
     [currentImport?.categoryTree]
-  )
-
-  const startedAt = useMemo(() => getStartedAt(createdIn, locale), [
-    createdIn,
-    locale,
-  ])
-
-  const finishedAt = useMemo(
-    () => getFinishedAt(lastInteractionIn, locale, status),
-    [lastInteractionIn, status, locale]
   )
 
   return (
@@ -61,13 +46,13 @@ export const ImportDetails = ({ currentImport }: Props) => {
         <Text variant="title1">
           {formatMessage(messages.importCreatedInLabel)}:{' '}
         </Text>
-        {startedAt}
+        {getStartedAt(currentImport.createdIn)}
       </section>
       <section>
         <Text variant="title1">
           {formatMessage(messages.importLastInteractionInLabel)}:{' '}
         </Text>
-        {finishedAt}
+        {getFinishedAt(currentImport.lastInteractionIn, currentImport.status)}
       </section>
       <section>
         <Text variant="title1">
@@ -120,3 +105,5 @@ export const ImportDetails = ({ currentImport }: Props) => {
     </Stack>
   )
 }
+
+export default ImportDetails

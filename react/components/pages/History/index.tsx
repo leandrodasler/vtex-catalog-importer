@@ -26,11 +26,9 @@ import {
   messages,
 } from '../../common'
 import { IMPORTS_QUERY, useQueryCustom } from '../../graphql'
-import {
-  DeleteConfirmationModal,
-  POLLING_INTERVAL,
-  ShowImportModal,
-} from './common'
+import { POLLING_INTERVAL } from './common'
+import DeleteConfirmationModal from './DeleteConfirmationModal'
+import ShowImportModal from './ShowImportModal'
 import useImportColumns from './useImportColumns'
 
 const DEFAULT_ARGS = {

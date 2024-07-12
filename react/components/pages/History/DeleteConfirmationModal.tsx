@@ -12,8 +12,8 @@ import {
 import React from 'react'
 import { useIntl } from 'react-intl'
 
-import { useDeleteImport } from '.'
-import { messages } from '../../../common'
+import { messages } from '../../common'
+import { useDeleteImport } from './common'
 
 type DeleteConfirmationModalProps = {
   openDeleteConfirmationModal: ReturnType<typeof useModalState>
@@ -21,7 +21,7 @@ type DeleteConfirmationModalProps = {
   setDeleted: React.Dispatch<React.SetStateAction<string[]>>
 }
 
-export const DeleteConfirmationModal = ({
+const DeleteConfirmationModal = ({
   openDeleteConfirmationModal,
   deleteId,
   setDeleted,
@@ -58,3 +58,5 @@ export const DeleteConfirmationModal = ({
     </Modal>
   )
 }
+
+export default DeleteConfirmationModal

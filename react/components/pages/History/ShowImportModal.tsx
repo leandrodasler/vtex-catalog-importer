@@ -18,9 +18,11 @@ import type {
   QueryImportProgressArgs,
 } from 'ssesandbox04.catalog-importer'
 
-import { ImportDetails, ImportResults, POLLING_INTERVAL } from '.'
-import { SuspenseFallback, messages } from '../../../common'
-import { IMPORT_PROGRESS_QUERY, useQueryCustom } from '../../../graphql'
+import { SuspenseFallback, messages } from '../../common'
+import { IMPORT_PROGRESS_QUERY, useQueryCustom } from '../../graphql'
+import { POLLING_INTERVAL } from './common'
+import ImportDetails from './ImportDetails'
+import ImportResults from './ImportResults'
 
 type ShowImportModalProps = {
   openInfosImportmodal: ReturnType<typeof useModalState>
@@ -40,7 +42,7 @@ const firstColumnTheme = csx({
 
 const secondColumnTheme = csx({ overflow: 'auto' })
 
-export const ShowImportModal = ({
+const ShowImportModal = ({
   openInfosImportmodal,
   id,
 }: ShowImportModalProps) => {
@@ -105,3 +107,5 @@ export const ShowImportModal = ({
     </Modal>
   )
 }
+
+export default ShowImportModal

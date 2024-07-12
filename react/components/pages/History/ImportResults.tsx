@@ -3,8 +3,8 @@ import React from 'react'
 import { useIntl } from 'react-intl'
 import type { ImportProgress } from 'ssesandbox04.catalog-importer'
 
-import { EntitySkeleton } from '.'
-import { messages } from '../../../common'
+import { messages } from '../../common'
+import { EntitySkeleton } from './common'
 
 type Props = { importProgress?: ImportProgress; loading: boolean }
 
@@ -17,7 +17,7 @@ const ENTITIES_DEFAULT = {
   stocks: 0,
 }
 
-export const ImportResults = ({ importProgress, loading }: Props) => {
+const ImportResults = ({ importProgress, loading }: Props) => {
   const { formatMessage } = useIntl()
   const importEntities = importProgress ?? ENTITIES_DEFAULT
   const { brands, categories, products, skus, prices, stocks } = importEntities
@@ -107,3 +107,5 @@ export const ImportResults = ({ importProgress, loading }: Props) => {
     </Stack>
   )
 }
+
+export default ImportResults
