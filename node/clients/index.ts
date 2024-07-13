@@ -52,7 +52,7 @@ declare global {
   type ProcessImport = WithInternalFields<Import>
   type ServiceState = RecorderState & { settings?: AppSettingsInput }
   type Context = ServiceContext<Clients, ServiceState>
-  type EventState = { body: Partial<ProcessImport> }
+  type EventState = { body: Partial<ProcessImport>; step?: string }
   type AppEventContext = EventContext<Clients, EventState>
 }
 
@@ -68,7 +68,7 @@ export default {
       exponentialBackoffCoefficient: 2,
       initialBackoffDelay: 100,
       retries: 10,
-      timeout: 60000,
+      timeout: 3000,
       concurrency: CONCURRENCY,
       memoryCache,
       asyncSetCache: true,

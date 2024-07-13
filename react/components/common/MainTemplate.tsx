@@ -27,7 +27,7 @@ type Props = {
 }
 
 const MainTemplate = ({ children, subtitle, onPopNavigation }: Props) => {
-  const { culture } = useRuntime()
+  const { locale } = useRuntime().culture
   const { formatMessage } = useIntl()
   const versionText = formatMessage(messages.versionLabel, {
     version: process.env.VTEX_APP_VERSION,
@@ -35,7 +35,7 @@ const MainTemplate = ({ children, subtitle, onPopNavigation }: Props) => {
 
   return (
     <ThemeProvider>
-      <I18nProvider locale={culture.locale}>
+      <I18nProvider locale={locale}>
         <ToastProvider>
           <Page>
             <PageHeader

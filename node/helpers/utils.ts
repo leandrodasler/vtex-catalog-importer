@@ -87,7 +87,7 @@ export const batch = async <T>(
 export const updateImportStatus = async (
   context: AppEventContext,
   status: ImportStatus,
-  error?: Error
+  error?: string
 ) => {
   const { id } = context.state.body
 
@@ -96,7 +96,7 @@ export const updateImportStatus = async (
   }
 
   await context.clients.importExecution
-    .update(id, { ...(error && { error: error.message }), status })
+    .update(id, { status, error })
     .then(() => (context.state.body.status = status))
     .catch(() => {})
 }

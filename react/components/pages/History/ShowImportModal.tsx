@@ -7,8 +7,6 @@ import {
   ModalDismiss,
   ModalHeader,
   ModalTitle,
-  Spinner,
-  Stack,
   csx,
 } from '@vtex/admin-ui'
 import React, { useMemo } from 'react'
@@ -39,8 +37,6 @@ const firstColumnTheme = csx({
     borderRight: '1px solid $gray20',
   },
 })
-
-const secondColumnTheme = csx({ overflow: 'auto' })
 
 const ShowImportModal = ({ modalState, id }: Props) => {
   const { formatMessage } = useIntl()
@@ -74,10 +70,7 @@ const ShowImportModal = ({ modalState, id }: Props) => {
     <Modal state={modalState} size="large">
       <ModalHeader>
         <ModalTitle>{formatMessage(messages.importDetailsLabel)}</ModalTitle>
-        <Stack direction="row" space="$space-4">
-          {isLoading && currentImport && <Spinner />}
-          <ModalDismiss />
-        </Stack>
+        <ModalDismiss />
       </ModalHeader>
       <ModalContent>
         {isLoading && !currentImport && <SuspenseFallback />}
@@ -89,10 +82,7 @@ const ShowImportModal = ({ modalState, id }: Props) => {
             >
               <ImportDetails currentImport={currentImport} />
             </Column>
-            <Column
-              units={{ mobile: 12, tablet: 6 }}
-              className={secondColumnTheme}
-            >
+            <Column units={{ mobile: 12, tablet: 6 }}>
               <ImportResults
                 importProgress={importProgress}
                 loading={isLoading}

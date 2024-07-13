@@ -9,7 +9,6 @@ query getImports($args: SearchInput!) {
       id
       createdIn
       lastInteractionIn
-      user
       settings {
         useDefault
         account
@@ -19,7 +18,6 @@ query getImports($args: SearchInput!) {
       stocksOption
       stockValue
       status
-      error
     }
   }
 }

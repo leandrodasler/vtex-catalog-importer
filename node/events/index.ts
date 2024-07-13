@@ -40,7 +40,17 @@ const runImport = async (context: AppEventContext) => {
     await updateImportStatus(context, IMPORT_STATUS.RUNNING)
     await brands(context)
     await categories(context)
-  } catch (error) {
+  } catch (e) {
+    const step = context.state.step ?? 'starting import'
+    const errorDetail = e.response?.data?.Message
+    const error = `Error at step "${step}": ${e.message}${
+      errorDetail ? ` - ${errorDetail}` : ''
+    }`
+
+    console.log('========================')
+    console.log(`ERROR at step ${step}:`)
+    console.log(error)
+
     await updateImportStatus(context, IMPORT_STATUS.ERROR, error)
   }
 }

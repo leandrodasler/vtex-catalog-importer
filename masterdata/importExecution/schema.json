@@ -9,6 +9,7 @@
     "importPrices": { "type": "boolean" },
     "stocksOption": { "type": "string" },
     "stockValue": { "type": ["integer", "null"] },
+    "sourceBrandsTotal": { "type": ["integer", "null"] },
     "status": { "type": "string" },
     "error": { "type": ["string", "null"] }
   },

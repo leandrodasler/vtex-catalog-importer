@@ -38,6 +38,8 @@ const DEFAULT_ARGS = {
   where: '',
 }
 
+const tableContainerTheme = csx({ maxWidth: '100%', overflow: 'auto' })
+
 export default function History() {
   const { formatMessage } = useIntl()
   const [deleted, setDeleted] = useState<string[]>([])
@@ -132,11 +134,7 @@ export default function History() {
   }
 
   return (
-    <Stack
-      space="$space-4"
-      fluid
-      className={csx({ maxWidth: '100%', overflow: 'auto' })}
-    >
+    <Stack space="$space-4" fluid className={tableContainerTheme}>
       <Text variant="detail" className={csx({ paddingLeft: '$space-4' })}>
         {formatMessage(messages.importPaginationLabel, { pageSize })}
       </Text>

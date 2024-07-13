@@ -9,20 +9,19 @@ export const brands = async (context: AppEventContext) => {
   console.log('"brands" import step')
   console.log(context.state.body)
 
-  const { httpClient, importEntity } = context.clients
+  context.state.step = 'brands'
+  const { httpClient, importEntity, importExecution } = context.clients
   const { id = '', settings = {} } = context.state.body
 
-  const brandsData = await httpClient
-    .get<Maybe<Brand[]>>(ENDPOINTS.brands.get)
-    .catch((e) => {
-      throw new Error(`Error getting brands: ${e.message}`)
-    })
-
-  console.log({ brands: brandsData })
+  const brandsData = await httpClient.get<Maybe<Brand[]>>(ENDPOINTS.brands.get)
 
   if (!brandsData?.length) {
     return
   }
+
+  console.log('Total brands to be imported:', brandsData.length)
+
+  await importExecution.update(id, { sourceBrandsTotal: brandsData.length })
 
   await batch(brandsData.map(brandMapper), (brand) =>
     importEntity.save({

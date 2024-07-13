@@ -51,6 +51,7 @@ query importProgress($id: ID!) {
       importPrices
       stocksOption
       stockValue
+      sourceBrandsTotal
       status
       error
     }

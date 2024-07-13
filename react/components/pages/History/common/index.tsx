@@ -33,9 +33,7 @@ export const useDeleteImport = (
 }
 
 export const useLocaleDate = () => {
-  const {
-    culture: { locale },
-  } = useRuntime()
+  const { locale } = useRuntime().culture
 
   const getStartedAt = useCallback(
     (date: string) => new Date(date).toLocaleString(locale),
@@ -53,6 +51,19 @@ export const useLocaleDate = () => {
   return { getStartedAt, getFinishedAt }
 }
 
+export const useLocalePercentage = () => {
+  const { locale } = useRuntime().culture
+
+  return useCallback(
+    (percentage: number) =>
+      percentage.toLocaleString(locale, { style: 'percent' }),
+    [locale]
+  )
+}
+
 export const POLLING_INTERVAL = 3000
 
-export const EntitySkeleton = () => <Skeleton className={csx({ height: 20 })} />
+type EntitySkeletonProps = { width?: string | number }
+export const EntitySkeleton = ({ width }: EntitySkeletonProps) => (
+  <Skeleton className={csx({ height: 30, width })} />
+)
