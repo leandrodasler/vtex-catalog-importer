@@ -1,12 +1,25 @@
 /* eslint-disable no-console */
 
 import {
+  batch,
   IMPORT_EXECUTION_FULL_FIELDS,
   IMPORT_STATUS,
-  updateImportStatus,
+  STEPS_HANDLERS,
+  updateImport,
 } from '../helpers'
-import { brands } from './steps/01-brands'
-import { categories } from './steps/02-categories'
+
+export const printStep = (context: AppEventContext) => {
+  const {
+    step,
+    body: { id, status, sourceBrandsTotal, error },
+  } = context.state
+
+  console.log('========================')
+  console.log(`"${step}" import step`)
+  console.log(
+    `IMPORT #${id} - status: ${status} | sourceBrandsTotal: ${sourceBrandsTotal} | error: ${error}`
+  )
+}
 
 const runImport = async (context: AppEventContext) => {
   console.log('========================')
@@ -15,9 +28,7 @@ const runImport = async (context: AppEventContext) => {
 
   const { id, settings } = context.state.body
 
-  if (!id) {
-    return
-  }
+  if (!id) return
 
   const { importExecution, httpClient } = context.clients
 
@@ -26,20 +37,21 @@ const runImport = async (context: AppEventContext) => {
       throw new Error('admin/settings.missing.error')
     }
 
-    httpClient.setSettings(settings)
     const importData = await importExecution.get(
       id,
       IMPORT_EXECUTION_FULL_FIELDS
     )
 
-    context.state.body = {
-      ...importData,
-      settings,
-    }
+    httpClient.setSettings(settings)
+    context.state.body = { ...importData, settings }
 
-    await updateImportStatus(context, IMPORT_STATUS.RUNNING)
-    await brands(context)
-    await categories(context)
+    await updateImport(context, { status: IMPORT_STATUS.RUNNING })
+    await batch(STEPS_HANDLERS, (step) => step(context), 1)
+    await updateImport(context, { status: IMPORT_STATUS.SUCCESS })
+
+    console.log('========================')
+    console.log('FINISHED IMPORT')
+    console.log(context.state.body)
   } catch (e) {
     const step = context.state.step ?? 'starting import'
     const errorDetail = e.response?.data?.Message
@@ -48,10 +60,9 @@ const runImport = async (context: AppEventContext) => {
     }`
 
     console.log('========================')
-    console.log(`ERROR at step ${step}:`)
     console.log(error)
 
-    await updateImportStatus(context, IMPORT_STATUS.ERROR, error)
+    await updateImport(context, { status: IMPORT_STATUS.ERROR, error })
   }
 }
 

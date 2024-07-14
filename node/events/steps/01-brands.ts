@@ -1,29 +1,21 @@
 /* eslint-disable no-console */
-import type { Maybe } from '@vtex/api'
 import type { Brand } from '@vtex/clients'
 
-import { ENDPOINTS, batch, brandMapper } from '../../helpers'
+import { printStep } from '..'
+import { ENDPOINTS, batch, brandMapper, updateImport } from '../../helpers'
 
-export const brands = async (context: AppEventContext) => {
-  console.log('========================')
-  console.log('"brands" import step')
-  console.log(context.state.body)
-
+const handleBrands = async (context: AppEventContext) => {
   context.state.step = 'brands'
-  const { httpClient, importEntity, importExecution } = context.clients
+  printStep(context)
+  const { httpClient, importEntity } = context.clients
   const { id = '', settings = {} } = context.state.body
+  const brands = await httpClient.get<Brand[]>(ENDPOINTS.brands.get)
 
-  const brandsData = await httpClient.get<Maybe<Brand[]>>(ENDPOINTS.brands.get)
+  console.log('Total brands to be imported:', brands.length)
 
-  if (!brandsData?.length) {
-    return
-  }
+  await updateImport(context, { sourceBrandsTotal: brands.length })
 
-  console.log('Total brands to be imported:', brandsData.length)
-
-  await importExecution.update(id, { sourceBrandsTotal: brandsData.length })
-
-  await batch(brandsData.map(brandMapper), (brand) =>
+  await batch(brands.map(brandMapper), (brand) =>
     importEntity.save({
       executionImportId: id,
       name: 'brand',
@@ -33,3 +25,5 @@ export const brands = async (context: AppEventContext) => {
     })
   )
 }
+
+export default handleBrands

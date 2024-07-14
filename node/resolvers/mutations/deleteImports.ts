@@ -15,14 +15,10 @@ export const deleteImports = async (
 
   batch(ids, (id) => importExecution.delete(id))
 
-  const importEntities = await entityGetAll(importEntity, {
+  entityGetAll(importEntity, {
     fields: ['id'],
     where: ids.map((id) => `(executionImportId=${id})`).join(' OR '),
-  })
-
-  if (importEntities.length) {
-    batch(importEntities, ({ id }) => importEntity.delete(id))
-  }
+  }).then((data) => batch(data, ({ id }) => importEntity.delete(id)))
 
   return ids
 }

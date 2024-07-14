@@ -2,10 +2,7 @@ import type {
   MasterDataEntity,
   ScrollInput,
 } from '@vtex/clients/build/clients/masterData/MasterDataEntity'
-import type {
-  AppSettingsInput,
-  ImportStatus,
-} from 'ssesandbox04.catalog-importer'
+import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
 import { ENDPOINTS } from '.'
 
@@ -61,42 +58,31 @@ export const entityGetAll = async <T extends Record<string, T | unknown>>(
   return allData
 }
 
-const BATCH_CONCURRENCY = 1000
+const DEFAULT_BATCH_CONCURRENCY = 1000
 
 export const batch = async <T>(
   data: T[],
-  elementCallback: (element: T) => Promise<unknown>
+  elementCallback: (element: T) => Promise<unknown>,
+  concurrency = DEFAULT_BATCH_CONCURRENCY
 ) => {
   const cloneData = [...data]
 
-  const processBatch = async (): Promise<void> => {
-    if (!cloneData.length) {
-      return
-    }
-
-    await Promise.all(
-      cloneData.splice(0, BATCH_CONCURRENCY).map(elementCallback)
-    )
-
+  const processBatch = async () => {
+    if (!cloneData.length) return
+    await Promise.all(cloneData.splice(0, concurrency).map(elementCallback))
     await processBatch()
   }
 
   await processBatch()
 }
 
-export const updateImportStatus = async (
+export const updateImport = async (
   context: AppEventContext,
-  status: ImportStatus,
-  error?: string
+  fields: Partial<ProcessImport>
 ) => {
-  const { id } = context.state.body
-
-  if (!id) {
-    return
-  }
-
+  if (!context.state.body.id) return
   await context.clients.importExecution
-    .update(id, { status, error })
-    .then(() => (context.state.body.status = status))
+    .update(context.state.body.id, fields)
+    .then(() => (context.state.body = { ...context.state.body, ...fields }))
     .catch(() => {})
 }

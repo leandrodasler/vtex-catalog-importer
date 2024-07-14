@@ -72,7 +72,7 @@ const ImportResults = ({ importProgress, loading }: Props) => {
                   {formatMessage(messages.importResultsBrandsLabel)}:{' '}
                 </Text>
                 <span className={totalizerTheme}>
-                  {brands} / {sourceBrandsTotal ?? '---'}
+                  {brands} / {sourceBrandsTotal}
                 </span>
               </Inline>
             </Card>

@@ -1,5 +1,12 @@
 import type { ImportStatus } from 'ssesandbox04.catalog-importer'
 
+import handleBrands from '../events/steps/01-brands'
+import handleCategories from '../events/steps/02-categories'
+import handleProducts from '../events/steps/03-products'
+import handleSkus from '../events/steps/04-skus'
+import handlePrices from '../events/steps/05-prices'
+import handleStocks from '../events/steps/06-stocks'
+
 export const ENDPOINTS = {
   defaultSettings:
     'http://ssesandbox04.myvtex.com/catalog-importer-configuration/settings',
@@ -51,11 +58,14 @@ export const IMPORT_STATUS: { [key in ImportStatus]: ImportStatus } = {
   ERROR: 'ERROR',
 }
 
-export const STEPS_ENTITIES = [
-  'brand',
-  'category',
-  'product',
-  'sku',
-  'price',
-  'stock',
-]
+const MAP_ENTITY_STEP_HANDLER = {
+  brand: handleBrands,
+  category: handleCategories,
+  product: handleProducts,
+  sku: handleSkus,
+  price: handlePrices,
+  stock: handleStocks,
+}
+
+export const STEPS_ENTITIES = Object.keys(MAP_ENTITY_STEP_HANDLER)
+export const STEPS_HANDLERS = Object.values(MAP_ENTITY_STEP_HANDLER)

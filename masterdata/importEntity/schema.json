@@ -11,23 +11,11 @@
     "payload": { "type": "object" }
   },
   "v-cache": false,
-  "v-indexed": ["name", "executionImportId", "sourceAccount"],
-  "v-default-fields": ["name", "executionImportId", "sourceAccount"],
-  "v-security": {
-    "allowGetAll": false,
-    "publicRead": [
-      "name",
-      "executionImportId",
-      "sourceAccount",
-      "sourceId",
-      "targetId"
-    ],
-    "publicFilter": [
-      "name",
-      "executionImportId",
-      "sourceAccount",
-      "sourceId",
-      "targetId"
-    ]
-  }
+  "v-indexed": [
+    "name",
+    "executionImportId",
+    "sourceAccount",
+    "sourceId",
+    "targetId"
+  ]
 }

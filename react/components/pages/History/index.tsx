@@ -55,24 +55,22 @@ export default function History() {
     setDeleteId,
   })
 
-  const { data, loading, startPolling, stopPolling } = useQueryCustom<
-    Query,
-    QueryImportsArgs
-  >(IMPORTS_QUERY, {
-    variables: { args: DEFAULT_ARGS },
-    onCompleted({ imports: { data: imports } }) {
-      if (
-        imports.some(
-          (item: Import) =>
-            item.status === 'PENDING' || item.status === 'RUNNING'
-        )
-      ) {
-        startPolling(POLLING_INTERVAL)
-      } else {
-        stopPolling()
-      }
-    },
-  })
+  const { data, loading, refetch } = useQueryCustom<Query, QueryImportsArgs>(
+    IMPORTS_QUERY,
+    {
+      variables: { args: DEFAULT_ARGS },
+      onCompleted({ imports: { data: imports } }) {
+        if (
+          imports.some(
+            (item: Import) =>
+              item.status === 'PENDING' || item.status === 'RUNNING'
+          )
+        ) {
+          setTimeout(() => refetch(), POLLING_INTERVAL)
+        }
+      },
+    }
+  )
 
   const imports = data?.imports.data
 

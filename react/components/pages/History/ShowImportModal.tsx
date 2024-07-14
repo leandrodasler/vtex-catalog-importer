@@ -18,7 +18,6 @@ import type {
 
 import { SuspenseFallback, messages } from '../../common'
 import { IMPORT_PROGRESS_QUERY, useQueryCustom } from '../../graphql'
-import { POLLING_INTERVAL } from './common'
 import ImportDetails from './ImportDetails'
 import ImportResults from './ImportResults'
 
@@ -41,19 +40,17 @@ const firstColumnTheme = csx({
 const ShowImportModal = ({ modalState, id }: Props) => {
   const { formatMessage } = useIntl()
 
-  const { data, loading, startPolling, stopPolling } = useQueryCustom<
+  const { data, loading, refetch } = useQueryCustom<
     Query,
     QueryImportProgressArgs
   >(IMPORT_PROGRESS_QUERY, {
     skip: !id,
     variables: { id },
-    onCompleted({ importProgress: { currentImport } }) {
-      const { status } = currentImport
+    onCompleted({ importProgress: { currentImport, brands } }) {
+      const { status, sourceBrandsTotal } = currentImport
 
-      if (status === 'PENDING' || status === 'RUNNING') {
-        startPolling(POLLING_INTERVAL)
-      } else {
-        stopPolling()
+      if (status !== 'ERROR' && brands < sourceBrandsTotal) {
+        refetch()
       }
     },
   })
