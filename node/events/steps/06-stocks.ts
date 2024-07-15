@@ -47,6 +47,7 @@ const handleStocks = async (context: AppEventContext) => {
       payload: { name: 'stock 3' },
     })
 
+    await delay(1000)
     await updateImport(context, { status: IMPORT_STATUS.SUCCESS })
 
     console.log('========================')

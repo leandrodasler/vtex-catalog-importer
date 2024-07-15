@@ -1,6 +1,6 @@
 import type { useModalState } from '@vtex/admin-ui'
 import { Skeleton, csx } from '@vtex/admin-ui'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useMutation } from 'react-apollo'
 import type {
   ImportStatus,
@@ -51,17 +51,39 @@ export const useLocaleDate = () => {
   return { getStartedAt, getFinishedAt }
 }
 
-export const useLocalePercentage = () => {
+export const useLocalePercentage = (current: number, total: number) => {
   const { locale } = useRuntime().culture
 
-  return useCallback(
-    (percentage: number) =>
-      percentage.toLocaleString(locale, { style: 'percent' }),
-    [locale]
+  const percentage = useMemo(() => (total ? (current / total) * 100 : 0), [
+    current,
+    total,
+  ])
+
+  const localePercentage = useMemo(
+    () =>
+      (percentage / 100).toLocaleString(locale, {
+        style: 'percent',
+        maximumFractionDigits: 2,
+      }),
+    [percentage, locale]
   )
+
+  return { percentage, localePercentage }
 }
 
 type EntitySkeletonProps = { width?: string | number }
 export const EntitySkeleton = ({ width }: EntitySkeletonProps) => (
-  <Skeleton className={csx({ height: 30, width })} />
+  <Skeleton
+    className={csx({
+      height: 30,
+      background: '$gray10',
+      width,
+      '--admin-ui-bg-skeleton':
+        'linear-gradient(90deg, var(--admin-ui-colors-transparent), var(--admin-ui-colors-gray30), var(--admin-ui-colors-transparent))',
+      '&[data-shape="rect"]': { borderRadius: 0 },
+    })}
+  />
 )
+
+export const statusBeforeFinished = (status?: ImportStatus) =>
+  status === 'PENDING' || status === 'RUNNING'

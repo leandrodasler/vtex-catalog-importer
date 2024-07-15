@@ -6,7 +6,6 @@ import {
   Modal,
   ModalContent,
   ModalDismiss,
-  ModalFooter,
   ModalHeader,
   ModalTitle,
   Radio,
@@ -27,10 +26,10 @@ import type {
 } from 'ssesandbox04.catalog-importer'
 
 import type { CheckedCategories } from '.'
-import { handleTrim, messages } from '../../common'
+import { handleTrim, messages, ModalButtons } from '../../common'
 import {
-  UPDATE_APP_SETTINGS_MUTATION,
   getGraphQLMessageDescriptor,
+  UPDATE_APP_SETTINGS_MUTATION,
 } from '../../graphql'
 
 type Props = {
@@ -144,23 +143,25 @@ const Settings = (props: Props) => {
           </ModalTitle>
           <ModalDismiss />
         </ModalHeader>
-        <ModalContent>{formatMessage(messages.settingsResetText)}</ModalContent>
-        <ModalFooter>
-          <Button
-            disabled={loadingUpdate}
-            variant="secondary"
-            onClick={() => resetModal.hide()}
-          >
-            {formatMessage(messages.cancelLabel)}
-          </Button>
-          <Button
-            onClick={handleResetSettings}
-            disabled={loadingUpdate}
-            loading={resetModal.open && loadingUpdate}
-          >
-            {formatMessage(messages.settingsResetLabel)}
-          </Button>
-        </ModalFooter>
+        <ModalContent>
+          {formatMessage(messages.settingsResetText)}
+          <ModalButtons>
+            <Button
+              disabled={loadingUpdate}
+              variant="secondary"
+              onClick={() => resetModal.hide()}
+            >
+              {formatMessage(messages.cancelLabel)}
+            </Button>
+            <Button
+              onClick={handleResetSettings}
+              disabled={loadingUpdate}
+              loading={resetModal.open && loadingUpdate}
+            >
+              {formatMessage(messages.settingsResetLabel)}
+            </Button>
+          </ModalButtons>
+        </ModalContent>
       </Modal>
       <Stack space="$space-4" fluid>
         <RadioGroup

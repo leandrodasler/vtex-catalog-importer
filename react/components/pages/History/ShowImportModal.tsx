@@ -20,6 +20,7 @@ import { SuspenseFallback, messages } from '../../common'
 import { IMPORT_PROGRESS_QUERY, useQueryCustom } from '../../graphql'
 import ImportDetails from './ImportDetails'
 import ImportResults from './ImportResults'
+import { statusBeforeFinished } from './common'
 
 type Props = {
   modalState: ReturnType<typeof useModalState>
@@ -70,13 +71,14 @@ const ShowImportModal = ({ modalState, id }: Props) => {
       } = currentImport
 
       if (
-        status !== 'ERROR' &&
-        (brands < sourceBrandsTotal ||
-          categories < sourceCategoriesTotal ||
-          products < sourceProductsTotal ||
-          skus < sourceSkusTotal ||
-          prices < sourcePricesTotal ||
-          stocks < sourceStocksTotal)
+        statusBeforeFinished(status) ||
+        (status !== 'ERROR' &&
+          (brands < sourceBrandsTotal ||
+            categories < sourceCategoriesTotal ||
+            products < sourceProductsTotal ||
+            skus < sourceSkusTotal ||
+            prices < sourcePricesTotal ||
+            stocks < sourceStocksTotal))
       ) {
         setTimeout(() => refetch(), POLLING_INTERVAL)
       }
@@ -86,10 +88,10 @@ const ShowImportModal = ({ modalState, id }: Props) => {
   const importProgress = data?.importProgress
   const currentImport = importProgress?.currentImport
   const status = currentImport?.status
-  const isLoading = useMemo(
-    () => loading || status === 'PENDING' || status === 'RUNNING',
-    [loading, status]
-  )
+  const isLoading = useMemo(() => loading || statusBeforeFinished(status), [
+    loading,
+    status,
+  ])
 
   return (
     <Modal state={modalState} size="large">

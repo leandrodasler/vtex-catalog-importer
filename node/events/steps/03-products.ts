@@ -12,7 +12,7 @@ const handleProducts = async (context: AppEventContext) => {
     const { importEntity } = context.clients
     const { id = '', settings = {} } = context.state.body
 
-    await updateImport(context, { sourceProductsTotal: 3 })
+    await updateImport(context, { sourceProductsTotal: 5 })
 
     await delay(1000)
     await importEntity.save({
@@ -39,6 +39,24 @@ const handleProducts = async (context: AppEventContext) => {
       sourceAccount: settings.account ?? '',
       sourceId: '3',
       payload: { name: 'product 3' },
+    })
+
+    await delay(1000)
+    await importEntity.save({
+      executionImportId: id,
+      name: 'product',
+      sourceAccount: settings.account ?? '',
+      sourceId: '4',
+      payload: { name: 'product 4' },
+    })
+
+    await delay(1000)
+    await importEntity.save({
+      executionImportId: id,
+      name: 'product',
+      sourceAccount: settings.account ?? '',
+      sourceId: '5',
+      payload: { name: 'product 5' },
     })
   } catch (error) {
     await handleError(context, error)

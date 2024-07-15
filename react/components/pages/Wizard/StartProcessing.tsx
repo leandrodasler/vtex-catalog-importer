@@ -8,7 +8,6 @@ import {
   Modal,
   ModalContent,
   ModalDismiss,
-  ModalFooter,
   ModalHeader,
   ModalTitle,
   Stack,
@@ -29,8 +28,10 @@ import type {
 import type { CheckedCategories, Options } from '.'
 import { IMPORT_OPTIONS, STOCK_OPTIONS } from '.'
 import {
+  ModalButtons,
   Tree,
   categoryTreeMapper,
+  goToWizardPage,
   messages,
   treeSorter,
   useStockOptionLabel,
@@ -87,13 +88,12 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
 
       showToast({
         message: formatMessage(messages.startSuccess),
+        duration: 5000,
         variant: 'positive',
         key: 'execute-import-message',
       })
     },
   })
-
-  const disabledButtons = loading || !!importData?.executeImport
 
   const treeData = useMemo(() => buildTree(checkedTreeOptions), [
     checkedTreeOptions,
@@ -188,17 +188,26 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
           )}
         </div>
       </Flex>
-      <Flex justify="space-between" className={csx({ marginTop: '$space-4' })}>
+      <Flex
+        justify="space-between"
+        className={csx({ marginTop: '$space-4', gap: '$space-3' })}
+        direction={{ mobile: 'column', tablet: 'row' }}
+      >
         <Button
-          onClick={() => state.select('3')}
+          variant="secondary"
+          onClick={
+            importData?.executeImport ? goToWizardPage : () => state.select('3')
+          }
           icon={<IconArrowLeft />}
-          disabled={disabledButtons}
+          disabled={loading || confirmationImportModal.open || importModal.open}
         >
-          {formatMessage(messages.previousLabel)}
+          {importData?.executeImport
+            ? formatMessage(messages.wizardAction)
+            : formatMessage(messages.previousLabel)}
         </Button>
         <Button
           icon={importData?.executeImport ? <IconEye /> : <IconArrowLineDown />}
-          disabled={loading || importModal.open}
+          disabled={loading || confirmationImportModal.open || importModal.open}
           loading={loading}
           onClick={
             importData?.executeImport
@@ -217,24 +226,26 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
             <ModalTitle>{formatMessage(messages.startConfirmation)}</ModalTitle>
             <ModalDismiss />
           </ModalHeader>
-          <ModalContent>{formatMessage(messages.startText)}</ModalContent>
-          <ModalFooter>
-            <Button
-              disabled={disabledButtons}
-              variant="secondary"
-              onClick={() => confirmationImportModal.hide()}
-            >
-              {formatMessage(messages.cancelLabel)}
-            </Button>
-            <Button
-              icon={<IconArrowLineDown />}
-              disabled={disabledButtons}
-              loading={confirmationImportModal.open && loading}
-              onClick={handleStartImport}
-            >
-              {formatMessage(messages.startLabel)}
-            </Button>
-          </ModalFooter>
+          <ModalContent>
+            {formatMessage(messages.startText)}
+            <ModalButtons>
+              <Button
+                disabled={loading}
+                variant="secondary"
+                onClick={() => confirmationImportModal.hide()}
+              >
+                {formatMessage(messages.cancelLabel)}
+              </Button>
+              <Button
+                icon={<IconArrowLineDown />}
+                disabled={loading}
+                loading={confirmationImportModal.open && loading}
+                onClick={handleStartImport}
+              >
+                {formatMessage(messages.startLabel)}
+              </Button>
+            </ModalButtons>
+          </ModalContent>
         </Modal>
       )}
       <Suspense fallback={null}>

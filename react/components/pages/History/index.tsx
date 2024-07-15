@@ -26,6 +26,7 @@ import {
   messages,
 } from '../../common'
 import { IMPORTS_QUERY, useQueryCustom } from '../../graphql'
+import { statusBeforeFinished } from './common'
 import DeleteConfirmationModal from './DeleteConfirmationModal'
 import ShowImportModal from './ShowImportModal'
 import useImportColumns from './useImportColumns'
@@ -61,10 +62,7 @@ export default function History() {
       variables: { args: DEFAULT_ARGS },
       onCompleted({ imports: { data: imports } }) {
         if (
-          imports.some(
-            (item: Import) =>
-              item.status === 'PENDING' || item.status === 'RUNNING'
-          )
+          imports.some(({ status }: Import) => statusBeforeFinished(status))
         ) {
           setTimeout(() => refetch(), POLLING_INTERVAL)
         }
@@ -98,18 +96,12 @@ export default function History() {
     importModal.show()
   }, [importIdModal, importModal, imports])
 
-  const paginationTotal = data?.imports.pagination.total ?? 0
-
   const items = useMemo(
     () => imports?.filter((item: Import) => !deleted?.includes(item.id)) ?? [],
     [deleted, imports]
   )
 
   const pageSize = items?.length
-  const total = useMemo(() => paginationTotal - deleted.length, [
-    deleted,
-    paginationTotal,
-  ])
 
   const {
     data: tableData,
@@ -122,7 +114,7 @@ export default function History() {
     return <SuspenseFallback />
   }
 
-  if (!total) {
+  if (!pageSize) {
     return (
       <EmptyView
         text={formatMessage(messages.wizardAction)}

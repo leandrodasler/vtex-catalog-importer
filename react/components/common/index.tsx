@@ -185,3 +185,16 @@ export const Tree = <T extends NodeTree>({ data, title }: TreeProps<T>) => {
     </div>
   )
 }
+
+type ModalButtonsProps = { children: React.ReactNode }
+export const ModalButtons = ({ children }: ModalButtonsProps) => (
+  <Stack
+    className={csx({ marginTop: '$space-6' })}
+    fluid
+    space="$space-3"
+    direction={{ mobile: 'column', tablet: 'row' }}
+    align="end"
+  >
+    {children}
+  </Stack>
+)

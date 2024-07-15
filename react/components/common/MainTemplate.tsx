@@ -8,6 +8,7 @@ import {
   PageHeaderBottom,
   PageHeaderTitle,
   PageHeaderTop,
+  Stack,
   Tag,
   ThemeProvider,
   ToastProvider,
@@ -37,17 +38,23 @@ const MainTemplate = ({ children, subtitle, headerActions }: Props) => {
     <ThemeProvider>
       <I18nProvider locale={locale}>
         <ToastProvider>
-          <Page>
+          <Page
+            className={csx({
+              'button[data-size="normal"]': { height: 'auto' },
+            })}
+          >
             <PageHeader className={csx({ paddingBottom: '$space-2' })}>
               <PageHeaderTop>
                 <PageHeaderTitle>
                   {formatMessage(messages.appTitle)}
                 </PageHeaderTitle>
                 <PageHeaderActions>
-                  {headerActions}
-                  <Flex className={csx({ minWidth: 95 })}>
-                    <Tag label={versionText} />
-                  </Flex>
+                  <Stack align="end" space="$space-2">
+                    <Flex className={csx({ minWidth: 95 })}>
+                      <Tag label={versionText} />
+                    </Flex>
+                    {headerActions}
+                  </Stack>
                 </PageHeaderActions>
               </PageHeaderTop>
               <PageHeaderBottom>

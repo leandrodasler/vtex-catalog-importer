@@ -69,10 +69,10 @@
   "admin/import.delete.text": "Os respectivos logs de importação também serão excluídos.",
 
   "admin/import.results.label": "Resultados",
-  "admin/import.results.brands.label": "Marcas importadas",
-  "admin/import.results.categories.label": "Categorias importadas",
-  "admin/import.results.products.label": "Produtos importados",
-  "admin/import.results.skus.label": "SKUs importados",
-  "admin/import.results.prices.label": "Preços importados",
-  "admin/import.results.stocks.label": "Estoques importados"
+  "admin/import.results.brands.label": "Marcas",
+  "admin/import.results.categories.label": "Categorias",
+  "admin/import.results.products.label": "Produtos",
+  "admin/import.results.skus.label": "SKUs",
+  "admin/import.results.prices.label": "Preços",
+  "admin/import.results.stocks.label": "Estoques"
 }

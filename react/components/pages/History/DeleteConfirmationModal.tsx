@@ -5,14 +5,13 @@ import {
   Modal,
   ModalContent,
   ModalDismiss,
-  ModalFooter,
   ModalHeader,
   ModalTitle,
 } from '@vtex/admin-ui'
 import React from 'react'
 import { useIntl } from 'react-intl'
 
-import { messages } from '../../common'
+import { messages, ModalButtons } from '../../common'
 import { useDeleteImport } from './common'
 
 type Props = {
@@ -41,17 +40,19 @@ const DeleteConfirmationModal = ({
         <ModalTitle> {formatMessage(messages.importDelete)}</ModalTitle>
         <ModalDismiss disabled={loading} />
       </ModalHeader>
-      <ModalContent>{formatMessage(messages.importDeleteText)}</ModalContent>
-      <ModalFooter>
-        <Button
-          loading={loading}
-          onClick={handleDelete}
-          variant="critical"
-          icon={<IconTrash />}
-        >
-          {formatMessage(messages.deleteLabel)}
-        </Button>
-      </ModalFooter>
+      <ModalContent>
+        {formatMessage(messages.importDeleteText)}
+        <ModalButtons>
+          <Button
+            loading={loading}
+            onClick={handleDelete}
+            variant="critical"
+            icon={<IconTrash />}
+          >
+            {formatMessage(messages.deleteLabel)}
+          </Button>
+        </ModalButtons>
+      </ModalContent>
     </Modal>
   )
 }

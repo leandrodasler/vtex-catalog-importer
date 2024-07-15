@@ -1,5 +1,5 @@
 import { Card, csx, cx, Inline, Text } from '@vtex/admin-ui'
-import React, { useMemo } from 'react'
+import React from 'react'
 
 import { Checked, Loading, Unchecked } from '../../common'
 import { EntitySkeleton, useLocalePercentage } from './common'
@@ -14,28 +14,23 @@ const totalizerTheme = csx({
 })
 
 const ImportEntityResult = ({ title, current, total, loading }: Props) => {
-  const getPercentage = useLocalePercentage()
-
-  const percentage = useMemo(
-    () => (total ? getPercentage(current / total) : '0%'),
-    [current, getPercentage, total]
-  )
+  const { percentage, localePercentage } = useLocalePercentage(current, total)
 
   return (
     <section>
       <Card className={resultCardTheme}>
-        {percentage !== '100%' && (
+        {current < total && (
           <div className={resultSkeletonTheme}>
-            <EntitySkeleton width={percentage} />
+            <EntitySkeleton width={`${percentage}%`} />
           </div>
         )}
         <Inline align="center" className={resultDetailTheme}>
-          {percentage === '100%' && <Checked />}
-          {percentage !== '100%' && loading && <Loading />}
-          {percentage !== '100%' && !loading && <Unchecked />}
+          {!!current && current === total && <Checked />}
+          {(!current || current !== total) && loading && <Loading />}
+          {(!current || current !== total) && !loading && <Unchecked />}
           <Text variant="title1">{title}: </Text>
           <span className={totalizerTheme}>
-            {current} / {total}
+            {current} / {total} - {localePercentage}
           </span>
         </Inline>
       </Card>
