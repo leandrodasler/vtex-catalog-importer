@@ -23,10 +23,10 @@ import { SuspenseFallback, messages } from '.'
 type Props = {
   children: React.ReactNode
   subtitle: MessageDescriptor
-  onPopNavigation?: () => void
+  headerActions?: React.ReactNode
 }
 
-const MainTemplate = ({ children, subtitle, onPopNavigation }: Props) => {
+const MainTemplate = ({ children, subtitle, headerActions }: Props) => {
   const { locale } = useRuntime().culture
   const { formatMessage } = useIntl()
   const versionText = formatMessage(messages.versionLabel, {
@@ -38,15 +38,13 @@ const MainTemplate = ({ children, subtitle, onPopNavigation }: Props) => {
       <I18nProvider locale={locale}>
         <ToastProvider>
           <Page>
-            <PageHeader
-              className={csx({ paddingBottom: '$space-2' })}
-              onPopNavigation={onPopNavigation}
-            >
+            <PageHeader className={csx({ paddingBottom: '$space-2' })}>
               <PageHeaderTop>
                 <PageHeaderTitle>
                   {formatMessage(messages.appTitle)}
                 </PageHeaderTitle>
                 <PageHeaderActions>
+                  {headerActions}
                   <Flex className={csx({ minWidth: 95 })}>
                     <Tag label={versionText} />
                   </Flex>

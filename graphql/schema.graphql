@@ -50,6 +50,11 @@ type Import {
   importPrices: Boolean!
   stocksOption: StocksOption!
   sourceBrandsTotal: Int!
+  sourceCategoriesTotal: Int!
+  sourceProductsTotal: Int!
+  sourceSkusTotal: Int!
+  sourcePricesTotal: Int!
+  sourceStocksTotal: Int!
   stockValue: Int
   status: ImportStatus!
   error: String

@@ -10,6 +10,11 @@
     "stocksOption": { "type": "string" },
     "stockValue": { "type": ["integer", "null"] },
     "sourceBrandsTotal": { "type": ["integer"] },
+    "sourceCategoriesTotal": { "type": ["integer"] },
+    "sourceProductsTotal": { "type": ["integer"] },
+    "sourceSkusTotal": { "type": ["integer"] },
+    "sourcePricesTotal": { "type": ["integer"] },
+    "sourceStocksTotal": { "type": ["integer"] },
     "status": { "type": "string" },
     "error": { "type": ["string", "null"] }
   },

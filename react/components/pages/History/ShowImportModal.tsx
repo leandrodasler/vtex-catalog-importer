@@ -37,6 +37,8 @@ const firstColumnTheme = csx({
   },
 })
 
+const POLLING_INTERVAL = 100
+
 const ShowImportModal = ({ modalState, id }: Props) => {
   const { formatMessage } = useIntl()
 
@@ -46,11 +48,37 @@ const ShowImportModal = ({ modalState, id }: Props) => {
   >(IMPORT_PROGRESS_QUERY, {
     skip: !id,
     variables: { id },
-    onCompleted({ importProgress: { currentImport, brands } }) {
-      const { status, sourceBrandsTotal } = currentImport
+    onCompleted({
+      importProgress: {
+        currentImport,
+        brands,
+        categories,
+        products,
+        skus,
+        prices,
+        stocks,
+      },
+    }) {
+      const {
+        status,
+        sourceBrandsTotal,
+        sourceCategoriesTotal,
+        sourceProductsTotal,
+        sourceSkusTotal,
+        sourcePricesTotal,
+        sourceStocksTotal,
+      } = currentImport
 
-      if (status !== 'ERROR' && brands < sourceBrandsTotal) {
-        refetch()
+      if (
+        status !== 'ERROR' &&
+        (brands < sourceBrandsTotal ||
+          categories < sourceCategoriesTotal ||
+          products < sourceProductsTotal ||
+          skus < sourceSkusTotal ||
+          prices < sourcePricesTotal ||
+          stocks < sourceStocksTotal)
+      ) {
+        setTimeout(() => refetch(), POLLING_INTERVAL)
       }
     },
   })

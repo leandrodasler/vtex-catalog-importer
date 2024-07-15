@@ -13,7 +13,15 @@ export const deleteImports = async (
     return []
   }
 
-  batch(ids, (id) => importExecution.delete(id))
+  batch(ids, (id) =>
+    id === '*'
+      ? entityGetAll(importExecution, {
+          fields: ['id'],
+        }).then((data) =>
+          batch(data, ({ id: importId }) => importExecution.delete(importId))
+        )
+      : importExecution.delete(id)
+  )
 
   entityGetAll(importEntity, {
     fields: ['id'],

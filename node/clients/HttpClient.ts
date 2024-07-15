@@ -22,7 +22,6 @@ export default class HttpClient extends ExternalClient {
       ...this.options,
       headers: {
         ...this.options?.headers,
-        // VtexIdclientAutcookie: this.context.adminUserAuthToken as string,
         ...(vtexAppKey && { 'X-VTEX-API-AppKey': vtexAppKey }),
         ...(vtexAppToken && { 'X-VTEX-API-AppToken': vtexAppToken }),
       },
@@ -44,11 +43,7 @@ export default class HttpClient extends ExternalClient {
     const config = this.getRequestConfig()
 
     // eslint-disable-next-line no-console
-    console.log('======================================================')
-    // eslint-disable-next-line no-console
     console.log(`HttpClient - ${method}:`, { headers: config.headers, url })
-    // eslint-disable-next-line no-console
-    console.log('======================================================')
 
     const getData = (response: IOResponse<Response>) => response.data
 

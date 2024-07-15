@@ -74,12 +74,9 @@ export default {
       asyncSetCache: true,
     },
     events: {
-      exponentialTimeoutCoefficient: 2,
-      exponentialBackoffCoefficient: 2,
-      initialBackoffDelay: 50,
-      retries: 1,
-      timeout: 60000,
-      concurrency: CONCURRENCY,
+      retries: 0,
+      timeout: 300000,
+      concurrency: 1,
     },
   },
 } as ClientsConfig<Clients>

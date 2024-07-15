@@ -26,7 +26,6 @@ import {
   messages,
 } from '../../common'
 import { IMPORTS_QUERY, useQueryCustom } from '../../graphql'
-import { POLLING_INTERVAL } from './common'
 import DeleteConfirmationModal from './DeleteConfirmationModal'
 import ShowImportModal from './ShowImportModal'
 import useImportColumns from './useImportColumns'
@@ -39,6 +38,7 @@ const DEFAULT_ARGS = {
 }
 
 const tableContainerTheme = csx({ maxWidth: '100%', overflow: 'auto' })
+const POLLING_INTERVAL = 3000
 
 export default function History() {
   const { formatMessage } = useIntl()

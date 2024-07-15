@@ -20,7 +20,7 @@
   "admin/settings.default.short": "Padrão",
   "admin/settings.custom.label": "Fornecer configurações personalizadas",
   "admin/settings.account.label": "Conta VTEX de origem",
-  "admin/settings.account.helpText": "Conta VTEX de onde o catálogo será importado",
+  "admin/settings.account.helpText": "Conta VTEX da qual o catálogo será importado",
   "admin/settings.appKey.label": "VTEX app key",
   "admin/settings.appKey.helpText": "App key da conta de origem",
   "admin/settings.appToken.label": "VTEX app token",
@@ -49,7 +49,7 @@
   "admin/start.label": "Iniciar importação",
   "admin/start.confirmation": "Está certo de que deseja iniciar a importação?",
   "admin/start.text": "A importação iniciará em segundo plano e o catálogo será atualizado. Os registros da importação estarão disponíveis na página Histórico de Importações.",
-  "admin/start.success": "O processo de importação foi iniciado com sucesso. Você será redirecionado para a página Histórico de Importações em {seconds} segundos para visualizar os registros da importação.",
+  "admin/start.success": "O processo de importação foi iniciado com sucesso.",
 
   "admin/import.label": "Detalhes da importação",
   "admin/import.user.label": "Usuário",

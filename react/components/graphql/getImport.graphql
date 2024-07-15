@@ -51,6 +51,11 @@ query getImport($id: ID!) {
     stocksOption
     stockValue
     sourceBrandsTotal
+    sourceCategoriesTotal
+    sourceProductsTotal
+    sourceSkusTotal
+    sourcePricesTotal
+    sourceStocksTotal
     status
     error
   }

@@ -1,13 +1,48 @@
 /* eslint-disable no-console */
 
-import { printStep } from '..'
+import { delay, handleError, printImport, updateImport } from '../../helpers'
 
 const handleProducts = async (context: AppEventContext) => {
-  context.state.step = 'products'
-  printStep(context)
-  console.log('process products')
+  try {
+    if (context.state.body.error) return
 
-  // TODO: process products import
+    context.state.step = 'products'
+    printImport(context)
+    // TODO: process products import
+    const { importEntity } = context.clients
+    const { id = '', settings = {} } = context.state.body
+
+    await updateImport(context, { sourceProductsTotal: 3 })
+
+    await delay(1000)
+    await importEntity.save({
+      executionImportId: id,
+      name: 'product',
+      sourceAccount: settings.account ?? '',
+      sourceId: '1',
+      payload: { name: 'product 1' },
+    })
+
+    await delay(1000)
+    await importEntity.save({
+      executionImportId: id,
+      name: 'product',
+      sourceAccount: settings.account ?? '',
+      sourceId: '2',
+      payload: { name: 'product 2' },
+    })
+
+    await delay(1000)
+    await importEntity.save({
+      executionImportId: id,
+      name: 'product',
+      sourceAccount: settings.account ?? '',
+      sourceId: '3',
+      payload: { name: 'product 3' },
+    })
+  } catch (error) {
+    await handleError(context, error)
+  }
 }
 
 export default handleProducts

@@ -76,7 +76,7 @@ export const Unchecked = () => {
   )
 }
 
-export const Loading = () => <Spinner size={16} />
+export const Loading = () => <Spinner size={20} />
 
 type EmptyViewProps = { text: string; onClick: () => void }
 

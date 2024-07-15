@@ -4,6 +4,7 @@ import {
   Flex,
   IconArrowLeft,
   IconArrowLineDown,
+  IconEye,
   Modal,
   ModalContent,
   ModalDismiss,
@@ -16,7 +17,7 @@ import {
   useModalState,
   useToast,
 } from '@vtex/admin-ui'
-import React, { useCallback, useMemo } from 'react'
+import React, { Suspense, lazy, useCallback, useMemo } from 'react'
 import { useMutation } from 'react-apollo'
 import { useIntl } from 'react-intl'
 import type {
@@ -30,7 +31,6 @@ import { IMPORT_OPTIONS, STOCK_OPTIONS } from '.'
 import {
   Tree,
   categoryTreeMapper,
-  goToHistoryPage,
   messages,
   treeSorter,
   useStockOptionLabel,
@@ -41,6 +41,8 @@ import {
 } from '../../graphql'
 import { ImportOption, buildTree, mapToCategoryInput } from './common'
 
+const ShowImportModal = lazy(() => import('../History/ShowImportModal'))
+
 interface StartProcessingProps {
   checkedTreeOptions: CheckedCategories
   optionsChecked: Options
@@ -48,8 +50,6 @@ interface StartProcessingProps {
   settings: AppSettingsInput
   setSuccessImport: React.Dispatch<React.SetStateAction<boolean>>
 }
-
-const NAVIGATE_DELAY = 10000
 
 const StartProcessing: React.FC<StartProcessingProps> = ({
   checkedTreeOptions,
@@ -61,6 +61,7 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
   const { formatMessage } = useIntl()
   const showToast = useToast()
   const confirmationImportModal = useModalState()
+  const importModal = useModalState()
   const getStockOptionLabel = useStockOptionLabel()
 
   const [executeImport, { loading, data: importData }] = useMutation<
@@ -82,21 +83,13 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
 
       setSuccessImport(true)
       confirmationImportModal.hide()
+      importModal.show()
 
       showToast({
-        message: formatMessage(messages.startSuccess, {
-          seconds: NAVIGATE_DELAY / 1000,
-        }),
-        action: {
-          label: formatMessage(messages.historyAction),
-          onClick: () => goToHistoryPage(data.executeImport),
-        },
-        duration: NAVIGATE_DELAY,
+        message: formatMessage(messages.startSuccess),
         variant: 'positive',
         key: 'execute-import-message',
       })
-
-      setTimeout(() => goToHistoryPage(data.executeImport), NAVIGATE_DELAY)
     },
   })
 
@@ -204,38 +197,54 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
           {formatMessage(messages.previousLabel)}
         </Button>
         <Button
-          icon={<IconArrowLineDown />}
-          disabled={disabledButtons}
+          icon={importData?.executeImport ? <IconEye /> : <IconArrowLineDown />}
+          disabled={loading || importModal.open}
           loading={loading}
-          onClick={() => confirmationImportModal.show()}
+          onClick={
+            importData?.executeImport
+              ? () => importModal.show()
+              : () => confirmationImportModal.show()
+          }
         >
-          {formatMessage(messages.startLabel)}
+          {importData?.executeImport
+            ? formatMessage(messages.importViewLabel)
+            : formatMessage(messages.startLabel)}
         </Button>
       </Flex>
-      <Modal state={confirmationImportModal}>
-        <ModalHeader>
-          <ModalTitle>{formatMessage(messages.startConfirmation)}</ModalTitle>
-          <ModalDismiss />
-        </ModalHeader>
-        <ModalContent>{formatMessage(messages.startText)}</ModalContent>
-        <ModalFooter>
-          <Button
-            disabled={disabledButtons}
-            variant="secondary"
-            onClick={() => confirmationImportModal.hide()}
-          >
-            {formatMessage(messages.cancelLabel)}
-          </Button>
-          <Button
-            icon={<IconArrowLineDown />}
-            disabled={disabledButtons}
-            loading={confirmationImportModal.open && loading}
-            onClick={handleStartImport}
-          >
-            {formatMessage(messages.startLabel)}
-          </Button>
-        </ModalFooter>
-      </Modal>
+      {confirmationImportModal.open && (
+        <Modal state={confirmationImportModal}>
+          <ModalHeader>
+            <ModalTitle>{formatMessage(messages.startConfirmation)}</ModalTitle>
+            <ModalDismiss />
+          </ModalHeader>
+          <ModalContent>{formatMessage(messages.startText)}</ModalContent>
+          <ModalFooter>
+            <Button
+              disabled={disabledButtons}
+              variant="secondary"
+              onClick={() => confirmationImportModal.hide()}
+            >
+              {formatMessage(messages.cancelLabel)}
+            </Button>
+            <Button
+              icon={<IconArrowLineDown />}
+              disabled={disabledButtons}
+              loading={confirmationImportModal.open && loading}
+              onClick={handleStartImport}
+            >
+              {formatMessage(messages.startLabel)}
+            </Button>
+          </ModalFooter>
+        </Modal>
+      )}
+      <Suspense fallback={null}>
+        {importModal.open && importData?.executeImport && (
+          <ShowImportModal
+            modalState={importModal}
+            id={importData.executeImport}
+          />
+        )}
+      </Suspense>
     </Stack>
   )
 }

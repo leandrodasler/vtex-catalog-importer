@@ -29,6 +29,11 @@ export const IMPORT_EXECUTION_FIELDS = [
   'stocksOption',
   'stockValue',
   'sourceBrandsTotal',
+  'sourceCategoriesTotal',
+  'sourceProductsTotal',
+  'sourceSkusTotal',
+  'sourcePricesTotal',
+  'sourceStocksTotal',
   'status',
   'error',
 ]

@@ -32,5 +32,21 @@ export const importProgress = async (
     )
   )
 
-  return { currentImport, brands, categories, products, skus, prices, stocks }
+  return {
+    currentImport: {
+      ...currentImport,
+      sourceBrandsTotal: currentImport.sourceBrandsTotal ?? 0,
+      sourceCategoriesTotal: currentImport.sourceCategoriesTotal ?? 0,
+      sourceProductsTotal: currentImport.sourceProductsTotal ?? 0,
+      sourceSkusTotal: currentImport.sourceSkusTotal ?? 0,
+      sourcePricesTotal: currentImport.sourcePricesTotal ?? 0,
+      sourceStocksTotal: currentImport.sourceStocksTotal ?? 0,
+    },
+    brands,
+    categories,
+    products,
+    skus,
+    prices,
+    stocks,
+  }
 }

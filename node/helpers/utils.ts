@@ -1,10 +1,12 @@
+/* eslint-disable no-console */
+import type { ErrorLike } from '@vtex/api'
 import type {
   MasterDataEntity,
   ScrollInput,
 } from '@vtex/clients/build/clients/masterData/MasterDataEntity'
 import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
-import { ENDPOINTS } from '.'
+import { ENDPOINTS, IMPORT_STATUS } from '.'
 
 export const getCurrentSettings = async ({ clients: { apps } }: Context) =>
   apps.getAppSettings(process.env.VTEX_APP_ID as string) as AppSettingsInput
@@ -25,7 +27,8 @@ export const httpGetResolverFactory = <Response>(url: string) => async (
   context: Context
 ) => context.clients.httpClient.get<Response>(url)
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+export const delay = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms))
 
 export const entityGetAll = async <T extends Record<string, T | unknown>>(
   client: MasterDataEntity<WithInternalFields<T>>,
@@ -85,4 +88,44 @@ export const updateImport = async (
     .update(context.state.body.id, fields)
     .then(() => (context.state.body = { ...context.state.body, ...fields }))
     .catch(() => {})
+}
+
+export const printImport = (context: AppEventContext) => {
+  const {
+    step,
+    body: {
+      id,
+      status,
+      sourceBrandsTotal,
+      sourceCategoriesTotal,
+      sourceProductsTotal,
+      sourceSkusTotal,
+      sourcePricesTotal,
+      sourceStocksTotal,
+      error,
+    },
+  } = context.state
+
+  if (step) {
+    console.log('========================')
+    console.log(`"${step}" import step`)
+  }
+
+  console.log(
+    `IMPORT #${id} - status: ${status} | sourceBrandsTotal: ${sourceBrandsTotal} | sourceCategoriesTotal: ${sourceCategoriesTotal} | sourceProductsTotal: ${sourceProductsTotal} | sourceSkusTotal: ${sourceSkusTotal} | sourcePricesTotal: ${sourcePricesTotal} | sourceStocksTotal: ${sourceStocksTotal} | error: ${error}`
+  )
+}
+
+export const handleError = async (context: AppEventContext, e: ErrorLike) => {
+  const step = context.state.step ? ` at step "${context.state.step}"` : ''
+  const errorDetailMessage = e.response?.data?.Message
+  const errorDetail = errorDetailMessage ? ` - ${errorDetailMessage}` : ''
+  const error = `Error${step}: ${e.message}${errorDetail}`
+
+  console.log('========================')
+  console.log(error)
+  context.state.step = ''
+  printImport(context)
+
+  await updateImport(context, { status: IMPORT_STATUS.ERROR, error })
 }

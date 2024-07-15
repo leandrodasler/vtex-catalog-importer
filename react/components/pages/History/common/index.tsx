@@ -61,8 +61,6 @@ export const useLocalePercentage = () => {
   )
 }
 
-export const POLLING_INTERVAL = 3000
-
 type EntitySkeletonProps = { width?: string | number }
 export const EntitySkeleton = ({ width }: EntitySkeletonProps) => (
   <Skeleton className={csx({ height: 30, width })} />
