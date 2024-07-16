@@ -40,7 +40,10 @@ const MainTemplate = ({ children, subtitle, headerActions }: Props) => {
         <ToastProvider>
           <Page
             className={csx({
-              'button[data-size="normal"]': { height: 'auto' },
+              'button[data-size="normal"]': {
+                height: 'auto',
+                minHeight: '2.25rem',
+              },
             })}
           >
             <PageHeader className={csx({ paddingBottom: '$space-2' })}>

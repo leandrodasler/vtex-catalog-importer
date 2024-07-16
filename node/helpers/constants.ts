@@ -63,14 +63,14 @@ export const IMPORT_STATUS: { [key in ImportStatus]: ImportStatus } = {
   ERROR: 'ERROR',
 }
 
-const MAP_ENTITY_STEP_HANDLER = {
-  brand: handleBrands,
-  category: handleCategories,
-  product: handleProducts,
-  sku: handleSkus,
-  price: handlePrices,
-  stock: handleStocks,
-}
+export const STEPS = [
+  { entity: 'brand', handler: handleBrands },
+  { entity: 'category', handler: handleCategories },
+  { entity: 'product', handler: handleProducts },
+  { entity: 'sku', handler: handleSkus },
+  { entity: 'price', handler: handlePrices },
+  { entity: 'stock', handler: handleStocks },
+]
 
-export const STEPS_ENTITIES = Object.keys(MAP_ENTITY_STEP_HANDLER)
-export const STEPS_HANDLERS = Object.values(MAP_ENTITY_STEP_HANDLER)
+export const STEPS_ENTITIES = STEPS.map(({ entity }) => entity)
+export const STEPS_HANDLERS = STEPS.map(({ handler }) => handler)

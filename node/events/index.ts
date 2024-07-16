@@ -5,6 +5,7 @@ import {
   handleError,
   IMPORT_EXECUTION_FULL_FIELDS,
   IMPORT_STATUS,
+  processStepFactory,
   STEPS_HANDLERS,
   updateImport,
 } from '../helpers'
@@ -34,7 +35,7 @@ const runImport = async (context: AppEventContext) => {
     context.state.body = { ...importData, settings }
 
     await updateImport(context, { status: IMPORT_STATUS.RUNNING })
-    batch(STEPS_HANDLERS, (step) => step(context), 1)
+    batch(STEPS_HANDLERS, processStepFactory(context), 1)
   } catch (error) {
     await handleError(context, error)
   }

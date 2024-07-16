@@ -1,12 +1,12 @@
 /* eslint-disable no-console */
-import type { ErrorLike } from '@vtex/api'
+import type { ErrorLike, Maybe } from '@vtex/api'
 import type {
   MasterDataEntity,
   ScrollInput,
 } from '@vtex/clients/build/clients/masterData/MasterDataEntity'
 import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
-import { ENDPOINTS, IMPORT_STATUS } from '.'
+import { ENDPOINTS, IMPORT_STATUS, STEPS } from '.'
 
 export const getCurrentSettings = async ({ clients: { apps } }: Context) =>
   apps.getAppSettings(process.env.VTEX_APP_ID as string) as AppSettingsInput
@@ -65,7 +65,7 @@ const DEFAULT_BATCH_CONCURRENCY = 1000
 
 export const batch = async <T>(
   data: T[],
-  elementCallback: (element: T) => Promise<unknown>,
+  elementCallback: (element: T) => Maybe<Promise<unknown>>,
   concurrency = DEFAULT_BATCH_CONCURRENCY
 ) => {
   const cloneData = [...data]
@@ -93,6 +93,7 @@ export const updateImport = async (
 export const printImport = (context: AppEventContext) => {
   const {
     step,
+    entity,
     body: {
       id,
       status,
@@ -108,7 +109,7 @@ export const printImport = (context: AppEventContext) => {
 
   if (step) {
     console.log('========================')
-    console.log(`"${step}" import step`)
+    console.log(`"${step}" import step for entity "${entity}"`)
   }
 
   console.log(
@@ -127,5 +128,18 @@ export const handleError = async (context: AppEventContext, e: ErrorLike) => {
   context.state.step = ''
   printImport(context)
 
+  await delay(1000)
   await updateImport(context, { status: IMPORT_STATUS.ERROR, error })
+}
+
+export const processStepFactory = (context: AppEventContext) => (
+  step: (context: AppEventContext) => Promise<void>
+) => {
+  if (context.state.body.error) return
+
+  context.state.step = step.name
+  context.state.entity = STEPS.find(({ handler }) => handler === step)?.entity
+  printImport(context)
+
+  return step(context).catch((e) => handleError(context, e))
 }
