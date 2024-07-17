@@ -58,6 +58,7 @@ type Import {
   stockValue: Int
   status: ImportStatus!
   error: String
+  entityError: String
 }
 
 input ImportInput {

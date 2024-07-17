@@ -16,7 +16,8 @@
     "sourcePricesTotal": { "type": ["integer"] },
     "sourceStocksTotal": { "type": ["integer"] },
     "status": { "type": "string" },
-    "error": { "type": ["string", "null"] }
+    "error": { "type": ["string", "null"] },
+    "entityError": { "type": ["string", "null"] }
   },
   "v-cache": false
 }

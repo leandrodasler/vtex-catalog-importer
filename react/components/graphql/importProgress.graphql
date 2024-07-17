@@ -59,6 +59,7 @@ query importProgress($id: ID!) {
       sourceStocksTotal
       status
       error
+      entityError
     }
     brands
     categories

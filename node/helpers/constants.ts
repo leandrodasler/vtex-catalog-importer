@@ -36,6 +36,7 @@ export const IMPORT_EXECUTION_FIELDS = [
   'sourceStocksTotal',
   'status',
   'error',
+  'entityError',
 ]
 
 export const IMPORT_EXECUTION_FULL_FIELDS = [

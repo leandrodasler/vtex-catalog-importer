@@ -9,6 +9,7 @@ import {
   IconXCircle,
   Spinner,
   Stack,
+  Text,
   csx,
   useDataViewState,
 } from '@vtex/admin-ui'
@@ -25,26 +26,34 @@ import { messages } from './messages'
 export { default as MainTemplate } from './MainTemplate'
 export { messages } from './messages'
 
-type ErrorMessageProps = { error: GraphQLError; title?: MessageDescriptor }
-
 export const SuspenseFallback = () => (
   <Center className={csx({ height: '25vh', width: '100%' })}>
     <Spinner />
   </Center>
 )
 
+type ErrorMessageProps = {
+  error: string | GraphQLError
+  title?: string | MessageDescriptor
+}
 export const ErrorMessage = ({ error, title }: ErrorMessageProps) => {
   const { formatMessage } = useIntl()
 
   return (
-    <Center>
-      <Alert variant="critical">
-        <Stack space="$space-4">
-          {title && <span>{formatMessage(title)}</span>}
-          <span>{formatMessage(getGraphQLMessageDescriptor(error))}</span>
-        </Stack>
-      </Alert>
-    </Center>
+    <Alert variant="critical">
+      <Stack space="$space-2">
+        {title && (
+          <Text variant="action1">
+            {typeof title === 'string' ? title : formatMessage(title)}
+          </Text>
+        )}
+        <Text>
+          {typeof error === 'string'
+            ? error
+            : formatMessage(getGraphQLMessageDescriptor(error))}
+        </Text>
+      </Stack>
+    </Alert>
   )
 }
 
@@ -79,7 +88,6 @@ export const Unchecked = () => {
 export const Loading = () => <Spinner size={20} />
 
 type EmptyViewProps = { text: string; onClick: () => void }
-
 export const EmptyView = ({ text, onClick }: EmptyViewProps) => {
   const state = useDataViewState({
     notFound: false,
@@ -107,6 +115,21 @@ export const useStockOptionLabel = () => {
     formatMessage(messages[`options${option}` as keyof typeof messages])
 }
 
+export const useEntityLabel = () => {
+  const { formatMessage } = useIntl()
+
+  return (entityError: Import['entityError']) =>
+    entityError
+      ? formatMessage(messages.importResultsErrorLabel, {
+          entity: formatMessage(
+            messages[
+              `importResults${entityError.toUpperCase()}Label` as keyof typeof messages
+            ]
+          ).toLowerCase(),
+        })
+      : ''
+}
+
 export const goToHistoryPage = (id?: string) => {
   const queryId = id ? `?id=${id}` : ''
 
@@ -118,7 +141,6 @@ export const goToWizardPage = () => {
 }
 
 type TreeSorterField = { name: string }
-
 export const treeSorter = (a: TreeSorterField, b: TreeSorterField) =>
   a.name.localeCompare(b.name)
 
@@ -144,7 +166,6 @@ const treeNodeTheme = csx({
 
 type NodeTree = { name: string }
 type TreeProps<T extends NodeTree> = { data: T[]; title: string }
-
 export const Tree = <T extends NodeTree>({ data, title }: TreeProps<T>) => {
   const children = useMemo(() => [{ name: title, children: data ?? [] }], [
     data,

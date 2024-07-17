@@ -1,6 +1,7 @@
 import type { TabState } from '@vtex/admin-ui'
 import {
   Button,
+  Center,
   Checkbox,
   Flex,
   IconArrowLeft,
@@ -229,10 +230,12 @@ const CategoryTree = ({
         {formatMessage(messages.reloadLabel)}
       </Button>
       {errorCategories && (
-        <ErrorMessage
-          error={errorCategories}
-          title={messages.categoriesSourceError}
-        />
+        <Center>
+          <ErrorMessage
+            error={errorCategories}
+            title={messages.categoriesSourceError}
+          />
+        </Center>
       )}
       {loadingCategories && <SuspenseFallback />}
       {!loadingCategories &&

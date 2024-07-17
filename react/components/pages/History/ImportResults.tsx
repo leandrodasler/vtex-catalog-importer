@@ -3,80 +3,93 @@ import React from 'react'
 import { useIntl } from 'react-intl'
 import type { ImportProgress } from 'ssesandbox04.catalog-importer'
 
-import { messages } from '../../common'
+import { ErrorMessage, messages, useEntityLabel } from '../../common'
 import ImportEntityResult from './ImportEntityResult'
 
 type Props = { importProgress?: ImportProgress; loading: boolean }
 
-const ENTITIES_DEFAULT = {
-  brands: 0,
-  categories: 0,
-  products: 0,
-  skus: 0,
-  prices: 0,
-  stocks: 0,
-}
-
 const ImportResults = ({ importProgress, loading }: Props) => {
   const { formatMessage } = useIntl()
-  const currentImport = importProgress?.currentImport
+  const getEntityLabel = useEntityLabel()
 
-  if (!currentImport) {
+  if (!importProgress) {
     return null
   }
 
   const {
-    sourceBrandsTotal,
-    sourceCategoriesTotal,
-    sourceProductsTotal,
-    sourceSkusTotal,
-    sourcePricesTotal,
-    sourceStocksTotal,
-  } = currentImport
+    currentImport: {
+      error,
+      entityError,
+      sourceBrandsTotal,
+      sourceCategoriesTotal,
+      sourceProductsTotal,
+      sourceSkusTotal,
+      sourcePricesTotal,
+      sourceStocksTotal,
+    },
+    brands,
+    categories,
+    products,
+    skus,
+    prices,
+    stocks,
+  } = importProgress
 
-  const importEntities = importProgress ?? ENTITIES_DEFAULT
-  const { brands, categories, products, skus, prices, stocks } = importEntities
+  const errorTitle = getEntityLabel(entityError)
 
   return (
     <Stack space="$space-2" fluid>
       <Text variant="title1">{formatMessage(messages.importResultsLabel)}</Text>
-      {currentImport.error && (
-        <section>
-          <Text tone="critical">{currentImport.error}</Text>
-        </section>
+      {error && (!entityError || entityError === 'brand') && (
+        <ErrorMessage error={error} title={errorTitle} />
       )}
       <ImportEntityResult
-        title={formatMessage(messages.importResultsBrandsLabel)}
+        title={formatMessage(messages.importResultsBRANDLabel)}
         current={brands}
         total={sourceBrandsTotal}
         loading={loading}
       />
+      {error && entityError === 'category' && (
+        <ErrorMessage error={error} title={errorTitle} />
+      )}
       <ImportEntityResult
-        title={formatMessage(messages.importResultsCategoriesLabel)}
+        title={formatMessage(messages.importResultsCATEGORYLabel)}
         current={categories}
         total={sourceCategoriesTotal}
         loading={loading}
       />
+      {error && entityError === 'product' && (
+        <ErrorMessage error={error} title={errorTitle} />
+      )}
       <ImportEntityResult
-        title={formatMessage(messages.importResultsProductsLabel)}
+        title={formatMessage(messages.importResultsPRODUCTLabel)}
         current={products}
         total={sourceProductsTotal}
         loading={loading}
       />
+      {error && entityError === 'sku' && (
+        <ErrorMessage error={error} title={errorTitle} />
+      )}
       <ImportEntityResult
-        title={formatMessage(messages.importResultsSkusLabel)}
+        title={formatMessage(messages.importResultsSKULabel)}
         current={skus}
         total={sourceSkusTotal}
         loading={loading}
       />
+      {error && entityError === 'price' && (
+        <ErrorMessage error={error} title={errorTitle} />
+      )}
       <ImportEntityResult
-        title={formatMessage(messages.importResultsPricesLabel)}
+        title={formatMessage(messages.importResultsPRICELabel)}
         current={prices}
         total={sourcePricesTotal}
         loading={loading}
       />
+      {error && entityError === 'stock' && (
+        <ErrorMessage error={error} title={errorTitle} />
+      )}
       <ImportEntityResult
-        title={formatMessage(messages.importResultsStocksLabel)}
+        title={formatMessage(messages.importResultsSTOCKLabel)}
         current={stocks}
         total={sourceStocksTotal}
         loading={loading}

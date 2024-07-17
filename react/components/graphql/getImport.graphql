@@ -58,5 +58,6 @@ query getImport($id: ID!) {
     sourceStocksTotal
     status
     error
+    entityError
   }
 }

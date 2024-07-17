@@ -54,7 +54,6 @@ declare global {
   type Context = ServiceContext<Clients, ServiceState>
   type EventState = {
     body: Partial<ProcessImport>
-    step?: string
     entity?: string
   }
   type AppEventContext = EventContext<Clients, EventState>

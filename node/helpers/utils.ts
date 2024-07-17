@@ -92,7 +92,6 @@ export const updateImport = async (
 
 export const printImport = (context: AppEventContext) => {
   const {
-    step,
     entity,
     body: {
       id,
@@ -104,32 +103,37 @@ export const printImport = (context: AppEventContext) => {
       sourcePricesTotal,
       sourceStocksTotal,
       error,
+      entityError,
     },
   } = context.state
 
-  if (step) {
+  if (entity) {
     console.log('========================')
-    console.log(`"${step}" import step for entity "${entity}"`)
+    console.log(`import step for entity "${entity}"`)
   }
 
   console.log(
-    `IMPORT #${id} - status: ${status} | sourceBrandsTotal: ${sourceBrandsTotal} | sourceCategoriesTotal: ${sourceCategoriesTotal} | sourceProductsTotal: ${sourceProductsTotal} | sourceSkusTotal: ${sourceSkusTotal} | sourcePricesTotal: ${sourcePricesTotal} | sourceStocksTotal: ${sourceStocksTotal} | error: ${error}`
+    `IMPORT #${id} - status: ${status} | sourceBrandsTotal: ${sourceBrandsTotal} | sourceCategoriesTotal: ${sourceCategoriesTotal} | sourceProductsTotal: ${sourceProductsTotal} | sourceSkusTotal: ${sourceSkusTotal} | sourcePricesTotal: ${sourcePricesTotal} | sourceStocksTotal: ${sourceStocksTotal} | error: ${error} | entityError: ${entityError}`
   )
 }
 
 export const handleError = async (context: AppEventContext, e: ErrorLike) => {
-  const step = context.state.step ? ` at step "${context.state.step}"` : ''
   const errorDetailMessage = e.response?.data?.Message
   const errorDetail = errorDetailMessage ? ` - ${errorDetailMessage}` : ''
-  const error = `Error${step}: ${e.message}${errorDetail}`
+  const error = `${e.message}${errorDetail}`
+  const entityError = context.state.entity
 
   console.log('========================')
   console.log(error)
-  context.state.step = ''
-  printImport(context)
 
   await delay(1000)
-  await updateImport(context, { status: IMPORT_STATUS.ERROR, error })
+  await updateImport(context, {
+    status: IMPORT_STATUS.ERROR,
+    error,
+    entityError,
+  })
+
+  printImport(context)
 }
 
 export const processStepFactory = (context: AppEventContext) => (
@@ -137,7 +141,6 @@ export const processStepFactory = (context: AppEventContext) => (
 ) => {
   if (context.state.body.error) return
 
-  context.state.step = step.name
   context.state.entity = STEPS.find(({ handler }) => handler === step)?.entity
   printImport(context)
 

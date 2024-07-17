@@ -69,10 +69,11 @@
   "admin/import.delete.text": "The respective import logs will also be deleted.",
 
   "admin/import.results.label": "Results",
-  "admin/import.results.brands.label": "Brands",
-  "admin/import.results.categories.label": "Categories",
-  "admin/import.results.products.label": "Products",
-  "admin/import.results.skus.label": "SKUs",
-  "admin/import.results.prices.label": "Prices",
-  "admin/import.results.stocks.label": "Stocks"
+  "admin/import.results.error.label": "Error when importing {entity}:",
+  "admin/import.results.brand.label": "Brands",
+  "admin/import.results.category.label": "Categories",
+  "admin/import.results.product.label": "Products",
+  "admin/import.results.sku.label": "SKUs",
+  "admin/import.results.price.label": "Prices",
+  "admin/import.results.stock.label": "Stocks"
 }

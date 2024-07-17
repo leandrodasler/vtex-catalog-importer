@@ -148,7 +148,9 @@ export default function Wizard() {
         <Suspense key="step-1" fallback={<SuspenseFallback />}>
           {state.selectedId === '1' && loading && <SuspenseFallback />}
           {state.selectedId === '1' && error && (
-            <ErrorMessage error={error} title={messages.settingsError} />
+            <Center>
+              <ErrorMessage error={error} title={messages.settingsError} />
+            </Center>
           )}
           {state.selectedId === '1' && !loading && !error && (
             <Settings
