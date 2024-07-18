@@ -1,6 +1,7 @@
 import type { MutationExecuteImportArgs } from 'ssesandbox04.catalog-importer'
 
 import { IMPORT_STATUS } from '../../helpers'
+import { setCacheContext } from '../../helpers/pendingImportsTimer'
 
 export const executeImport = async (
   _: unknown,
@@ -17,14 +18,15 @@ export const executeImport = async (
     .save(entityPayload)
     .then((response) => response.DocumentId)
 
-  const eventPayload = {
-    ...entityPayload,
-    id,
-    settings: context.state.settings,
-    categoryTree: undefined,
-  }
+  // const eventPayload = {
+  //   ...entityPayload,
+  //   id,
+  //   categoryTree: undefined,
+  // }
 
-  context.clients.events.sendEvent('', 'runImport', eventPayload)
+  // context.clients.events.sendEvent('', 'runImport', eventPayload)
+
+  setCacheContext(context)
 
   return id
 }

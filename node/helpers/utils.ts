@@ -13,7 +13,7 @@ export const getCurrentSettings = async ({ clients: { apps } }: Context) =>
 
 export const getDefaultSettings = async ({
   clients: { httpClient },
-}: Context) =>
+}: Context | AppEventContext) =>
   httpClient
     .get<AppSettingsInput>(ENDPOINTS.defaultSettings)
     .catch(() => {

@@ -19,5 +19,6 @@
     "error": { "type": ["string", "null"] },
     "entityError": { "type": ["string", "null"] }
   },
+  "v-indexed": ["user", "status"],
   "v-cache": false
 }

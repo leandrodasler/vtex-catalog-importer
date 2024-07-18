@@ -62,7 +62,11 @@ export const IMPORT_STATUS: { [key in ImportStatus]: ImportStatus } = {
   RUNNING: 'RUNNING',
   SUCCESS: 'SUCCESS',
   ERROR: 'ERROR',
+  DELETING: 'DELETING',
+  DELETED: 'DELETED',
 }
+
+export const COMMON_WHERE = `(status<>${IMPORT_STATUS.DELETING})AND(status<>${IMPORT_STATUS.DELETED})`
 
 export const STEPS = [
   { entity: 'brand', handler: handleBrands },

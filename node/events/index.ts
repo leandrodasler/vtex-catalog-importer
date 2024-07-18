@@ -2,6 +2,7 @@
 
 import {
   batch,
+  getDefaultSettings,
   handleError,
   IMPORT_EXECUTION_FULL_FIELDS,
   IMPORT_STATUS,
@@ -20,20 +21,22 @@ const runImport = async (context: AppEventContext) => {
 
     if (!id) return
 
-    const { importExecution, httpClient } = context.clients
-
     if (!settings) {
       throw new Error('admin/settings.missing.error')
     }
 
+    const currentSettings = settings.useDefault
+      ? await getDefaultSettings(context)
+      : settings
+
+    const { importExecution, httpClient } = context.clients
     const importData = await importExecution.get(
       id,
       IMPORT_EXECUTION_FULL_FIELDS
     )
 
-    httpClient.setSettings(settings)
-    context.state.body = { ...importData, settings }
-
+    httpClient.setSettings(currentSettings)
+    context.state.body = { ...importData, settings: currentSettings }
     await updateImport(context, { status: IMPORT_STATUS.RUNNING })
     batch(STEPS_HANDLERS, processStepFactory(context), 1)
   } catch (error) {
