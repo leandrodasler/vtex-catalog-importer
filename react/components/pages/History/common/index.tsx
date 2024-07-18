@@ -1,35 +1,46 @@
 import type { useModalState } from '@vtex/admin-ui'
-import { Skeleton, csx } from '@vtex/admin-ui'
+import { Skeleton, csx, useToast } from '@vtex/admin-ui'
 import React, { useCallback, useMemo } from 'react'
 import { useMutation } from 'react-apollo'
+import { useIntl } from 'react-intl'
 import type {
   ImportStatus,
   Mutation,
-  MutationDeleteImportsArgs,
+  MutationDeleteImportArgs,
 } from 'ssesandbox04.catalog-importer'
 import { useRuntime } from 'vtex.render-runtime'
 
-import { DELETE_IMPORTS_MUTATION } from '../../../graphql'
+import {
+  DELETE_IMPORT_MUTATION,
+  getGraphQLMessageDescriptor,
+} from '../../../graphql'
 
 export const useDeleteImport = (
   setDeleted: React.Dispatch<React.SetStateAction<string[]>>,
   modalState: ReturnType<typeof useModalState>
 ) => {
-  const [deleteImports, { loading }] = useMutation<
+  const showToast = useToast()
+  const { formatMessage } = useIntl()
+
+  const [deleteImport, { loading }] = useMutation<
     Mutation,
-    MutationDeleteImportsArgs
-  >(DELETE_IMPORTS_MUTATION, {
+    MutationDeleteImportArgs
+  >(DELETE_IMPORT_MUTATION, {
+    onError(e) {
+      showToast({
+        message: formatMessage(getGraphQLMessageDescriptor(e)),
+        variant: 'critical',
+      })
+    },
     onCompleted(data) {
-      setDeleted((prev) => [...prev, ...data.deleteImports])
+      setDeleted((prev) => [...prev, data.deleteImport])
       modalState.hide()
     },
   })
 
-  const deleteImport = (deleteId: string) => {
-    deleteImports({ variables: { ids: [deleteId] } })
-  }
+  const handleDelete = (id: string) => deleteImport({ variables: { id } })
 
-  return { loading, deleteImport }
+  return { loading, handleDelete }
 }
 
 export const useLocaleDate = () => {

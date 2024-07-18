@@ -9,7 +9,7 @@ import {
 } from '@vtex/admin-ui'
 import React from 'react'
 import { useIntl } from 'react-intl'
-import type { Import } from 'ssesandbox04.catalog-importer'
+import type { Import, ImportStatus } from 'ssesandbox04.catalog-importer'
 
 import {
   Checked,
@@ -20,14 +20,13 @@ import {
 } from '../../common'
 import { useLocaleDate } from './common'
 
-export const mapStatusToVariant: Record<
-  Import['status'],
-  TagProps['variant']
-> = {
+export const mapStatusToVariant: Record<ImportStatus, TagProps['variant']> = {
   PENDING: 'gray',
   RUNNING: 'lightBlue',
   SUCCESS: 'green',
   ERROR: 'red',
+  TO_BE_DELETED: 'red',
+  DELETING: 'red',
 }
 
 type Props = {

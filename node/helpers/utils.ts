@@ -130,7 +130,7 @@ export const deleteImport = async (importId: string) => {
   )
 }
 
-export const getFirstImportByStatus = async (status: ImportStatus) => {
+const getFirstImportByStatus = async (status: ImportStatus[]) => {
   const context = getCachedContext()
 
   if (!context) return null
@@ -140,13 +140,22 @@ export const getFirstImportByStatus = async (status: ImportStatus) => {
       { page: 1, pageSize: 1 },
       IMPORT_EXECUTION_FIELDS,
       'createdIn asc',
-      `status=${status}`
+      status.map((s) => `(status=${s})`).join('OR')
     )
     .then(
       ({ data }) =>
         (data[0] as unknown) as Maybe<WithInternalFields<ImportExecution>>
     )
 }
+
+export const getFirstImportProcessing = async () =>
+  getFirstImportByStatus([IMPORT_STATUS.RUNNING, IMPORT_STATUS.DELETING])
+
+export const getFirstImportPending = async () =>
+  getFirstImportByStatus([IMPORT_STATUS.PENDING])
+
+export const getFirstImportToBeDeleted = async () =>
+  getFirstImportByStatus([IMPORT_STATUS.TO_BE_DELETED])
 
 export const printImport = (context: AppEventContext) => {
   const {

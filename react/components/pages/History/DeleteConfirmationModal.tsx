@@ -26,11 +26,11 @@ const DeleteConfirmationModal = ({
   setDeleted,
 }: Props) => {
   const { formatMessage } = useIntl()
-  const { loading, deleteImport } = useDeleteImport(setDeleted, modalState)
+  const { loading, handleDelete } = useDeleteImport(setDeleted, modalState)
 
-  const handleDelete = () => {
+  const handleDeleteImport = () => {
     if (deleteId) {
-      deleteImport(deleteId)
+      handleDelete(deleteId)
     }
   }
 
@@ -45,7 +45,7 @@ const DeleteConfirmationModal = ({
         <ModalButtons>
           <Button
             loading={loading}
-            onClick={handleDelete}
+            onClick={handleDeleteImport}
             variant="critical"
             icon={<IconTrash />}
           >

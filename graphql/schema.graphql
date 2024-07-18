@@ -126,5 +126,5 @@ type Query {
 type Mutation {
   updateAppSettings(settings: AppSettingsInput): AppSettings! @WithSettings
   executeImport(args: ImportInput!): ID! @WithSettings
-  deleteImports(ids: [ID!]!): [ID!]!
+  deleteImport(id: ID!): ID!
 }

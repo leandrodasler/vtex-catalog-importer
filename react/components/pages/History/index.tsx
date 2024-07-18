@@ -62,12 +62,7 @@ export default function History() {
       variables: { args: DEFAULT_ARGS },
       onCompleted({ imports: { data: imports } }) {
         if (
-          imports.some(
-            ({ status }: Import) =>
-              statusBeforeFinished(status) ||
-              status === 'DELETING' ||
-              status === 'TO_BE_DELETED'
-          )
+          imports.some(({ status }: Import) => statusBeforeFinished(status))
         ) {
           setTimeout(() => refetch(), POLLING_INTERVAL)
         }

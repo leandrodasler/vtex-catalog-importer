@@ -67,6 +67,7 @@
   "admin/import.pagination.label": "Showing {pageSize, plural, one {{pageSize} import} other {last {pageSize} imports}}",
   "admin/import.delete": "Do you really want to delete the import?",
   "admin/import.delete.text": "The respective import logs will also be deleted.",
+  "admin/import.delete.notAllowed": "The import can not be deleted because it is running.",
 
   "admin/import.results.label": "Results",
   "admin/import.results.error.label": "Error when importing {entity}:",

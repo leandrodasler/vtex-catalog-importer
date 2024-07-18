@@ -7,7 +7,7 @@ import type { Query } from 'ssesandbox04.catalog-importer'
 
 export { default as APP_SETTINGS_QUERY } from './appSettings.graphql'
 export { default as CATEGORIES_QUERY } from './categories.graphql'
-export { default as DELETE_IMPORTS_MUTATION } from './deleteImports.graphql'
+export { default as DELETE_IMPORT_MUTATION } from './deleteImport.graphql'
 export { default as EXECUTE_IMPORT_MUTATION } from './executeImport.graphql'
 export { default as GET_ENTITIES_QUERY } from './getEntities.graphql'
 export { default as GET_IMPORT_QUERY } from './getImport.graphql'

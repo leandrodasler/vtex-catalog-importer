@@ -67,6 +67,7 @@
   "admin/import.pagination.label": "Mostrando {pageSize, plural, one {{pageSize} importación} other {las últimas {pageSize} importaciones}}",
   "admin/import.delete": "¿Realmente desea eliminar la importación?",
   "admin/import.delete.text": "Los respectivos registros de importación también se eliminarán.",
+  "admin/import.delete.notAllowed": "La importación no se puede eliminar porque se está ejecutando.",
 
   "admin/import.results.label": "Resultados",
   "admin/import.results.error.label": "Error al importar {entity}:",
