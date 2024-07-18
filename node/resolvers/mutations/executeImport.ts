@@ -1,13 +1,13 @@
 import type { MutationExecuteImportArgs } from 'ssesandbox04.catalog-importer'
 
-import { IMPORT_STATUS } from '../../helpers'
-import { setCacheContext } from '../../helpers/pendingImportsTimer'
+import { IMPORT_STATUS, setCachedContext } from '../../helpers'
 
 export const executeImport = async (
   _: unknown,
   { args }: MutationExecuteImportArgs,
   context: Context
 ) => {
+  setCachedContext(context)
   const { user } = await context.clients.vtexId.getUser()
   const { useDefault } = args.settings
   const settings = useDefault ? { useDefault } : args.settings
@@ -17,16 +17,6 @@ export const executeImport = async (
   const id = await context.clients.importExecution
     .save(entityPayload)
     .then((response) => response.DocumentId)
-
-  // const eventPayload = {
-  //   ...entityPayload,
-  //   id,
-  //   categoryTree: undefined,
-  // }
-
-  // context.clients.events.sendEvent('', 'runImport', eventPayload)
-
-  setCacheContext(context)
 
   return id
 }

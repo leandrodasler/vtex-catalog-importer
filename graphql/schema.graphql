@@ -37,8 +37,8 @@ enum ImportStatus {
   RUNNING
   SUCCESS
   ERROR
+  TO_BE_DELETED
   DELETING
-  DELETED
 }
 
 type Import {

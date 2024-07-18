@@ -57,16 +57,16 @@ export const IMPORT_ENTITY_FIELDS = [
   'payload',
 ]
 
-export const IMPORT_STATUS: { [key in ImportStatus]: ImportStatus } = {
+export const IMPORT_STATUS: { [keyof in ImportStatus]: ImportStatus } = {
   PENDING: 'PENDING',
   RUNNING: 'RUNNING',
   SUCCESS: 'SUCCESS',
   ERROR: 'ERROR',
+  TO_BE_DELETED: 'TO_BE_DELETED',
   DELETING: 'DELETING',
-  DELETED: 'DELETED',
 }
 
-export const COMMON_WHERE = `(status<>${IMPORT_STATUS.DELETING})AND(status<>${IMPORT_STATUS.DELETED})`
+export const COMMON_WHERE = `(status<>${IMPORT_STATUS.TO_BE_DELETED})AND(status<>${IMPORT_STATUS.DELETING})`
 
 export const STEPS = [
   { entity: 'brand', handler: handleBrands },

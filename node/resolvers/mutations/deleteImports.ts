@@ -1,13 +1,19 @@
 import type { MutationDeleteImportsArgs } from 'ssesandbox04.catalog-importer'
 
-import { batch, entityGetAll } from '../../helpers'
+import {
+  batch,
+  entityGetAll,
+  setCachedContext,
+  setImportToBeDeleted,
+} from '../../helpers'
 
 export const deleteImports = async (
   _: unknown,
   { ids }: MutationDeleteImportsArgs,
   context: Context
 ) => {
-  const { importExecution, importEntity } = context.clients
+  setCachedContext(context)
+  const { importExecution } = context.clients
 
   if (!ids.length) {
     return []
@@ -15,18 +21,11 @@ export const deleteImports = async (
 
   batch(ids, (id) =>
     id === '*'
-      ? entityGetAll(importExecution, {
-          fields: ['id'],
-        }).then((data) =>
-          batch(data, ({ id: importId }) => importExecution.delete(importId))
+      ? entityGetAll(importExecution, { fields: ['id'] }).then((data) =>
+          batch(data, ({ id: importId }) => setImportToBeDeleted(importId))
         )
-      : importExecution.delete(id)
+      : setImportToBeDeleted(id)
   )
-
-  entityGetAll(importEntity, {
-    fields: ['id'],
-    where: ids.map((id) => `(executionImportId=${id})`).join(' OR '),
-  }).then((data) => batch(data, ({ id }) => importEntity.delete(id)))
 
   return ids
 }

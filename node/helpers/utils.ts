@@ -4,9 +4,19 @@ import type {
   MasterDataEntity,
   ScrollInput,
 } from '@vtex/clients/build/clients/masterData/MasterDataEntity'
-import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
+import type {
+  AppSettingsInput,
+  ImportExecution,
+  ImportStatus,
+} from 'ssesandbox04.catalog-importer'
 
-import { ENDPOINTS, IMPORT_STATUS, STEPS } from '.'
+import {
+  ENDPOINTS,
+  getCachedContext,
+  IMPORT_EXECUTION_FIELDS,
+  IMPORT_STATUS,
+  STEPS,
+} from '.'
 
 export const getCurrentSettings = async ({ clients: { apps } }: Context) =>
   apps.getAppSettings(process.env.VTEX_APP_ID as string) as AppSettingsInput
@@ -88,6 +98,54 @@ export const updateImport = async (
     .update(context.state.body.id, fields)
     .then(() => (context.state.body = { ...context.state.body, ...fields }))
     .catch(() => {})
+}
+
+const setImportStatus = async (id: string, status: ImportStatus) => {
+  const context = getCachedContext()
+
+  if (!context) return null
+
+  return context.clients.importExecution.update(id, { status })
+}
+
+export const setImportToBeDeleted = async (id: string) =>
+  setImportStatus(id, IMPORT_STATUS.TO_BE_DELETED)
+
+export const deleteImport = async (importId: string) => {
+  const context = getCachedContext()
+
+  if (!context) return
+
+  const { importExecution, importEntity } = context.clients
+
+  await setImportStatus(importId, IMPORT_STATUS.DELETING)
+
+  entityGetAll(importEntity, {
+    fields: ['id'],
+    where: `executionImportId=${importId}`,
+  }).then((data) =>
+    batch(data, ({ id }) => importEntity.delete(id)).then(() =>
+      importExecution.delete(importId)
+    )
+  )
+}
+
+export const getFirstImportByStatus = async (status: ImportStatus) => {
+  const context = getCachedContext()
+
+  if (!context) return null
+
+  return context.clients.importExecution
+    .searchRaw(
+      { page: 1, pageSize: 1 },
+      IMPORT_EXECUTION_FIELDS,
+      'createdIn asc',
+      `status=${status}`
+    )
+    .then(
+      ({ data }) =>
+        (data[0] as unknown) as Maybe<WithInternalFields<ImportExecution>>
+    )
 }
 
 export const printImport = (context: AppEventContext) => {

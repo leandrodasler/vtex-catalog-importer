@@ -102,10 +102,12 @@ export const EmptyView = ({ text, onClick }: EmptyViewProps) => {
 export const useStatusLabel = () => {
   const { formatMessage } = useIntl()
 
-  return (status: Import['status']) =>
-    formatMessage(
+  return (status: Import['status']) => {
+    const statusDescriptor =
       messages[`importStatus${status}Label` as keyof typeof messages]
-    )
+
+    return statusDescriptor ? formatMessage(statusDescriptor) : status
+  }
 }
 
 export const useStockOptionLabel = () => {

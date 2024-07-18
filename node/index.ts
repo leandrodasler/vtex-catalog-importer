@@ -2,9 +2,9 @@ import { Service } from '@vtex/api'
 
 import clients from './clients'
 import events from './events'
-import { pendingImportsTimer } from './helpers'
+import { timers } from './helpers'
 import graphql from './resolvers'
 
-pendingImportsTimer()
+timers()
 
 export default new Service({ clients, graphql, events })
