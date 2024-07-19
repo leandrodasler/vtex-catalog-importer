@@ -4,19 +4,10 @@ import type {
   MasterDataEntity,
   ScrollInput,
 } from '@vtex/clients/build/clients/masterData/MasterDataEntity'
-import type {
-  AppSettingsInput,
-  ImportExecution,
-  ImportStatus,
-} from 'ssesandbox04.catalog-importer'
+import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
-import {
-  ENDPOINTS,
-  getCachedContext,
-  IMPORT_EXECUTION_FIELDS,
-  IMPORT_STATUS,
-  STEPS,
-} from '.'
+import { ENDPOINTS, IMPORT_STATUS, STEPS } from '.'
+import { updateImport } from './importDBUtils'
 
 export const getCurrentSettings = async ({ clients: { apps } }: Context) =>
   apps.getAppSettings(process.env.VTEX_APP_ID as string) as AppSettingsInput
@@ -30,12 +21,6 @@ export const getDefaultSettings = async ({
       throw new Error('admin/settings.default.error')
     })
     .then((response) => ({ ...response, useDefault: true }))
-
-export const httpGetResolverFactory = <Response>(url: string) => async (
-  _: unknown,
-  __: unknown,
-  context: Context
-) => context.clients.httpClient.get<Response>(url)
 
 export const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms))
@@ -88,74 +73,6 @@ export const batch = async <T>(
 
   await processBatch()
 }
-
-export const updateImport = async (
-  context: AppEventContext,
-  fields: Partial<ProcessImport>
-) => {
-  if (!context.state.body.id) return
-  await context.clients.importExecution
-    .update(context.state.body.id, fields)
-    .then(() => (context.state.body = { ...context.state.body, ...fields }))
-    .catch(() => {})
-}
-
-const setImportStatus = async (id: string, status: ImportStatus) => {
-  const context = getCachedContext()
-
-  if (!context) return null
-
-  return context.clients.importExecution.update(id, { status })
-}
-
-export const setImportToBeDeleted = async (id: string) =>
-  setImportStatus(id, IMPORT_STATUS.TO_BE_DELETED)
-
-export const deleteImport = async (importId: string) => {
-  const context = getCachedContext()
-
-  if (!context) return
-
-  const { importExecution, importEntity } = context.clients
-
-  await setImportStatus(importId, IMPORT_STATUS.DELETING)
-
-  entityGetAll(importEntity, {
-    fields: ['id'],
-    where: `executionImportId=${importId}`,
-  }).then((data) =>
-    batch(data, ({ id }) => importEntity.delete(id)).then(() =>
-      importExecution.delete(importId)
-    )
-  )
-}
-
-const getFirstImportByStatus = async (status: ImportStatus[]) => {
-  const context = getCachedContext()
-
-  if (!context) return null
-
-  return context.clients.importExecution
-    .searchRaw(
-      { page: 1, pageSize: 1 },
-      IMPORT_EXECUTION_FIELDS,
-      'createdIn asc',
-      status.map((s) => `(status=${s})`).join('OR')
-    )
-    .then(
-      ({ data }) =>
-        (data[0] as unknown) as Maybe<WithInternalFields<ImportExecution>>
-    )
-}
-
-export const getFirstImportProcessing = async () =>
-  getFirstImportByStatus([IMPORT_STATUS.RUNNING, IMPORT_STATUS.DELETING])
-
-export const getFirstImportPending = async () =>
-  getFirstImportByStatus([IMPORT_STATUS.PENDING])
-
-export const getFirstImportToBeDeleted = async () =>
-  getFirstImportByStatus([IMPORT_STATUS.TO_BE_DELETED])
 
 export const printImport = (context: AppEventContext) => {
   const {

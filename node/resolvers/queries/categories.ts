@@ -1,7 +1,6 @@
 import type { Query } from 'ssesandbox04.catalog-importer'
 
-import { ENDPOINTS, httpGetResolverFactory } from '../../helpers'
+import { ENDPOINTS } from '../../helpers'
 
-export const categories = httpGetResolverFactory<Query['categories']>(
-  ENDPOINTS.categories
-)
+export const categories = async (_: unknown, __: unknown, context: Context) =>
+  context.clients.httpClient.get<Query['categories']>(ENDPOINTS.categories)

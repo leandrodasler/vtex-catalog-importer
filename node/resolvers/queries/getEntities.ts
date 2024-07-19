@@ -9,7 +9,7 @@ export const getEntities = async (
 ) => {
   const data = await entityGetAll(context.clients.importEntity, {
     fields: IMPORT_ENTITY_FIELDS,
-    where: `(executionImportId=${importId}) AND (name=${entityName})`,
+    where: `(executionImportId=${importId})AND(name=${entityName})`,
   })
 
   return data.map(entityMapper)

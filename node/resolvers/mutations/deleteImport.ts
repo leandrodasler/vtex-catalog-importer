@@ -18,7 +18,7 @@ export const deleteImport = async (
     throw new Error('admin/import.delete.notAllowed')
   }
 
-  setImportToBeDeleted(id)
+  setImportToBeDeleted(context, id)
 
   return id
 }

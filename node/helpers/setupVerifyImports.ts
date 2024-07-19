@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {
   deleteImport,
   getFirstImportPending,
@@ -5,7 +6,7 @@ import {
   getFirstImportToBeDeleted,
 } from '.'
 
-let cachedContext: Context | null = null
+let cachedContext: Context | undefined
 const TIMEOUT = 10000
 
 export const getCachedContext = () => {
@@ -20,18 +21,42 @@ const verifyImports = async () => {
   const context = getCachedContext()
 
   if (!context) return
-  const hasImportProcessing = await getFirstImportProcessing()
+  /** ************** TODO: remove this */
+  context.clients.importExecution
+    .searchRaw({ page: 1, pageSize: 10 }, ['id', 'status'], 'createdIn desc')
+    .then(({ data: imports, pagination: { total: totalImports } }) => {
+      console.log('>>')
+      console.log('===========================')
+      console.log('LAST 10 IMPORT EXECUTIONS')
+      console.log({ totalImports })
+      imports.forEach((each) => console.log(each))
 
-  if (hasImportProcessing) return
-  const nextPendingImport = await getFirstImportPending()
+      context.clients.importEntity
+        .searchRaw({ page: 1, pageSize: 1 }, [
+          'id',
+          'executionImportId',
+          'sourceAccount',
+        ])
+        .then(({ data: entities, pagination: { total: totalEntities } }) => {
+          console.log('---------------------------')
+          console.log('LAST 15 IMPORT ENTITIES')
+          console.log({ totalEntities })
+          entities.slice(0, 15).forEach((each) => console.log(each))
+          console.log('===========================\n<<')
+        })
+    })
+  /** ************** */
+
+  if (await getFirstImportProcessing(context)) return
+  const nextPendingImport = await getFirstImportPending(context)
 
   if (nextPendingImport) {
     context.clients.events.sendEvent('', 'runImport', nextPendingImport)
   } else {
-    const nextImportToBeDeleted = await getFirstImportToBeDeleted()
+    const nextImportToBeDeleted = await getFirstImportToBeDeleted(context)
 
     if (nextImportToBeDeleted) {
-      deleteImport(nextImportToBeDeleted.id)
+      deleteImport(context, nextImportToBeDeleted.id)
     }
   }
 }

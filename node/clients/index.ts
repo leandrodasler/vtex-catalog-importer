@@ -57,6 +57,7 @@ declare global {
     entity?: string
   }
   type AppEventContext = EventContext<Clients, EventState>
+  type AppContext = Context | AppEventContext
 }
 
 const memoryCache = new LRUCache<string, Cached>({ max: 5000 })
