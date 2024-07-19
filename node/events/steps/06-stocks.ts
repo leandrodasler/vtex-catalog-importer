@@ -1,12 +1,12 @@
 /* eslint-disable no-console */
-import { delay, IMPORT_STATUS, updateImport } from '../../helpers'
+import { delay, IMPORT_STATUS, updateCurrentImport } from '../../helpers'
 
 const handleStocks = async (context: AppEventContext) => {
   // TODO: process stocks import
   const { importEntity } = context.clients
   const { id = '', settings = {} } = context.state.body
 
-  await updateImport(context, { sourceStocksTotal: 3 })
+  await updateCurrentImport(context, { sourceStocksTotal: 3 })
 
   await delay(1000)
   await importEntity.save({
@@ -36,7 +36,7 @@ const handleStocks = async (context: AppEventContext) => {
   })
 
   await delay(1000)
-  await updateImport(context, { status: IMPORT_STATUS.SUCCESS })
+  await updateCurrentImport(context, { status: IMPORT_STATUS.SUCCESS })
 
   console.log('========================')
   console.log('FINISHED IMPORT')

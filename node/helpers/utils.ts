@@ -7,7 +7,7 @@ import type {
 import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
 import { ENDPOINTS, IMPORT_STATUS, STEPS } from '.'
-import { updateImport } from './importDBUtils'
+import { updateCurrentImport } from './importDBUtils'
 
 export const getCurrentSettings = async ({ clients: { apps } }: Context) =>
   apps.getAppSettings(process.env.VTEX_APP_ID as string) as AppSettingsInput
@@ -111,7 +111,7 @@ export const handleError = async (context: AppEventContext, e: ErrorLike) => {
   console.log(error)
 
   await delay(1000)
-  await updateImport(context, {
+  await updateCurrentImport(context, {
     status: IMPORT_STATUS.ERROR,
     error,
     entityError,

@@ -8,7 +8,7 @@ import {
   IMPORT_STATUS,
   processStepFactory,
   STEPS_HANDLERS,
-  updateImport,
+  updateCurrentImport,
 } from '../helpers'
 
 const runImport = async (context: AppEventContext) => {
@@ -37,7 +37,7 @@ const runImport = async (context: AppEventContext) => {
 
     httpClient.setSettings(currentSettings)
     context.state.body = { ...importData, settings: currentSettings }
-    await updateImport(context, { status: IMPORT_STATUS.RUNNING })
+    await updateCurrentImport(context, { status: IMPORT_STATUS.RUNNING })
     batch(STEPS_HANDLERS, processStepFactory(context), 1)
   } catch (error) {
     await handleError(context, error)

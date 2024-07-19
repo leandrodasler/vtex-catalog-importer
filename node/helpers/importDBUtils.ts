@@ -9,8 +9,8 @@ import { batch, entityGetAll } from './utils'
 
 const { PENDING, RUNNING, TO_BE_DELETED, DELETING } = IMPORT_STATUS
 
-export const updateImport = async (
-  context: AppContext,
+export const updateCurrentImport = async (
+  context: AppEventContext,
   fields: Partial<ProcessImport>
 ) => {
   if (!context.state.body.id) return
@@ -20,19 +20,14 @@ export const updateImport = async (
     .catch(() => {})
 }
 
-const setImportStatus = async (
+export const updateImportStatus = async (
   context: AppContext,
   id: string,
   status: ImportStatus
-) => {
-  return context.clients.importExecution.update(id, { status })
-}
-
-export const setImportToBeDeleted = async (context: AppContext, id: string) =>
-  setImportStatus(context, id, TO_BE_DELETED)
+) => context.clients.importExecution.update(id, { status })
 
 export const deleteImport = async (context: AppContext, importId: string) => {
-  await setImportStatus(context, importId, DELETING)
+  await updateImportStatus(context, importId, DELETING)
   const { importExecution, importEntity } = context.clients
 
   entityGetAll(importEntity, {

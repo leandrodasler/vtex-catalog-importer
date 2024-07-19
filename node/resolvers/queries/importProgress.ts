@@ -26,7 +26,7 @@ export const importProgress = async (
           { page: 1, pageSize: 1 },
           ['id'],
           '',
-          `(executionImportId=${id}) AND (name=${entity})`
+          `(executionImportId=${id})AND(name=${entity})`
         )
         .then(({ pagination: { total } }) => total)
     )

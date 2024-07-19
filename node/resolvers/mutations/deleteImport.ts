@@ -1,6 +1,10 @@
 import type { MutationDeleteImportArgs } from 'ssesandbox04.catalog-importer'
 
-import { setCachedContext, setImportToBeDeleted } from '../../helpers'
+import {
+  IMPORT_STATUS,
+  setCachedContext,
+  updateImportStatus,
+} from '../../helpers'
 
 export const deleteImport = async (
   _: unknown,
@@ -8,17 +12,16 @@ export const deleteImport = async (
   context: Context
 ) => {
   setCachedContext(context)
-  const { importExecution } = context.clients
 
   if (!id) return
 
-  const importData = await importExecution.get(id, ['status'])
+  const importData = await context.clients.importExecution.get(id, ['status'])
 
-  if (importData.status === 'RUNNING') {
+  if (importData.status === IMPORT_STATUS.RUNNING) {
     throw new Error('admin/import.delete.notAllowed')
   }
 
-  setImportToBeDeleted(context, id)
+  updateImportStatus(context, id, IMPORT_STATUS.TO_BE_DELETED)
 
   return id
 }

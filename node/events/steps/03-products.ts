@@ -1,11 +1,11 @@
-import { delay, updateImport } from '../../helpers'
+import { delay, updateCurrentImport } from '../../helpers'
 
 const handleProducts = async (context: AppEventContext) => {
   // TODO: process products import
   const { importEntity } = context.clients
   const { id = '', settings = {} } = context.state.body
 
-  await updateImport(context, { sourceProductsTotal: 5 })
+  await updateCurrentImport(context, { sourceProductsTotal: 5 })
 
   await delay(1000)
   await importEntity.save({
