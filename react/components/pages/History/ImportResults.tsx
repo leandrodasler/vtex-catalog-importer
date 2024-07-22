@@ -35,6 +35,7 @@ const ImportResults = ({ importProgress, loading }: Props) => {
     stocks,
   } = importProgress
 
+  const total = brands + categories + products + skus + prices + stocks
   const errorTitle = getEntityLabel(entityError)
 
   return (
@@ -94,6 +95,9 @@ const ImportResults = ({ importProgress, loading }: Props) => {
         total={sourceStocksTotal}
         loading={loading}
       />
+      <Text variant="title1">
+        {formatMessage(messages.importResultsTotalLabel, { total })}
+      </Text>
     </Stack>
   )
 }

@@ -1,38 +1,53 @@
+import type { Category } from 'ssesandbox04.catalog-importer'
+
 import { delay, updateCurrentImport } from '../../helpers'
+
+const matrixCategories = (
+  categoryTree: Category[],
+  level = 0,
+  result: Category[][] = []
+) => {
+  if (!result[level]) {
+    result[level] = []
+  }
+
+  categoryTree.forEach((category) => {
+    result[level].push(category)
+    if (category.children && category.children.length > 0) {
+      matrixCategories(category.children, level + 1, result)
+    }
+  })
+
+  return result
+}
 
 const handleCategories = async (context: AppEventContext) => {
   // TODO: process categories import
   const { importEntity } = context.clients
-  const { id = '', settings = {} } = context.state.body
+  const { id = '', settings = {}, categoryTree } = context.state.body
+  const { entity } = context.state
+  const { account: sourceAccount } = settings
 
-  await updateCurrentImport(context, { sourceCategoriesTotal: 3 })
+  if (!categoryTree) return
 
-  await delay(1000)
-  await importEntity.save({
-    executionImportId: id,
-    name: context.state.entity,
-    sourceAccount: settings.account ?? '',
-    sourceId: '1',
-    payload: { name: `${context.state.entity} 1` },
-  })
+  const categoriesFlat = matrixCategories(categoryTree).flat()
+  const sourceCategoriesTotal = categoriesFlat.length
 
-  await delay(1000)
-  await importEntity.save({
-    executionImportId: id,
-    name: context.state.entity,
-    sourceAccount: settings.account ?? '',
-    sourceId: '2',
-    payload: { name: `${context.state.entity} 2` },
-  })
+  await updateCurrentImport(context, { sourceCategoriesTotal })
 
-  await delay(1000)
-  await importEntity.save({
-    executionImportId: id,
-    name: context.state.entity,
-    sourceAccount: settings.account ?? '',
-    sourceId: '3',
-    payload: { name: `${context.state.entity} 3` },
-  })
+  for (let i = 1; i <= sourceCategoriesTotal; i++) {
+    // eslint-disable-next-line no-await-in-loop
+    await delay(1000)
+
+    // eslint-disable-next-line no-await-in-loop
+    await importEntity.save({
+      executionImportId: id,
+      name: entity,
+      sourceAccount,
+      sourceId: i,
+      payload: { name: `${context.state.entity} ${i}` },
+    })
+  }
 }
 
 export default handleCategories

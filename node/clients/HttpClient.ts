@@ -2,7 +2,7 @@ import type { IOContext, IOResponse, InstanceOptions } from '@vtex/api'
 import { ExternalClient } from '@vtex/api'
 import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
-type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+import { ENDPOINTS } from '../helpers'
 
 export default class HttpClient extends ExternalClient {
   protected settings?: AppSettingsInput
@@ -30,7 +30,7 @@ export default class HttpClient extends ExternalClient {
 
   protected getUrl(path: string) {
     return this.settings?.account
-      ? `http://${this.settings.account}.vtexcommercestable.com.br/${path}`
+      ? `http://${this.settings.account}.${ENDPOINTS.host}/${path}`
       : path
   }
 
@@ -41,10 +41,6 @@ export default class HttpClient extends ExternalClient {
   ) {
     const url = this.getUrl(path)
     const config = this.getRequestConfig()
-
-    // eslint-disable-next-line no-console
-    console.log(`HttpClient - ${method}:`, { headers: config.headers, url })
-
     const getData = (response: IOResponse<Response>) => response.data
 
     switch (method) {
@@ -83,5 +79,15 @@ export default class HttpClient extends ExternalClient {
 
   public async delete<Response>(path: string) {
     return this.request<Response>(path, 'DELETE')
+  }
+
+  public async getSourceBrands() {
+    return this.get<Brand[]>(ENDPOINTS.brands.get).then((data) =>
+      Promise.all(
+        data.map((brand) =>
+          this.get<BrandDetails>(ENDPOINTS.brands.updateOrDetails(brand.id))
+        )
+      )
+    )
   }
 }

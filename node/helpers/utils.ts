@@ -60,7 +60,7 @@ const DEFAULT_BATCH_CONCURRENCY = 1000
 
 export const batch = async <T>(
   data: T[],
-  elementCallback: (element: T) => Maybe<Promise<unknown>>,
+  elementCallback: (element: T) => Maybe<Promise<unknown>> | void,
   concurrency = DEFAULT_BATCH_CONCURRENCY
 ) => {
   const cloneData = [...data]
@@ -102,13 +102,16 @@ export const printImport = (context: AppEventContext) => {
 }
 
 export const handleError = async (context: AppEventContext, e: ErrorLike) => {
-  const errorDetailMessage = e.response?.data?.Message
+  const errorDetailMessage =
+    e.response?.data?.Message ?? e.response?.data?.message
+
   const errorDetail = errorDetailMessage ? ` - ${errorDetailMessage}` : ''
   const error = `${e.message}${errorDetail}`
   const entityError = context.state.entity
 
   console.log('========================')
   console.log(error)
+  console.log(e)
 
   await delay(1000)
   await updateCurrentImport(context, {

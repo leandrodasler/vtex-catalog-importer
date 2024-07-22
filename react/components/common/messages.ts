@@ -73,4 +73,5 @@ export const messages = defineMessages({
   importResultsSKULabel: { id: 'admin/import.results.sku.label' },
   importResultsPRICELabel: { id: 'admin/import.results.price.label' },
   importResultsSTOCKLabel: { id: 'admin/import.results.stock.label' },
+  importResultsTotalLabel: { id: 'admin/import.results.total.label' },
 })

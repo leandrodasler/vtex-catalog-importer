@@ -76,5 +76,6 @@
   "admin/import.results.product.label": "Products",
   "admin/import.results.sku.label": "SKUs",
   "admin/import.results.price.label": "Prices",
-  "admin/import.results.stock.label": "Stocks"
+  "admin/import.results.stock.label": "Stocks",
+  "admin/import.results.total.label": "Total: {total, plural, =0 {no data imported} other {{total} imported data}}"
 }

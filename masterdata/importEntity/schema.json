@@ -2,12 +2,12 @@
   "title": "Import Entity",
   "type": "object",
   "properties": {
-    "name": { "type": "string" },
-    "executionImportId": { "type": "string" },
-    "sourceAccount": { "type": "string" },
-    "sourceId": { "type": "string" },
-    "targetId": { "type": ["string", "null"] },
-    "pathParams": { "type": ["object", "null"] },
+    "name": { "type": ["string", "null"] },
+    "executionImportId": { "type": ["string", "null"] },
+    "sourceAccount": { "type": ["string", "null"] },
+    "sourceId": { "type": ["string", "integer", "null"] },
+    "targetId": { "type": ["string", "integer", "null"] },
+    "pathParams": { "type": ["string", "null"] },
     "payload": { "type": "object" }
   },
   "v-cache": false,

@@ -20,6 +20,23 @@ export const updateCurrentImport = async (
     .catch(() => {})
 }
 
+export const getExistingTargetId = async (
+  context: AppEventContext,
+  id: string | number = ''
+) => {
+  const { entity } = context.state
+  const { account } = context.state.body.settings ?? {}
+
+  return context.clients.importEntity
+    .search(
+      { page: 1, pageSize: 1 },
+      ['targetId'],
+      '',
+      `(name=${entity})AND(sourceAccount=${account})AND(sourceId=${id})`
+    )
+    .then(([data]) => `${data?.targetId ?? ''}` || undefined)
+}
+
 export const updateImportStatus = async (
   context: AppContext,
   id: string,
@@ -27,17 +44,22 @@ export const updateImportStatus = async (
 ) => context.clients.importExecution.update(id, { status })
 
 export const deleteImport = async (context: AppContext, importId: string) => {
-  await updateImportStatus(context, importId, DELETING)
-  const { importExecution, importEntity } = context.clients
+  const { catalog, importExecution, importEntity } = context.clients
 
-  entityGetAll(importEntity, {
-    fields: ['id'],
+  await updateImportStatus(context, importId, DELETING)
+  await entityGetAll(importEntity, {
+    fields: ['id', 'name', 'targetId'],
     where: `executionImportId=${importId}`,
   }).then((data) =>
-    batch(data, ({ id }) => importEntity.delete(id)).then(() =>
-      importExecution.delete(importId)
-    )
+    batch(data, ({ id, name, targetId }) => {
+      if (name === 'brand' && targetId) {
+        catalog.deleteBrand(targetId)
+      }
+
+      importEntity.delete(id)
+    })
   )
+  await importExecution.delete(importId)
 }
 
 const getFirstImportByStatus = async (
@@ -64,4 +86,4 @@ export const getFirstImportPending = async (context: AppContext) =>
   getFirstImportByStatus(context, [PENDING])
 
 export const getFirstImportToBeDeleted = async (context: AppContext) =>
-  getFirstImportByStatus(context, [TO_BE_DELETED])
+  getFirstImportByStatus(context, [DELETING, TO_BE_DELETED])

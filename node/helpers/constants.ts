@@ -8,6 +8,7 @@ import handlePrices from '../events/steps/05-prices'
 import handleStocks from '../events/steps/06-stocks'
 
 export const ENDPOINTS = {
+  host: 'vtexcommercestable.com.br',
   defaultSettings:
     'http://ssesandbox04.myvtex.com/catalog-importer-configuration/settings',
   getUser: '/api/vtexid/credential/validate',
@@ -15,6 +16,7 @@ export const ENDPOINTS = {
   brands: {
     get: 'api/catalog_system/pvt/brand/list',
     set: 'api/catalog/pvt/brand',
+    updateOrDetails: (id: string | number) => `api/catalog/pvt/brand/${id}`,
   },
 }
 

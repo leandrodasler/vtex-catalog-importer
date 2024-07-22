@@ -6,7 +6,12 @@ import { EntitySkeleton, useLocalePercentage } from './common'
 
 type Props = { title: string; current: number; total: number; loading: boolean }
 
-const resultCardTheme = csx({ position: 'relative', height: 32 })
+const resultCardTheme = csx({
+  position: 'relative',
+  height: 32,
+  overflow: 'hidden',
+})
+
 const resultSkeletonTheme = csx({ width: '100%', position: 'absolute' })
 const resultDetailTheme = cx(resultSkeletonTheme, csx({ padding: '$space-05' }))
 const totalizerTheme = csx({

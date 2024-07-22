@@ -96,7 +96,7 @@ type Entity {
   createdIn: String!
   lastInteractionIn: String!
   name: String!
-  importId: ID!
+  executionImportId: ID!
   sourceAccount: String!
   sourceId: String!
   targetId: String
@@ -120,7 +120,7 @@ type Query {
   imports(args: SearchInput!): ImportsResult!
   getImport(id: ID!): Import!
   importProgress(id: ID!): ImportProgress!
-  getEntities(importId: ID!, entityName: String!): [Entity!]!
+  getEntities(executionImportId: ID!, name: String!): [Entity!]!
 }
 
 type Mutation {

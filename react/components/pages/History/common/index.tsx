@@ -86,7 +86,7 @@ type EntitySkeletonProps = { width?: string | number }
 export const EntitySkeleton = ({ width }: EntitySkeletonProps) => (
   <Skeleton
     className={csx({
-      height: 30,
+      height: 32,
       background: '$gray10',
       width,
       '--admin-ui-bg-skeleton':

@@ -1,27 +1,36 @@
-import type { Brand } from '@vtex/clients'
-
-import {
-  ENDPOINTS,
-  batch,
-  brandMapper,
-  updateCurrentImport,
-} from '../../helpers'
+import { batch, getExistingTargetId, updateCurrentImport } from '../../helpers'
 
 const handleBrands = async (context: AppEventContext) => {
-  const { httpClient, importEntity } = context.clients
+  const { httpClient, catalog, importEntity } = context.clients
   const { id = '', settings = {} } = context.state.body
-  const brands = await httpClient.get<Brand[]>(ENDPOINTS.brands.get)
+  const { entity } = context.state
+  const { account: sourceAccount } = settings
+  const brands = await httpClient.getSourceBrands()
 
   await updateCurrentImport(context, { sourceBrandsTotal: brands.length })
+  await batch(
+    brands,
+    async (brand) => {
+      const sourceId = brand.Id
+      const payload = { ...brand, Id: undefined }
+      const existingTargetId = await getExistingTargetId(context, sourceId)
+      const saveInCatalogPromise = existingTargetId
+        ? catalog.updateBrand(payload, existingTargetId)
+        : catalog.createBrand(payload)
 
-  await batch(brands.map(brandMapper), (brand) =>
-    importEntity.save({
-      executionImportId: id,
-      name: context.state.entity,
-      sourceAccount: settings.account ?? '',
-      sourceId: String(brand.Id),
-      payload: { ...brand, Id: undefined },
-    })
+      return saveInCatalogPromise.then(({ Id: targetId }) => {
+        importEntity.save({
+          executionImportId: id,
+          name: entity,
+          sourceAccount,
+          sourceId,
+          targetId,
+          payload,
+          pathParams: existingTargetId,
+        })
+      })
+    },
+    1
   )
 }
 

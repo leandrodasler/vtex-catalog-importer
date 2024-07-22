@@ -20,9 +20,8 @@ export function setCachedContext(context: Context) {
 const verifyImports = async () => {
   const context = getCachedContext()
 
-  if (!context) return
   /** ************** TODO: remove this */
-  context.clients.importExecution
+  context?.clients.importExecution
     .searchRaw({ page: 1, pageSize: 10 }, ['id', 'status'], 'createdIn desc')
     .then(({ data: imports, pagination: { total: totalImports } }) => {
       console.log('>>')
@@ -32,22 +31,30 @@ const verifyImports = async () => {
       imports.forEach((each) => console.log(each))
 
       context.clients.importEntity
-        .searchRaw({ page: 1, pageSize: 1 }, [
-          'id',
-          'executionImportId',
-          'sourceAccount',
-        ])
+        .searchRaw(
+          { page: 1, pageSize: 1 },
+          [
+            'id',
+            'executionImportId',
+            'sourceAccount',
+            'name',
+            'sourceId',
+            'targetId',
+            'payload',
+          ],
+          'createdIn desc'
+        )
         .then(({ data: entities, pagination: { total: totalEntities } }) => {
           console.log('---------------------------')
-          console.log('LAST 15 IMPORT ENTITIES')
+          console.log('LAST IMPORT ENTITY')
           console.log({ totalEntities })
-          entities.slice(0, 15).forEach((each) => console.log(each))
+          entities.forEach((each) => console.log(each))
           console.log('===========================\n<<')
         })
     })
   /** ************** */
 
-  if (await getFirstImportProcessing(context)) return
+  if (!context || (await getFirstImportProcessing(context))) return
   const nextPendingImport = await getFirstImportPending(context)
 
   if (nextPendingImport) {

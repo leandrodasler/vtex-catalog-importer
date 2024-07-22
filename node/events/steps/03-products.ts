@@ -4,53 +4,24 @@ const handleProducts = async (context: AppEventContext) => {
   // TODO: process products import
   const { importEntity } = context.clients
   const { id = '', settings = {} } = context.state.body
+  const { entity } = context.state
+  const { account: sourceAccount } = settings
+  const sourceProductsTotal = 5
 
-  await updateCurrentImport(context, { sourceProductsTotal: 5 })
+  await updateCurrentImport(context, { sourceProductsTotal })
 
-  await delay(1000)
-  await importEntity.save({
-    executionImportId: id,
-    name: context.state.entity,
-    sourceAccount: settings.account ?? '',
-    sourceId: '1',
-    payload: { name: `${context.state.entity} 1` },
-  })
-
-  await delay(1000)
-  await importEntity.save({
-    executionImportId: id,
-    name: context.state.entity,
-    sourceAccount: settings.account ?? '',
-    sourceId: '2',
-    payload: { name: `${context.state.entity} 2` },
-  })
-
-  await delay(1000)
-  await importEntity.save({
-    executionImportId: id,
-    name: context.state.entity,
-    sourceAccount: settings.account ?? '',
-    sourceId: '3',
-    payload: { name: `${context.state.entity} 3` },
-  })
-
-  await delay(1000)
-  await importEntity.save({
-    executionImportId: id,
-    name: context.state.entity,
-    sourceAccount: settings.account ?? '',
-    sourceId: '4',
-    payload: { name: `${context.state.entity} 4` },
-  })
-
-  await delay(1000)
-  await importEntity.save({
-    executionImportId: id,
-    name: context.state.entity,
-    sourceAccount: settings.account ?? '',
-    sourceId: '5',
-    payload: { name: `${context.state.entity} 5` },
-  })
+  for (let i = 1; i <= sourceProductsTotal; i++) {
+    // eslint-disable-next-line no-await-in-loop
+    await delay(1000)
+    // eslint-disable-next-line no-await-in-loop
+    await importEntity.save({
+      executionImportId: id,
+      name: entity,
+      sourceAccount,
+      sourceId: i,
+      payload: { name: `${context.state.entity} ${i}` },
+    })
+  }
 }
 
 export default handleProducts

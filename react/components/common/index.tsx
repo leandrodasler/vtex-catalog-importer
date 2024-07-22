@@ -40,7 +40,7 @@ export const ErrorMessage = ({ error, title }: ErrorMessageProps) => {
   const { formatMessage } = useIntl()
 
   return (
-    <Alert variant="critical">
+    <Alert variant="critical" className={csx({ wordBreak: 'break-word' })}>
       <Stack space="$space-2">
         {title && (
           <Text variant="action1">

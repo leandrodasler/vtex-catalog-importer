@@ -1,10 +1,10 @@
-query getEntities($importId: ID!, $entityName: String!) {
-  getEntities(importId: $importId, entityName: $entityName) {
+query getEntities($executionImportId: ID!, $name: String!) {
+  getEntities(executionImportId: $executionImportId, name: $name) {
     id
     createdIn
     lastInteractionIn
     name
-    importId
+    executionImportId
     sourceAccount
     sourceId
     targetId
