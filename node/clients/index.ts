@@ -8,7 +8,7 @@ import type {
 
 import Catalog from './Catalog'
 import HttpClient from './HttpClient'
-import VtexId from './VtexId'
+import AdminAuth from './AdminAuth'
 
 export class Clients extends IOClients {
   public get httpClient() {
@@ -19,8 +19,8 @@ export class Clients extends IOClients {
     return this.getOrSet('catalog', Catalog)
   }
 
-  public get vtexId() {
-    return this.getOrSet('vtexId', VtexId)
+  public get adminAuth() {
+    return this.getOrSet('adminAuth', AdminAuth)
   }
 
   public get importExecution() {

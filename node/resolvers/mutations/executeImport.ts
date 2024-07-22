@@ -8,7 +8,7 @@ export const executeImport = async (
   context: Context
 ) => {
   setCachedContext(context)
-  const { user } = await context.clients.vtexId.getUser()
+  const user = await context.clients.adminAuth.getUser()
   const { useDefault } = args.settings
   const settings = useDefault ? { useDefault } : args.settings
   const status = args.status ?? IMPORT_STATUS.PENDING

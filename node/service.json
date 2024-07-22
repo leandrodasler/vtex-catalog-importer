@@ -10,5 +10,11 @@
       "sender": "ssesandbox04.catalog-importer",
       "keys": ["runImport"]
     }
+  },
+  "routes": {
+    "status": {
+      "path": "/_v/vtex-catalog-importer/status",
+      "public": true
+    }
   }
 }
