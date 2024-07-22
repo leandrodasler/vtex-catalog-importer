@@ -1,18 +1,10 @@
-import type { GraphQLField } from 'graphql'
 import { defaultFieldResolver } from 'graphql'
 import { SchemaDirectiveVisitor } from 'graphql-tools'
-import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
 import { getCurrentSettings, getDefaultSettings } from '../../helpers'
 
-type WithSettingsArgs = {
-  settings?: AppSettingsInput
-  args?: { settings?: AppSettingsInput }
-}
-type Field = GraphQLField<unknown, Context, WithSettingsArgs>
-
 export default class WithSettings extends SchemaDirectiveVisitor {
-  public visitFieldDefinition(field: Field) {
+  public visitFieldDefinition(field: WithSettingsField) {
     const { resolve = defaultFieldResolver } = field
 
     field.resolve = async (...params) => {
