@@ -46,15 +46,17 @@ export const deleteImport = async (context: AppContext, importId: string) => {
   await entityGetAll(importEntity, {
     fields: ['id', 'name', 'targetId'],
     where: `executionImportId=${importId}`,
-  }).then((data) =>
-    batch(data, ({ id, name, targetId }) => {
-      if (name === 'brand' && targetId) {
-        catalog.deleteBrand(targetId)
-      }
+  })
+    .then((data) =>
+      batch(data, ({ id, name, targetId }) => {
+        if (name === 'brand' && targetId) {
+          catalog.deleteBrand(targetId)
+        }
 
-      importEntity.delete(id)
-    })
-  )
+        importEntity.delete(id)
+      })
+    )
+    .catch(() => {})
   await importExecution.delete(importId)
 }
 
@@ -75,8 +77,8 @@ const getFirstImportByStatus = async (
     )
 }
 
-export const getFirstImportProcessing = async (context: AppContext) =>
-  getFirstImportByStatus(context, [RUNNING, DELETING])
+export const getFirstImportRunning = async (context: AppContext) =>
+  getFirstImportByStatus(context, [RUNNING])
 
 export const getFirstImportPending = async (context: AppContext) =>
   getFirstImportByStatus(context, [PENDING])

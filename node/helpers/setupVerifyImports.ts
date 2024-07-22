@@ -1,7 +1,7 @@
 import {
   deleteImport,
   getFirstImportPending,
-  getFirstImportProcessing,
+  getFirstImportRunning,
   getFirstImportToBeDeleted,
 } from '.'
 
@@ -19,7 +19,7 @@ export function setCachedContext(context: Context) {
 const verifyImports = async () => {
   const context = getCachedContext()
 
-  if (!context || (await getFirstImportProcessing(context))) return
+  if (!context || (await getFirstImportRunning(context))) return
   const nextPendingImport = await getFirstImportPending(context)
 
   if (nextPendingImport) {

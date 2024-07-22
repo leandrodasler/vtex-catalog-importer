@@ -82,7 +82,7 @@ export const batch = async <T, R = void>(
 
   await processBatch()
 
-  return results
+  return results.flat()
 }
 
 export const printImport = (context: AppEventContext) => {

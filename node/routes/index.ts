@@ -17,7 +17,14 @@ export default {
         pagination: { total: totalImports },
       } = await context?.clients.importExecution.searchRaw(
         { page: 1, pageSize: 10 },
-        ['id', 'status', 'createdIn', 'lastInteractionIn'],
+        [
+          'id',
+          'status',
+          'createdIn',
+          'lastInteractionIn',
+          'error',
+          'entityError',
+        ],
         'createdIn desc'
       )
 
@@ -43,7 +50,6 @@ export default {
       context.body = `<html>
           <head>
             <title>VTEX Catalog Importer Status</title>
-            <meta http-equiv="refresh" content="5">
             <style>
                 .flex {
                   display: flex;

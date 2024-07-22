@@ -1,6 +1,6 @@
 import type { Category } from 'ssesandbox04.catalog-importer'
 
-import { delay, updateCurrentImport } from '../../helpers'
+import { updateCurrentImport } from '../../helpers'
 
 const matrixCategories = (
   categoryTree: Category[],
@@ -36,9 +36,6 @@ const handleCategories = async (context: AppEventContext) => {
   await updateCurrentImport(context, { sourceCategoriesTotal })
 
   for (let i = 1; i <= sourceCategoriesTotal; i++) {
-    // eslint-disable-next-line no-await-in-loop
-    await delay(1000)
-
     // eslint-disable-next-line no-await-in-loop
     await importEntity.save({
       executionImportId: id,

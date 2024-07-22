@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 import {
   batch,
   getDefaultSettings,
@@ -13,10 +11,6 @@ import {
 
 const runImport = async (context: AppEventContext) => {
   try {
-    console.log('========================')
-    console.log('"runImport" EVENT with async batch of steps')
-    console.log(context.state.body)
-
     const { id, settings } = context.state.body
 
     if (!id) return
