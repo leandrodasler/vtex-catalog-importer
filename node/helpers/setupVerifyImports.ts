@@ -4,6 +4,7 @@ import {
   getFirstImportPending,
   getFirstImportProcessing,
   getFirstImportToBeDeleted,
+  ONE_RESULT,
 } from '.'
 
 let cachedContext: Context | undefined
@@ -32,7 +33,7 @@ const verifyImports = async () => {
 
       context.clients.importEntity
         .searchRaw(
-          { page: 1, pageSize: 1 },
+          ONE_RESULT,
           [
             'id',
             'executionImportId',

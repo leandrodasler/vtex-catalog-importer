@@ -1,8 +1,8 @@
-import type { IOContext, IOResponse, InstanceOptions } from '@vtex/api'
+import type { InstanceOptions, IOContext, IOResponse } from '@vtex/api'
 import { ExternalClient } from '@vtex/api'
 import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
-import { ENDPOINTS } from '../helpers'
+import { batch, ENDPOINTS } from '../helpers'
 
 export default class HttpClient extends ExternalClient {
   protected settings?: AppSettingsInput
@@ -83,10 +83,8 @@ export default class HttpClient extends ExternalClient {
 
   public async getSourceBrands() {
     return this.get<Brand[]>(ENDPOINTS.brands.get).then((data) =>
-      Promise.all(
-        data.map((brand) =>
-          this.get<BrandDetails>(ENDPOINTS.brands.updateOrDetails(brand.id))
-        )
+      batch(data, (brand) =>
+        this.get<BrandDetails>(ENDPOINTS.brands.updateOrDetails(brand.id))
       )
     )
   }

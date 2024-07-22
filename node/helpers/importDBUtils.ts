@@ -1,17 +1,17 @@
+import type { Maybe } from '@vtex/api'
 import type {
   ImportExecution,
   ImportStatus,
-  Maybe,
 } from 'ssesandbox04.catalog-importer'
 
-import { IMPORT_EXECUTION_FIELDS, IMPORT_STATUS } from './constants'
+import { IMPORT_EXECUTION_FIELDS, IMPORT_STATUS, ONE_RESULT } from './constants'
 import { batch, entityGetAll } from './utils'
 
 const { PENDING, RUNNING, TO_BE_DELETED, DELETING } = IMPORT_STATUS
 
 export const updateCurrentImport = async (
   context: AppEventContext,
-  fields: Partial<ProcessImport>
+  fields: EventState['body']
 ) => {
   if (!context.state.body.id) return
   await context.clients.importExecution
@@ -22,19 +22,15 @@ export const updateCurrentImport = async (
 
 export const getExistingTargetId = async (
   context: AppEventContext,
-  id: string | number = ''
+  sourceId: string | number = ''
 ) => {
   const { entity } = context.state
   const { account } = context.state.body.settings ?? {}
+  const where = `(name=${entity})AND(sourceAccount=${account})AND(sourceId=${sourceId})`
 
   return context.clients.importEntity
-    .search(
-      { page: 1, pageSize: 1 },
-      ['targetId'],
-      '',
-      `(name=${entity})AND(sourceAccount=${account})AND(sourceId=${id})`
-    )
-    .then(([data]) => `${data?.targetId ?? ''}` || undefined)
+    .search(ONE_RESULT, ['targetId'], '', where)
+    .then(([data]) => (data?.targetId ? String(data.targetId) : undefined))
 }
 
 export const updateImportStatus = async (
@@ -68,7 +64,7 @@ const getFirstImportByStatus = async (
 ) => {
   return context.clients.importExecution
     .searchRaw(
-      { page: 1, pageSize: 1 },
+      ONE_RESULT,
       IMPORT_EXECUTION_FIELDS,
       'createdIn asc',
       status.map((s) => `(status=${s})`).join('OR')

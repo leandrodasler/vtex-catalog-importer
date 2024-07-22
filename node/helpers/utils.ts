@@ -58,20 +58,31 @@ export const entityGetAll = async <T extends Record<string, T | unknown>>(
 
 const DEFAULT_BATCH_CONCURRENCY = 1000
 
-export const batch = async <T>(
+export const batch = async <T, R = void>(
   data: T[],
-  elementCallback: (element: T) => Maybe<Promise<unknown>> | void,
+  elementCallback: (element: T) => Maybe<Promise<R>> | R,
   concurrency = DEFAULT_BATCH_CONCURRENCY
 ) => {
   const cloneData = [...data]
+  const results: R[] = []
 
   const processBatch = async () => {
     if (!cloneData.length) return
-    await Promise.all(cloneData.splice(0, concurrency).map(elementCallback))
+
+    const result = ((await Promise.all(
+      cloneData.splice(0, concurrency).map(elementCallback)
+    )) as unknown) as R
+
+    if (result) {
+      results.push(result)
+    }
+
     await processBatch()
   }
 
   await processBatch()
+
+  return results
 }
 
 export const printImport = (context: AppEventContext) => {
@@ -103,7 +114,9 @@ export const printImport = (context: AppEventContext) => {
 
 export const handleError = async (context: AppEventContext, e: ErrorLike) => {
   const errorDetailMessage =
-    e.response?.data?.Message ?? e.response?.data?.message
+    e.response?.data?.Message ??
+    e.response?.data?.message ??
+    e.response?.statusText
 
   const errorDetail = errorDetailMessage ? ` - ${errorDetailMessage}` : ''
   const error = `${e.message}${errorDetail}`

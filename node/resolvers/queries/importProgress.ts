@@ -1,6 +1,10 @@
 import type { QueryImportProgressArgs } from 'ssesandbox04.catalog-importer'
 
-import { IMPORT_EXECUTION_FULL_FIELDS, STEPS_ENTITIES } from '../../helpers'
+import {
+  IMPORT_EXECUTION_FULL_FIELDS,
+  ONE_RESULT,
+  STEPS_ENTITIES,
+} from '../../helpers'
 
 export const importProgress = async (
   _: unknown,
@@ -23,7 +27,7 @@ export const importProgress = async (
     STEPS_ENTITIES.map((entity) =>
       context.clients.importEntity
         .searchRaw(
-          { page: 1, pageSize: 1 },
+          ONE_RESULT,
           ['id'],
           '',
           `(executionImportId=${id})AND(name=${entity})`

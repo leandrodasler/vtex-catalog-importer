@@ -14,11 +14,10 @@ declare global {
     lastInteractionIn: string
     dataEntityId: string
   }
-  type ProcessImport = WithInternalFields<Import>
   type ServiceState = RecorderState & { settings?: AppSettingsInput }
   type Context = ServiceContext<Clients, ServiceState>
   type EventState = {
-    body: Partial<ProcessImport>
+    body: Partial<WithInternalFields<Import>>
     entity?: string
   }
   type AppEventContext = EventContext<Clients, EventState>

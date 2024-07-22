@@ -27,6 +27,6 @@ export default class Catalog extends HttpClient {
   }
 
   public async deleteBrand(id: string | number) {
-    return this.delete<BrandDetails>(ENDPOINTS.brands.updateOrDetails(id))
+    return this.delete(ENDPOINTS.brands.updateOrDetails(id)).catch(() => {})
   }
 }

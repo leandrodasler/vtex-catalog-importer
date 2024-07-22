@@ -69,6 +69,7 @@ export const IMPORT_STATUS: { [keyof in ImportStatus]: ImportStatus } = {
   DELETING: 'DELETING',
 }
 
+export const ONE_RESULT = { page: 1, pageSize: 1 }
 export const COMMON_WHERE = `(status<>${IMPORT_STATUS.TO_BE_DELETED})AND(status<>${IMPORT_STATUS.DELETING})`
 
 export const STEPS = [
@@ -83,6 +84,6 @@ export const STEPS = [
 
 export const STEPS_ENTITIES = STEPS.filter(({ entity }) => entity).map(
   ({ entity }) => entity
-)
+) as string[]
 
 export const STEPS_HANDLERS = STEPS.map(({ handler }) => handler)
