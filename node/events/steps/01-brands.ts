@@ -2,7 +2,7 @@ import { batch, getExistingTargetId, updateCurrentImport } from '../../helpers'
 
 const handleBrands = async (context: AppEventContext) => {
   const { httpClient, catalog, importEntity } = context.clients
-  const { id = '', settings = {} } = context.state.body
+  const { id, settings = {} } = context.state.body
   const { entity } = context.state
   const { account: sourceAccount } = settings
   const brands = await httpClient.getSourceBrands()

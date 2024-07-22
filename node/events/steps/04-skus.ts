@@ -3,7 +3,7 @@ import { delay, updateCurrentImport } from '../../helpers'
 const handleSkus = async (context: AppEventContext) => {
   // TODO: process skus import
   const { importEntity } = context.clients
-  const { id = '', settings = {} } = context.state.body
+  const { id, settings = {} } = context.state.body
   const { entity } = context.state
   const { account: sourceAccount } = settings
   const sourceSkusTotal = 3

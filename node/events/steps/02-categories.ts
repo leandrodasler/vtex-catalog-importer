@@ -24,7 +24,7 @@ const matrixCategories = (
 const handleCategories = async (context: AppEventContext) => {
   // TODO: process categories import
   const { importEntity } = context.clients
-  const { id = '', settings = {}, categoryTree } = context.state.body
+  const { id, settings = {}, categoryTree } = context.state.body
   const { entity } = context.state
   const { account: sourceAccount } = settings
 

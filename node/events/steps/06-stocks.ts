@@ -4,7 +4,7 @@ import { delay, updateCurrentImport } from '../../helpers'
 const handleStocks = async (context: AppEventContext) => {
   // TODO: process stocks import
   const { importEntity } = context.clients
-  const { id = '', settings = {} } = context.state.body
+  const { id, settings = {} } = context.state.body
   const { entity } = context.state
   const { account: sourceAccount } = settings
   const sourceStocksTotal = 3
