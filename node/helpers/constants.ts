@@ -6,6 +6,7 @@ import handleProducts from '../events/steps/03-products'
 import handleSkus from '../events/steps/04-skus'
 import handlePrices from '../events/steps/05-prices'
 import handleStocks from '../events/steps/06-stocks'
+import finishImport from '../events/steps/07-finishImport'
 
 export const ENDPOINTS = {
   host: 'vtexcommercestable.com.br',
@@ -77,7 +78,11 @@ export const STEPS = [
   { entity: 'sku', handler: handleSkus },
   { entity: 'price', handler: handlePrices },
   { entity: 'stock', handler: handleStocks },
+  { handler: finishImport },
 ]
 
-export const STEPS_ENTITIES = STEPS.map(({ entity }) => entity)
+export const STEPS_ENTITIES = STEPS.filter(({ entity }) => entity).map(
+  ({ entity }) => entity
+)
+
 export const STEPS_HANDLERS = STEPS.map(({ handler }) => handler)

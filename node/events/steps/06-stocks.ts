@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { delay, IMPORT_STATUS, updateCurrentImport } from '../../helpers'
+import { delay, updateCurrentImport } from '../../helpers'
 
 const handleStocks = async (context: AppEventContext) => {
   // TODO: process stocks import
@@ -23,13 +23,6 @@ const handleStocks = async (context: AppEventContext) => {
       payload: { name: `${context.state.entity} ${i}` },
     })
   }
-
-  await delay(1000)
-  await updateCurrentImport(context, { status: IMPORT_STATUS.SUCCESS })
-
-  console.log('========================')
-  console.log('FINISHED IMPORT')
-  console.log(context.state.body)
 }
 
 export default handleStocks
