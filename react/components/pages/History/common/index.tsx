@@ -82,18 +82,17 @@ export const useLocalePercentage = (current: number, total: number) => {
   return { percentage, localePercentage }
 }
 
-type EntitySkeletonProps = { width?: string | number }
+type EntitySkeletonProps = { width?: string }
+const entitySkeletonTheme = csx({
+  height: 32,
+  background: '$gray10',
+  '--admin-ui-bg-skeleton':
+    'linear-gradient(90deg, var(--admin-ui-colors-transparent), var(--admin-ui-colors-gray30), var(--admin-ui-colors-transparent))',
+  '&[data-shape="rect"]': { borderRadius: 0 },
+})
+
 export const EntitySkeleton = ({ width }: EntitySkeletonProps) => (
-  <Skeleton
-    className={csx({
-      height: 32,
-      background: '$gray10',
-      width,
-      '--admin-ui-bg-skeleton':
-        'linear-gradient(90deg, var(--admin-ui-colors-transparent), var(--admin-ui-colors-gray30), var(--admin-ui-colors-transparent))',
-      '&[data-shape="rect"]': { borderRadius: 0 },
-    })}
-  />
+  <Skeleton style={{ width }} className={entitySkeletonTheme} />
 )
 
 export const statusBeforeFinished = (status?: ImportStatus) =>

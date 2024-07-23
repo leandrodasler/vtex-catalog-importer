@@ -30,7 +30,7 @@ export default class HttpClient extends ExternalClient {
 
   protected getUrl(path: string) {
     return this.settings?.account
-      ? `http://${this.settings.account}.${ENDPOINTS.host}/${path}`
+      ? `http://${this.settings.account}.${ENDPOINTS.host}${path}`
       : path
   }
 
@@ -81,11 +81,13 @@ export default class HttpClient extends ExternalClient {
     return this.request<Response>(path, 'DELETE')
   }
 
+  private async getBrandDetails({ id }: Brand) {
+    return this.get<BrandDetails>(ENDPOINTS.brand.updateOrDetails(id))
+  }
+
   public async getSourceBrands() {
-    return this.get<Brand[]>(ENDPOINTS.brands.get).then((data) =>
-      batch(data, (brand) =>
-        this.get<BrandDetails>(ENDPOINTS.brands.updateOrDetails(brand.id))
-      )
+    return this.get<Brand[]>(ENDPOINTS.brand.get).then((data) =>
+      batch(data, (brand) => this.getBrandDetails(brand))
     )
   }
 }

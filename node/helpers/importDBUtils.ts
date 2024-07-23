@@ -1,11 +1,12 @@
 import type { Maybe } from '@vtex/api'
 import type {
+  ImportEntity,
   ImportExecution,
   ImportStatus,
 } from 'ssesandbox04.catalog-importer'
 
 import { IMPORT_EXECUTION_FIELDS, IMPORT_STATUS, ONE_RESULT } from './constants'
-import { batch, entityGetAll } from './utils'
+import { batch } from './utils'
 
 const { PENDING, RUNNING, TO_BE_DELETED, DELETING } = IMPORT_STATUS
 
@@ -43,21 +44,32 @@ export const deleteImport = async (context: AppContext, importId: string) => {
   const { catalog, importExecution, importEntity } = context.clients
 
   await updateImportStatus(context, importId, DELETING)
-  await entityGetAll(importEntity, {
-    fields: ['id', 'name', 'targetId'],
-    where: `executionImportId=${importId}`,
-  })
-    .then((data) =>
-      batch(data, ({ id, name, targetId }) => {
-        if (name === 'brand' && targetId) {
-          catalog.deleteBrand(targetId)
-        }
-
-        importEntity.delete(id)
-      })
+  const mustDeleteImport = await importEntity
+    .searchRaw(
+      { page: 1, pageSize: 500 },
+      ['id', 'name', 'targetId'],
+      '',
+      `executionImportId=${importId}`
     )
+    .then(({ data, pagination: { total } }) => {
+      batch(
+        data as Array<WithInternalFields<ImportEntity>>,
+        ({ id, name, targetId }) => {
+          if (name === 'brand' && targetId) {
+            catalog.deleteBrand(targetId)
+          }
+
+          importEntity.delete(id)
+        }
+      )
+
+      return !total
+    })
     .catch(() => {})
-  await importExecution.delete(importId)
+
+  if (mustDeleteImport) {
+    await importExecution.delete(importId)
+  }
 }
 
 const getFirstImportByStatus = async (

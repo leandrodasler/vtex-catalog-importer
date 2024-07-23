@@ -13,11 +13,15 @@ export const ENDPOINTS = {
   defaultSettings:
     'http://ssesandbox04.myvtex.com/catalog-importer-configuration/settings',
   getUser: '/api/vtexid/credential/validate',
-  categories: 'api/catalog_system/pub/category/tree/1000',
-  brands: {
-    get: 'api/catalog_system/pvt/brand/list',
-    set: 'api/catalog/pvt/brand',
-    updateOrDetails: (id: string | number) => `api/catalog/pvt/brand/${id}`,
+  categoryTree: '/api/catalog_system/pub/category/tree/1000',
+  brand: {
+    get: '/api/catalog_system/pvt/brand/list',
+    set: '/api/catalog/pvt/brand',
+    updateOrDetails: (id: string | number) => `/api/catalog/pvt/brand/${id}`,
+  },
+  category: {
+    set: '/api/catalog/pvt/category',
+    updateOrDetails: (id: string | number) => `/api/catalog/pvt/category/${id}`,
   },
 }
 
