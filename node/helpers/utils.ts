@@ -1,9 +1,5 @@
 /* eslint-disable no-console */
 import type { ErrorLike, Maybe } from '@vtex/api'
-import type {
-  MasterDataEntity,
-  ScrollInput,
-} from '@vtex/clients/build/clients/masterData/MasterDataEntity'
 import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
 import { ENDPOINTS, IMPORT_STATUS, STEPS } from '.'
@@ -24,37 +20,6 @@ export const getDefaultSettings = async ({
 
 export const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms))
-
-export const entityGetAll = async <T extends Record<string, T | unknown>>(
-  client: MasterDataEntity<WithInternalFields<T>>,
-  input: ScrollInput<T>
-) => {
-  const allData: Array<WithInternalFields<T>> = []
-  let currentMdToken = ''
-
-  const getAll = async () => {
-    const { data, mdToken } = await client.scroll({
-      ...input,
-      size: 1000,
-      mdToken: currentMdToken || undefined,
-    })
-
-    allData.push(...((data as unknown) as Array<WithInternalFields<T>>))
-    currentMdToken = currentMdToken || mdToken
-
-    if (data.length) {
-      if (allData.length % 5000 === 0) {
-        await delay(1000)
-      }
-
-      await getAll()
-    }
-  }
-
-  await getAll()
-
-  return allData
-}
 
 const DEFAULT_BATCH_CONCURRENCY = 1000
 

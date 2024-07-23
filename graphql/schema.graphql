@@ -91,19 +91,6 @@ type ImportsResult {
   pagination: Pagination!
 }
 
-type Entity {
-  id: ID!
-  createdIn: String!
-  lastInteractionIn: String!
-  name: String!
-  executionImportId: ID!
-  sourceAccount: String!
-  sourceId: String!
-  targetId: String
-  pathParams: String
-  payload: String!
-}
-
 type ImportProgress {
   currentImport: Import!
   brands: Int!
@@ -120,7 +107,6 @@ type Query {
   imports(args: SearchInput!): ImportsResult!
   getImport(id: ID!): Import!
   importProgress(id: ID!): ImportProgress!
-  getEntities(executionImportId: ID!, name: String!): [Entity!]!
 }
 
 type Mutation {

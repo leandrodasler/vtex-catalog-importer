@@ -1,9 +1,9 @@
-import { batch, getExistingTargetId, updateCurrentImport } from '../../helpers'
+import { batch, BRAND_CONCURRENCY, updateCurrentImport } from '../../helpers'
 
 const handleBrands = async (context: AppEventContext) => {
   const { httpClient, catalog, importEntity } = context.clients
-  const { id, settings = {} } = context.state.body
-  const { entity } = context.state
+  const { id: executionImportId, settings = {} } = context.state.body
+  const { entity: name } = context.state
   const { account: sourceAccount } = settings
   const brands = await httpClient.getSourceBrands()
 
@@ -13,24 +13,18 @@ const handleBrands = async (context: AppEventContext) => {
     async (brand) => {
       const sourceId = brand.Id
       const payload = { ...brand, Id: undefined }
-      const existingTargetId = await getExistingTargetId(context, sourceId)
-      const saveInCatalogPromise = existingTargetId
-        ? catalog.updateBrand(payload, existingTargetId)
-        : catalog.createBrand(payload)
+      const { Id: targetId } = await catalog.createBrand(payload)
 
-      return saveInCatalogPromise.then(({ Id: targetId }) => {
-        importEntity.save({
-          executionImportId: id,
-          name: entity,
-          sourceAccount,
-          sourceId,
-          targetId,
-          payload,
-          pathParams: existingTargetId,
-        })
+      await importEntity.save({
+        executionImportId,
+        name,
+        sourceAccount,
+        sourceId,
+        targetId,
+        payload,
       })
     },
-    1
+    BRAND_CONCURRENCY
   )
 }
 

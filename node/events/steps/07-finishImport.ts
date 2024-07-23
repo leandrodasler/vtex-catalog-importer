@@ -1,5 +1,10 @@
 /* eslint-disable no-console */
-import { delay, IMPORT_STATUS, updateCurrentImport } from '../../helpers'
+import {
+  delay,
+  IMPORT_STATUS,
+  printImport,
+  updateCurrentImport,
+} from '../../helpers'
 
 const finishImport = async (context: AppEventContext) => {
   await delay(1000)
@@ -7,7 +12,7 @@ const finishImport = async (context: AppEventContext) => {
 
   console.log('========================')
   console.log('FINISHED IMPORT')
-  console.log(context.state.body)
+  printImport(context)
 }
 
 export default finishImport

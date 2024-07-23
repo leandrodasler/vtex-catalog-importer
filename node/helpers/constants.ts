@@ -73,6 +73,8 @@ export const IMPORT_STATUS: { [keyof in ImportStatus]: ImportStatus } = {
   DELETING: 'DELETING',
 }
 
+export const BRAND_CONCURRENCY = 1
+export const DELETE_CONCURRENCY = 500
 export const ONE_RESULT = { page: 1, pageSize: 1 }
 export const COMMON_WHERE = `(status<>${IMPORT_STATUS.TO_BE_DELETED})AND(status<>${IMPORT_STATUS.DELETING})`
 

@@ -1,6 +1,10 @@
 import { method } from '@vtex/api'
 
-import { ONE_RESULT } from '../helpers'
+import {
+  IMPORT_ENTITY_FIELDS,
+  IMPORT_EXECUTION_FIELDS,
+  ONE_RESULT,
+} from '../helpers'
 
 export default {
   status: method({
@@ -17,14 +21,7 @@ export default {
         pagination: { total: totalImports },
       } = await context?.clients.importExecution.searchRaw(
         { page: 1, pageSize: 10 },
-        [
-          'id',
-          'status',
-          'createdIn',
-          'lastInteractionIn',
-          'error',
-          'entityError',
-        ],
+        IMPORT_EXECUTION_FIELDS,
         'createdIn desc'
       )
 
@@ -33,15 +30,7 @@ export default {
         pagination: { total: totalEntities },
       } = await context.clients.importEntity.searchRaw(
         ONE_RESULT,
-        [
-          'id',
-          'executionImportId',
-          'sourceAccount',
-          'name',
-          'sourceId',
-          'targetId',
-          'payload',
-        ],
+        IMPORT_ENTITY_FIELDS,
         'createdIn desc'
       )
 
