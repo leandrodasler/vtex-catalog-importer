@@ -67,5 +67,7 @@ query importProgress($id: ID!) {
     skus
     prices
     stocks
+    completed
+    status
   }
 }

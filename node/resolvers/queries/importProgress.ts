@@ -1,4 +1,7 @@
-import type { QueryImportProgressArgs } from 'ssesandbox04.catalog-importer'
+import type {
+  ImportExecution,
+  QueryImportProgressArgs,
+} from 'ssesandbox04.catalog-importer'
 
 import {
   IMPORT_EXECUTION_FULL_FIELDS,
@@ -11,10 +14,10 @@ export const importProgress = async (
   { id }: QueryImportProgressArgs,
   context: Context
 ) => {
-  const currentImport = await context.clients.importExecution.get(
+  const currentImport = (await context.clients.importExecution.get(
     id,
     IMPORT_EXECUTION_FULL_FIELDS
-  )
+  )) as ImportExecution
 
   const [
     brands,
@@ -36,15 +39,33 @@ export const importProgress = async (
     )
   )
 
+  const {
+    sourceBrandsTotal = 0,
+    sourceCategoriesTotal = 0,
+    sourceProductsTotal = 0,
+    sourceSkusTotal = 0,
+    sourcePricesTotal = 0,
+    sourceStocksTotal = 0,
+    status,
+  } = currentImport
+
+  const completed =
+    brands >= sourceBrandsTotal &&
+    categories >= sourceCategoriesTotal &&
+    products >= sourceProductsTotal &&
+    skus >= sourceSkusTotal &&
+    prices >= sourcePricesTotal &&
+    stocks >= sourceStocksTotal
+
   return {
     currentImport: {
       ...currentImport,
-      sourceBrandsTotal: currentImport.sourceBrandsTotal ?? 0,
-      sourceCategoriesTotal: currentImport.sourceCategoriesTotal ?? 0,
-      sourceProductsTotal: currentImport.sourceProductsTotal ?? 0,
-      sourceSkusTotal: currentImport.sourceSkusTotal ?? 0,
-      sourcePricesTotal: currentImport.sourcePricesTotal ?? 0,
-      sourceStocksTotal: currentImport.sourceStocksTotal ?? 0,
+      sourceBrandsTotal,
+      sourceCategoriesTotal,
+      sourceProductsTotal,
+      sourceSkusTotal,
+      sourcePricesTotal,
+      sourceStocksTotal,
     },
     brands,
     categories,
@@ -52,5 +73,7 @@ export const importProgress = async (
     skus,
     prices,
     stocks,
+    completed,
+    status,
   }
 }

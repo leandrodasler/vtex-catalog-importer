@@ -7,6 +7,8 @@ import {
   ModalDismiss,
   ModalHeader,
   ModalTitle,
+  Stack,
+  Tag,
   csx,
 } from '@vtex/admin-ui'
 import React, { useMemo } from 'react'
@@ -16,11 +18,12 @@ import type {
   QueryImportProgressArgs,
 } from 'ssesandbox04.catalog-importer'
 
-import { SuspenseFallback, messages } from '../../common'
+import { SuspenseFallback, messages, useStatusLabel } from '../../common'
 import { IMPORT_PROGRESS_QUERY, useQueryCustom } from '../../graphql'
 import ImportDetails from './ImportDetails'
 import ImportResults from './ImportResults'
 import { statusBeforeFinished } from './common'
+import { mapStatusToVariant } from './useImportColumns'
 
 type Props = {
   modalState: ReturnType<typeof useModalState>
@@ -42,6 +45,7 @@ const POLLING_INTERVAL = 100
 
 const ShowImportModal = ({ modalState, id }: Props) => {
   const { formatMessage } = useIntl()
+  const getStatusLabel = useStatusLabel()
 
   const { data, loading, refetch } = useQueryCustom<
     Query,
@@ -49,37 +53,8 @@ const ShowImportModal = ({ modalState, id }: Props) => {
   >(IMPORT_PROGRESS_QUERY, {
     skip: !id,
     variables: { id },
-    onCompleted({
-      importProgress: {
-        currentImport,
-        brands,
-        categories,
-        products,
-        skus,
-        prices,
-        stocks,
-      },
-    }) {
-      const {
-        status,
-        sourceBrandsTotal,
-        sourceCategoriesTotal,
-        sourceProductsTotal,
-        sourceSkusTotal,
-        sourcePricesTotal,
-        sourceStocksTotal,
-      } = currentImport
-
-      if (
-        statusBeforeFinished(status) ||
-        (status !== 'ERROR' &&
-          (brands < sourceBrandsTotal ||
-            categories < sourceCategoriesTotal ||
-            products < sourceProductsTotal ||
-            skus < sourceSkusTotal ||
-            prices < sourcePricesTotal ||
-            stocks < sourceStocksTotal))
-      ) {
+    onCompleted({ importProgress: { completed, status } }) {
+      if (statusBeforeFinished(status) || !completed) {
         setTimeout(() => refetch(), POLLING_INTERVAL)
       }
     },
@@ -87,7 +62,7 @@ const ShowImportModal = ({ modalState, id }: Props) => {
 
   const importProgress = data?.importProgress
   const currentImport = importProgress?.currentImport
-  const status = currentImport?.status
+  const status = importProgress?.status
   const isLoading = useMemo(() => loading || statusBeforeFinished(status), [
     loading,
     status,
@@ -96,7 +71,15 @@ const ShowImportModal = ({ modalState, id }: Props) => {
   return (
     <Modal state={modalState} size="large">
       <ModalHeader>
-        <ModalTitle>{formatMessage(messages.importDetailsLabel)}</ModalTitle>
+        <Stack direction="row" space="$space-2">
+          <ModalTitle>{formatMessage(messages.importDetailsLabel)}</ModalTitle>
+          {status && (
+            <Tag
+              label={getStatusLabel(status)}
+              variant={mapStatusToVariant[status]}
+            />
+          )}
+        </Stack>
         <ModalDismiss />
       </ModalHeader>
       <ModalContent>

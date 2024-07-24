@@ -99,6 +99,8 @@ type ImportProgress {
   skus: Int!
   prices: Int!
   stocks: Int!
+  completed: Boolean!
+  status: ImportStatus!
 }
 
 type Query {

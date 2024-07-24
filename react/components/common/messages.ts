@@ -16,6 +16,8 @@ export const messages = defineMessages({
   deleteLabel: { id: 'admin/delete.label' },
   loadLabel: { id: 'admin/load.label' },
   reloadLabel: { id: 'admin/reload.label' },
+  showMoreLabel: { id: 'admin/showMore.label' },
+  showLessLabel: { id: 'admin/showLess.label' },
   settingsMissingError: { id: 'admin/settings.missing.error' },
   settingsLabel: { id: 'admin/settings.label' },
   settingsDefaultLabel: { id: 'admin/settings.default.label' },
