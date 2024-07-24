@@ -81,6 +81,14 @@ export default class HttpClient extends ExternalClient {
     return this.request<Response>(path, 'DELETE')
   }
 
+  public async getDefaultSettings() {
+    return this.get<AppSettingsInput>(ENDPOINTS.defaultSettings)
+      .catch(() => {
+        throw new Error('admin/settings.default.error')
+      })
+      .then((response) => ({ ...response, useDefault: true }))
+  }
+
   private async getBrandDetails({ id }: Brand) {
     return this.get<BrandDetails>(ENDPOINTS.brand.updateOrDetails(id))
   }

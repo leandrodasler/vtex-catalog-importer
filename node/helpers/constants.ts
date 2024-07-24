@@ -73,6 +73,7 @@ export const IMPORT_STATUS: { [keyof in ImportStatus]: ImportStatus } = {
   DELETING: 'DELETING',
 }
 
+export const STEP_DELAY = 1000
 export const BRAND_CONCURRENCY = 1
 export const DELETE_CONCURRENCY = 500
 export const ONE_RESULT = { page: 1, pageSize: 1 }

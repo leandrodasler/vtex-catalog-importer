@@ -1,6 +1,5 @@
 import {
   batch,
-  getDefaultSettings,
   handleError,
   IMPORT_EXECUTION_FULL_FIELDS,
   IMPORT_STATUS,
@@ -19,11 +18,11 @@ const runImport = async (context: AppEventContext) => {
       throw new Error('admin/settings.missing.error')
     }
 
+    const { importExecution, httpClient } = context.clients
     const currentSettings = settings.useDefault
-      ? await getDefaultSettings(context)
+      ? await httpClient.getDefaultSettings()
       : settings
 
-    const { importExecution, httpClient } = context.clients
     const importData = await importExecution.get(
       id,
       IMPORT_EXECUTION_FULL_FIELDS

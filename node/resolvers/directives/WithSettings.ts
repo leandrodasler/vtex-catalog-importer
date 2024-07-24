@@ -1,7 +1,7 @@
 import { defaultFieldResolver } from 'graphql'
 import { SchemaDirectiveVisitor } from 'graphql-tools'
 
-import { getCurrentSettings, getDefaultSettings } from '../../helpers'
+import { getCurrentSettings } from '../../helpers'
 
 export default class WithSettings extends SchemaDirectiveVisitor {
   public visitFieldDefinition(field: WithSettingsField) {
@@ -12,7 +12,7 @@ export default class WithSettings extends SchemaDirectiveVisitor {
 
       const settingsArg = args.settings ?? args.args?.settings
       const settings = settingsArg?.useDefault
-        ? await getDefaultSettings(context)
+        ? await context.clients.httpClient.getDefaultSettings()
         : settingsArg ?? (await getCurrentSettings(context))
 
       const { account, vtexAppKey, vtexAppToken } = settings

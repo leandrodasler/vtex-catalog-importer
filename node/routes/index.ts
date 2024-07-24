@@ -1,15 +1,15 @@
 import { method } from '@vtex/api'
 
-import {
-  IMPORT_ENTITY_FIELDS,
-  IMPORT_EXECUTION_FIELDS,
-  ONE_RESULT,
-} from '../helpers'
+import { IMPORT_ENTITY_FIELDS, IMPORT_EXECUTION_FIELDS } from '../helpers'
+
+const PAG = { page: 1, pageSize: 500 }
+const SORT = 'createdIn desc'
 
 export default {
   status: method({
     GET: async (context: Context) => {
-      const user = await context.clients.adminAuth.getUser().catch(() => {
+      const { adminAuth, importExecution, importEntity } = context.clients
+      const user = await adminAuth.getUser().catch(() => {
         context.status = 401
         context.body = 'Not allowed'
       })
@@ -19,20 +19,12 @@ export default {
       const {
         data: imports,
         pagination: { total: totalImports },
-      } = await context?.clients.importExecution.searchRaw(
-        { page: 1, pageSize: 10 },
-        IMPORT_EXECUTION_FIELDS,
-        'createdIn desc'
-      )
+      } = await importExecution.searchRaw(PAG, IMPORT_EXECUTION_FIELDS, SORT)
 
       const {
         data: entities,
         pagination: { total: totalEntities },
-      } = await context.clients.importEntity.searchRaw(
-        ONE_RESULT,
-        IMPORT_ENTITY_FIELDS,
-        'createdIn desc'
-      )
+      } = await importEntity.searchRaw(PAG, IMPORT_ENTITY_FIELDS, SORT)
 
       context.status = 200
       context.set('Content-Type', 'text/html')
@@ -60,13 +52,19 @@ export default {
             <div class="flex">
                 <section>
                   <h3>Imports - total: ${totalImports}</h3>
-                  <p>Last 10 imports:</p>
-                  <pre>${JSON.stringify(imports, null, 2)}</pre>
+                  ${
+                    imports?.length
+                      ? `<pre>${JSON.stringify(imports, null, 2)}</pre>`
+                      : ''
+                  }
                 </section>
                 <section>
                   <h3>Entities - total: ${totalEntities}</h3>
-                  <p>Last entity:</p>
-                  <pre>${JSON.stringify(entities, null, 2)}</pre>
+                  ${
+                    entities?.length
+                      ? `<pre>${JSON.stringify(entities, null, 2)}</pre>`
+                      : ''
+                  }
                 </section>
             </div>
           </body>

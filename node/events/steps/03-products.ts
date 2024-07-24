@@ -1,4 +1,4 @@
-import { delay, updateCurrentImport } from '../../helpers'
+import { updateCurrentImport } from '../../helpers'
 
 const handleProducts = async (context: AppEventContext) => {
   // TODO: process products import
@@ -11,8 +11,6 @@ const handleProducts = async (context: AppEventContext) => {
   await updateCurrentImport(context, { sourceProductsTotal })
 
   for (let i = 1; i <= sourceProductsTotal; i++) {
-    // eslint-disable-next-line no-await-in-loop
-    await delay(1000)
     // eslint-disable-next-line no-await-in-loop
     await importEntity.save({
       executionImportId: id,

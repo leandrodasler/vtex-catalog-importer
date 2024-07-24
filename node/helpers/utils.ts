@@ -2,21 +2,11 @@
 import type { ErrorLike, Maybe } from '@vtex/api'
 import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
-import { ENDPOINTS, IMPORT_STATUS, STEPS } from '.'
+import { IMPORT_STATUS, STEP_DELAY, STEPS } from '.'
 import { updateCurrentImport } from './importDBUtils'
 
 export const getCurrentSettings = async ({ clients: { apps } }: Context) =>
   apps.getAppSettings(process.env.VTEX_APP_ID as string) as AppSettingsInput
-
-export const getDefaultSettings = async ({
-  clients: { httpClient },
-}: Context | AppEventContext) =>
-  httpClient
-    .get<AppSettingsInput>(ENDPOINTS.defaultSettings)
-    .catch(() => {
-      throw new Error('admin/settings.default.error')
-    })
-    .then((response) => ({ ...response, useDefault: true }))
 
 export const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms))
@@ -91,7 +81,7 @@ export const handleError = async (context: AppEventContext, e: ErrorLike) => {
   console.log(error)
   console.log(e)
 
-  await delay(1000)
+  await delay(STEP_DELAY)
   await updateCurrentImport(context, {
     status: IMPORT_STATUS.ERROR,
     error,
@@ -101,11 +91,11 @@ export const handleError = async (context: AppEventContext, e: ErrorLike) => {
   printImport(context)
 }
 
-export const processStepFactory = (context: AppEventContext) => (
+export const processStepFactory = (context: AppEventContext) => async (
   step: (context: AppEventContext) => Promise<void>
 ) => {
   if (context.state.body.error) return
-
+  await delay(STEP_DELAY)
   context.state.entity = STEPS.find(({ handler }) => handler === step)?.entity
   printImport(context)
 
