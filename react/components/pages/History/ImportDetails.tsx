@@ -5,6 +5,7 @@ import {
   IconCaretRight,
   Stack,
   Text,
+  useBreakpoint,
   useCollapse,
 } from '@vtex/admin-ui'
 import React, { useMemo } from 'react'
@@ -31,8 +32,9 @@ const toggleButtonTheme = csx({
 const ImportDetails = ({ currentImport }: Props) => {
   const { formatMessage } = useIntl()
   const { getStartedAt, getFinishedAt } = useLocaleDate()
-  const getStockOptionLabel = useStockOptionLabel()
+  const { breakpoint } = useBreakpoint()
   const { getToggleProps, getCollapseProps, visible } = useCollapse()
+  const getStockOptionLabel = useStockOptionLabel()
 
   const categoryTree = useMemo(
     () =>
@@ -65,17 +67,23 @@ const ImportDetails = ({ currentImport }: Props) => {
             : currentImport.settings.account}
         </section>
       </Stack>
-      <Button
-        className={toggleButtonTheme}
-        variant="tertiary"
-        icon={visible ? <IconCaretDown /> : <IconCaretRight />}
-        {...getToggleProps()}
+      {breakpoint === 'mobile' && (
+        <Button
+          className={toggleButtonTheme}
+          variant="tertiary"
+          icon={visible ? <IconCaretDown /> : <IconCaretRight />}
+          {...getToggleProps()}
+        >
+          {visible
+            ? formatMessage(messages.showLessLabel)
+            : formatMessage(messages.showMoreLabel)}
+        </Button>
+      )}
+      <Stack
+        space="$space-2"
+        fluid
+        {...(breakpoint === 'mobile' && getCollapseProps())}
       >
-        {visible
-          ? formatMessage(messages.showLessLabel)
-          : formatMessage(messages.showMoreLabel)}
-      </Button>
-      <Stack space="$space-2" fluid {...getCollapseProps()}>
         <section>
           <Text variant="title1">ID: </Text>
           {currentImport.id}
