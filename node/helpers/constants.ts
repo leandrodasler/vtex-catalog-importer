@@ -25,10 +25,10 @@ export const ENDPOINTS = {
   },
 }
 
+const INTERNAL_FIELDS = ['id', 'createdIn', 'lastInteractionIn']
+
 export const IMPORT_EXECUTION_FIELDS = [
-  'id',
-  'createdIn',
-  'lastInteractionIn',
+  ...INTERNAL_FIELDS,
   'user',
   'settings',
   'importImages',
@@ -52,9 +52,7 @@ export const IMPORT_EXECUTION_FULL_FIELDS = [
 ]
 
 export const IMPORT_ENTITY_FIELDS = [
-  'id',
-  'createdIn',
-  'lastInteractionIn',
+  ...INTERNAL_FIELDS,
   'name',
   'executionImportId',
   'sourceAccount',
@@ -74,8 +72,10 @@ export const IMPORT_STATUS: { [keyof in ImportStatus]: ImportStatus } = {
 }
 
 export const STEP_DELAY = 1000
-export const BRAND_CONCURRENCY = 1
+export const DEFAULT_BATCH_CONCURRENCY = 1000
+export const ENTITY_CONCURRENCY = 1
 export const DELETE_CONCURRENCY = 500
+export const CATEGORY_DELAY = 500
 export const ONE_RESULT = { page: 1, pageSize: 1 }
 export const COMMON_WHERE = `(status<>${IMPORT_STATUS.TO_BE_DELETED})AND(status<>${IMPORT_STATUS.DELETING})`
 

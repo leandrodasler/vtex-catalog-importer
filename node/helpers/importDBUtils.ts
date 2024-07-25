@@ -24,7 +24,7 @@ const getEntities = async (
   const { data, pagination } = await context.clients.importEntity.searchRaw(
     { page: 1, pageSize },
     IMPORT_ENTITY_FIELDS,
-    '',
+    'createdIn desc',
     `executionImportId=${importId}`
   )
 
@@ -37,9 +37,15 @@ const getEntities = async (
 const deleteEntityFactory = (context: AppContext) => (
   entity: WithInternalFields<ImportEntity>
 ) => {
-  context.clients.importEntity.delete(entity.id)
-  if (entity.targetId && entity.name === 'brand') {
-    context.clients.catalog.deleteBrand(entity.targetId)
+  const { importEntity, catalog } = context.clients
+  const { id, targetId } = entity
+
+  importEntity.delete(id)
+
+  if (targetId) {
+    if (entity.name === 'brand') {
+      catalog.deleteBrand(targetId)
+    }
   }
 }
 
@@ -60,6 +66,25 @@ export const updateImportStatus = async (
   status: ImportStatus
 ) => context.clients.importExecution.update(id, { status })
 
+export const getEntityBySourceId = (
+  context: AppEventContext,
+  sourceId: string | number
+) => {
+  const { id } = context.state.body
+  const { entity } = context.state
+
+  return context.clients.importEntity
+    .search(
+      ONE_RESULT,
+      IMPORT_ENTITY_FIELDS,
+      '',
+      `(executionImportId=${id})AND(name=${entity})AND(sourceId=${sourceId})`
+    )
+    .then(
+      (data) => (data[0] as unknown) as Maybe<WithInternalFields<ImportEntity>>
+    )
+}
+
 export const deleteImport = async (context: AppContext, importId: string) => {
   await updateImportStatus(context, importId, DELETING)
   const entities = await getEntities(context, importId, DELETE_CONCURRENCY)
@@ -76,14 +101,14 @@ const getFirstImportByStatus = async (
   status: ImportStatus[]
 ) => {
   return context.clients.importExecution
-    .searchRaw(
+    .search(
       ONE_RESULT,
       IMPORT_EXECUTION_FIELDS,
       'createdIn asc',
       status.map((s) => `(status=${s})`).join('OR')
     )
     .then(
-      ({ data }) =>
+      (data) =>
         (data[0] as unknown) as Maybe<WithInternalFields<ImportExecution>>
     )
 }

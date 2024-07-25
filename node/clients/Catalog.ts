@@ -22,11 +22,15 @@ export default class Catalog extends HttpClient {
     return this.post<BrandDetails>(ENDPOINTS.brand.set, payload)
   }
 
-  public async updateBrand(payload: BrandDetails, id: string | number) {
-    return this.put<BrandDetails>(ENDPOINTS.brand.updateOrDetails(id), payload)
-  }
-
   public async deleteBrand(id: string | number) {
     return this.delete(ENDPOINTS.brand.updateOrDetails(id)).catch(() => {})
+  }
+
+  public async getCategory(id: string | number) {
+    return this.get<CategoryDetails>(ENDPOINTS.category.updateOrDetails(id))
+  }
+
+  public async createCategory(payload: CategoryDetails) {
+    return this.post<CategoryDetails>(ENDPOINTS.category.set, payload)
   }
 }

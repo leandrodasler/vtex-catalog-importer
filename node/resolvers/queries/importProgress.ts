@@ -39,16 +39,13 @@ export const importProgress = async (
     )
   )
 
-  const {
-    sourceBrandsTotal = 0,
-    sourceCategoriesTotal = 0,
-    sourceProductsTotal = 0,
-    sourceSkusTotal = 0,
-    sourcePricesTotal = 0,
-    sourceStocksTotal = 0,
-    status,
-  } = currentImport
-
+  const sourceBrandsTotal = currentImport.sourceBrandsTotal ?? 0
+  const sourceCategoriesTotal = currentImport.sourceCategoriesTotal ?? 0
+  const sourceProductsTotal = currentImport.sourceProductsTotal ?? 0
+  const sourceSkusTotal = currentImport.sourceSkusTotal ?? 0
+  const sourcePricesTotal = currentImport.sourcePricesTotal ?? 0
+  const sourceStocksTotal = currentImport.sourceStocksTotal ?? 0
+  const { status } = currentImport
   const completed =
     brands >= sourceBrandsTotal &&
     categories >= sourceCategoriesTotal &&

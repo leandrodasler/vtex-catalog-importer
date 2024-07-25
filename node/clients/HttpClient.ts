@@ -1,6 +1,6 @@
 import type { InstanceOptions, IOContext, IOResponse } from '@vtex/api'
 import { ExternalClient } from '@vtex/api'
-import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
+import type { AppSettingsInput, Category } from 'ssesandbox04.catalog-importer'
 
 import { batch, ENDPOINTS } from '../helpers'
 
@@ -97,5 +97,13 @@ export default class HttpClient extends ExternalClient {
     return this.get<Brand[]>(ENDPOINTS.brand.get).then((data) =>
       batch(data, (brand) => this.getBrandDetails(brand))
     )
+  }
+
+  private async getCategoryDetails({ id }: Category) {
+    return this.get<CategoryDetails>(ENDPOINTS.category.updateOrDetails(id))
+  }
+
+  public async getSourceCategories(categories: Category[]) {
+    return batch(categories, (category) => this.getCategoryDetails(category))
   }
 }

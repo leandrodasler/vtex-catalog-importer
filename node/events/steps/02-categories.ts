@@ -1,50 +1,63 @@
-import type { Category } from 'ssesandbox04.catalog-importer'
-
-import { updateCurrentImport } from '../../helpers'
-
-const matrixCategories = (
-  categoryTree: Category[],
-  level = 0,
-  result: Category[][] = []
-) => {
-  if (!result[level]) {
-    result[level] = []
-  }
-
-  categoryTree.forEach((category) => {
-    result[level].push(category)
-    if (category.children && category.children.length > 0) {
-      matrixCategories(category.children, level + 1, result)
-    }
-  })
-
-  return result
-}
+import {
+  batch,
+  CATEGORY_DELAY,
+  delay,
+  ENTITY_CONCURRENCY,
+  flatCategoryTree,
+  getEntityBySourceId,
+  updateCurrentImport,
+} from '../../helpers'
 
 const handleCategories = async (context: AppEventContext) => {
-  // TODO: process categories import
-  const { importEntity } = context.clients
-  const { id, settings = {}, categoryTree } = context.state.body
-  const { entity } = context.state
+  const { httpClient, catalog, importEntity } = context.clients
+  const {
+    id: executionImportId,
+    settings = {},
+    categoryTree,
+  } = context.state.body
+
+  const { entity: name } = context.state
   const { account: sourceAccount } = settings
 
   if (!categoryTree) return
 
-  const categoriesFlat = matrixCategories(categoryTree).flat()
-  const sourceCategoriesTotal = categoriesFlat.length
+  const inputCategories = flatCategoryTree(categoryTree)
+  const sourceCategoriesTotal = inputCategories.length
+  const sourceCategories = await httpClient.getSourceCategories(inputCategories)
 
   await updateCurrentImport(context, { sourceCategoriesTotal })
+  await batch(
+    sourceCategories,
+    async (category) => {
+      const { FatherCategoryId, GlobalCategoryId = 0 } = category
 
-  for (let i = 1; i <= sourceCategoriesTotal; i++) {
-    // eslint-disable-next-line no-await-in-loop
-    await importEntity.save({
-      executionImportId: id,
-      name: entity,
-      sourceAccount,
-      sourceId: i,
-      payload: { name: `${context.state.entity} ${i}` },
-    })
-  }
+      const fatherCategoryEntity = FatherCategoryId
+        ? await getEntityBySourceId(context, FatherCategoryId)
+        : undefined
+
+      const payload = {
+        ...category,
+        GlobalCategoryId: GlobalCategoryId || undefined,
+        FatherCategoryId: fatherCategoryEntity?.targetId as number | undefined,
+        Id: undefined,
+      }
+
+      const { Id: sourceId } = category
+      const { Id: targetId } = await catalog.createCategory(payload)
+
+      await importEntity.save({
+        executionImportId,
+        name,
+        sourceAccount,
+        sourceId,
+        targetId,
+        payload,
+      })
+
+      await delay(CATEGORY_DELAY)
+    },
+    ENTITY_CONCURRENCY
+  )
 }
 
 export default handleCategories

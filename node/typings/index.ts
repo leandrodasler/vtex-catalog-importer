@@ -36,10 +36,27 @@ declare global {
     SiteTitle: string
     Active: boolean
     MenuHome: boolean
-    AdWordsRemarketingCode: string
-    LomadeeCampaignCode: string
     Score?: number
     LinkId?: string
+  }
+  type CategoryDetails = {
+    Id?: number
+    Name: string
+    FatherCategoryId?: number
+    Title: string
+    Description: string
+    Keywords: string
+    IsActive: boolean
+    ShowInStoreFront: boolean
+    ShowBrandFilter: boolean
+    ActiveStoreFrontLink: boolean
+    GlobalCategoryId?: number
+    StockKeepingUnitSelectionMode: string
+    Score?: number
+    LinkId: string
+    HasChildren: boolean
+    TreePath: null
+    TreePathIds: null
   }
 }
 

@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 import type { ErrorLike, Maybe } from '@vtex/api'
-import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
+import type { AppSettingsInput, Category } from 'ssesandbox04.catalog-importer'
 
-import { IMPORT_STATUS, STEP_DELAY, STEPS } from '.'
+import { DEFAULT_BATCH_CONCURRENCY, IMPORT_STATUS, STEP_DELAY, STEPS } from '.'
 import { updateCurrentImport } from './importDBUtils'
 
 export const getCurrentSettings = async ({ clients: { apps } }: Context) =>
@@ -10,8 +10,6 @@ export const getCurrentSettings = async ({ clients: { apps } }: Context) =>
 
 export const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms))
-
-const DEFAULT_BATCH_CONCURRENCY = 1000
 
 export const batch = async <T, R = void>(
   data: T[],
@@ -38,6 +36,25 @@ export const batch = async <T, R = void>(
   await processBatch()
 
   return results.flat()
+}
+
+export const flatCategoryTree = (
+  categoryTree: Category[],
+  level = 0,
+  result: Category[][] = []
+) => {
+  if (!result[level]) {
+    result[level] = []
+  }
+
+  categoryTree.forEach((category) => {
+    result[level].push(category)
+    if (category.children?.length) {
+      flatCategoryTree(category.children, level + 1, result)
+    }
+  })
+
+  return result.flat()
 }
 
 export const printImport = (context: AppEventContext) => {
