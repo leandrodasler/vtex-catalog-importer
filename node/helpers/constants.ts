@@ -12,7 +12,7 @@ export const ENDPOINTS = {
   host: 'vtexcommercestable.com.br',
   defaultSettings:
     'http://ssesandbox04.myvtex.com/catalog-importer-configuration/settings',
-  getUser: '/api/vtexid/credential/validate',
+  user: '/api/vtexid/credential/validate',
   categoryTree: '/api/catalog_system/pub/category/tree/1000',
   brand: {
     get: '/api/catalog_system/pvt/brand/list',
