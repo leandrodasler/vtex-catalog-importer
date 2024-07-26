@@ -1,37 +1,20 @@
 import type { InstanceOptions, IOContext, IOResponse } from '@vtex/api'
 import { ExternalClient } from '@vtex/api'
-import type { AppSettingsInput, Category } from 'ssesandbox04.catalog-importer'
+import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
-import { batch, ENDPOINTS } from '../helpers'
+import { ENDPOINTS } from '../helpers'
 
 export default class HttpClient extends ExternalClient {
-  protected settings?: AppSettingsInput
-
   constructor(context: IOContext, options?: InstanceOptions) {
     super('', context, options)
   }
 
-  public setSettings(settings: AppSettingsInput) {
-    this.settings = settings
-  }
-
   protected getRequestConfig(): InstanceOptions {
-    const { vtexAppKey, vtexAppToken } = this.settings ?? {}
-
-    return {
-      ...this.options,
-      headers: {
-        ...this.options?.headers,
-        ...(vtexAppKey && { 'X-VTEX-API-AppKey': vtexAppKey }),
-        ...(vtexAppToken && { 'X-VTEX-API-AppToken': vtexAppToken }),
-      },
-    }
+    return { ...this.options }
   }
 
   protected getUrl(path: string) {
-    return this.settings?.account
-      ? `http://${this.settings.account}.${ENDPOINTS.host}${path}`
-      : path
+    return path
   }
 
   protected async request<Response, Body = Response>(
@@ -83,27 +66,9 @@ export default class HttpClient extends ExternalClient {
 
   public async getDefaultSettings() {
     return this.get<AppSettingsInput>(ENDPOINTS.defaultSettings)
+      .then((response) => ({ ...response, useDefault: true }))
       .catch(() => {
         throw new Error('admin/settings.default.error')
       })
-      .then((response) => ({ ...response, useDefault: true }))
-  }
-
-  private async getBrandDetails({ id }: Brand) {
-    return this.get<BrandDetails>(ENDPOINTS.brand.updateOrDetails(id))
-  }
-
-  public async getSourceBrands() {
-    return this.get<Brand[]>(ENDPOINTS.brand.get).then((data) =>
-      batch(data, (brand) => this.getBrandDetails(brand))
-    )
-  }
-
-  private async getCategoryDetails({ id }: Category) {
-    return this.get<CategoryDetails>(ENDPOINTS.category.updateOrDetails(id))
-  }
-
-  public async getSourceCategories(categories: Category[]) {
-    return batch(categories, (category) => this.getCategoryDetails(category))
   }
 }

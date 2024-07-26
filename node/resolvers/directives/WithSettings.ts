@@ -23,7 +23,7 @@ export default class WithSettings extends SchemaDirectiveVisitor {
         throw new Error('admin/settings.missing.error')
       }
 
-      context.clients.httpClient.setSettings(settings)
+      context.clients.sourceCatalog.setSettings(settings)
       context.state.settings = settings
 
       return resolve(root, args, context, info)

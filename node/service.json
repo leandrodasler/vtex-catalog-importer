@@ -15,6 +15,10 @@
     "status": {
       "path": "/_v/vtex-catalog-importer/status",
       "public": true
+    },
+    "populateSource": {
+      "path": "/_v/vtex-catalog-importer/populateSource",
+      "public": true
     }
   }
 }

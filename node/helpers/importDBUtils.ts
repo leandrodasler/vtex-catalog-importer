@@ -37,14 +37,18 @@ const getEntities = async (
 const deleteEntityFactory = (context: AppContext) => (
   entity: WithInternalFields<ImportEntity>
 ) => {
-  const { importEntity, catalog } = context.clients
+  const { importEntity, targetCatalog } = context.clients
   const { id, targetId } = entity
 
   importEntity.delete(id)
 
   if (targetId) {
     if (entity.name === 'brand') {
-      catalog.deleteBrand(targetId)
+      targetCatalog.deleteBrand(targetId)
+    }
+
+    if (entity.name === 'category') {
+      targetCatalog.deleteCategory(targetId)
     }
   }
 }

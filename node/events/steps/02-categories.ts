@@ -9,7 +9,7 @@ import {
 } from '../../helpers'
 
 const handleCategories = async (context: AppEventContext) => {
-  const { httpClient, catalog, importEntity } = context.clients
+  const { sourceCatalog, targetCatalog, importEntity } = context.clients
   const {
     id: executionImportId,
     settings = {},
@@ -21,9 +21,9 @@ const handleCategories = async (context: AppEventContext) => {
 
   if (!categoryTree) return
 
-  const inputCategories = flatCategoryTree(categoryTree)
-  const sourceCategoriesTotal = inputCategories.length
-  const sourceCategories = await httpClient.getSourceCategories(inputCategories)
+  const categories = flatCategoryTree(categoryTree)
+  const sourceCategoriesTotal = categories.length
+  const sourceCategories = await sourceCatalog.getSourceCategories(categories)
 
   await updateCurrentImport(context, { sourceCategoriesTotal })
   await batch(
@@ -43,7 +43,7 @@ const handleCategories = async (context: AppEventContext) => {
       }
 
       const { Id: sourceId } = category
-      const { Id: targetId } = await catalog.createCategory(payload)
+      const { Id: targetId } = await targetCatalog.createCategory(payload)
 
       await importEntity.save({
         executionImportId,

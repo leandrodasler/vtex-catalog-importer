@@ -18,7 +18,7 @@ const runImport = async (context: AppEventContext) => {
       throw new Error('admin/settings.missing.error')
     }
 
-    const { importExecution, httpClient } = context.clients
+    const { importExecution, httpClient, sourceCatalog } = context.clients
     const currentSettings = settings.useDefault
       ? await httpClient.getDefaultSettings()
       : settings
@@ -28,7 +28,7 @@ const runImport = async (context: AppEventContext) => {
       IMPORT_EXECUTION_FULL_FIELDS
     )
 
-    httpClient.setSettings(currentSettings)
+    sourceCatalog.setSettings(currentSettings)
     context.state.body = { ...importData, settings: currentSettings }
     await updateCurrentImport(context, { status: IMPORT_STATUS.RUNNING })
     batch(STEPS_HANDLERS, processStepFactory(context), 1)

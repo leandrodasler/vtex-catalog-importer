@@ -77,6 +77,13 @@
       }
     },
     {
+      "name": "outbound-access",
+      "attrs": {
+        "host": "api.cosmos.bluesoft.com.br",
+        "path": "*"
+      }
+    },
+    {
       "name": "Sku.aspx"
     },
     {

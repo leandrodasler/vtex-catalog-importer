@@ -3,7 +3,7 @@ import type { InstanceOptions } from '@vtex/api'
 import { ENDPOINTS } from '../helpers'
 import HttpClient from './HttpClient'
 
-export default class Catalog extends HttpClient {
+export default class TargetCatalog extends HttpClient {
   protected getRequestConfig(): InstanceOptions {
     return {
       ...this.options,
@@ -28,5 +28,12 @@ export default class Catalog extends HttpClient {
 
   public async createCategory(payload: CategoryDetails) {
     return this.post<CategoryDetails>(ENDPOINTS.category.set, payload)
+  }
+
+  public async deleteCategory(id: string | number) {
+    return this.put<CategoryDetails, Partial<CategoryDetails>>(
+      ENDPOINTS.category.updateOrDetails(id),
+      { Name: 'DELETED' }
+    ).catch(() => {})
   }
 }

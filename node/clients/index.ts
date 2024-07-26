@@ -6,17 +6,27 @@ import type {
   ImportExecution,
 } from 'ssesandbox04.catalog-importer'
 
-import Catalog from './Catalog'
-import HttpClient from './HttpClient'
 import AdminAuth from './AdminAuth'
+import Cosmos from './Cosmos'
+import HttpClient from './HttpClient'
+import SourceCatalog from './SourceCatalog'
+import TargetCatalog from './TargetCatalog'
 
 export class Clients extends IOClients {
   public get httpClient() {
     return this.getOrSet('httpClient', HttpClient)
   }
 
-  public get catalog() {
-    return this.getOrSet('catalog', Catalog)
+  public get sourceCatalog() {
+    return this.getOrSet('sourceCatalog', SourceCatalog)
+  }
+
+  public get targetCatalog() {
+    return this.getOrSet('targetCatalog', TargetCatalog)
+  }
+
+  public get cosmos() {
+    return this.getOrSet('cosmos', Cosmos)
   }
 
   public get adminAuth() {
