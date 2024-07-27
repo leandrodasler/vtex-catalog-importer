@@ -19,6 +19,7 @@ declare global {
   type EventState = {
     body: Partial<WithInternalFields<Import>>
     entity?: string
+    skuIds?: number[]
   }
   type AppEventContext = EventContext<Clients, EventState>
   type AppContext = Context | AppEventContext
@@ -57,6 +58,30 @@ declare global {
     HasChildren: boolean
     TreePath: null
     TreePathIds: null
+  }
+  type ProductAndSkuIds = {
+    data: Record<string, number[]>
+    range: { total: number; from: number; to: number }
+  }
+  type ProductDetails = {
+    Id?: number
+    Name: string
+    DepartmentId: number
+    CategoryId: number
+    BrandId: number
+    LinkId: string
+    RefId: string
+    IsVisible: boolean
+    Description: string
+    DescriptionShort: string
+    ReleaseDate: string
+    KeyWords: string
+    Title: string
+    IsActive: boolean
+    TaxCode: string
+    MetaTagDescription: string
+    ShowWithoutStock: boolean
+    Score: number
   }
 }
 

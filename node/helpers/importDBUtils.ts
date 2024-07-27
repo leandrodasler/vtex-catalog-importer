@@ -72,10 +72,10 @@ export const updateImportStatus = async (
 
 export const getEntityBySourceId = (
   context: AppEventContext,
+  entity: string,
   sourceId: string | number
 ) => {
   const { id } = context.state.body
-  const { entity } = context.state
 
   return context.clients.importEntity
     .search(

@@ -17,7 +17,7 @@ const handlePrices = async (context: AppEventContext) => {
       name: entity,
       sourceAccount,
       sourceId: i,
-      payload: { name: `${context.state.entity} ${i}` },
+      payload: { name: `${entity} ${i}` },
     })
   }
 }

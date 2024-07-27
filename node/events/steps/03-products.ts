@@ -1,25 +1,56 @@
-import { updateCurrentImport } from '../../helpers'
+import { batch, getEntityBySourceId, updateCurrentImport } from '../../helpers'
 
 const handleProducts = async (context: AppEventContext) => {
-  // TODO: process products import
-  const { importEntity } = context.clients
-  const { id, settings = {} } = context.state.body
+  const { sourceCatalog, targetCatalog, importEntity } = context.clients
+  const {
+    id: executionImportId,
+    settings = {},
+    categoryTree,
+  } = context.state.body
+
   const { entity } = context.state
   const { account: sourceAccount } = settings
-  const sourceProductsTotal = 5
 
-  await updateCurrentImport(context, { sourceProductsTotal })
+  if (!categoryTree) return
+  const { productIds, skuIds } = await sourceCatalog.getProductAndSkuIds(
+    categoryTree
+  )
 
-  for (let i = 1; i <= sourceProductsTotal; i++) {
-    // eslint-disable-next-line no-await-in-loop
+  context.state.skuIds = skuIds
+  const { length: sourceProductsTotal } = productIds
+  const { length: sourceSkusTotal } = skuIds
+
+  await updateCurrentImport(context, { sourceProductsTotal, sourceSkusTotal })
+  const sourceProducts = await sourceCatalog.getProducts(productIds)
+
+  await batch(sourceProducts, async (product) => {
+    const { DepartmentId, CategoryId, BrandId } = product
+    const [department, category, brand] = await Promise.all([
+      getEntityBySourceId(context, 'category', DepartmentId),
+      getEntityBySourceId(context, 'category', CategoryId),
+      getEntityBySourceId(context, 'brand', BrandId),
+    ])
+
+    const payload = {
+      ...product,
+      DepartmentId: department?.targetId as number,
+      CategoryId: category?.targetId as number,
+      BrandId: brand?.targetId as number,
+      Id: undefined,
+    }
+
+    const { Id: sourceId } = product
+    const { Id: targetId } = await targetCatalog.createProduct(payload)
+
     await importEntity.save({
-      executionImportId: id,
+      executionImportId,
       name: entity,
       sourceAccount,
-      sourceId: i,
-      payload: { name: `${context.state.entity} ${i}` },
+      sourceId,
+      targetId,
+      payload,
     })
-  }
+  })
 }
 
 export default handleProducts

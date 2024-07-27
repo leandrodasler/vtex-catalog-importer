@@ -5,6 +5,7 @@ import type {
 
 import {
   IMPORT_EXECUTION_FULL_FIELDS,
+  IMPORT_STATUS,
   ONE_RESULT,
   STEPS_ENTITIES,
 } from '../../helpers'
@@ -47,12 +48,13 @@ export const importProgress = async (
   const sourceStocksTotal = currentImport.sourceStocksTotal ?? 0
   const { status } = currentImport
   const completed =
-    brands >= sourceBrandsTotal &&
-    categories >= sourceCategoriesTotal &&
-    products >= sourceProductsTotal &&
-    skus >= sourceSkusTotal &&
-    prices >= sourcePricesTotal &&
-    stocks >= sourceStocksTotal
+    status === IMPORT_STATUS.ERROR ||
+    (brands >= sourceBrandsTotal &&
+      categories >= sourceCategoriesTotal &&
+      products >= sourceProductsTotal &&
+      skus >= sourceSkusTotal &&
+      prices >= sourcePricesTotal &&
+      stocks >= sourceStocksTotal)
 
   return {
     currentImport: {

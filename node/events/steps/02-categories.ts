@@ -2,9 +2,9 @@ import {
   batch,
   CATEGORY_DELAY,
   delay,
-  ENTITY_CONCURRENCY,
   flatCategoryTree,
   getEntityBySourceId,
+  NO_CONCURRENCY,
   updateCurrentImport,
 } from '../../helpers'
 
@@ -16,14 +16,14 @@ const handleCategories = async (context: AppEventContext) => {
     categoryTree,
   } = context.state.body
 
-  const { entity: name } = context.state
+  const { entity = '' } = context.state
   const { account: sourceAccount } = settings
 
   if (!categoryTree) return
 
   const categories = flatCategoryTree(categoryTree)
   const sourceCategoriesTotal = categories.length
-  const sourceCategories = await sourceCatalog.getSourceCategories(categories)
+  const sourceCategories = await sourceCatalog.getCategories(categories)
 
   await updateCurrentImport(context, { sourceCategoriesTotal })
   await batch(
@@ -31,14 +31,14 @@ const handleCategories = async (context: AppEventContext) => {
     async (category) => {
       const { FatherCategoryId, GlobalCategoryId = 0 } = category
 
-      const fatherCategoryEntity = FatherCategoryId
-        ? await getEntityBySourceId(context, FatherCategoryId)
+      const fatherCategory = FatherCategoryId
+        ? await getEntityBySourceId(context, entity, FatherCategoryId)
         : undefined
 
       const payload = {
         ...category,
         GlobalCategoryId: GlobalCategoryId || undefined,
-        FatherCategoryId: fatherCategoryEntity?.targetId as number | undefined,
+        FatherCategoryId: fatherCategory?.targetId as number | undefined,
         Id: undefined,
       }
 
@@ -47,7 +47,7 @@ const handleCategories = async (context: AppEventContext) => {
 
       await importEntity.save({
         executionImportId,
-        name,
+        name: entity,
         sourceAccount,
         sourceId,
         targetId,
@@ -56,7 +56,7 @@ const handleCategories = async (context: AppEventContext) => {
 
       await delay(CATEGORY_DELAY)
     },
-    ENTITY_CONCURRENCY
+    NO_CONCURRENCY
   )
 }
 

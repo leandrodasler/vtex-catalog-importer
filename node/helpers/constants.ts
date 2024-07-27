@@ -13,15 +13,21 @@ export const ENDPOINTS = {
   defaultSettings:
     'http://ssesandbox04.myvtex.com/catalog-importer-configuration/settings',
   user: '/api/vtexid/credential/validate',
-  categoryTree: '/api/catalog_system/pub/category/tree/1000',
   brand: {
     get: '/api/catalog_system/pvt/brand/list',
     set: '/api/catalog/pvt/brand',
     updateOrDetails: (id: string | number) => `/api/catalog/pvt/brand/${id}`,
   },
   category: {
+    tree: '/api/catalog_system/pub/category/tree/1000',
     set: '/api/catalog/pvt/category',
     updateOrDetails: (id: string | number) => `/api/catalog/pvt/category/${id}`,
+  },
+  product: {
+    get: (categoryId: string | number, from: number, to: number) =>
+      `/api/catalog_system/pvt/products/GetProductAndSkuIds?categoryId=${categoryId}&_from=${from}&_to=${to}`,
+    set: '/api/catalog/pvt/product',
+    updateOrDetails: (id: string | number) => `/api/catalog/pvt/product/${id}`,
   },
 }
 
@@ -73,7 +79,7 @@ export const IMPORT_STATUS: { [keyof in ImportStatus]: ImportStatus } = {
 
 export const STEP_DELAY = 1000
 export const DEFAULT_BATCH_CONCURRENCY = 1000
-export const ENTITY_CONCURRENCY = 1
+export const NO_CONCURRENCY = 1
 export const DELETE_CONCURRENCY = 500
 export const CATEGORY_DELAY = 500
 export const ONE_RESULT = { page: 1, pageSize: 1 }

@@ -36,4 +36,8 @@ export default class TargetCatalog extends HttpClient {
       { Name: 'DELETED' }
     ).catch(() => {})
   }
+
+  public async createProduct(payload: ProductDetails) {
+    return this.post<ProductDetails>(ENDPOINTS.product.set, payload)
+  }
 }
