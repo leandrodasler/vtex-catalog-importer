@@ -14,8 +14,8 @@
   "admin/delete.label": "Excluir",
   "admin/load.label": "Carregar mais",
   "admin/reload.label": "Recarregar",
-  "admin/showMore.label": "Exibir mais",
-  "admin/showLess.label": "Exibir menos",
+  "admin/showMore.label": "Exibir mais detalhes",
+  "admin/showLess.label": "Exibir menos detalhes",
 
   "admin/settings.label": "Configurações",
   "admin/settings.default.label": "Utilizar configurações padrão",

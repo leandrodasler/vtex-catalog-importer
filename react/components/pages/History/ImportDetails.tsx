@@ -1,8 +1,7 @@
 import {
   Button,
-  csx,
   IconCaretDown,
-  IconCaretRight,
+  IconCaretUp,
   Stack,
   Text,
   useBreakpoint,
@@ -25,10 +24,6 @@ import { useLocaleDate } from './common'
 
 type Props = { currentImport: Import }
 
-const toggleButtonTheme = csx({
-  '[data-size="normal"]': { paddingLeft: 0, marginY: '$space-2' },
-})
-
 const ImportDetails = ({ currentImport }: Props) => {
   const { formatMessage } = useIntl()
   const { getStartedAt, getFinishedAt } = useLocaleDate()
@@ -44,34 +39,31 @@ const ImportDetails = ({ currentImport }: Props) => {
   )
 
   return (
-    <>
-      <Stack space="$space-2" fluid>
-        <section>
-          <Text variant="title1">
-            {formatMessage(messages.importCreatedInLabel)}:{' '}
-          </Text>
-          {getStartedAt(currentImport.createdIn)}
-        </section>
-        <section>
-          <Text variant="title1">
-            {formatMessage(messages.importLastInteractionInLabel)}:{' '}
-          </Text>
-          {getFinishedAt(currentImport.lastInteractionIn, currentImport.status)}
-        </section>
-        <section>
-          <Text variant="title1">
-            {formatMessage(messages.settingsAccountLabel)}:{' '}
-          </Text>
-          {currentImport.settings.useDefault
-            ? formatMessage(messages.settingsDefaultShort)
-            : currentImport.settings.account}
-        </section>
-      </Stack>
+    <Stack space="$space-2" fluid>
+      <section>
+        <Text variant="title1">
+          {formatMessage(messages.importCreatedInLabel)}:{' '}
+        </Text>
+        {getStartedAt(currentImport.createdIn)}
+      </section>
+      <section>
+        <Text variant="title1">
+          {formatMessage(messages.importLastInteractionInLabel)}:{' '}
+        </Text>
+        {getFinishedAt(currentImport.lastInteractionIn, currentImport.status)}
+      </section>
+      <section>
+        <Text variant="title1">
+          {formatMessage(messages.settingsAccountLabel)}:{' '}
+        </Text>
+        {currentImport.settings.useDefault
+          ? formatMessage(messages.settingsDefaultShort)
+          : currentImport.settings.account}
+      </section>
       {breakpoint === 'mobile' && (
         <Button
-          className={toggleButtonTheme}
           variant="tertiary"
-          icon={visible ? <IconCaretDown /> : <IconCaretRight />}
+          icon={visible ? <IconCaretUp /> : <IconCaretDown />}
           {...getToggleProps()}
         >
           {visible
@@ -125,7 +117,7 @@ const ImportDetails = ({ currentImport }: Props) => {
           </section>
         )}
       </Stack>
-    </>
+    </Stack>
   )
 }
 
