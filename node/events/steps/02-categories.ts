@@ -1,8 +1,5 @@
 import {
   batch,
-  CATEGORY_DELAY,
-  delay,
-  flatCategoryTree,
   getEntityBySourceId,
   NO_CONCURRENCY,
   updateCurrentImport,
@@ -21,11 +18,12 @@ const handleCategories = async (context: AppEventContext) => {
 
   if (!categoryTree) return
 
-  const categories = flatCategoryTree(categoryTree)
+  const categories = sourceCatalog.flatCategoryTree(categoryTree)
   const sourceCategoriesTotal = categories.length
-  const sourceCategories = await sourceCatalog.getCategories(categories)
 
   await updateCurrentImport(context, { sourceCategoriesTotal })
+  const sourceCategories = await sourceCatalog.getCategories(categories)
+
   await batch(
     sourceCategories,
     async (category) => {
@@ -53,8 +51,6 @@ const handleCategories = async (context: AppEventContext) => {
         targetId,
         payload,
       })
-
-      await delay(CATEGORY_DELAY)
     },
     NO_CONCURRENCY
   )

@@ -38,8 +38,27 @@ export default class SourceCatalog extends HttpClient {
     )
   }
 
-  public getCategoryTree() {
+  public async getCategoryTree() {
     return this.get<Maybe<Category[]>>(ENDPOINTS.category.tree)
+  }
+
+  public flatCategoryTree(
+    categoryTree: Category[],
+    level = 0,
+    result: Category[][] = []
+  ) {
+    if (!result[level]) {
+      result[level] = []
+    }
+
+    categoryTree.forEach((category) => {
+      result[level].push(category)
+      if (category.children?.length) {
+        this.flatCategoryTree(category.children, level + 1, result)
+      }
+    })
+
+    return result.flat()
   }
 
   private async getCategoryDetails({ id }: Category) {
@@ -50,7 +69,7 @@ export default class SourceCatalog extends HttpClient {
     return batch(categories, (category) => this.getCategoryDetails(category))
   }
 
-  public async getProductAndSkuIds(categoryTree: Category[]) {
+  private async getProductIds(categoryTree: Category[]) {
     const firstLevelCategories = [...categoryTree]
     const maxPerPage = 250
     let result: ProductAndSkuIds['data'] = {}
@@ -82,17 +101,25 @@ export default class SourceCatalog extends HttpClient {
     }
 
     await getFromNextCategory()
-    const productIds = Object.keys(result)
-    const skuIds = Object.values(result).flat()
 
-    return { productIds, skuIds }
+    return Object.keys(result)
   }
 
   private async getProductDetails(id: string | number) {
     return this.get<ProductDetails>(ENDPOINTS.product.updateOrDetails(id))
   }
 
-  public async getProducts(productIds: string[]) {
-    return batch(productIds, (id) => this.getProductDetails(id))
+  public async getProducts(categoryTree: Category[] = []) {
+    const productIds = await this.getProductIds(categoryTree)
+    const categories = this.flatCategoryTree(categoryTree)
+    const products = await batch(productIds, async (id) => {
+      const product = await this.getProductDetails(id)
+      const { IsActive, CategoryId } = product
+      const inCategoryTree = categories.find((c) => c.id === String(CategoryId))
+
+      return IsActive && inCategoryTree ? product : null
+    })
+
+    return products.filter((c) => !!c) as ProductDetails[]
   }
 }

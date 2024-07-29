@@ -71,8 +71,14 @@ const ShowImportModal = ({ modalState, id }: Props) => {
   return (
     <Modal state={modalState} size="large">
       <ModalHeader>
-        <Stack direction="row" space="$space-2">
-          <ModalTitle>{formatMessage(messages.importDetailsLabel)}</ModalTitle>
+        <Stack
+          direction="row"
+          space="$space-2"
+          className={csx({ width: '100%' })}
+        >
+          <ModalTitle className={csx({ maxWidth: '50%' })}>
+            {formatMessage(messages.importDetailsLabel)}
+          </ModalTitle>
           {status && (
             <Tag
               label={getStatusLabel(status)}

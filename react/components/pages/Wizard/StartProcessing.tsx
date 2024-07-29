@@ -31,7 +31,6 @@ import {
   ModalButtons,
   Tree,
   categoryTreeMapper,
-  goToWizardPage,
   messages,
   treeSorter,
   useStockOptionLabel,
@@ -134,6 +133,11 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
     ]
   )
 
+  const gotToWizard = useCallback(() => {
+    setSuccessImport(false)
+    state.select('1')
+  }, [setSuccessImport, state])
+
   return (
     <Stack space="$space-4" fluid>
       <Flex
@@ -196,7 +200,7 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
         <Button
           variant="secondary"
           onClick={
-            importData?.executeImport ? goToWizardPage : () => state.select('3')
+            importData?.executeImport ? gotToWizard : () => state.select('3')
           }
           icon={<IconArrowLeft />}
           disabled={loading || confirmationImportModal.open || importModal.open}

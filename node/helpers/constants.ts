@@ -24,10 +24,15 @@ export const ENDPOINTS = {
     updateOrDetails: (id: string | number) => `/api/catalog/pvt/category/${id}`,
   },
   product: {
+    /* remove this after */
+    getAll: (from: number, to: number) =>
+      `/api/catalog_system/pvt/products/GetProductAndSkuIds?_from=${from}&_to=${to}`,
     get: (categoryId: string | number, from: number, to: number) =>
       `/api/catalog_system/pvt/products/GetProductAndSkuIds?categoryId=${categoryId}&_from=${from}&_to=${to}`,
     set: '/api/catalog/pvt/product',
     updateOrDetails: (id: string | number) => `/api/catalog/pvt/product/${id}`,
+    getByRefId: (refId: string) =>
+      `/api/catalog_system/pvt/products/productgetbyrefid/${refId}`,
   },
 }
 
@@ -78,10 +83,8 @@ export const IMPORT_STATUS: { [keyof in ImportStatus]: ImportStatus } = {
 }
 
 export const STEP_DELAY = 1000
-export const DEFAULT_BATCH_CONCURRENCY = 1000
+export const DEFAULT_BATCH_CONCURRENCY = 500
 export const NO_CONCURRENCY = 1
-export const DELETE_CONCURRENCY = 500
-export const CATEGORY_DELAY = 500
 export const ONE_RESULT = { page: 1, pageSize: 1 }
 export const COMMON_WHERE = `(status<>${IMPORT_STATUS.TO_BE_DELETED})AND(status<>${IMPORT_STATUS.DELETING})`
 

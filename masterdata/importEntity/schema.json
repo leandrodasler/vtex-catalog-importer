@@ -16,6 +16,7 @@
     "executionImportId",
     "sourceAccount",
     "sourceId",
-    "targetId"
+    "targetId",
+    "pathParams"
   ]
 }

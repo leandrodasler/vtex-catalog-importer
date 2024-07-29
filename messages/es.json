@@ -14,6 +14,8 @@
   "admin/delete.label": "Eliminar",
   "admin/load.label": "Cargar más",
   "admin/reload.label": "Recargar",
+  "admin/selectAll.label": "Seleccionar todo",
+  "admin/unselectAll.label": "Eliminar selección",
   "admin/showMore.label": "Mostrar más detalles",
   "admin/showLess.label": "Mostrar menos detalles",
 

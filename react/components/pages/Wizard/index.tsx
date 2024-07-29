@@ -31,8 +31,8 @@ const StartProcessing = lazy(() => import('./StartProcessing'))
 export type CheckedCategory = Category & {
   checked: boolean
   isRoot?: boolean
-  parentId: string
-  children?: CheckedCategory[]
+  parentId?: string
+  children?: CheckedCategory[] | null
 }
 
 export interface CheckedCategories {

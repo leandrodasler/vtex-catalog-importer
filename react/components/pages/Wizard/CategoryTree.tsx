@@ -9,9 +9,12 @@ import {
   IconArrowsClockwise,
   IconCaretDown,
   IconCaretRight,
+  IconCheck,
+  IconX,
+  Stack,
   csx,
 } from '@vtex/admin-ui'
-import React, { useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
 import type {
   AppSettingsInput,
@@ -29,6 +32,7 @@ import {
   treeSorter,
 } from '../../common'
 import { CATEGORIES_QUERY, useQueryCustom } from '../../graphql'
+import { findCategoryById, findParentCategory } from './common'
 
 interface CategoryTreeProps {
   state: TabState
@@ -49,12 +53,10 @@ const CategoryTree = ({
 }: CategoryTreeProps) => {
   const { formatMessage } = useIntl()
 
-  const {
-    data,
-    loading: loadingCategories,
-    error: errorCategories,
-    refetch: refetchCategories,
-  } = useQueryCustom<Query, QueryCategoriesArgs>(CATEGORIES_QUERY, {
+  const { data, loading, error, refetch } = useQueryCustom<
+    Query,
+    QueryCategoriesArgs
+  >(CATEGORIES_QUERY, {
     variables: { settings },
     toastError: false,
   })
@@ -66,82 +68,28 @@ const CategoryTree = ({
 
   const categories = data?.categories?.sort(treeSorter).map(categoryTreeMapper)
 
-  const findCategoryById = (
-    rootCategories: Category[] | null | undefined,
-    categoryId: string
-  ): Category | undefined => {
-    if (!rootCategories) return undefined
-    for (const category of rootCategories) {
-      if (category.id === categoryId) {
-        return category
-      }
-
-      if (category.children) {
-        const subCategory = findCategoryById(category.children, categoryId)
-
-        if (subCategory) {
-          return subCategory
-        }
-      }
-    }
-
-    return undefined
-  }
-
-  const findParentCategory = (
-    rootCategories: Category[] | null | undefined,
-    categoryId: string
-  ): Category | undefined => {
-    if (!rootCategories) return undefined
-    for (const category of rootCategories) {
-      if (category.children?.some((sub: Category) => sub.id === categoryId)) {
-        return category
-      }
-
-      if (category.children) {
-        const parentCategory = findParentCategory(category.children, categoryId)
-
-        if (parentCategory) {
-          return parentCategory
-        }
-      }
-    }
-
-    return undefined
-  }
-
-  const handleCategoryChange = (
-    categoryId: string,
-    parentChecked?: boolean
-  ) => {
+  const handleCategoryChange = (categoryId: string) => {
     setCheckedTreeOptions((prevState) => {
-      const isChecked =
-        parentChecked !== undefined
-          ? parentChecked
-          : !prevState[categoryId]?.checked
-
+      const isChecked = !prevState[categoryId]?.checked
       const category = findCategoryById(categories, categoryId)
-
       const newState = {
         ...prevState,
         [categoryId]: {
           ...category,
           checked: isChecked,
-          parentId: findParentCategory(categories, categoryId)?.id ?? null,
+          parentId: findParentCategory(categories, categoryId)?.id,
         },
       }
 
       const markChildren = (subCategory: Category, checked: boolean) => {
-        if (subCategory.children) {
-          subCategory.children.forEach((childCategory: Category) => {
-            newState[childCategory.id] = {
-              ...childCategory,
-              checked,
-              parentId: subCategory.id,
-            }
-            markChildren(childCategory, checked)
-          })
-        }
+        subCategory.children?.forEach((childCategory: Category) => {
+          newState[childCategory.id] = {
+            ...childCategory,
+            checked,
+            parentId: subCategory.id,
+          }
+          markChildren(childCategory, checked)
+        })
       }
 
       if (category) {
@@ -155,8 +103,7 @@ const CategoryTree = ({
           newState[parentCategory.id] = {
             ...parentCategory,
             checked: true,
-            parentId:
-              findParentCategory(categories, parentCategory.id)?.id ?? null,
+            parentId: findParentCategory(categories, parentCategory.id)?.id,
           }
           parentCategory = findParentCategory(categories, parentCategory.id)
         }
@@ -185,7 +132,7 @@ const CategoryTree = ({
             style={{ marginRight: '5px', opacity: 0 }}
           />
         )}
-        {(category.children?.length ?? 0) > 0 && (
+        {!!category.children?.length && (
           <>
             {expandedCategories[category.id] ? (
               <IconCaretDown
@@ -211,38 +158,69 @@ const CategoryTree = ({
         />
       </div>
       {expandedCategories[category.id] &&
-        category.children &&
-        category.children.map((child: Category) =>
+        category.children?.map((child: Category) =>
           renderCategory(child, level + 1)
         )}
     </div>
   )
 
+  const anyChecked = useMemo(
+    () =>
+      checkedTreeOptions &&
+      Object.values(checkedTreeOptions).some((entry) => entry.checked),
+    [checkedTreeOptions]
+  )
+
+  const toggleSelectAll = useCallback(() => {
+    const newState: CheckedCategories = {}
+    const toggle = ({ id, name, children }: Category) => {
+      newState[id] = {
+        checked: !anyChecked,
+        id,
+        name,
+        parentId: findParentCategory(categories, id)?.id,
+      }
+
+      children?.forEach((child: Category) => toggle(child))
+    }
+
+    categories?.forEach(toggle)
+    setCheckedTreeOptions(newState)
+  }, [anyChecked, categories, setCheckedTreeOptions])
+
   return (
-    <div className={csx({ position: 'relative' })}>
-      <Button
-        className={csx({ position: 'absolute', top: 0, right: 0 })}
-        disabled={loadingCategories}
-        icon={<IconArrowsClockwise />}
-        onClick={() => refetchCategories()}
-        variant="tertiary"
-      >
-        {formatMessage(messages.reloadLabel)}
-      </Button>
-      {errorCategories && (
+    <Stack space="$space-4" fluid>
+      <Flex justify="space-between">
+        <Button
+          disabled={loading || error || !categories?.length}
+          icon={anyChecked ? <IconX /> : <IconCheck />}
+          onClick={() => toggleSelectAll()}
+          variant="tertiary"
+        >
+          {formatMessage(
+            anyChecked ? messages.unselectAllLabel : messages.selectAllLabel
+          )}
+        </Button>
+        <Button
+          disabled={loading}
+          icon={<IconArrowsClockwise />}
+          onClick={() => refetch()}
+          variant="tertiary"
+        >
+          {formatMessage(messages.reloadLabel)}
+        </Button>
+      </Flex>
+      {error && (
         <Center>
-          <ErrorMessage
-            error={errorCategories}
-            title={messages.categoriesSourceError}
-          />
+          <ErrorMessage error={error} title={messages.categoriesSourceError} />
         </Center>
       )}
-      {loadingCategories && <SuspenseFallback />}
-      {!loadingCategories &&
-        !errorCategories &&
-        categories &&
-        categories.map((category: Category) => renderCategory(category))}
-
+      {loading && <SuspenseFallback />}
+      {!error && !loading && categories?.length && (
+        <section>
+          {categories.map((category: Category) => renderCategory(category))}
+        </section>
+      )}
       <Flex justify="space-between" className={csx({ marginTop: '$space-4' })}>
         <Button
           variant="secondary"
@@ -255,15 +233,12 @@ const CategoryTree = ({
           onClick={() => state.select('3')}
           icon={<IconArrowRight />}
           iconPosition="end"
-          disabled={
-            !checkedTreeOptions ||
-            !Object.values(checkedTreeOptions).some((entry) => entry.checked)
-          }
+          disabled={!anyChecked}
         >
           {formatMessage(messages.nextLabel)}
         </Button>
       </Flex>
-    </div>
+    </Stack>
   )
 }
 

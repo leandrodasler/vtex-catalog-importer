@@ -6,7 +6,7 @@ import type {
 } from 'ssesandbox04.catalog-importer'
 
 import {
-  DELETE_CONCURRENCY,
+  DEFAULT_BATCH_CONCURRENCY,
   IMPORT_ENTITY_FIELDS,
   IMPORT_EXECUTION_FIELDS,
   IMPORT_STATUS,
@@ -38,18 +38,13 @@ const deleteEntityFactory = (context: AppContext) => (
   entity: WithInternalFields<ImportEntity>
 ) => {
   const { importEntity, targetCatalog } = context.clients
-  const { id, targetId } = entity
+  const { id, name, targetId } = entity
 
   importEntity.delete(id)
 
-  if (targetId) {
-    if (entity.name === 'brand') {
-      targetCatalog.deleteBrand(targetId)
-    }
-
-    if (entity.name === 'category') {
-      targetCatalog.deleteCategory(targetId)
-    }
+  /* remove this after */
+  if (name && targetId) {
+    targetCatalog.deleteEntity(name, targetId)
   }
 }
 
@@ -91,9 +86,13 @@ export const getEntityBySourceId = (
 
 export const deleteImport = async (context: AppContext, importId: string) => {
   await updateImportStatus(context, importId, DELETING)
-  const entities = await getEntities(context, importId, DELETE_CONCURRENCY)
+  const entities = await getEntities(
+    context,
+    importId,
+    DEFAULT_BATCH_CONCURRENCY
+  )
 
-  batch(entities.data, deleteEntityFactory(context), DELETE_CONCURRENCY)
+  batch(entities.data, deleteEntityFactory(context))
 
   if (!entities.pagination.total) {
     context.clients.importExecution.delete(importId)

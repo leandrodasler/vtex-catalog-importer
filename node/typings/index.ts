@@ -30,7 +30,7 @@ declare global {
   type WithSettingsField = GraphQLField<unknown, Context, WithSettingsArgs>
   type Brand = BrandFromClients
   type BrandDetails = {
-    Id?: number
+    Id: number
     Name: string
     Text: string
     Keywords: string
@@ -41,7 +41,7 @@ declare global {
     LinkId?: string
   }
   type CategoryDetails = {
-    Id?: number
+    Id: number
     Name: string
     FatherCategoryId?: number
     Title: string
@@ -64,7 +64,7 @@ declare global {
     range: { total: number; from: number; to: number }
   }
   type ProductDetails = {
-    Id?: number
+    Id: number
     Name: string
     DepartmentId: number
     CategoryId: number

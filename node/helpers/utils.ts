@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import type { ErrorLike, Maybe } from '@vtex/api'
-import type { AppSettingsInput, Category } from 'ssesandbox04.catalog-importer'
+import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
 import { DEFAULT_BATCH_CONCURRENCY, IMPORT_STATUS, STEP_DELAY, STEPS } from '.'
 import { updateCurrentImport } from './importDBUtils'
@@ -38,25 +38,6 @@ export const batch = async <T, R = void>(
   return results.flat()
 }
 
-export const flatCategoryTree = (
-  categoryTree: Category[],
-  level = 0,
-  result: Category[][] = []
-) => {
-  if (!result[level]) {
-    result[level] = []
-  }
-
-  categoryTree.forEach((category) => {
-    result[level].push(category)
-    if (category.children?.length) {
-      flatCategoryTree(category.children, level + 1, result)
-    }
-  })
-
-  return result.flat()
-}
-
 export const printImport = (context: AppEventContext) => {
   const {
     entity,
@@ -85,13 +66,11 @@ export const printImport = (context: AppEventContext) => {
 }
 
 export const handleError = async (context: AppEventContext, e: ErrorLike) => {
-  const errorDetailMessage =
-    e.response?.data?.Message ??
-    e.response?.data?.message ??
-    e.response?.statusText
-
-  const errorDetail = errorDetailMessage ? ` - ${errorDetailMessage}` : ''
-  const error = `${e.message}${errorDetail}`
+  const data = e.response?.data
+  const statusText = e.response?.statusText
+  const fallbackMessage = data && typeof data === 'string' ? data : statusText
+  const errorDetail = data?.Message ?? data?.message ?? fallbackMessage
+  const error = `${e.message}${errorDetail ? ` - ${errorDetail}` : ''}`
   const entityError = context.state.entity
 
   console.log('========================')
