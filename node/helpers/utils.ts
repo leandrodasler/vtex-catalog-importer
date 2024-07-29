@@ -38,6 +38,13 @@ export const batch = async <T, R = void>(
   return results.flat()
 }
 
+export const sequentialBatch = async <T, R = void>(
+  data: T[],
+  elementCallback: (element: T) => Maybe<Promise<R>> | R
+) => {
+  return batch(data, elementCallback, 1)
+}
+
 export const printImport = (context: AppEventContext) => {
   const {
     entity,

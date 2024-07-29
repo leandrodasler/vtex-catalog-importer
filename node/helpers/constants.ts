@@ -83,8 +83,8 @@ export const IMPORT_STATUS: { [keyof in ImportStatus]: ImportStatus } = {
 }
 
 export const STEP_DELAY = 1000
+export const CATEGORY_DELAY = 500
 export const DEFAULT_BATCH_CONCURRENCY = 500
-export const NO_CONCURRENCY = 1
 export const ONE_RESULT = { page: 1, pageSize: 1 }
 export const COMMON_WHERE = `(status<>${IMPORT_STATUS.TO_BE_DELETED})AND(status<>${IMPORT_STATUS.DELETING})`
 

@@ -65,20 +65,16 @@ export const updateImportStatus = async (
   status: ImportStatus
 ) => context.clients.importExecution.update(id, { status })
 
-export const getEntityBySourceId = (
+export const getEntityBySourceId = async (
   context: AppEventContext,
   entity: string,
   sourceId: string | number
 ) => {
   const { id } = context.state.body
+  const where = `(executionImportId=${id})AND(name=${entity})AND(sourceId=${sourceId})`
 
   return context.clients.importEntity
-    .search(
-      ONE_RESULT,
-      IMPORT_ENTITY_FIELDS,
-      '',
-      `(executionImportId=${id})AND(name=${entity})AND(sourceId=${sourceId})`
-    )
+    .search(ONE_RESULT, IMPORT_ENTITY_FIELDS, '', where)
     .then(
       (data) => (data[0] as unknown) as Maybe<WithInternalFields<ImportEntity>>
     )
@@ -103,13 +99,11 @@ const getFirstImportByStatus = async (
   context: AppContext,
   status: ImportStatus[]
 ) => {
+  const sort = 'createdIn asc'
+  const where = status.map((s) => `(status=${s})`).join('OR')
+
   return context.clients.importExecution
-    .search(
-      ONE_RESULT,
-      IMPORT_EXECUTION_FIELDS,
-      'createdIn asc',
-      status.map((s) => `(status=${s})`).join('OR')
-    )
+    .search(ONE_RESULT, IMPORT_EXECUTION_FIELDS, sort, where)
     .then(
       (data) =>
         (data[0] as unknown) as Maybe<WithInternalFields<ImportExecution>>

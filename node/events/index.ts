@@ -1,9 +1,9 @@
 import {
-  batch,
   handleError,
   IMPORT_EXECUTION_FULL_FIELDS,
   IMPORT_STATUS,
   processStepFactory,
+  sequentialBatch,
   STEPS_HANDLERS,
   updateCurrentImport,
 } from '../helpers'
@@ -31,7 +31,7 @@ const runImport = async (context: AppEventContext) => {
     sourceCatalog.setSettings(currentSettings)
     context.state.body = { ...importData, settings: currentSettings }
     await updateCurrentImport(context, { status: IMPORT_STATUS.RUNNING })
-    batch(STEPS_HANDLERS, processStepFactory(context), 1)
+    sequentialBatch(STEPS_HANDLERS, processStepFactory(context))
   } catch (error) {
     await handleError(context, error)
   }

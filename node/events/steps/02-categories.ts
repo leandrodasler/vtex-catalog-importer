@@ -1,7 +1,8 @@
 import {
-  batch,
+  CATEGORY_DELAY,
+  delay,
   getEntityBySourceId,
-  NO_CONCURRENCY,
+  sequentialBatch,
   updateCurrentImport,
 } from '../../helpers'
 
@@ -24,36 +25,36 @@ const handleCategories = async (context: AppEventContext) => {
   await updateCurrentImport(context, { sourceCategoriesTotal })
   const sourceCategories = await sourceCatalog.getCategories(categories)
 
-  await batch(
-    sourceCategories,
-    async (category) => {
-      const { FatherCategoryId, GlobalCategoryId = 0 } = category
+  await sequentialBatch(sourceCategories, async (category) => {
+    const { FatherCategoryId, GlobalCategoryId = 0 } = category
 
-      const fatherCategory = FatherCategoryId
-        ? await getEntityBySourceId(context, entity, FatherCategoryId)
-        : undefined
+    const fatherCategory = FatherCategoryId
+      ? await getEntityBySourceId(context, entity, FatherCategoryId)
+      : undefined
 
-      const payload = {
-        ...category,
-        GlobalCategoryId: GlobalCategoryId || undefined,
-        FatherCategoryId: fatherCategory?.targetId as number | undefined,
-        Id: undefined,
-      }
+    const payload = {
+      ...category,
+      GlobalCategoryId: GlobalCategoryId || undefined,
+      FatherCategoryId: fatherCategory?.targetId as number | undefined,
+      Id: undefined,
+    }
 
-      const { Id: sourceId } = category
-      const { Id: targetId } = await targetCatalog.createCategory(payload)
+    const { Id: sourceId } = category
+    const { Id: targetId } = await targetCatalog.createCategory(payload)
 
-      await importEntity.save({
-        executionImportId,
-        name: entity,
-        sourceAccount,
-        sourceId,
-        targetId,
-        payload,
-      })
-    },
-    NO_CONCURRENCY
-  )
+    const { DocumentId } = await importEntity.save({
+      executionImportId,
+      name: entity,
+      sourceAccount,
+      sourceId,
+      targetId,
+      payload,
+    })
+
+    await importEntity.get(DocumentId, ['id'])
+
+    await delay(CATEGORY_DELAY)
+  })
 }
 
 export default handleCategories

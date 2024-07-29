@@ -1,7 +1,6 @@
 import {
-  batch,
   getEntityBySourceId,
-  NO_CONCURRENCY,
+  sequentialBatch,
   updateCurrentImport,
 } from '../../helpers'
 
@@ -19,43 +18,39 @@ const handleProducts = async (context: AppEventContext) => {
   const sourceProductsTotal = sourceProducts.length
 
   await updateCurrentImport(context, { sourceProductsTotal })
+  await sequentialBatch(sourceProducts, async (product) => {
+    const { DepartmentId, CategoryId, BrandId, RefId, LinkId } = product
+    const [department, category, brand, existingProduct] = await Promise.all([
+      getEntityBySourceId(context, 'category', DepartmentId),
+      getEntityBySourceId(context, 'category', CategoryId),
+      getEntityBySourceId(context, 'brand', BrandId),
+      targetCatalog.getProductByRefId(RefId || LinkId),
+    ])
 
-  await batch(
-    sourceProducts,
-    async (product) => {
-      const { DepartmentId, CategoryId, BrandId, RefId } = product
-      const [department, category, brand, existingProduct] = await Promise.all([
-        getEntityBySourceId(context, 'category', DepartmentId),
-        getEntityBySourceId(context, 'category', CategoryId),
-        getEntityBySourceId(context, 'brand', BrandId),
-        targetCatalog.getProductByRefId(RefId),
-      ])
+    const payload = {
+      ...product,
+      DepartmentId: department?.targetId as number,
+      CategoryId: category?.targetId as number,
+      BrandId: brand?.targetId as number,
+      RefId: RefId || LinkId,
+      Id: undefined,
+    }
 
-      const payload = {
-        ...product,
-        DepartmentId: department?.targetId as number,
-        CategoryId: category?.targetId as number,
-        BrandId: brand?.targetId as number,
-        Id: undefined,
-      }
+    const { Id: sourceId } = product
+    const { Id: targetId } = existingProduct
+      ? await targetCatalog.updateProduct(existingProduct.Id, payload)
+      : await targetCatalog.createProduct(payload)
 
-      const { Id: sourceId } = product
-      const { Id: targetId } = existingProduct
-        ? await targetCatalog.updateProduct(existingProduct.Id, payload)
-        : await targetCatalog.createProduct(payload)
-
-      await importEntity.save({
-        executionImportId,
-        name: entity,
-        sourceAccount,
-        sourceId,
-        targetId,
-        payload,
-        ...(existingProduct && { pathParams: `${targetId}` }),
-      })
-    },
-    NO_CONCURRENCY
-  )
+    await importEntity.save({
+      executionImportId,
+      name: entity,
+      sourceAccount,
+      sourceId,
+      targetId,
+      payload,
+      ...(existingProduct && { pathParams: `${targetId}` }),
+    })
+  })
 }
 
 export default handleProducts

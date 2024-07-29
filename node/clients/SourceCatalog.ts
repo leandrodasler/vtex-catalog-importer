@@ -120,6 +120,6 @@ export default class SourceCatalog extends HttpClient {
       return IsActive && inCategoryTree ? product : null
     })
 
-    return products.filter((c) => !!c) as ProductDetails[]
+    return products.filter((product) => !!product) as ProductDetails[]
   }
 }
