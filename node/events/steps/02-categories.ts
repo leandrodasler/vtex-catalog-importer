@@ -25,7 +25,7 @@ const handleCategories = async (context: AppEventContext) => {
     const targetFatherCategoryId = mapCategories[FatherCategoryId]
     const payload = {
       ...category,
-      ...(GlobalCategoryId && { GlobalCategoryId }),
+      GlobalCategoryId: GlobalCategoryId || undefined,
       FatherCategoryId: targetFatherCategoryId,
     }
 

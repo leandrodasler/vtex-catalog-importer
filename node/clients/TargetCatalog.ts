@@ -18,23 +18,32 @@ export default class TargetCatalog extends HttpClient {
     return `http://${this.context.account}.${ENDPOINTS.host}${path}`
   }
 
-  public async createBrand<T = BrandDetails, B = Partial<T>>(payload: B) {
-    return this.post<T, B>(ENDPOINTS.brand.set, payload)
+  public async createBrand(payload: Partial<BrandDetails>) {
+    return this.post<BrandDetails, Partial<BrandDetails>>(
+      ENDPOINTS.brand.set,
+      payload
+    )
   }
 
-  public async createCategory<T = CategoryDetails, B = Partial<T>>(payload: B) {
-    return this.post<T, B>(ENDPOINTS.category.set, payload)
+  public async createCategory(payload: Partial<CategoryDetails>) {
+    return this.post<CategoryDetails, Partial<CategoryDetails>>(
+      ENDPOINTS.category.set,
+      payload
+    )
   }
 
-  public async createProduct<T = ProductDetails, B = Partial<T>>(payload: B) {
-    return this.post<T, B>(ENDPOINTS.product.set, payload)
+  public async createProduct(payload: Partial<ProductDetails>) {
+    return this.post<ProductDetails, Partial<ProductDetails>>(
+      ENDPOINTS.product.set,
+      payload
+    )
   }
 
-  public async updateProduct<T = ProductDetails, B = Partial<T>>(
-    id: number,
-    payload: B
-  ) {
-    return this.put<T, B>(ENDPOINTS.product.updateOrDetails(id), payload)
+  public async updateProduct(id: number, payload: Partial<ProductDetails>) {
+    return this.put<ProductDetails, Partial<ProductDetails>>(
+      ENDPOINTS.product.updateOrDetails(id),
+      payload
+    )
   }
 
   public async getProductByRefId(refId: string) {
