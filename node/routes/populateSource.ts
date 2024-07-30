@@ -28,21 +28,21 @@ const populateSource = async (context: Context) => {
   console.log('cleaning brands')
   const brands = await targetCatalog.get<Brand[]>(ENDPOINTS.brand.get)
 
-  await batch(brands, ({ id }) => targetCatalog.deleteEntity('brand', id))
+  batch(brands, ({ id }) => targetCatalog.deleteEntity('brand', id))
 
   console.log('cleaning categories')
   const categories = sourceCatalog.flatCategoryTree(
     await targetCatalog.get<Category[]>(ENDPOINTS.category.tree)
   )
 
-  await batch(categories, ({ id }) =>
-    targetCatalog.deleteEntity('category', id)
-  )
+  batch(categories, ({ id }) => targetCatalog.deleteEntity('category', id))
 
   console.log('cleaning products')
-  const productIds = await targetCatalog.getProductIds()
-
-  await batch(productIds, (id) => targetCatalog.deleteEntity('product', id))
+  targetCatalog
+    .getProductIds()
+    .then((productIds) =>
+      batch(productIds, (id) => targetCatalog.deleteEntity('product', id))
+    )
 
   context.status = 200
   context.body = 'Catalog cleaned successfully'

@@ -98,11 +98,8 @@ export const CategoryTreeView = ({ categories }: CategoryTreeViewProps) => {
 export const mapToCategoryInput: (
   categories?: CheckedCategory[] | null
 ) => CategoryInput[] = (categories) => {
-  return categories?.map((category) => ({
+  return categories?.map(({ checked, parentId, isRoot, ...category }) => ({
     ...category,
-    checked: undefined,
-    parentId: undefined,
-    isRoot: undefined,
     children: mapToCategoryInput(category.children),
   })) as CategoryInput[]
 }

@@ -1,10 +1,4 @@
-import {
-  CATEGORY_DELAY,
-  delay,
-  getEntityBySourceId,
-  sequentialBatch,
-  updateCurrentImport,
-} from '../../helpers'
+import { sequentialBatch, updateCurrentImport } from '../../helpers'
 
 const handleCategories = async (context: AppEventContext) => {
   const { sourceCatalog, targetCatalog, importEntity } = context.clients
@@ -24,37 +18,32 @@ const handleCategories = async (context: AppEventContext) => {
 
   await updateCurrentImport(context, { sourceCategoriesTotal })
   const sourceCategories = await sourceCatalog.getCategories(categories)
+  const mapCategories: Record<number, number> = {}
 
-  await sequentialBatch(sourceCategories, async (category) => {
-    const { FatherCategoryId, GlobalCategoryId = 0 } = category
-
-    const fatherCategory = FatherCategoryId
-      ? await getEntityBySourceId(context, entity, FatherCategoryId)
-      : undefined
-
+  await sequentialBatch(sourceCategories, async ({ Id, ...category }) => {
+    const { FatherCategoryId = 0, GlobalCategoryId = 0 } = category
+    const targetFatherCategoryId = mapCategories[FatherCategoryId]
     const payload = {
       ...category,
-      GlobalCategoryId: GlobalCategoryId || undefined,
-      FatherCategoryId: fatherCategory?.targetId as number | undefined,
-      Id: undefined,
+      ...(GlobalCategoryId && { GlobalCategoryId }),
+      FatherCategoryId: targetFatherCategoryId,
     }
 
-    const { Id: sourceId } = category
     const { Id: targetId } = await targetCatalog.createCategory(payload)
 
-    const { DocumentId } = await importEntity.save({
+    await importEntity.save({
       executionImportId,
       name: entity,
       sourceAccount,
-      sourceId,
+      sourceId: Id,
       targetId,
       payload,
     })
 
-    await importEntity.get(DocumentId, ['id'])
-
-    await delay(CATEGORY_DELAY)
+    mapCategories[Id] = targetId
   })
+
+  context.state.mapCategories = mapCategories
 }
 
 export default handleCategories

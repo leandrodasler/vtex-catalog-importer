@@ -8,7 +8,7 @@ const handlePrices = async (context: AppEventContext) => {
   const { account: sourceAccount } = settings
   const sourcePricesTotal = 3
 
-  await updateCurrentImport(context, { sourcePricesTotal: 3 })
+  await updateCurrentImport(context, { sourcePricesTotal })
 
   for (let i = 1; i <= sourcePricesTotal; i++) {
     // eslint-disable-next-line no-await-in-loop

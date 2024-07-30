@@ -1,8 +1,4 @@
-import {
-  getEntityBySourceId,
-  sequentialBatch,
-  updateCurrentImport,
-} from '../../helpers'
+import { sequentialBatch, updateCurrentImport } from '../../helpers'
 
 const handleProducts = async (context: AppEventContext) => {
   const { sourceCatalog, targetCatalog, importEntity } = context.clients
@@ -12,43 +8,38 @@ const handleProducts = async (context: AppEventContext) => {
     categoryTree,
   } = context.state.body
 
-  const { entity } = context.state
+  const { entity, mapCategories, mapBrands } = context.state
   const { account: sourceAccount } = settings
   const sourceProducts = await sourceCatalog.getProducts(categoryTree)
   const sourceProductsTotal = sourceProducts.length
 
   await updateCurrentImport(context, { sourceProductsTotal })
-  await sequentialBatch(sourceProducts, async (product) => {
+  await sequentialBatch(sourceProducts, async ({ Id, ...product }) => {
     const { DepartmentId, CategoryId, BrandId, RefId, LinkId } = product
-    const [department, category, brand, existingProduct] = await Promise.all([
-      getEntityBySourceId(context, 'category', DepartmentId),
-      getEntityBySourceId(context, 'category', CategoryId),
-      getEntityBySourceId(context, 'brand', BrandId),
-      targetCatalog.getProductByRefId(RefId || LinkId),
-    ])
-
+    const targetDepartmentId = mapCategories?.[DepartmentId]
+    const targetCategoryId = mapCategories?.[CategoryId]
+    const targetBrandId = mapBrands?.[BrandId]
+    const existing = await targetCatalog.getProductByRefId(RefId || LinkId)
     const payload = {
       ...product,
-      DepartmentId: department?.targetId as number,
-      CategoryId: category?.targetId as number,
-      BrandId: brand?.targetId as number,
+      DepartmentId: targetDepartmentId,
+      CategoryId: targetCategoryId,
+      BrandId: targetBrandId,
       RefId: RefId || LinkId,
-      Id: undefined,
     }
 
-    const { Id: sourceId } = product
-    const { Id: targetId } = existingProduct
-      ? await targetCatalog.updateProduct(existingProduct.Id, payload)
+    const { Id: targetId } = existing
+      ? await targetCatalog.updateProduct(existing.Id, payload)
       : await targetCatalog.createProduct(payload)
 
     await importEntity.save({
       executionImportId,
       name: entity,
       sourceAccount,
-      sourceId,
+      sourceId: Id,
       targetId,
       payload,
-      ...(existingProduct && { pathParams: `${targetId}` }),
+      ...(existing && { pathParams: `${targetId}` }),
     })
   })
 }

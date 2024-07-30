@@ -20,6 +20,8 @@ declare global {
     body: Partial<WithInternalFields<Import>>
     entity?: string
     skuIds?: number[]
+    mapCategories?: Record<number, number>
+    mapBrands?: Record<number, number>
   }
   type AppEventContext = EventContext<Clients, EventState>
   type AppContext = Context | AppEventContext
