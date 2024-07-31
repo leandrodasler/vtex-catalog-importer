@@ -18,15 +18,16 @@ const handleCategories = async (context: AppEventContext) => {
 
   await updateCurrentImport(context, { sourceCategoriesTotal })
   const sourceCategories = await sourceCatalog.getCategories(categories)
-  const mapCategories: Record<number, number> = {}
+  const mapCategories: EntityMap = {}
 
   await sequentialBatch(sourceCategories, async ({ Id, ...category }) => {
-    const { FatherCategoryId = 0, GlobalCategoryId = 0 } = category
-    const targetFatherCategoryId = mapCategories[FatherCategoryId]
+    const { FatherCategoryId, GlobalCategoryId = 0 } = category
     const payload = {
       ...category,
       GlobalCategoryId: GlobalCategoryId || undefined,
-      FatherCategoryId: targetFatherCategoryId,
+      FatherCategoryId: FatherCategoryId
+        ? mapCategories[FatherCategoryId]
+        : undefined,
     }
 
     const { Id: targetId } = await targetCatalog.createCategory(payload)

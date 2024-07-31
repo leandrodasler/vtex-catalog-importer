@@ -14,25 +14,32 @@ export const ENDPOINTS = {
     'http://ssesandbox04.myvtex.com/catalog-importer-configuration/settings',
   user: '/api/vtexid/credential/validate',
   brand: {
-    get: '/api/catalog_system/pvt/brand/list',
+    list: '/api/catalog_system/pvt/brand/list',
     set: '/api/catalog/pvt/brand',
     updateOrDetails: (id: string | number) => `/api/catalog/pvt/brand/${id}`,
   },
   category: {
-    tree: '/api/catalog_system/pub/category/tree/1000',
+    list: '/api/catalog_system/pub/category/tree/1000',
     set: '/api/catalog/pvt/category',
     updateOrDetails: (id: string | number) => `/api/catalog/pvt/category/${id}`,
   },
   product: {
     /* remove this after */
-    getAll: (from: number, to: number) =>
+    listAll: (from: number, to: number) =>
       `/api/catalog_system/pvt/products/GetProductAndSkuIds?_from=${from}&_to=${to}`,
-    get: (categoryId: string | number, from: number, to: number) =>
+    listByCategory: (categoryId: string | number, from: number, to: number) =>
       `/api/catalog_system/pvt/products/GetProductAndSkuIds?categoryId=${categoryId}&_from=${from}&_to=${to}`,
     set: '/api/catalog/pvt/product',
     updateOrDetails: (id: string | number) => `/api/catalog/pvt/product/${id}`,
     getByRefId: (refId: string) =>
       `/api/catalog_system/pvt/products/productgetbyrefid/${refId}`,
+  },
+  sku: {
+    set: '/api/catalog/pvt/stockkeepingunit',
+    updateOrDetails: (id: string | number) =>
+      `/api/catalog/pvt/stockkeepingunit/${id}`,
+    getByRefId: (refId: string) =>
+      `/api/catalog/pvt/stockkeepingunit?RefId=${refId}`,
   },
 }
 

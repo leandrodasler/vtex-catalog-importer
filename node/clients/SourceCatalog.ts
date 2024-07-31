@@ -33,13 +33,13 @@ export default class SourceCatalog extends HttpClient {
   }
 
   public async getBrands() {
-    return this.get<Brand[]>(ENDPOINTS.brand.get).then((data) =>
+    return this.get<Brand[]>(ENDPOINTS.brand.list).then((data) =>
       batch(data, (brand) => this.getBrandDetails(brand))
     )
   }
 
   public async getCategoryTree() {
-    return this.get<Maybe<Category[]>>(ENDPOINTS.category.tree)
+    return this.get<Maybe<Category[]>>(ENDPOINTS.category.list)
   }
 
   public flatCategoryTree(
@@ -69,7 +69,7 @@ export default class SourceCatalog extends HttpClient {
     return batch(categories, (category) => this.getCategoryDetails(category))
   }
 
-  private async getProductIds(categoryTree: Category[]) {
+  private async getProductAndSkuIds(categoryTree: Category[]) {
     const firstLevelCategories = [...categoryTree]
     const maxPerPage = 250
     let result: ProductAndSkuIds['data'] = {}
@@ -83,7 +83,7 @@ export default class SourceCatalog extends HttpClient {
 
       const getRange = async () => {
         const { data, range } = await this.get<ProductAndSkuIds>(
-          ENDPOINTS.product.get(category.id, from, to)
+          ENDPOINTS.product.listByCategory(category.id, from, to)
         )
 
         result = { ...result, ...data }
@@ -102,7 +102,7 @@ export default class SourceCatalog extends HttpClient {
 
     await getFromNextCategory()
 
-    return Object.keys(result)
+    return result
   }
 
   private async getProductDetails(id: string | number) {
@@ -110,16 +110,32 @@ export default class SourceCatalog extends HttpClient {
   }
 
   public async getProducts(categoryTree: Category[] = []) {
-    const productIds = await this.getProductIds(categoryTree)
+    const productAndSkuIds = await this.getProductAndSkuIds(categoryTree)
+    const productIds = Object.keys(productAndSkuIds)
     const categories = this.flatCategoryTree(categoryTree)
-    const products = await batch(productIds, async (id) => {
+    const data: ProductDetails[] = []
+    const skuIds: number[] = []
+
+    await batch(productIds, async (id) => {
       const product = await this.getProductDetails(id)
       const { IsActive, CategoryId } = product
       const inCategoryTree = categories.find((c) => c.id === String(CategoryId))
 
-      return IsActive && inCategoryTree ? product : null
+      if (!IsActive || !inCategoryTree) return
+
+      product.skuIds = productAndSkuIds[id]
+      data.push(product)
+      skuIds.push(...product.skuIds)
     })
 
-    return products.filter((product) => !!product) as ProductDetails[]
+    return { data, skuIds }
+  }
+
+  private async getSkuDetails(id: string | number) {
+    return this.get<SkuDetails>(ENDPOINTS.sku.updateOrDetails(id))
+  }
+
+  public async getSkus(skuIds: number[] = []) {
+    return batch(skuIds, (id) => this.getSkuDetails(id))
   }
 }

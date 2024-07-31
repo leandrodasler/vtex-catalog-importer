@@ -16,12 +16,14 @@ declare global {
   }
   type ServiceState = RecorderState & { settings?: AppSettingsInput }
   type Context = ServiceContext<Clients, ServiceState>
+  type EntityMap = Record<number, number>
   type EventState = {
     body: Partial<WithInternalFields<Import>>
     entity?: string
+    mapCategories?: EntityMap
+    mapBrands?: EntityMap
+    mapProducts?: EntityMap
     skuIds?: number[]
-    mapCategories?: Record<number, number>
-    mapBrands?: Record<number, number>
   }
   type AppEventContext = EventContext<Clients, EventState>
   type AppContext = Context | AppEventContext
@@ -58,8 +60,6 @@ declare global {
     Score?: number
     LinkId: string
     HasChildren: boolean
-    TreePath: null
-    TreePathIds: null
   }
   type ProductAndSkuIds = {
     data: Record<string, number[]>
@@ -84,6 +84,35 @@ declare global {
     MetaTagDescription: string
     ShowWithoutStock: boolean
     Score: number
+    skuIds: number[]
+  }
+  type SkuDetails = {
+    Id: number
+    ProductId: number
+    IsActive: boolean
+    ActivateIfPossible: boolean
+    Name: string
+    RefId: string
+    PackagedHeight: number
+    PackagedLength: number
+    PackagedWidth: number
+    PackagedWeightKg: number
+    Height: number
+    Length: number
+    Width: number
+    WeightKg: number
+    CubicWeight: number
+    IsKit: boolean
+    CreationDate: string
+    RewardValue: number
+    EstimatedDateArrival?: string
+    ManufacturerCode: string
+    CommercialConditionId: number
+    MeasurementUnit: string
+    UnitMultiplier: number
+    ModalType?: string
+    KitItensSellApart: boolean
+    Videos: string[]
   }
 }
 

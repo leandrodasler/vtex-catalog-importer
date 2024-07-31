@@ -26,13 +26,13 @@ const populateSource = async (context: Context) => {
   // const products = await cosmos.getProductsByGpc(gpc)
 
   console.log('cleaning brands')
-  const brands = await targetCatalog.get<Brand[]>(ENDPOINTS.brand.get)
+  const brands = await targetCatalog.get<Brand[]>(ENDPOINTS.brand.list)
 
   batch(brands, ({ id }) => targetCatalog.deleteEntity('brand', id))
 
   console.log('cleaning categories')
   const categories = sourceCatalog.flatCategoryTree(
-    await targetCatalog.get<Category[]>(ENDPOINTS.category.tree)
+    await targetCatalog.get<Category[]>(ENDPOINTS.category.list)
   )
 
   batch(categories, ({ id }) => targetCatalog.deleteEntity('category', id))

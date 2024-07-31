@@ -32,6 +32,14 @@ export default class TargetCatalog extends HttpClient {
     )
   }
 
+  public async getProductByRefId(refId: string) {
+    if (!refId) return null
+
+    return this.get<Maybe<ProductDetails>>(
+      ENDPOINTS.product.getByRefId(refId)
+    ).catch(() => null)
+  }
+
   public async createProduct(payload: Partial<ProductDetails>) {
     return this.post<ProductDetails, Partial<ProductDetails>>(
       ENDPOINTS.product.set,
@@ -46,12 +54,26 @@ export default class TargetCatalog extends HttpClient {
     )
   }
 
-  public async getProductByRefId(refId: string) {
+  public async getSkuByRefId(refId: string) {
     if (!refId) return null
 
-    return this.get<Maybe<ProductDetails>>(
-      ENDPOINTS.product.getByRefId(refId)
-    ).catch(() => null)
+    return this.get<Maybe<SkuDetails>>(ENDPOINTS.sku.getByRefId(refId)).catch(
+      () => null
+    )
+  }
+
+  public async createSku(payload: Partial<SkuDetails>) {
+    return this.post<SkuDetails, Partial<SkuDetails>>(
+      ENDPOINTS.sku.set,
+      payload
+    )
+  }
+
+  public async updateSku(id: number, payload: Partial<SkuDetails>) {
+    return this.put<SkuDetails, Partial<SkuDetails>>(
+      ENDPOINTS.sku.updateOrDetails(id),
+      payload
+    )
   }
 
   /* remove this after */
@@ -63,7 +85,7 @@ export default class TargetCatalog extends HttpClient {
 
     const getRange = async () => {
       const { data, range } = await this.get<ProductAndSkuIds>(
-        ENDPOINTS.product.getAll(from, to)
+        ENDPOINTS.product.listAll(from, to)
       )
 
       result = { ...result, ...data }
