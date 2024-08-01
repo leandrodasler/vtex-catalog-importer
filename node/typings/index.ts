@@ -61,6 +61,12 @@ declare global {
     LinkId: string
     HasChildren: boolean
   }
+  type SpecificationGroupDetails = {
+    Id: number
+    CategoryId: number
+    Name: string
+    Position: number
+  }
   type ProductAndSkuIds = {
     data: Record<string, number[]>
     range: { total: number; from: number; to: number }

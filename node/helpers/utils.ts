@@ -53,6 +53,7 @@ export const printImport = (context: AppEventContext) => {
       status,
       sourceBrandsTotal,
       sourceCategoriesTotal,
+      sourceSpecificationsTotal,
       sourceProductsTotal,
       sourceSkusTotal,
       sourcePricesTotal,
@@ -68,7 +69,7 @@ export const printImport = (context: AppEventContext) => {
   }
 
   console.log(
-    `IMPORT #${id} - status: ${status} | sourceBrandsTotal: ${sourceBrandsTotal} | sourceCategoriesTotal: ${sourceCategoriesTotal} | sourceProductsTotal: ${sourceProductsTotal} | sourceSkusTotal: ${sourceSkusTotal} | sourcePricesTotal: ${sourcePricesTotal} | sourceStocksTotal: ${sourceStocksTotal} | error: ${error} | entityError: ${entityError}`
+    `IMPORT #${id} - status: ${status} | sourceBrandsTotal: ${sourceBrandsTotal} | sourceCategoriesTotal: ${sourceCategoriesTotal} | sourceSpecificationsTotal: ${sourceSpecificationsTotal} | sourceProductsTotal: ${sourceProductsTotal} | sourceSkusTotal: ${sourceSkusTotal} | sourcePricesTotal: ${sourcePricesTotal} | sourceStocksTotal: ${sourceStocksTotal} | error: ${error} | entityError: ${entityError}`
   )
 }
 

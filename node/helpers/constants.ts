@@ -2,11 +2,12 @@ import type { ImportStatus } from 'ssesandbox04.catalog-importer'
 
 import handleBrands from '../events/steps/01-brands'
 import handleCategories from '../events/steps/02-categories'
-import handleProducts from '../events/steps/03-products'
-import handleSkus from '../events/steps/04-skus'
-import handlePrices from '../events/steps/05-prices'
-import handleStocks from '../events/steps/06-stocks'
-import finishImport from '../events/steps/07-finishImport'
+import handleSpecifications from '../events/steps/03-specifications'
+import handleProducts from '../events/steps/04-products'
+import handleSkus from '../events/steps/05-skus'
+import handlePrices from '../events/steps/06-prices'
+import handleStocks from '../events/steps/07-stocks'
+import finishImport from '../events/steps/08-finishImport'
 
 export const ENDPOINTS = {
   host: 'vtexcommercestable.com.br',
@@ -22,6 +23,10 @@ export const ENDPOINTS = {
     list: '/api/catalog_system/pub/category/tree/1000',
     set: '/api/catalog/pvt/category',
     updateOrDetails: (id: string | number) => `/api/catalog/pvt/category/${id}`,
+  },
+  specification: {
+    listGroupsByCategory: (categoryId: string | number) =>
+      `/api/catalog_system/pvt/specification/groupbycategory/${categoryId}`,
   },
   product: {
     /* remove this after */
@@ -55,6 +60,7 @@ export const IMPORT_EXECUTION_FIELDS = [
   'stockValue',
   'sourceBrandsTotal',
   'sourceCategoriesTotal',
+  'sourceSpecificationsTotal',
   'sourceProductsTotal',
   'sourceSkusTotal',
   'sourcePricesTotal',
@@ -98,6 +104,7 @@ export const COMMON_WHERE = `(status<>${IMPORT_STATUS.TO_BE_DELETED})AND(status<
 export const STEPS = [
   { entity: 'brand', handler: handleBrands },
   { entity: 'category', handler: handleCategories },
+  { entity: 'specification', handler: handleSpecifications },
   { entity: 'product', handler: handleProducts },
   { entity: 'sku', handler: handleSkus },
   { entity: 'price', handler: handlePrices },

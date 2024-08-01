@@ -73,6 +73,9 @@ export const messages = defineMessages({
   importResultsErrorLabel: { id: 'admin/import.results.error.label' },
   importResultsBRANDLabel: { id: 'admin/import.results.brand.label' },
   importResultsCATEGORYLabel: { id: 'admin/import.results.category.label' },
+  importResultsSPECIFICATIONLabel: {
+    id: 'admin/import.results.specification.label',
+  },
   importResultsPRODUCTLabel: { id: 'admin/import.results.product.label' },
   importResultsSKULabel: { id: 'admin/import.results.sku.label' },
   importResultsPRICELabel: { id: 'admin/import.results.price.label' },

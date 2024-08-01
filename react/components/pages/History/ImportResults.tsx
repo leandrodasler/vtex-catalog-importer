@@ -22,6 +22,7 @@ const ImportResults = ({ importProgress, loading }: Props) => {
       entityError,
       sourceBrandsTotal,
       sourceCategoriesTotal,
+      sourceSpecificationsTotal,
       sourceProductsTotal,
       sourceSkusTotal,
       sourcePricesTotal,
@@ -29,6 +30,7 @@ const ImportResults = ({ importProgress, loading }: Props) => {
     },
     brands,
     categories,
+    specifications,
     products,
     skus,
     prices,
@@ -57,6 +59,15 @@ const ImportResults = ({ importProgress, loading }: Props) => {
         title={formatMessage(messages.importResultsCATEGORYLabel)}
         current={categories}
         total={sourceCategoriesTotal}
+        loading={loading}
+      />
+      {error && entityError === 'specification' && (
+        <ErrorMessage error={error} title={errorTitle} />
+      )}
+      <ImportEntityResult
+        title={formatMessage(messages.importResultsSPECIFICATIONLabel)}
+        current={specifications}
+        total={sourceSpecificationsTotal}
         loading={loading}
       />
       {error && entityError === 'product' && (

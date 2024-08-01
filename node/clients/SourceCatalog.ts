@@ -69,6 +69,22 @@ export default class SourceCatalog extends HttpClient {
     return batch(categories, (category) => this.getCategoryDetails(category))
   }
 
+  private async getSpecificationGroupsByCategory(categoryId: string | number) {
+    const groups = await this.get<SpecificationGroupDetails[]>(
+      ENDPOINTS.specification.listGroupsByCategory(categoryId)
+    ).catch(() => [])
+
+    return groups.filter((group) => group.CategoryId === categoryId)
+  }
+
+  public async getSpecificationGroups(categoryTree: Category[]) {
+    const categories = this.flatCategoryTree(categoryTree)
+
+    return batch(categories, (category) =>
+      this.getSpecificationGroupsByCategory(category.id)
+    )
+  }
+
   private async getProductAndSkuIds(categoryTree: Category[]) {
     const firstLevelCategories = [...categoryTree]
     const maxPerPage = 250

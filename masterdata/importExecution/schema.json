@@ -18,6 +18,7 @@
     "stockValue": { "type": ["integer", "null"] },
     "sourceBrandsTotal": { "type": ["integer"] },
     "sourceCategoriesTotal": { "type": ["integer"] },
+    "sourceSpecificationsTotal": { "type": ["integer"] },
     "sourceProductsTotal": { "type": ["integer"] },
     "sourceSkusTotal": { "type": ["integer"] },
     "sourcePricesTotal": { "type": ["integer"] },
