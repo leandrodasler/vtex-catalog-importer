@@ -23,6 +23,9 @@ declare global {
     mapCategories?: EntityMap
     mapBrands?: EntityMap
     mapProducts?: EntityMap
+    mapSpecificationGroups?: EntityMap
+    mapSpecifications?: EntityMap
+    mapSpecificationValues?: EntityMap
     skuIds?: number[]
   }
   type AppEventContext = EventContext<Clients, EventState>
@@ -65,6 +68,42 @@ declare global {
     Id: number
     CategoryId: number
     Name: string
+  }
+  type CategorySpecification = {
+    Name: string
+    CategoryId: number
+    FieldId: number
+    IsActive: boolean
+    IsStockKeepingUnit: boolean
+  }
+  type SpecificationDetails = {
+    Id: number
+    FieldTypeId: number
+    CategoryId: number
+    FieldGroupId: number
+    Name: string
+    Description: string
+    Position: number
+    IsFilter: boolean
+    IsRequired: boolean
+    IsOnProductDetails: boolean
+    IsStockKeepingUnit: boolean
+    IsActive: boolean
+    IsTopMenuLinkActive: boolean
+    IsSideMenuLinkActive: boolean
+    DefaultValue?: string
+  }
+  type SpecificationValue = {
+    FieldValueId: number
+    Value: string
+    IsActive: boolean
+    Position: number
+  }
+  type SpecificationValueDetails = {
+    FieldValueId: number
+    FieldId: number
+    Name: string
+    IsActive: boolean
     Position: number
   }
   type ProductAndSkuIds = {

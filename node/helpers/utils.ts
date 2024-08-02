@@ -46,31 +46,14 @@ export const sequentialBatch = async <T, R = void>(
 }
 
 export const printImport = (context: AppEventContext) => {
-  const {
-    entity,
-    body: {
-      id,
-      status,
-      sourceBrandsTotal,
-      sourceCategoriesTotal,
-      sourceSpecificationsTotal,
-      sourceProductsTotal,
-      sourceSkusTotal,
-      sourcePricesTotal,
-      sourceStocksTotal,
-      error,
-      entityError,
-    },
-  } = context.state
+  const { entity, body } = context.state
 
   if (entity) {
     console.log('========================')
     console.log(`import step for entity "${entity}"`)
   }
 
-  console.log(
-    `IMPORT #${id} - status: ${status} | sourceBrandsTotal: ${sourceBrandsTotal} | sourceCategoriesTotal: ${sourceCategoriesTotal} | sourceSpecificationsTotal: ${sourceSpecificationsTotal} | sourceProductsTotal: ${sourceProductsTotal} | sourceSkusTotal: ${sourceSkusTotal} | sourcePricesTotal: ${sourcePricesTotal} | sourceStocksTotal: ${sourceStocksTotal} | error: ${error} | entityError: ${entityError}`
-  )
+  console.log(`IMPORT: ${JSON.stringify(body)}`)
 }
 
 export const handleError = async (context: AppEventContext, e: ErrorLike) => {

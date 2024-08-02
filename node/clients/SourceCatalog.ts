@@ -71,17 +71,59 @@ export default class SourceCatalog extends HttpClient {
 
   private async getSpecificationGroupsByCategory(categoryId: string | number) {
     const groups = await this.get<SpecificationGroupDetails[]>(
-      ENDPOINTS.specification.listGroupsByCategory(categoryId)
+      ENDPOINTS.specificationGroup.list(categoryId)
     ).catch(() => [])
 
     return groups.filter((group) => group.CategoryId === categoryId)
   }
 
   public async getSpecificationGroups(categoryTree: Category[]) {
-    const categories = this.flatCategoryTree(categoryTree)
-
-    return batch(categories, (category) =>
+    return batch(this.flatCategoryTree(categoryTree), (category) =>
       this.getSpecificationGroupsByCategory(category.id)
+    )
+  }
+
+  private async getSpecificationDetails({ FieldId }: CategorySpecification) {
+    return this.get<SpecificationDetails>(
+      ENDPOINTS.specification.updateOrDetails(FieldId)
+    )
+  }
+
+  private async getSpecificationsByCategory(categoryId: string | number) {
+    return this.get<CategorySpecification[]>(
+      ENDPOINTS.specification.list(categoryId)
+    )
+      .then((data) => batch(data, (spec) => this.getSpecificationDetails(spec)))
+      .catch(() => [])
+  }
+
+  public async getSpecifications(categoryTree: Category[]) {
+    return batch(this.flatCategoryTree(categoryTree), (category) =>
+      this.getSpecificationsByCategory(category.id)
+    )
+  }
+
+  private async getSpecificationValueDetails({
+    FieldValueId,
+  }: SpecificationValue) {
+    return this.get<SpecificationValueDetails>(
+      ENDPOINTS.specification.updateOrDetails(FieldValueId)
+    )
+  }
+
+  private async getSpecificationValuesByFieldId(fieldId: number) {
+    return this.get<SpecificationValue[]>(
+      ENDPOINTS.specificationValue.list(fieldId)
+    )
+      .then((data) =>
+        batch(data, (value) => this.getSpecificationValueDetails(value))
+      )
+      .catch(() => [])
+  }
+
+  public async getSpecificationValues(fieldIds: number[]) {
+    return batch(fieldIds, (fieldId) =>
+      this.getSpecificationValuesByFieldId(fieldId)
     )
   }
 

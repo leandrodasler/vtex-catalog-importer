@@ -18,18 +18,12 @@ export default class TargetCatalog extends HttpClient {
     return `http://${this.context.account}.${ENDPOINTS.host}${path}`
   }
 
-  public async createBrand(payload: Partial<BrandDetails>) {
-    return this.post<BrandDetails, Partial<BrandDetails>>(
-      ENDPOINTS.brand.set,
-      payload
-    )
+  public async createBrand<T extends BrandDetails>(payload: Partial<T>) {
+    return this.post<T, Partial<T>>(ENDPOINTS.brand.set, payload)
   }
 
-  public async createCategory(payload: Partial<CategoryDetails>) {
-    return this.post<CategoryDetails, Partial<CategoryDetails>>(
-      ENDPOINTS.category.set,
-      payload
-    )
+  public async createCategory<T extends CategoryDetails>(payload: Partial<T>) {
+    return this.post<T, Partial<T>>(ENDPOINTS.category.set, payload)
   }
 
   public async getProductByRefId(refId: string) {
@@ -40,15 +34,15 @@ export default class TargetCatalog extends HttpClient {
     ).catch(() => null)
   }
 
-  public async createProduct(payload: Partial<ProductDetails>) {
-    return this.post<ProductDetails, Partial<ProductDetails>>(
-      ENDPOINTS.product.set,
-      payload
-    )
+  public async createProduct<T extends ProductDetails>(payload: Partial<T>) {
+    return this.post<T, Partial<T>>(ENDPOINTS.product.set, payload)
   }
 
-  public async updateProduct(id: number, payload: Partial<ProductDetails>) {
-    return this.put<ProductDetails, Partial<ProductDetails>>(
+  public async updateProduct<T extends ProductDetails>(
+    id: number,
+    payload: Partial<T>
+  ) {
+    return this.put<T, Partial<T>>(
       ENDPOINTS.product.updateOrDetails(id),
       payload
     )
@@ -62,18 +56,33 @@ export default class TargetCatalog extends HttpClient {
     )
   }
 
-  public async createSku(payload: Partial<SkuDetails>) {
-    return this.post<SkuDetails, Partial<SkuDetails>>(
-      ENDPOINTS.sku.set,
-      payload
-    )
+  public async createSku<T extends SkuDetails>(payload: Partial<T>) {
+    return this.post<T, Partial<T>>(ENDPOINTS.sku.set, payload)
   }
 
-  public async updateSku(id: number, payload: Partial<SkuDetails>) {
-    return this.put<SkuDetails, Partial<SkuDetails>>(
-      ENDPOINTS.sku.updateOrDetails(id),
-      payload
-    )
+  public async updateSku<T extends SkuDetails>(
+    id: number,
+    payload: Partial<T>
+  ) {
+    return this.put<T, Partial<T>>(ENDPOINTS.sku.updateOrDetails(id), payload)
+  }
+
+  public async createSpecificationGroup<T extends SpecificationGroupDetails>(
+    payload: Partial<T>
+  ) {
+    return this.post<T, Partial<T>>(ENDPOINTS.specificationGroup.set, payload)
+  }
+
+  public async createSpecification<T extends SpecificationDetails>(
+    payload: Partial<T>
+  ) {
+    return this.post<T, Partial<T>>(ENDPOINTS.specification.set, payload)
+  }
+
+  public async createSpecificationValue<T extends SpecificationValueDetails>(
+    payload: Partial<T>
+  ) {
+    return this.post<T, Partial<T>>(ENDPOINTS.specificationValue.set, payload)
   }
 
   /* remove this after */

@@ -2,12 +2,14 @@ import type { ImportStatus } from 'ssesandbox04.catalog-importer'
 
 import handleBrands from '../events/steps/01-brands'
 import handleCategories from '../events/steps/02-categories'
-import handleSpecifications from '../events/steps/03-specifications'
-import handleProducts from '../events/steps/04-products'
-import handleSkus from '../events/steps/05-skus'
-import handlePrices from '../events/steps/06-prices'
-import handleStocks from '../events/steps/07-stocks'
-import finishImport from '../events/steps/08-finishImport'
+import handleSpecificationGroups from '../events/steps/03-specificationGroups'
+import handleSpecifications from '../events/steps/04-specifications'
+import handleSpecificationValues from '../events/steps/05-specificationValues'
+import handleProducts from '../events/steps/06-products'
+import handleSkus from '../events/steps/07-skus'
+import handleStocks from '../events/steps/08-stocks'
+import handlePrices from '../events/steps/09-prices'
+import finishImport from '../events/steps/10-finishImport'
 
 export const ENDPOINTS = {
   host: 'vtexcommercestable.com.br',
@@ -24,9 +26,26 @@ export const ENDPOINTS = {
     set: '/api/catalog/pvt/category',
     updateOrDetails: (id: string | number) => `/api/catalog/pvt/category/${id}`,
   },
-  specification: {
-    listGroupsByCategory: (categoryId: string | number) =>
+  specificationGroup: {
+    list: (categoryId: string | number) =>
       `/api/catalog_system/pvt/specification/groupbycategory/${categoryId}`,
+    set: '/api/catalog/pvt/specificationgroup',
+    updateOrDetails: (groupId: string | number) =>
+      `/api/catalog/pvt/specificationgroup/${groupId}`,
+  },
+  specification: {
+    list: (categoryId: string | number) =>
+      `/api/catalog_system/pub/specification/field/listByCategoryId/${categoryId}`,
+    set: '/api/catalog/pvt/specification',
+    updateOrDetails: (id: string | number) =>
+      `/api/catalog/pvt/specification/${id}`,
+  },
+  specificationValue: {
+    list: (specificationId: string | number) =>
+      `/api/catalog_system/pub/specification/fieldvalue/${specificationId}`,
+    set: '/api/catalog/pvt/specificationvalue',
+    updateOrDetails: (specificationValueId: string | number) =>
+      `/api/catalog/pvt/specificationvalue/${specificationValueId}`,
   },
   product: {
     /* remove this after */
@@ -60,7 +79,9 @@ export const IMPORT_EXECUTION_FIELDS = [
   'stockValue',
   'sourceBrandsTotal',
   'sourceCategoriesTotal',
+  'sourceSpecificationGroupsTotal',
   'sourceSpecificationsTotal',
+  'sourceSpecificationValuesTotal',
   'sourceProductsTotal',
   'sourceSkusTotal',
   'sourcePricesTotal',
@@ -104,7 +125,9 @@ export const COMMON_WHERE = `(status<>${IMPORT_STATUS.TO_BE_DELETED})AND(status<
 export const STEPS = [
   { entity: 'brand', handler: handleBrands },
   { entity: 'category', handler: handleCategories },
+  { entity: 'specificationGroup', handler: handleSpecificationGroups },
   { entity: 'specification', handler: handleSpecifications },
+  { entity: 'specificationValue', handler: handleSpecificationValues },
   { entity: 'product', handler: handleProducts },
   { entity: 'sku', handler: handleSkus },
   { entity: 'price', handler: handlePrices },
