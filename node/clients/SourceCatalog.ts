@@ -69,7 +69,7 @@ export default class SourceCatalog extends HttpClient {
     return batch(categories, (category) => this.getCategoryDetails(category))
   }
 
-  private async getSpecificationGroupsByCategory(categoryId: string | number) {
+  private async getSpecificationGroupsByCategory(categoryId: number) {
     const groups = await this.get<SpecificationGroupDetails[]>(
       ENDPOINTS.specificationGroup.list(categoryId)
     ).catch(() => [])
@@ -78,9 +78,9 @@ export default class SourceCatalog extends HttpClient {
   }
 
   public async getSpecificationGroups(categoryTree: Category[]) {
-    return batch(this.flatCategoryTree(categoryTree), (category) =>
-      this.getSpecificationGroupsByCategory(category.id)
-    )
+    return batch(this.flatCategoryTree(categoryTree), ({ id }) =>
+      this.getSpecificationGroupsByCategory(+id)
+    ).then((data) => data.flat())
   }
 
   private async getSpecificationDetails({ FieldId }: CategorySpecification) {
@@ -100,14 +100,14 @@ export default class SourceCatalog extends HttpClient {
   public async getSpecifications(categoryTree: Category[]) {
     return batch(this.flatCategoryTree(categoryTree), (category) =>
       this.getSpecificationsByCategory(category.id)
-    )
+    ).then((data) => data.flat())
   }
 
   private async getSpecificationValueDetails({
     FieldValueId,
   }: SpecificationValue) {
     return this.get<SpecificationValueDetails>(
-      ENDPOINTS.specification.updateOrDetails(FieldValueId)
+      ENDPOINTS.specificationValue.updateOrDetails(FieldValueId)
     )
   }
 
@@ -124,7 +124,7 @@ export default class SourceCatalog extends HttpClient {
   public async getSpecificationValues(fieldIds: number[]) {
     return batch(fieldIds, (fieldId) =>
       this.getSpecificationValuesByFieldId(fieldId)
-    )
+    ).then((data) => data.flat())
   }
 
   private async getProductAndSkuIds(categoryTree: Category[]) {
@@ -189,11 +189,23 @@ export default class SourceCatalog extends HttpClient {
     return { data, skuIds }
   }
 
+  public async getProductSpecifications(productId: number) {
+    return this.get<AssociatedSpecification[]>(
+      ENDPOINTS.product.listOrSetSpecifications(productId)
+    )
+  }
+
   private async getSkuDetails(id: string | number) {
     return this.get<SkuDetails>(ENDPOINTS.sku.updateOrDetails(id))
   }
 
   public async getSkus(skuIds: number[] = []) {
     return batch(skuIds, (id) => this.getSkuDetails(id))
+  }
+
+  public async getSkuSpecifications(skuId: number) {
+    return this.get<AssociatedSpecification[]>(
+      ENDPOINTS.sku.listOrSetSpecifications(skuId)
+    )
   }
 }

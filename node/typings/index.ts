@@ -159,6 +159,14 @@ declare global {
     KitItensSellApart: boolean
     Videos: string[]
   }
+  type AssociatedSpecification = {
+    Id: number
+    ProductId?: number
+    SkuId?: number
+    FieldId: number
+    FieldValueId: number
+    Text: string
+  }
 }
 
 export {}

@@ -1,4 +1,4 @@
-import { sequentialBatch, updateCurrentImport } from '../../helpers'
+import { batch, sequentialBatch, updateCurrentImport } from '../../helpers'
 
 const handleProducts = async (context: AppEventContext) => {
   const { sourceCatalog, targetCatalog, importEntity } = context.clients
@@ -8,7 +8,14 @@ const handleProducts = async (context: AppEventContext) => {
     categoryTree,
   } = context.state.body
 
-  const { entity, mapCategories, mapBrands } = context.state
+  const {
+    entity,
+    mapCategories,
+    mapBrands,
+    mapSpecifications,
+    mapSpecificationValues,
+  } = context.state
+
   const { account: sourceAccount } = settings
   const { data: sourceProducts, skuIds } = await sourceCatalog.getProducts(
     categoryTree
@@ -38,6 +45,24 @@ const handleProducts = async (context: AppEventContext) => {
     const { Id: targetId } = existing
       ? await targetCatalog.updateProduct(existing.Id, payload)
       : await targetCatalog.createProduct(payload)
+
+    await sourceCatalog.getProductSpecifications(Id).then((specifications) =>
+      batch(
+        specifications,
+        ({
+          Id: specificationId,
+          ProductId,
+          FieldId,
+          FieldValueId,
+          ...specification
+        }) =>
+          targetCatalog.associateProductSpecification(targetId, {
+            ...specification,
+            FieldId: mapSpecifications?.[FieldId],
+            FieldValueId: mapSpecificationValues?.[FieldValueId],
+          })
+      )
+    )
 
     await importEntity.save({
       executionImportId,

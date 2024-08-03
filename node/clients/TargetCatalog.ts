@@ -26,6 +26,24 @@ export default class TargetCatalog extends HttpClient {
     return this.post<T, Partial<T>>(ENDPOINTS.category.set, payload)
   }
 
+  public async createSpecificationGroup<T extends SpecificationGroupDetails>(
+    payload: Partial<T>
+  ) {
+    return this.post<T, Partial<T>>(ENDPOINTS.specificationGroup.set, payload)
+  }
+
+  public async createSpecification<T extends SpecificationDetails>(
+    payload: Partial<T>
+  ) {
+    return this.post<T, Partial<T>>(ENDPOINTS.specification.set, payload)
+  }
+
+  public async createSpecificationValue<T extends SpecificationValueDetails>(
+    payload: Partial<T>
+  ) {
+    return this.post<T, Partial<T>>(ENDPOINTS.specificationValue.set, payload)
+  }
+
   public async getProductByRefId(refId: string) {
     if (!refId) return null
 
@@ -44,6 +62,16 @@ export default class TargetCatalog extends HttpClient {
   ) {
     return this.put<T, Partial<T>>(
       ENDPOINTS.product.updateOrDetails(id),
+      payload
+    )
+  }
+
+  public async associateProductSpecification<T extends AssociatedSpecification>(
+    productId: number,
+    payload: Partial<T>
+  ) {
+    return this.post<T, Partial<T>>(
+      ENDPOINTS.product.listOrSetSpecifications(productId),
       payload
     )
   }
@@ -67,22 +95,14 @@ export default class TargetCatalog extends HttpClient {
     return this.put<T, Partial<T>>(ENDPOINTS.sku.updateOrDetails(id), payload)
   }
 
-  public async createSpecificationGroup<T extends SpecificationGroupDetails>(
+  public async associateSkuSpecification<T extends AssociatedSpecification>(
+    skuId: number,
     payload: Partial<T>
   ) {
-    return this.post<T, Partial<T>>(ENDPOINTS.specificationGroup.set, payload)
-  }
-
-  public async createSpecification<T extends SpecificationDetails>(
-    payload: Partial<T>
-  ) {
-    return this.post<T, Partial<T>>(ENDPOINTS.specification.set, payload)
-  }
-
-  public async createSpecificationValue<T extends SpecificationValueDetails>(
-    payload: Partial<T>
-  ) {
-    return this.post<T, Partial<T>>(ENDPOINTS.specificationValue.set, payload)
+    return this.post<T, Partial<T>>(
+      ENDPOINTS.sku.listOrSetSpecifications(skuId),
+      payload
+    )
   }
 
   /* remove this after */

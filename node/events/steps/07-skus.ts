@@ -1,7 +1,13 @@
-import { sequentialBatch } from '../../helpers'
+import { batch, sequentialBatch } from '../../helpers'
 
 const handleSkus = async (context: AppEventContext) => {
-  const { entity, skuIds, mapProducts } = context.state
+  const {
+    entity,
+    skuIds,
+    mapProducts,
+    mapSpecifications,
+    mapSpecificationValues,
+  } = context.state
 
   if (!skuIds?.length) return
   const { sourceCatalog, targetCatalog, importEntity } = context.clients
@@ -17,6 +23,24 @@ const handleSkus = async (context: AppEventContext) => {
     const { Id: targetId } = existing
       ? await targetCatalog.updateSku(existing.Id, payload)
       : await targetCatalog.createSku(payload)
+
+    await sourceCatalog.getSkuSpecifications(Id).then((specifications) =>
+      batch(
+        specifications,
+        ({
+          Id: specificationId,
+          SkuId,
+          FieldId,
+          FieldValueId,
+          ...specification
+        }) =>
+          targetCatalog.associateSkuSpecification(targetId, {
+            ...specification,
+            FieldId: mapSpecifications?.[FieldId],
+            FieldValueId: mapSpecificationValues?.[FieldValueId],
+          })
+      )
+    )
 
     await importEntity.save({
       executionImportId,

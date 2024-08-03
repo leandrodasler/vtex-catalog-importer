@@ -31,7 +31,7 @@ export const ENDPOINTS = {
       `/api/catalog_system/pvt/specification/groupbycategory/${categoryId}`,
     set: '/api/catalog/pvt/specificationgroup',
     updateOrDetails: (groupId: string | number) =>
-      `/api/catalog/pvt/specificationgroup/${groupId}`,
+      `/api/catalog_system/pub/specification/groupGet/${groupId}`,
   },
   specification: {
     list: (categoryId: string | number) =>
@@ -57,6 +57,8 @@ export const ENDPOINTS = {
     updateOrDetails: (id: string | number) => `/api/catalog/pvt/product/${id}`,
     getByRefId: (refId: string) =>
       `/api/catalog_system/pvt/products/productgetbyrefid/${refId}`,
+    listOrSetSpecifications: (productId: string | number) =>
+      `/api/catalog/pvt/product/${productId}/specification`,
   },
   sku: {
     set: '/api/catalog/pvt/stockkeepingunit',
@@ -64,6 +66,8 @@ export const ENDPOINTS = {
       `/api/catalog/pvt/stockkeepingunit/${id}`,
     getByRefId: (refId: string) =>
       `/api/catalog/pvt/stockkeepingunit?RefId=${refId}`,
+    listOrSetSpecifications: (skuId: string | number) =>
+      `/api/catalog/pvt/stockkeepingunit/${skuId}/specification`,
   },
 }
 
