@@ -10,7 +10,7 @@ const handleBrands = async (context: AppEventContext) => {
   await updateCurrentImport(context, { sourceBrandsTotal: sourceBrands.length })
   const mapBrands: EntityMap = {}
 
-  await sequentialBatch(sourceBrands, async ({ Id: sourceId, ...brand }) => {
+  await sequentialBatch(sourceBrands, async ({ Id, ...brand }) => {
     const payload = { ...brand }
     const { Id: targetId } = await targetCatalog.createBrand(payload)
 
@@ -18,12 +18,12 @@ const handleBrands = async (context: AppEventContext) => {
       executionImportId,
       name: entity,
       sourceAccount,
-      sourceId,
+      sourceId: Id,
       targetId,
       payload,
     })
 
-    mapBrands[sourceId] = targetId
+    mapBrands[Id] = targetId
   })
 
   context.state.mapBrands = mapBrands

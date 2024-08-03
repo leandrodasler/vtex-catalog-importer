@@ -105,7 +105,7 @@ export default class SourceCatalog extends HttpClient {
     return result
   }
 
-  private async getProductDetails(id: string | number) {
+  private async getProductDetails(id: ID) {
     return this.get<ProductDetails>(ENDPOINTS.product.updateOrDetails(id))
   }
 
@@ -131,7 +131,38 @@ export default class SourceCatalog extends HttpClient {
     return { data, skuIds }
   }
 
-  private async getSkuDetails(id: string | number) {
+  private async getSpecificationGroup(id: ID) {
+    return this.get<SpecificationGroup>(ENDPOINTS.specification.getGroup(id))
+  }
+
+  private async getSpecification(id: ID) {
+    const { FieldGroupId, ...specification } = await this.get<Specification>(
+      ENDPOINTS.specification.get(id)
+    )
+
+    const { Name: GroupName } = await this.getSpecificationGroup(FieldGroupId)
+
+    return { ...specification, GroupName }
+  }
+
+  public async getProductSpecifications(id: ID) {
+    return this.get<ProductSpecification[]>(
+      ENDPOINTS.specification.listByProduct(id)
+    ).then((data) =>
+      batch(data, async ({ Id, ...rest }) => ({
+        ...(await this.getSpecification(Id)),
+        ...rest,
+      }))
+    )
+  }
+
+  public async getSkuSpecifications(id: ID) {
+    return this.get<SkuSpecificationContext>(
+      ENDPOINTS.specification.listBySku(id)
+    ).then((data) => data.SkuSpecifications)
+  }
+
+  private async getSkuDetails(id: ID) {
     return this.get<SkuDetails>(ENDPOINTS.sku.updateOrDetails(id))
   }
 

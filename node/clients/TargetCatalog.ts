@@ -1,6 +1,6 @@
 import type { InstanceOptions, Maybe } from '@vtex/api'
 
-import { ENDPOINTS } from '../helpers'
+import { ENDPOINTS, sequentialBatch } from '../helpers'
 import HttpClient from './HttpClient'
 
 export default class TargetCatalog extends HttpClient {
@@ -18,18 +18,12 @@ export default class TargetCatalog extends HttpClient {
     return `http://${this.context.account}.${ENDPOINTS.host}${path}`
   }
 
-  public async createBrand(payload: Partial<BrandDetails>) {
-    return this.post<BrandDetails, Partial<BrandDetails>>(
-      ENDPOINTS.brand.set,
-      payload
-    )
+  public async createBrand<T extends BrandDetails>(payload: Partial<T>) {
+    return this.post<T, Partial<T>>(ENDPOINTS.brand.set, payload)
   }
 
-  public async createCategory(payload: Partial<CategoryDetails>) {
-    return this.post<CategoryDetails, Partial<CategoryDetails>>(
-      ENDPOINTS.category.set,
-      payload
-    )
+  public async createCategory<T extends CategoryDetails>(payload: Partial<T>) {
+    return this.post<T, Partial<T>>(ENDPOINTS.category.set, payload)
   }
 
   public async getProductByRefId(refId: string) {
@@ -40,15 +34,15 @@ export default class TargetCatalog extends HttpClient {
     ).catch(() => null)
   }
 
-  public async createProduct(payload: Partial<ProductDetails>) {
-    return this.post<ProductDetails, Partial<ProductDetails>>(
-      ENDPOINTS.product.set,
-      payload
-    )
+  public async createProduct<T extends ProductDetails>(payload: Partial<T>) {
+    return this.post<T, Partial<T>>(ENDPOINTS.product.set, payload)
   }
 
-  public async updateProduct(id: number, payload: Partial<ProductDetails>) {
-    return this.put<ProductDetails, Partial<ProductDetails>>(
+  public async updateProduct<T extends ProductDetails>(
+    id: number,
+    payload: Partial<T>
+  ) {
+    return this.put<T, Partial<T>>(
       ENDPOINTS.product.updateOrDetails(id),
       payload
     )
@@ -62,17 +56,62 @@ export default class TargetCatalog extends HttpClient {
     )
   }
 
-  public async createSku(payload: Partial<SkuDetails>) {
-    return this.post<SkuDetails, Partial<SkuDetails>>(
-      ENDPOINTS.sku.set,
-      payload
+  public async createSku<T extends SkuDetails>(payload: Partial<T>) {
+    return this.post<T, Partial<T>>(ENDPOINTS.sku.set, payload)
+  }
+
+  public async updateSku<T extends SkuDetails>(
+    id: number,
+    payload: Partial<T>
+  ) {
+    return this.put<T, Partial<T>>(ENDPOINTS.sku.updateOrDetails(id), payload)
+  }
+
+  private async associateProductSpecification(
+    productId: ID,
+    payload: AssociatedSpecification
+  ) {
+    return this.put(ENDPOINTS.product.setSpecification(productId), payload)
+  }
+
+  public async associateProductSpecifications(
+    productId: ID,
+    specifications: ProductSpecificationPayload[]
+  ) {
+    return sequentialBatch(
+      specifications,
+      async ({ Name: FieldName, Value: FieldValues, GroupName }) => {
+        await this.associateProductSpecification(productId, {
+          FieldName,
+          FieldValues,
+          GroupName,
+          RootLevelSpecification: false,
+        })
+      }
     )
   }
 
-  public async updateSku(id: number, payload: Partial<SkuDetails>) {
-    return this.put<SkuDetails, Partial<SkuDetails>>(
-      ENDPOINTS.sku.updateOrDetails(id),
-      payload
+  private async associateSkuSpecification(
+    skuId: ID,
+    payload: AssociatedSpecification
+  ) {
+    return this.put(ENDPOINTS.sku.setSpecification(skuId), payload)
+  }
+
+  public async associateSkuSpecifications(
+    skuId: ID,
+    specifications: SkuSpecification[]
+  ) {
+    return sequentialBatch(
+      specifications,
+      async ({ FieldName, FieldValues, FieldGroupName: GroupName }) => {
+        await this.associateSkuSpecification(skuId, {
+          FieldName,
+          FieldValues,
+          GroupName,
+          RootLevelSpecification: false,
+        })
+      }
     )
   }
 
@@ -105,7 +144,7 @@ export default class TargetCatalog extends HttpClient {
   }
 
   /* remove this after */
-  private async deleteBrand(id: string | number) {
+  private async deleteBrand(id: ID) {
     return this.delete(ENDPOINTS.brand.updateOrDetails(id))
       .catch(() => {
         const newName = `DELETED-${id}-${Date.now()}`
@@ -123,7 +162,7 @@ export default class TargetCatalog extends HttpClient {
   }
 
   /* remove this after */
-  private async deleteCategory(id: string | number) {
+  private async deleteCategory(id: ID) {
     return this.put<CategoryDetails, Partial<CategoryDetails>>(
       ENDPOINTS.category.updateOrDetails(id),
       { Name: 'DELETED' }
@@ -131,7 +170,7 @@ export default class TargetCatalog extends HttpClient {
   }
 
   /* remove this after */
-  private async deleteProduct(id: string | number) {
+  private async deleteProduct(id: ID) {
     const newName = `DELETED-${id}-${Date.now()}`
 
     return this.get<ProductDetails>(ENDPOINTS.product.updateOrDetails(id))
@@ -151,7 +190,7 @@ export default class TargetCatalog extends HttpClient {
   }
 
   /* remove this after */
-  public async deleteEntity(entity: string, id: string | number) {
+  public async deleteEntity(entity: string, id: ID) {
     if (!entity || !id) return null
 
     switch (entity) {

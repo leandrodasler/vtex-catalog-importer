@@ -10,13 +10,25 @@ const handleSkus = async (context: AppEventContext) => {
   const sourceSkus = await sourceCatalog.getSkus(skuIds)
 
   await sequentialBatch(sourceSkus, async ({ Id, ...sku }) => {
-    const { ProductId, RefId } = sku
+    const { ProductId, RefId, IsActive } = sku
     const targetProductId = mapProducts?.[ProductId]
-    const existing = await targetCatalog.getSkuByRefId(RefId)
-    const payload = { ...sku, ProductId: targetProductId }
+    const [existing, specifications] = await Promise.all([
+      targetCatalog.getSkuByRefId(RefId),
+      sourceCatalog.getSkuSpecifications(Id),
+    ])
+
+    const payload = {
+      ...sku,
+      ProductId: targetProductId,
+      IsActive: false,
+      ActivateIfPossible: IsActive,
+    }
+
     const { Id: targetId } = existing
       ? await targetCatalog.updateSku(existing.Id, payload)
       : await targetCatalog.createSku(payload)
+
+    await targetCatalog.associateSkuSpecifications(targetId, specifications)
 
     await importEntity.save({
       executionImportId,

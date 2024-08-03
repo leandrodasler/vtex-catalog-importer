@@ -1159,9 +1159,9 @@ semver@^6.3.1:
   resolved "https://registry.yarnpkg.com/semver/-/semver-6.3.1.tgz#556d2ef8689146e46dcea4bfdd095f3434dffcb4"
   integrity sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==
 
-"ssesandbox04.catalog-importer@https://new--cubostecnologia.myvtex.com/_v/private/typings/linked/v1/ssesandbox04.catalog-importer@0.0.2+build1722270925/public/@types/ssesandbox04.catalog-importer":
+"ssesandbox04.catalog-importer@https://new--cubostecnologia.myvtex.com/_v/private/typings/linked/v1/ssesandbox04.catalog-importer@0.0.2+build1722554192/public/@types/ssesandbox04.catalog-importer":
   version "0.0.2"
-  resolved "https://new--cubostecnologia.myvtex.com/_v/private/typings/linked/v1/ssesandbox04.catalog-importer@0.0.2+build1722270925/public/@types/ssesandbox04.catalog-importer#195fec38bd02e619f971683afe8655ae0ab3ed1d"
+  resolved "https://new--cubostecnologia.myvtex.com/_v/private/typings/linked/v1/ssesandbox04.catalog-importer@0.0.2+build1722554192/public/@types/ssesandbox04.catalog-importer#0f8d77dacca813316a531e38e5050e2b1a3c8a3b"
 
 supports-color@^5.3.0:
   version "5.5.0"
@@ -1235,9 +1235,9 @@ use-debounce@^7.0.0:
   resolved "https://registry.npmjs.org/use-debounce/-/use-debounce-7.0.1.tgz"
   integrity sha512-fOrzIw2wstbAJuv8PC9Vg4XgwyTLEOdq4y/Z3IhVl8DAE4svRcgyEUvrEXu+BMNgMoc3YND6qLT61kkgEKXh7Q==
 
-"vtex.render-runtime@http://vtex.vtexassets.com/_v/public/typings/v1/vtex.render-runtime@8.134.2/public/@types/vtex.render-runtime":
-  version "8.134.2"
-  resolved "http://vtex.vtexassets.com/_v/public/typings/v1/vtex.render-runtime@8.134.2/public/@types/vtex.render-runtime#ae69e2b2a471291c6c6b155e17510150fbfc2d0e"
+"vtex.render-runtime@http://vtex.vtexassets.com/_v/public/typings/v1/vtex.render-runtime@8.134.4/public/@types/vtex.render-runtime":
+  version "8.134.4"
+  resolved "http://vtex.vtexassets.com/_v/public/typings/v1/vtex.render-runtime@8.134.4/public/@types/vtex.render-runtime#4f329e03a66bdc0297ef608c5745f3cfdc151abe"
 
 yallist@^3.0.2:
   version "3.1.1"

@@ -7,6 +7,7 @@ import type { Clients } from '../clients'
 
 declare global {
   type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+  type ID = string | number
   type User = { user: string }
   type WithInternalFields<T> = T & {
     id: string
@@ -114,6 +115,35 @@ declare global {
     KitItensSellApart: boolean
     Videos: string[]
   }
+  type ProductSpecification = {
+    Id: number
+    Name: string
+    Value: string[]
+  }
+  type SkuSpecification = {
+    FieldName: string
+    FieldValues: string[]
+    FieldGroupName: string
+  }
+  type SkuSpecificationContext = {
+    SkuSpecifications: SkuSpecification[]
+  }
+  type Specification = {
+    FieldGroupId: number
+    Name: string
+    GroupName: string
+  }
+  type SpecificationGroup = {
+    Name: string
+  }
+  type AssociatedSpecification = {
+    FieldName: string
+    GroupName: string
+    RootLevelSpecification: boolean
+    FieldValues: string[]
+  }
+  type ProductSpecificationPayload = Omit<Specification, 'FieldGroupId'> &
+    Omit<ProductSpecification, 'Id'>
 }
 
 export {}

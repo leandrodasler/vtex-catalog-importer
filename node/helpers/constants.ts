@@ -16,30 +16,46 @@ export const ENDPOINTS = {
   brand: {
     list: '/api/catalog_system/pvt/brand/list',
     set: '/api/catalog/pvt/brand',
-    updateOrDetails: (id: string | number) => `/api/catalog/pvt/brand/${id}`,
+    updateOrDetails: (id: ID) => `/api/catalog/pvt/brand/${id}`,
   },
   category: {
     list: '/api/catalog_system/pub/category/tree/1000',
     set: '/api/catalog/pvt/category',
-    updateOrDetails: (id: string | number) => `/api/catalog/pvt/category/${id}`,
+    updateOrDetails: (id: ID) => `/api/catalog/pvt/category/${id}`,
+  },
+  specification: {
+    listByProduct: (productId: ID) =>
+      `/api/catalog_system/pvt/products/${productId}/specification`,
+    listBySku: (skuId: ID) =>
+      `/api/catalog_system/pvt/sku/stockkeepingunitbyid/${skuId}`,
+    get: (specificationId: ID) =>
+      `/api/catalog/pvt/specification/${specificationId}`,
+    getGroup: (groupId: ID) =>
+      `/api/catalog_system/pub/specification/groupGet/${groupId}`,
   },
   product: {
     /* remove this after */
     listAll: (from: number, to: number) =>
       `/api/catalog_system/pvt/products/GetProductAndSkuIds?_from=${from}&_to=${to}`,
-    listByCategory: (categoryId: string | number, from: number, to: number) =>
+    listByCategory: (categoryId: ID, from: number, to: number) =>
       `/api/catalog_system/pvt/products/GetProductAndSkuIds?categoryId=${categoryId}&_from=${from}&_to=${to}`,
     set: '/api/catalog/pvt/product',
-    updateOrDetails: (id: string | number) => `/api/catalog/pvt/product/${id}`,
+    updateOrDetails: (id: ID) => `/api/catalog/pvt/product/${id}`,
     getByRefId: (refId: string) =>
       `/api/catalog_system/pvt/products/productgetbyrefid/${refId}`,
+    setSpecification: (productId: ID) =>
+      `/api/catalog/pvt/product/${productId}/specificationvalue`,
   },
   sku: {
     set: '/api/catalog/pvt/stockkeepingunit',
-    updateOrDetails: (id: string | number) =>
-      `/api/catalog/pvt/stockkeepingunit/${id}`,
+    updateOrDetails: (id: ID) => `/api/catalog/pvt/stockkeepingunit/${id}`,
     getByRefId: (refId: string) =>
       `/api/catalog/pvt/stockkeepingunit?RefId=${refId}`,
+    setSpecification: (skuId: ID) =>
+      `/api/catalog/pvt/stockkeepingunit/${skuId}/specificationvalue
+
+
+`,
   },
 }
 

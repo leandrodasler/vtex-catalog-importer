@@ -49,16 +49,12 @@ export const printImport = (context: AppEventContext) => {
   const {
     entity,
     body: {
-      id,
-      status,
-      sourceBrandsTotal,
-      sourceCategoriesTotal,
-      sourceProductsTotal,
-      sourceSkusTotal,
-      sourcePricesTotal,
-      sourceStocksTotal,
-      error,
-      entityError,
+      categoryTree,
+      createdIn,
+      lastInteractionIn,
+      user,
+      settings,
+      ...importExecution
     },
   } = context.state
 
@@ -67,9 +63,7 @@ export const printImport = (context: AppEventContext) => {
     console.log(`import step for entity "${entity}"`)
   }
 
-  console.log(
-    `IMPORT #${id} - status: ${status} | sourceBrandsTotal: ${sourceBrandsTotal} | sourceCategoriesTotal: ${sourceCategoriesTotal} | sourceProductsTotal: ${sourceProductsTotal} | sourceSkusTotal: ${sourceSkusTotal} | sourcePricesTotal: ${sourcePricesTotal} | sourceStocksTotal: ${sourceStocksTotal} | error: ${error} | entityError: ${entityError}`
-  )
+  console.log(`IMPORT: ${JSON.stringify(importExecution)}`)
 }
 
 export const handleError = async (context: AppEventContext, e: ErrorLike) => {

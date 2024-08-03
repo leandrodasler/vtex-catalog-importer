@@ -36,6 +36,7 @@ const ImportResults = ({ importProgress, loading }: Props) => {
   } = importProgress
 
   const total = brands + categories + products + skus + prices + stocks
+
   const errorTitle = getEntityLabel(entityError)
 
   return (

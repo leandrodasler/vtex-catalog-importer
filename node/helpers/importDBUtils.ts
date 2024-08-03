@@ -70,7 +70,7 @@ const getFirstResult = <T>(data: T[]) => data[0] as Maybe<WithInternalFields<T>>
 export const getEntityBySourceId = async (
   context: AppEventContext,
   entity: string,
-  sourceId: string | number
+  sourceId: ID
 ) => {
   const { id } = context.state.body
   const where = `(executionImportId=${id})AND(name=${entity})AND(sourceId=${sourceId})`
