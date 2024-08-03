@@ -22,9 +22,6 @@ const ImportResults = ({ importProgress, loading }: Props) => {
       entityError,
       sourceBrandsTotal,
       sourceCategoriesTotal,
-      sourceSpecificationGroupsTotal,
-      sourceSpecificationsTotal,
-      sourceSpecificationValuesTotal,
       sourceProductsTotal,
       sourceSkusTotal,
       sourcePricesTotal,
@@ -32,25 +29,13 @@ const ImportResults = ({ importProgress, loading }: Props) => {
     },
     brands,
     categories,
-    specificationGroups,
-    specifications,
-    specificationValues,
     products,
     skus,
     prices,
     stocks,
   } = importProgress
 
-  const total =
-    brands +
-    specificationGroups +
-    specifications +
-    specificationValues +
-    categories +
-    products +
-    skus +
-    prices +
-    stocks
+  const total = brands + categories + products + skus + prices + stocks
 
   const errorTitle = getEntityLabel(entityError)
 
@@ -73,33 +58,6 @@ const ImportResults = ({ importProgress, loading }: Props) => {
         title={formatMessage(messages.importResultsCATEGORYLabel)}
         current={categories}
         total={sourceCategoriesTotal}
-        loading={loading}
-      />
-      {error && entityError === 'specificationGroup' && (
-        <ErrorMessage error={error} title={errorTitle} />
-      )}
-      <ImportEntityResult
-        title={formatMessage(messages.importResultsSPECIFICATIONGROUPLabel)}
-        current={specificationGroups}
-        total={sourceSpecificationGroupsTotal}
-        loading={loading}
-      />
-      {error && entityError === 'specification' && (
-        <ErrorMessage error={error} title={errorTitle} />
-      )}
-      <ImportEntityResult
-        title={formatMessage(messages.importResultsSPECIFICATIONLabel)}
-        current={specifications}
-        total={sourceSpecificationsTotal}
-        loading={loading}
-      />
-      {error && entityError === 'specificationValue' && (
-        <ErrorMessage error={error} title={errorTitle} />
-      )}
-      <ImportEntityResult
-        title={formatMessage(messages.importResultsSPECIFICATIONVALUELabel)}
-        current={specificationValues}
-        total={sourceSpecificationValuesTotal}
         loading={loading}
       />
       {error && entityError === 'product' && (

@@ -53,9 +53,6 @@ type Import {
   stocksOption: StocksOption!
   sourceBrandsTotal: Int!
   sourceCategoriesTotal: Int!
-  sourceSpecificationGroupsTotal: Int!
-  sourceSpecificationsTotal: Int!
-  sourceSpecificationValuesTotal: Int!
   sourceProductsTotal: Int!
   sourceSkusTotal: Int!
   sourcePricesTotal: Int!
@@ -98,9 +95,6 @@ type ImportProgress {
   currentImport: Import!
   brands: Int!
   categories: Int!
-  specificationGroups: Int!
-  specifications: Int!
-  specificationValues: Int!
   products: Int!
   skus: Int!
   prices: Int!

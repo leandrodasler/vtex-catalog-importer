@@ -1,6 +1,6 @@
 import type { InstanceOptions, Maybe } from '@vtex/api'
 
-import { ENDPOINTS } from '../helpers'
+import { ENDPOINTS, sequentialBatch } from '../helpers'
 import HttpClient from './HttpClient'
 
 export default class TargetCatalog extends HttpClient {
@@ -26,24 +26,6 @@ export default class TargetCatalog extends HttpClient {
     return this.post<T, Partial<T>>(ENDPOINTS.category.set, payload)
   }
 
-  public async createSpecificationGroup<T extends SpecificationGroupDetails>(
-    payload: Partial<T>
-  ) {
-    return this.post<T, Partial<T>>(ENDPOINTS.specificationGroup.set, payload)
-  }
-
-  public async createSpecification<T extends SpecificationDetails>(
-    payload: Partial<T>
-  ) {
-    return this.post<T, Partial<T>>(ENDPOINTS.specification.set, payload)
-  }
-
-  public async createSpecificationValue<T extends SpecificationValueDetails>(
-    payload: Partial<T>
-  ) {
-    return this.post<T, Partial<T>>(ENDPOINTS.specificationValue.set, payload)
-  }
-
   public async getProductByRefId(refId: string) {
     if (!refId) return null
 
@@ -62,16 +44,6 @@ export default class TargetCatalog extends HttpClient {
   ) {
     return this.put<T, Partial<T>>(
       ENDPOINTS.product.updateOrDetails(id),
-      payload
-    )
-  }
-
-  public async associateProductSpecification<T extends AssociatedSpecification>(
-    productId: number,
-    payload: Partial<T>
-  ) {
-    return this.post<T, Partial<T>>(
-      ENDPOINTS.product.listOrSetSpecifications(productId),
       payload
     )
   }
@@ -95,13 +67,51 @@ export default class TargetCatalog extends HttpClient {
     return this.put<T, Partial<T>>(ENDPOINTS.sku.updateOrDetails(id), payload)
   }
 
-  public async associateSkuSpecification<T extends AssociatedSpecification>(
-    skuId: number,
-    payload: Partial<T>
+  private async associateProductSpecification(
+    productId: ID,
+    payload: AssociatedSpecification
   ) {
-    return this.post<T, Partial<T>>(
-      ENDPOINTS.sku.listOrSetSpecifications(skuId),
-      payload
+    return this.put(ENDPOINTS.product.setSpecification(productId), payload)
+  }
+
+  public async associateProductSpecifications(
+    productId: ID,
+    specifications: ProductSpecificationPayload[]
+  ) {
+    return sequentialBatch(
+      specifications,
+      async ({ Name: FieldName, Value: FieldValues, GroupName }) => {
+        await this.associateProductSpecification(productId, {
+          FieldName,
+          FieldValues,
+          GroupName,
+          RootLevelSpecification: false,
+        })
+      }
+    )
+  }
+
+  private async associateSkuSpecification(
+    skuId: ID,
+    payload: AssociatedSpecification
+  ) {
+    return this.put(ENDPOINTS.sku.setSpecification(skuId), payload)
+  }
+
+  public async associateSkuSpecifications(
+    skuId: ID,
+    specifications: SkuSpecification[]
+  ) {
+    return sequentialBatch(
+      specifications,
+      async ({ FieldName, FieldValues, FieldGroupName: GroupName }) => {
+        await this.associateSkuSpecification(skuId, {
+          FieldName,
+          FieldValues,
+          GroupName,
+          RootLevelSpecification: false,
+        })
+      }
     )
   }
 
@@ -134,7 +144,7 @@ export default class TargetCatalog extends HttpClient {
   }
 
   /* remove this after */
-  private async deleteBrand(id: string | number) {
+  private async deleteBrand(id: ID) {
     return this.delete(ENDPOINTS.brand.updateOrDetails(id))
       .catch(() => {
         const newName = `DELETED-${id}-${Date.now()}`
@@ -152,7 +162,7 @@ export default class TargetCatalog extends HttpClient {
   }
 
   /* remove this after */
-  private async deleteCategory(id: string | number) {
+  private async deleteCategory(id: ID) {
     return this.put<CategoryDetails, Partial<CategoryDetails>>(
       ENDPOINTS.category.updateOrDetails(id),
       { Name: 'DELETED' }
@@ -160,7 +170,7 @@ export default class TargetCatalog extends HttpClient {
   }
 
   /* remove this after */
-  private async deleteProduct(id: string | number) {
+  private async deleteProduct(id: ID) {
     const newName = `DELETED-${id}-${Date.now()}`
 
     return this.get<ProductDetails>(ENDPOINTS.product.updateOrDetails(id))
@@ -180,7 +190,7 @@ export default class TargetCatalog extends HttpClient {
   }
 
   /* remove this after */
-  public async deleteEntity(entity: string, id: string | number) {
+  public async deleteEntity(entity: string, id: ID) {
     if (!entity || !id) return null
 
     switch (entity) {

@@ -1,4 +1,4 @@
-import { batch, sequentialBatch, updateCurrentImport } from '../../helpers'
+import { sequentialBatch, updateCurrentImport } from '../../helpers'
 
 const handleProducts = async (context: AppEventContext) => {
   const { sourceCatalog, targetCatalog, importEntity } = context.clients
@@ -8,14 +8,7 @@ const handleProducts = async (context: AppEventContext) => {
     categoryTree,
   } = context.state.body
 
-  const {
-    entity,
-    mapCategories,
-    mapBrands,
-    mapSpecifications,
-    mapSpecificationValues,
-  } = context.state
-
+  const { entity, mapCategories, mapBrands } = context.state
   const { account: sourceAccount } = settings
   const { data: sourceProducts, skuIds } = await sourceCatalog.getProducts(
     categoryTree
@@ -33,7 +26,11 @@ const handleProducts = async (context: AppEventContext) => {
     const targetDepartmentId = mapCategories?.[DepartmentId]
     const targetCategoryId = mapCategories?.[CategoryId]
     const targetBrandId = mapBrands?.[BrandId]
-    const existing = await targetCatalog.getProductByRefId(RefId || LinkId)
+    const [existing, specifications] = await Promise.all([
+      targetCatalog.getProductByRefId(RefId || LinkId),
+      sourceCatalog.getProductSpecifications(Id),
+    ])
+
     const payload = {
       ...product,
       DepartmentId: targetDepartmentId,
@@ -46,23 +43,7 @@ const handleProducts = async (context: AppEventContext) => {
       ? await targetCatalog.updateProduct(existing.Id, payload)
       : await targetCatalog.createProduct(payload)
 
-    await sourceCatalog.getProductSpecifications(Id).then((specifications) =>
-      batch(
-        specifications,
-        ({
-          Id: specificationId,
-          ProductId,
-          FieldId,
-          FieldValueId,
-          ...specification
-        }) =>
-          targetCatalog.associateProductSpecification(targetId, {
-            ...specification,
-            FieldId: mapSpecifications?.[FieldId],
-            FieldValueId: mapSpecificationValues?.[FieldValueId],
-          })
-      )
-    )
+    await targetCatalog.associateProductSpecifications(targetId, specifications)
 
     await importEntity.save({
       executionImportId,

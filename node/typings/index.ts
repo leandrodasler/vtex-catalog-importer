@@ -7,6 +7,7 @@ import type { Clients } from '../clients'
 
 declare global {
   type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+  type ID = string | number
   type User = { user: string }
   type WithInternalFields<T> = T & {
     id: string
@@ -23,9 +24,6 @@ declare global {
     mapCategories?: EntityMap
     mapBrands?: EntityMap
     mapProducts?: EntityMap
-    mapSpecificationGroups?: EntityMap
-    mapSpecifications?: EntityMap
-    mapSpecificationValues?: EntityMap
     skuIds?: number[]
   }
   type AppEventContext = EventContext<Clients, EventState>
@@ -63,48 +61,6 @@ declare global {
     Score?: number
     LinkId: string
     HasChildren: boolean
-  }
-  type SpecificationGroupDetails = {
-    Id: number
-    CategoryId: number
-    Name: string
-  }
-  type CategorySpecification = {
-    Name: string
-    CategoryId: number
-    FieldId: number
-    IsActive: boolean
-    IsStockKeepingUnit: boolean
-  }
-  type SpecificationDetails = {
-    Id: number
-    FieldTypeId: number
-    CategoryId: number
-    FieldGroupId: number
-    Name: string
-    Description: string
-    Position: number
-    IsFilter: boolean
-    IsRequired: boolean
-    IsOnProductDetails: boolean
-    IsStockKeepingUnit: boolean
-    IsActive: boolean
-    IsTopMenuLinkActive: boolean
-    IsSideMenuLinkActive: boolean
-    DefaultValue?: string
-  }
-  type SpecificationValue = {
-    FieldValueId: number
-    Value: string
-    IsActive: boolean
-    Position: number
-  }
-  type SpecificationValueDetails = {
-    FieldValueId: number
-    FieldId: number
-    Name: string
-    IsActive: boolean
-    Position: number
   }
   type ProductAndSkuIds = {
     data: Record<string, number[]>
@@ -159,14 +115,35 @@ declare global {
     KitItensSellApart: boolean
     Videos: string[]
   }
-  type AssociatedSpecification = {
+  type ProductSpecification = {
     Id: number
-    ProductId?: number
-    SkuId?: number
-    FieldId: number
-    FieldValueId: number
-    Text: string
+    Name: string
+    Value: string[]
   }
+  type SkuSpecification = {
+    FieldName: string
+    FieldValues: string[]
+    FieldGroupName: string
+  }
+  type SkuSpecificationContext = {
+    SkuSpecifications: SkuSpecification[]
+  }
+  type Specification = {
+    FieldGroupId: number
+    Name: string
+    GroupName: string
+  }
+  type SpecificationGroup = {
+    Name: string
+  }
+  type AssociatedSpecification = {
+    FieldName: string
+    GroupName: string
+    RootLevelSpecification: boolean
+    FieldValues: string[]
+  }
+  type ProductSpecificationPayload = Omit<Specification, 'FieldGroupId'> &
+    Omit<ProductSpecification, 'Id'>
 }
 
 export {}

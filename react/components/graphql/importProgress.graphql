@@ -53,9 +53,6 @@ query importProgress($id: ID!) {
       stockValue
       sourceBrandsTotal
       sourceCategoriesTotal
-      sourceSpecificationGroupsTotal
-      sourceSpecificationsTotal
-      sourceSpecificationValuesTotal
       sourceProductsTotal
       sourceSkusTotal
       sourcePricesTotal
@@ -66,9 +63,6 @@ query importProgress($id: ID!) {
     }
     brands
     categories
-    specificationGroups
-    specifications
-    specificationValues
     products
     skus
     prices

@@ -23,9 +23,6 @@ export const importProgress = async (
   const [
     brands,
     categories,
-    specificationGroups,
-    specifications,
-    specificationValues,
     products,
     skus,
     prices,
@@ -45,13 +42,6 @@ export const importProgress = async (
 
   const sourceBrandsTotal = currentImport.sourceBrandsTotal ?? 0
   const sourceCategoriesTotal = currentImport.sourceCategoriesTotal ?? 0
-  const sourceSpecificationGroupsTotal =
-    currentImport.sourceSpecificationGroupsTotal ?? 0
-
-  const sourceSpecificationsTotal = currentImport.sourceSpecificationsTotal ?? 0
-  const sourceSpecificationValuesTotal =
-    currentImport.sourceSpecificationValuesTotal ?? 0
-
   const sourceProductsTotal = currentImport.sourceProductsTotal ?? 0
   const sourceSkusTotal = currentImport.sourceSkusTotal ?? 0
   const sourcePricesTotal = currentImport.sourcePricesTotal ?? 0
@@ -61,9 +51,6 @@ export const importProgress = async (
     status === IMPORT_STATUS.ERROR ||
     (brands >= sourceBrandsTotal &&
       categories >= sourceCategoriesTotal &&
-      specificationGroups >= sourceSpecificationGroupsTotal &&
-      specifications >= sourceSpecificationsTotal &&
-      specificationValues >= sourceSpecificationValuesTotal &&
       products >= sourceProductsTotal &&
       skus >= sourceSkusTotal &&
       prices >= sourcePricesTotal &&
@@ -74,9 +61,6 @@ export const importProgress = async (
       ...currentImport,
       sourceBrandsTotal,
       sourceCategoriesTotal,
-      sourceSpecificationGroupsTotal,
-      sourceSpecificationsTotal,
-      sourceSpecificationValuesTotal,
       sourceProductsTotal,
       sourceSkusTotal,
       sourcePricesTotal,
@@ -84,9 +68,6 @@ export const importProgress = async (
     },
     brands,
     categories,
-    specificationGroups,
-    specifications,
-    specificationValues,
     products,
     skus,
     prices,
