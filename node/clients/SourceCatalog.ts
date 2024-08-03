@@ -123,9 +123,8 @@ export default class SourceCatalog extends HttpClient {
 
       if (!IsActive || !inCategoryTree) return
 
-      product.skuIds = productAndSkuIds[id]
       data.push(product)
-      skuIds.push(...product.skuIds)
+      skuIds.push(...productAndSkuIds[id])
     })
 
     return { data, skuIds }

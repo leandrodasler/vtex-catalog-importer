@@ -85,7 +85,6 @@ declare global {
     MetaTagDescription: string
     ShowWithoutStock: boolean
     Score: number
-    skuIds: number[]
   }
   type SkuDetails = {
     Id: number
