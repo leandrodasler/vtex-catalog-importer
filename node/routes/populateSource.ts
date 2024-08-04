@@ -24,29 +24,34 @@ const populateSource = async (context: Context) => {
   // }
 
   // const products = await cosmos.getProductsByGpc(gpc)
+  // context.body = JSON.stringify(products, null, 2)
 
   console.log('cleaning brands')
   const brands = await targetCatalog.get<Brand[]>(ENDPOINTS.brand.list)
 
-  batch(brands, ({ id }) => targetCatalog.deleteEntity('brand', id))
+  batch(
+    brands,
+    ({ id }) => +id > 2000005 && targetCatalog.deleteEntity('brand', id)
+  )
 
   console.log('cleaning categories')
   const categories = sourceCatalog.flatCategoryTree(
     await targetCatalog.get<Category[]>(ENDPOINTS.category.list)
   )
 
-  batch(categories, ({ id }) => targetCatalog.deleteEntity('category', id))
+  batch(
+    categories,
+    ({ id }) => +id > 7 && targetCatalog.deleteEntity('category', id)
+  )
 
   console.log('cleaning products')
-  targetCatalog
-    .getProductIds()
-    .then((productIds) =>
-      batch(productIds, (id) => targetCatalog.deleteEntity('product', id))
-    )
+  targetCatalog.getProductIds(12).then(({ productIds, skuIds }) => {
+    batch(productIds, (id) => targetCatalog.deleteEntity('product', id))
+    batch(skuIds, (id) => targetCatalog.deleteEntity('sku', id))
+  })
 
   context.status = 200
   context.body = 'Catalog cleaned successfully'
-  // context.body = JSON.stringify(products, null, 2)
 }
 
 export default method({ GET: populateSource })

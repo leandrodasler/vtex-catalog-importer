@@ -26,7 +26,6 @@ const handleProducts = async (context: AppEventContext) => {
     const targetDepartmentId = mapCategories?.[DepartmentId]
     const targetCategoryId = mapCategories?.[CategoryId]
     const targetBrandId = mapBrands?.[BrandId]
-    const existing = await targetCatalog.getProductByRefId(RefId || LinkId)
 
     const payload = {
       ...product,
@@ -36,10 +35,7 @@ const handleProducts = async (context: AppEventContext) => {
       RefId: RefId || LinkId,
     }
 
-    const { Id: targetId } = existing
-      ? await targetCatalog.updateProduct(existing.Id, payload)
-      : await targetCatalog.createProduct(payload)
-
+    const { Id: targetId } = await targetCatalog.createProduct(payload)
     const specifications = await sourceCatalog.getProductSpecifications(Id)
 
     await targetCatalog.associateProductSpecifications(targetId, specifications)
@@ -51,7 +47,6 @@ const handleProducts = async (context: AppEventContext) => {
       sourceId: Id,
       targetId,
       payload,
-      ...(existing && { pathParams: `${targetId}` }),
     })
 
     mapProducts[Id] = targetId

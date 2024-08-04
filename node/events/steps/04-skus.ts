@@ -10,9 +10,8 @@ const handleSkus = async (context: AppEventContext) => {
   const sourceSkus = await sourceCatalog.getSkus(skuIds)
 
   await sequentialBatch(sourceSkus, async ({ Id, ...sku }) => {
-    const { ProductId, RefId, IsActive } = sku
+    const { ProductId, IsActive } = sku
     const targetProductId = mapProducts?.[ProductId]
-    const existing = await targetCatalog.getSkuByRefId(RefId)
 
     const payload = {
       ...sku,
@@ -21,10 +20,7 @@ const handleSkus = async (context: AppEventContext) => {
       ActivateIfPossible: IsActive,
     }
 
-    const { Id: targetId } = existing
-      ? await targetCatalog.updateSku(existing.Id, payload)
-      : await targetCatalog.createSku(payload)
-
+    const { Id: targetId } = await targetCatalog.createSku(payload)
     const specifications = await sourceCatalog.getSkuSpecifications(Id)
 
     await targetCatalog.associateSkuSpecifications(targetId, specifications)
@@ -36,7 +32,6 @@ const handleSkus = async (context: AppEventContext) => {
       sourceId: Id,
       targetId,
       payload,
-      ...(existing && { pathParams: `${targetId}` }),
     })
   })
 }

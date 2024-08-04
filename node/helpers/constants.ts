@@ -41,16 +41,12 @@ export const ENDPOINTS = {
       `/api/catalog_system/pvt/products/GetProductAndSkuIds?categoryId=${categoryId}&_from=${from}&_to=${to}`,
     set: '/api/catalog/pvt/product',
     updateOrDetails: (id: ID) => `/api/catalog/pvt/product/${id}`,
-    getByRefId: (refId: string) =>
-      `/api/catalog_system/pvt/products/productgetbyrefid/${refId}`,
     setSpecification: (productId: ID) =>
       `/api/catalog/pvt/product/${productId}/specificationvalue`,
   },
   sku: {
     set: '/api/catalog/pvt/stockkeepingunit',
     updateOrDetails: (id: ID) => `/api/catalog/pvt/stockkeepingunit/${id}`,
-    getByRefId: (refId: string) =>
-      `/api/catalog/pvt/stockkeepingunit?RefId=${refId}`,
     setSpecification: (skuId: ID) =>
       `/api/catalog/pvt/stockkeepingunit/${skuId}/specificationvalue
 

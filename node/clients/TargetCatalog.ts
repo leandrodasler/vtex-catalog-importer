@@ -1,4 +1,4 @@
-import type { InstanceOptions, Maybe } from '@vtex/api'
+import type { InstanceOptions } from '@vtex/api'
 
 import { ENDPOINTS, sequentialBatch } from '../helpers'
 import HttpClient from './HttpClient'
@@ -26,45 +26,12 @@ export default class TargetCatalog extends HttpClient {
     return this.post<T, Partial<T>>(ENDPOINTS.category.set, payload)
   }
 
-  public async getProductByRefId(refId: string) {
-    if (!refId) return null
-
-    return this.get<Maybe<ProductDetails>>(
-      ENDPOINTS.product.getByRefId(refId)
-    ).catch(() => null)
-  }
-
   public async createProduct<T extends ProductDetails>(payload: Partial<T>) {
     return this.post<T, Partial<T>>(ENDPOINTS.product.set, payload)
   }
 
-  public async updateProduct<T extends ProductDetails>(
-    id: number,
-    payload: Partial<T>
-  ) {
-    return this.put<T, Partial<T>>(
-      ENDPOINTS.product.updateOrDetails(id),
-      payload
-    )
-  }
-
-  public async getSkuByRefId(refId: string) {
-    if (!refId) return null
-
-    return this.get<Maybe<SkuDetails>>(ENDPOINTS.sku.getByRefId(refId)).catch(
-      () => null
-    )
-  }
-
   public async createSku<T extends SkuDetails>(payload: Partial<T>) {
     return this.post<T, Partial<T>>(ENDPOINTS.sku.set, payload)
-  }
-
-  public async updateSku<T extends SkuDetails>(
-    id: number,
-    payload: Partial<T>
-  ) {
-    return this.put<T, Partial<T>>(ENDPOINTS.sku.updateOrDetails(id), payload)
   }
 
   private async associateProductSpecification(
@@ -116,10 +83,10 @@ export default class TargetCatalog extends HttpClient {
   }
 
   /* remove this after */
-  public async getProductIds() {
+  public async getProductIds(initial = 1) {
     const maxPerPage = 250
     let result: ProductAndSkuIds['data'] = {}
-    let from = 1
+    let from = initial
     let to = maxPerPage
 
     const getRange = async () => {
@@ -139,8 +106,9 @@ export default class TargetCatalog extends HttpClient {
 
     await getRange()
     const productIds = Object.keys(result)
+    const skuIds = Object.values(result).flat()
 
-    return productIds
+    return { productIds, skuIds }
   }
 
   /* remove this after */
@@ -190,6 +158,26 @@ export default class TargetCatalog extends HttpClient {
   }
 
   /* remove this after */
+  private async deleteSku(id: ID) {
+    const newName = `DELETED-${id}-${Date.now()}`
+
+    return this.get<SkuDetails>(ENDPOINTS.sku.updateOrDetails(id))
+      .then((sku) =>
+        this.put<SkuDetails, Partial<SkuDetails>>(
+          ENDPOINTS.sku.updateOrDetails(id),
+          {
+            ...sku,
+            Name: newName,
+            ActivateIfPossible: false,
+            RefId: newName,
+            IsActive: false,
+          }
+        )
+      )
+      .catch(() => {})
+  }
+
+  /* remove this after */
   public async deleteEntity(entity: string, id: ID) {
     if (!entity || !id) return null
 
@@ -202,6 +190,9 @@ export default class TargetCatalog extends HttpClient {
 
       case 'product':
         return this.deleteProduct(id)
+
+      case 'sku':
+        return this.deleteSku(id)
 
       default:
         return null
