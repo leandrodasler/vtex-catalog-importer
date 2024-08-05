@@ -1,6 +1,6 @@
 import type { InstanceOptions } from '@vtex/api'
 
-import { ENDPOINTS, sequentialBatch } from '../helpers'
+import { batch, ENDPOINTS, sequentialBatch } from '../helpers'
 import HttpClient from './HttpClient'
 
 export default class TargetCatalog extends HttpClient {
@@ -69,7 +69,7 @@ export default class TargetCatalog extends HttpClient {
     skuId: ID,
     specifications: SkuSpecification[]
   ) {
-    return sequentialBatch(
+    return batch(
       specifications,
       async ({ FieldName, FieldValues, FieldGroupName: GroupName }) => {
         await this.associateSkuSpecification(skuId, {
@@ -79,6 +79,21 @@ export default class TargetCatalog extends HttpClient {
           RootLevelSpecification: false,
         })
       }
+    )
+  }
+
+  public async createSkuEan(id: ID, ean?: string) {
+    if (!ean) return
+
+    return this.post(ENDPOINTS.sku.setEan(id, ean))
+  }
+
+  public async createSkuFiles<T extends SkuFileDetails>(
+    id: ID,
+    payload: Array<Partial<T>>
+  ) {
+    return batch(payload, (file) =>
+      this.post<T, Partial<T>>(ENDPOINTS.sku.listOrSetFile(id), file)
     )
   }
 
@@ -162,7 +177,7 @@ export default class TargetCatalog extends HttpClient {
     const newName = `DELETED-${id}-${Date.now()}`
 
     return this.get<SkuDetails>(ENDPOINTS.sku.updateOrDetails(id))
-      .then((sku) =>
+      .then((sku) => {
         this.put<SkuDetails, Partial<SkuDetails>>(
           ENDPOINTS.sku.updateOrDetails(id),
           {
@@ -173,7 +188,11 @@ export default class TargetCatalog extends HttpClient {
             IsActive: false,
           }
         )
-      )
+
+        if (sku.Ean) {
+          this.delete(ENDPOINTS.sku.setEan(id, sku.Ean))
+        }
+      })
       .catch(() => {})
   }
 

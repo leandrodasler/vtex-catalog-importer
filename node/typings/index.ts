@@ -93,6 +93,7 @@ declare global {
     ActivateIfPossible: boolean
     Name: string
     RefId: string
+    Ean?: string
     PackagedHeight: number
     PackagedLength: number
     PackagedWidth: number
@@ -124,8 +125,27 @@ declare global {
     FieldValues: string[]
     FieldGroupName: string
   }
-  type SkuSpecificationContext = {
+  type SkuImage = {
+    ImageUrl: string
+    FileId: number
+  }
+  type SkuContext = {
     SkuSpecifications: SkuSpecification[]
+    Images: SkuImage[]
+    AlternateIds: {
+      Ean?: string
+    }
+  }
+  type SkuFileDetails = {
+    Id: number
+    ArchiveId: number
+    SkuId: number
+    Name: string
+    IsMain: boolean
+    Text: string
+    Label: string
+    Url: string
+    FileLocation: string
   }
   type Specification = {
     FieldGroupId: number

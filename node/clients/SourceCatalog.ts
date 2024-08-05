@@ -155,17 +155,38 @@ export default class SourceCatalog extends HttpClient {
     )
   }
 
-  public async getSkuSpecifications(id: ID) {
-    return this.get<SkuSpecificationContext>(
-      ENDPOINTS.specification.listBySku(id)
-    ).then((data) => data.SkuSpecifications)
-  }
-
   private async getSkuDetails(id: ID) {
     return this.get<SkuDetails>(ENDPOINTS.sku.updateOrDetails(id))
   }
 
   public async getSkus(skuIds: number[] = []) {
     return batch(skuIds, (id) => this.getSkuDetails(id))
+  }
+
+  private async getSkuFiles(id: ID) {
+    return this.get<SkuFileDetails[]>(ENDPOINTS.sku.listOrSetFile(id))
+  }
+
+  public async getSkuContext(id: ID) {
+    const context = await this.get<SkuContext>(ENDPOINTS.sku.getContext(id))
+    const {
+      SkuSpecifications: specifications,
+      AlternateIds: { Ean },
+    } = context
+
+    const skuFiles = await this.getSkuFiles(id)
+    const files = skuFiles.map((data) => {
+      const { Id, ArchiveId, SkuId, FileLocation, Url, Name, ...file } = data
+      const image = context.Images.find((i) => i.FileId === ArchiveId)
+      const imageUrl = new URL(image?.ImageUrl ?? Url)
+
+      return {
+        ...file,
+        Name: Name.replace(/\./g, '-'),
+        Url: `${imageUrl.origin}${imageUrl.pathname}`,
+      }
+    })
+
+    return { Ean, specifications, files }
   }
 }

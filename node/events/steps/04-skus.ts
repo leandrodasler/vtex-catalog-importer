@@ -12,6 +12,7 @@ const handleSkus = async (context: AppEventContext) => {
   await sequentialBatch(sourceSkus, async ({ Id, ...sku }) => {
     const { ProductId, IsActive } = sku
     const targetProductId = mapProducts?.[ProductId]
+    const { Ean, specifications, files } = await sourceCatalog.getSkuContext(Id)
 
     const payload = {
       ...sku,
@@ -21,9 +22,12 @@ const handleSkus = async (context: AppEventContext) => {
     }
 
     const { Id: targetId } = await targetCatalog.createSku(payload)
-    const specifications = await sourceCatalog.getSkuSpecifications(Id)
 
-    await targetCatalog.associateSkuSpecifications(targetId, specifications)
+    await Promise.all([
+      targetCatalog.associateSkuSpecifications(targetId, specifications),
+      targetCatalog.createSkuEan(targetId, Ean),
+      targetCatalog.createSkuFiles(targetId, files),
+    ])
 
     await importEntity.save({
       executionImportId,

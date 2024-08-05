@@ -26,8 +26,6 @@ export const ENDPOINTS = {
   specification: {
     listByProduct: (productId: ID) =>
       `/api/catalog_system/pvt/products/${productId}/specification`,
-    listBySku: (skuId: ID) =>
-      `/api/catalog_system/pvt/sku/stockkeepingunitbyid/${skuId}`,
     get: (specificationId: ID) =>
       `/api/catalog/pvt/specification/${specificationId}`,
     getGroup: (groupId: ID) =>
@@ -46,12 +44,15 @@ export const ENDPOINTS = {
   },
   sku: {
     set: '/api/catalog/pvt/stockkeepingunit',
+    getContext: (skuId: ID) =>
+      `/api/catalog_system/pvt/sku/stockkeepingunitbyid/${skuId}`,
     updateOrDetails: (id: ID) => `/api/catalog/pvt/stockkeepingunit/${id}`,
+    setEan: (skuId: ID, ean: string) =>
+      `/api/catalog/pvt/stockkeepingunit/${skuId}/ean/${ean}`,
     setSpecification: (skuId: ID) =>
-      `/api/catalog/pvt/stockkeepingunit/${skuId}/specificationvalue
-
-
-`,
+      `/api/catalog/pvt/stockkeepingunit/${skuId}/specificationvalue`,
+    listOrSetFile: (skuId: ID) =>
+      `/api/catalog/pvt/stockkeepingunit/${skuId}/file`,
   },
 }
 

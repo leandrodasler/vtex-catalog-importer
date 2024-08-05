@@ -4,5 +4,5 @@
   "features": {
     "ghcr.io/marlonpassos-git/dev-container-features/vtex-cli:0": {}
   },
-  "postCreateCommand": "./vtex-login.example.sh && vtex use dev && vtex setup"
+  "postCreateCommand": "./vtex-login.example.sh && vtex use $USER && vtex setup"
 }

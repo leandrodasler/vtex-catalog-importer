@@ -48,15 +48,15 @@ export default class HttpClient extends ExternalClient {
     return this.request<Response>(path, 'GET')
   }
 
-  public async post<Response, Body = Response>(path: string, body: Body) {
+  public async post<Response, Body = Response>(path: string, body?: Body) {
     return this.request<Response, Body>(path, 'POST', body)
   }
 
-  public async put<Response, Body = Response>(path: string, body: Body) {
+  public async put<Response, Body = Response>(path: string, body?: Body) {
     return this.request<Response, Body>(path, 'PUT', body)
   }
 
-  public async patch<Response, Body = Response>(path: string, body: Body) {
+  public async patch<Response, Body = Response>(path: string, body?: Body) {
     return this.request<Response, Body>(path, 'PATCH', body)
   }
 
