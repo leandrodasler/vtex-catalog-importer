@@ -167,14 +167,14 @@ export default class SourceCatalog extends HttpClient {
     return this.get<SkuFileDetails[]>(ENDPOINTS.sku.listOrSetFile(id))
   }
 
-  public async getSkuContext(id: ID) {
+  public async getSkuContext(id: ID, getFiles = true) {
     const context = await this.get<SkuContext>(ENDPOINTS.sku.getContext(id))
     const {
       SkuSpecifications: specifications,
       AlternateIds: { Ean },
     } = context
 
-    const skuFiles = await this.getSkuFiles(id)
+    const skuFiles = getFiles ? await this.getSkuFiles(id) : []
     const files = skuFiles.map((data) => {
       const { Id, ArchiveId, SkuId, FileLocation, Url, Name, ...file } = data
       const image = context.Images.find((i) => i.FileId === ArchiveId)

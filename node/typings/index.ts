@@ -24,6 +24,7 @@ declare global {
     mapCategories?: EntityMap
     mapBrands?: EntityMap
     mapProducts?: EntityMap
+    mapSkus?: EntityMap
     skuIds?: number[]
   }
   type AppEventContext = EventContext<Clients, EventState>

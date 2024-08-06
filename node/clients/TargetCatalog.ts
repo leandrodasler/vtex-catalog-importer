@@ -92,8 +92,11 @@ export default class TargetCatalog extends HttpClient {
     id: ID,
     payload: Array<Partial<T>>
   ) {
-    return batch(payload, (file) =>
-      this.post<T, Partial<T>>(ENDPOINTS.sku.listOrSetFile(id), file)
+    return (
+      payload.length &&
+      batch(payload, (file) =>
+        this.post<T, Partial<T>>(ENDPOINTS.sku.listOrSetFile(id), file)
+      )
     )
   }
 
