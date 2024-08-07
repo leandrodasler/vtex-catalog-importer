@@ -13,8 +13,8 @@
     "react": "^16.8.6",
     "react-apollo": "^3.1.3",
     "react-dom": "^16.8.6",
-    "ssesandbox04.catalog-importer": "https://new--cubostecnologia.myvtex.com/_v/private/typings/linked/v1/ssesandbox04.catalog-importer@0.0.2+build1722554192/public/@types/ssesandbox04.catalog-importer",
+    "ssesandbox04.catalog-importer": "https://dev--carolina.myvtex.com/_v/private/typings/linked/v1/ssesandbox04.catalog-importer@0.0.2+build1722990606/public/@types/ssesandbox04.catalog-importer",
     "typescript": "3.9.7",
-    "vtex.render-runtime": "http://vtex.vtexassets.com/_v/public/typings/v1/vtex.render-runtime@8.134.4/public/@types/vtex.render-runtime"
+    "vtex.render-runtime": "http://vtex.vtexassets.com/_v/public/typings/v1/vtex.render-runtime@8.134.2/public/@types/vtex.render-runtime"
   }
 }

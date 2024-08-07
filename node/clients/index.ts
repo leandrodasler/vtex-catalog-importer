@@ -6,9 +6,9 @@ import type {
   ImportExecution,
 } from 'ssesandbox04.catalog-importer'
 
-import AdminAuth from './AdminAuth'
 import Cosmos from './Cosmos'
 import HttpClient from './HttpClient'
+import PrivateClient from './PrivateClient'
 import SourceCatalog from './SourceCatalog'
 import TargetCatalog from './TargetCatalog'
 
@@ -29,8 +29,8 @@ export class Clients extends IOClients {
     return this.getOrSet('cosmos', Cosmos)
   }
 
-  public get adminAuth() {
-    return this.getOrSet('adminAuth', AdminAuth)
+  public get privateClient() {
+    return this.getOrSet('privateClient', PrivateClient)
   }
 
   public get importExecution() {

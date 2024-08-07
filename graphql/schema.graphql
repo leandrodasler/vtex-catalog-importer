@@ -103,9 +103,29 @@ type ImportProgress {
   status: ImportStatus!
 }
 
+type Dock {
+  dockId: ID!
+  time: String!
+  cost: Int!
+}
+
+type Warehouse {
+  id: ID!
+  name: String!
+  warehouseDocks: [Dock!]!
+  priority: Int!
+  isActive: Boolean!
+}
+
+type WarehousesResult {
+  target: [Warehouse!]!
+  source: [Warehouse!]!
+}
+
 type Query {
   appSettings: AppSettings! @WithSettings
   categories(settings: AppSettingsInput): [Category!] @WithSettings
+  warehouses: WarehousesResult! @WithSettings
   imports(args: SearchInput!): ImportsResult!
   importProgress(id: ID!): ImportProgress!
 }

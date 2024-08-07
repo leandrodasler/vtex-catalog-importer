@@ -54,6 +54,9 @@ export const ENDPOINTS = {
     listOrSetFile: (skuId: ID) =>
       `/api/catalog/pvt/stockkeepingunit/${skuId}/file`,
   },
+  stock: {
+    listWarehouses: '/api/logistics/pvt/configuration/warehouses',
+  },
 }
 
 const INTERNAL_FIELDS = ['id', 'createdIn', 'lastInteractionIn']

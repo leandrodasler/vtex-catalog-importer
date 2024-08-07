@@ -1,0 +1,22 @@
+fragment WarehouseFields on Warehouse {
+  id
+  name
+  warehouseDocks {
+    dockId
+    time
+    cost
+  }
+  priority
+  isActive
+}
+
+query getWarehouses {
+  warehouses {
+    source {
+      ...WarehouseFields
+    }
+    target {
+      ...WarehouseFields
+    }
+  }
+}

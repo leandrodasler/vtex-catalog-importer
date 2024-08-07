@@ -9,8 +9,8 @@ const outputHTML = (data?: unknown[]) =>
   data?.length ? `<pre>${JSON.stringify(data, null, 2)}</pre>` : ''
 
 const status = async (context: Context) => {
-  const { adminAuth, importExecution, importEntity } = context.clients
-  const user = await adminAuth.getUser().catch(() => {
+  const { privateClient, importExecution, importEntity } = context.clients
+  const user = await privateClient.getUser().catch(() => {
     context.status = 401
     context.body = 'Not allowed'
   })

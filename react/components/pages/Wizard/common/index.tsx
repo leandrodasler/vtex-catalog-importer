@@ -1,6 +1,18 @@
-import { Stack } from '@vtex/admin-ui'
-import React from 'react'
-import type { Category, CategoryInput } from 'ssesandbox04.catalog-importer'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Divider,
+  Stack,
+  Text,
+} from '@vtex/admin-ui'
+import React, { Fragment } from 'react'
+import type {
+  Category,
+  CategoryInput,
+  Warehouse,
+} from 'ssesandbox04.catalog-importer'
 
 import type { CheckedCategories, CheckedCategory } from '..'
 import { Checked, Unchecked } from '../../../common'
@@ -102,4 +114,34 @@ export const mapToCategoryInput: (
     ...category,
     children: mapToCategoryInput(category.children),
   })) as CategoryInput[]
+}
+
+type WarehouseListProps = { data?: Warehouse[]; title: string }
+export const WarehouseList = ({ data, title }: WarehouseListProps) => {
+  if (!data?.length) return null
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+      </CardHeader>
+      <Stack space="$space-4" fluid>
+        {data.map(
+          ({ id, name, priority, warehouseDocks }: Warehouse, index) => (
+            <Fragment key={`warehouse-${id}`}>
+              <CardContent>
+                <Stack fluid>
+                  <Text variant="title1">{name}</Text>
+                  <Text>ID: {id}</Text>
+                  <Text>Priority: {priority}</Text>
+                  <Text>Docks: {JSON.stringify(warehouseDocks, null, 2)}</Text>
+                </Stack>
+              </CardContent>
+              {index < data.length - 1 && <Divider />}
+            </Fragment>
+          )
+        )}
+      </Stack>
+    </Card>
+  )
 }

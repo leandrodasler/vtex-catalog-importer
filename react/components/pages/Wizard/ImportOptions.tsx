@@ -1,120 +1,142 @@
-import type { TabState } from '@vtex/admin-ui'
+import type { RadioState, TabState, useSwitchState } from '@vtex/admin-ui'
 import {
   Button,
-  Checkbox,
+  Center,
   CheckboxGroup,
+  Column,
+  Columns,
+  csx,
   Flex,
+  IconArrowDown,
   IconArrowLeft,
   IconArrowRight,
+  Label,
   NumberInput,
   Radio,
   RadioGroup,
   Stack,
-  useRadioState,
+  Switch,
+  useBreakpoint,
 } from '@vtex/admin-ui'
-import React, { useCallback } from 'react'
+import React from 'react'
 import { useIntl } from 'react-intl'
-import type { StocksOption } from 'ssesandbox04.catalog-importer'
+import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
+import { useRuntime } from 'vtex.render-runtime'
 
-import type { Options } from '.'
-import { IMPORT_OPTIONS, STOCK_OPTIONS } from '.'
-import { messages } from '../../common'
+import { STOCK_OPTIONS } from '.'
+import { messages, SuspenseFallback } from '../../common'
+import { useQueryCustom, WAREHOUSES_QUERY } from '../../graphql'
+import { WarehouseList } from './common'
 
 interface Props {
   state: TabState
-  optionsChecked: Options
-  setOptionsChecked: React.Dispatch<React.SetStateAction<Options>>
+  settings?: AppSettingsInput
+  importImagesState: ReturnType<typeof useSwitchState>
+  importPricesState: ReturnType<typeof useSwitchState>
+  stocksOptionState: RadioState
+  stockValue: number
+  setStockValue: React.Dispatch<React.SetStateAction<number>>
 }
 
 export default function ImportOptions({
   state,
-  optionsChecked,
-  setOptionsChecked,
+  settings,
+  importImagesState,
+  importPricesState,
+  stocksOptionState,
+  stockValue,
+  setStockValue,
 }: Props) {
+  const { account } = useRuntime()
   const { formatMessage } = useIntl()
-  const stockOptionState = useRadioState({
-    defaultValue: optionsChecked.stockOption,
+  const { breakpoint } = useBreakpoint()
+  const { data, loading } = useQueryCustom(WAREHOUSES_QUERY, {
+    fetchPolicy: 'network-only',
   })
 
-  function handleCheck(item: number, isChecked: boolean) {
-    let updatedCheckedItems = []
-
-    if (isChecked) {
-      updatedCheckedItems = [...optionsChecked.checkedItems, item]
-    } else {
-      updatedCheckedItems = optionsChecked.checkedItems.filter(
-        (i) => i !== item
-      )
-    }
-
-    setOptionsChecked({
-      ...optionsChecked,
-      checkedItems: updatedCheckedItems,
-    })
-  }
-
-  const disabledNext =
-    stockOptionState.value === STOCK_OPTIONS.TO_BE_DEFINED &&
-    typeof optionsChecked.value !== 'number'
-
-  const handleSelectOptions = useCallback(() => {
-    setOptionsChecked({
-      ...optionsChecked,
-      stockOption: stockOptionState.value as StocksOption,
-    })
-  }, [optionsChecked, setOptionsChecked, stockOptionState.value])
+  const targetWarehouses = data?.warehouses.target
+  const sourceWarehouses = data?.warehouses.source
 
   return (
     <Stack space="$space-4" fluid>
-      <CheckboxGroup label="" id="options-checkbox-group">
-        <Checkbox
-          value={IMPORT_OPTIONS.IMPORT_IMAGE}
-          label={formatMessage(messages.importImage)}
-          checked={optionsChecked.checkedItems.includes(
-            IMPORT_OPTIONS.IMPORT_IMAGE
-          )}
-          onChange={(e: { target: { checked: boolean } }) =>
-            handleCheck(IMPORT_OPTIONS.IMPORT_IMAGE, e.target.checked)
-          }
-        />
-        <Checkbox
-          value={IMPORT_OPTIONS.IMPORT_PRICE}
-          label={formatMessage(messages.importPrice)}
-          checked={optionsChecked.checkedItems.includes(
-            IMPORT_OPTIONS.IMPORT_PRICE
-          )}
-          onChange={(e: { target: { checked: boolean } }) =>
-            handleCheck(IMPORT_OPTIONS.IMPORT_PRICE, e.target.checked)
-          }
-        />
-      </CheckboxGroup>
-      <RadioGroup
-        state={stockOptionState}
-        label={formatMessage(messages.importStocks)}
-      >
-        <Radio
-          value={STOCK_OPTIONS.KEEP_SOURCE}
-          label={formatMessage(messages.optionsKEEP_SOURCE)}
-        />
-        <Radio
-          value={STOCK_OPTIONS.UNLIMITED}
-          label={formatMessage(messages.optionsUNLIMITED)}
-        />
-        <Radio
-          value={STOCK_OPTIONS.TO_BE_DEFINED}
-          label={formatMessage(messages.optionsTO_BE_DEFINED)}
-        />
-        {stockOptionState.value === STOCK_OPTIONS.TO_BE_DEFINED && (
-          <NumberInput
-            label={formatMessage(messages.stockValue)}
-            value={optionsChecked.value}
-            min={optionsChecked.value === '' ? 0 : -1}
-            onChange={(v) =>
-              setOptionsChecked((prev) => ({ ...prev, value: +v < 0 ? '' : v }))
-            }
-          />
-        )}
-      </RadioGroup>
+      <Columns space={{ mobile: '$space-0', tablet: '$space-12' }}>
+        <Column
+          units={{ mobile: 12, tablet: 6 }}
+          className={csx({ marginBottom: '$space-4' })}
+        >
+          <Flex justify={{ mobile: 'left', tablet: 'right' }}>
+            <CheckboxGroup
+              label="Images and prices"
+              id="options-checkbox-group"
+            >
+              <Switch
+                state={importImagesState}
+                label={formatMessage(messages.importImage)}
+              />
+              <Switch
+                state={importPricesState}
+                label={formatMessage(messages.importPrice)}
+              />
+            </CheckboxGroup>
+          </Flex>
+        </Column>
+        <Column units={{ mobile: 12, tablet: 6 }}>
+          <RadioGroup
+            state={stocksOptionState}
+            label={formatMessage(messages.importStocks)}
+          >
+            <Radio
+              value={STOCK_OPTIONS.KEEP_SOURCE}
+              label={formatMessage(messages.optionsKEEP_SOURCE)}
+            />
+            <Radio
+              value={STOCK_OPTIONS.UNLIMITED}
+              label={formatMessage(messages.optionsUNLIMITED)}
+            />
+            <Radio
+              value={STOCK_OPTIONS.TO_BE_DEFINED}
+              label={formatMessage(messages.optionsTO_BE_DEFINED)}
+            />
+            {stocksOptionState.value === STOCK_OPTIONS.TO_BE_DEFINED && (
+              <NumberInput
+                label={formatMessage(messages.stockValue)}
+                value={stockValue}
+                min={0}
+                onChange={(v) => setStockValue(+v)}
+              />
+            )}
+          </RadioGroup>
+        </Column>
+      </Columns>
+      {loading ? (
+        <SuspenseFallback />
+      ) : (
+        <>
+          <Label className={csx({ color: '$secondary' })}>
+            Choose the match between warehouses and docks:
+          </Label>
+          <Flex
+            className={csx({ gap: '$space-4' })}
+            direction={{ mobile: 'column', tablet: 'row' }}
+          >
+            <WarehouseList
+              data={sourceWarehouses}
+              title={`Source warehouses - ${
+                settings?.useDefault
+                  ? formatMessage(messages.settingsDefaultShort)
+                  : settings?.account
+              }`}
+            />
+            <Center>
+              {breakpoint === 'mobile' ? <IconArrowDown /> : <IconArrowRight />}
+            </Center>
+            <WarehouseList
+              data={targetWarehouses}
+              title={`Target warehouses - ${account}`}
+            />
+          </Flex>
+        </>
+      )}
       <Flex justify="space-between">
         <Button
           variant="secondary"
@@ -124,13 +146,9 @@ export default function ImportOptions({
           {formatMessage(messages.previousLabel)}
         </Button>
         <Button
-          onClick={() => {
-            handleSelectOptions()
-            state.select('4')
-          }}
+          onClick={() => state.select('4')}
           icon={<IconArrowRight />}
           iconPosition="end"
-          disabled={disabledNext}
         >
           {formatMessage(messages.nextLabel)}
         </Button>
