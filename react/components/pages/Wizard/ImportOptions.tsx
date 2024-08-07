@@ -17,6 +17,7 @@ import {
   Stack,
   Switch,
   useBreakpoint,
+  useRadioState,
 } from '@vtex/admin-ui'
 import React from 'react'
 import { useIntl } from 'react-intl'
@@ -54,6 +55,8 @@ export default function ImportOptions({
     fetchPolicy: 'network-only',
   })
 
+  const targetWarehousesState = useRadioState()
+  const sourceWarehousesState = useRadioState()
   const targetWarehouses = data?.warehouses.target
   const sourceWarehouses = data?.warehouses.source
 
@@ -119,21 +122,25 @@ export default function ImportOptions({
             className={csx({ gap: '$space-4' })}
             direction={{ mobile: 'column', tablet: 'row' }}
           >
-            <WarehouseList
-              data={sourceWarehouses}
-              title={`Source warehouses - ${
-                settings?.useDefault
-                  ? formatMessage(messages.settingsDefaultShort)
-                  : settings?.account
-              }`}
-            />
+            <RadioGroup state={sourceWarehousesState} label="">
+              <WarehouseList
+                data={sourceWarehouses}
+                title={`Source warehouses - ${
+                  settings?.useDefault
+                    ? formatMessage(messages.settingsDefaultShort)
+                    : settings?.account
+                }`}
+              />
+            </RadioGroup>
             <Center>
               {breakpoint === 'mobile' ? <IconArrowDown /> : <IconArrowRight />}
             </Center>
-            <WarehouseList
-              data={targetWarehouses}
-              title={`Target warehouses - ${account}`}
-            />
+            <RadioGroup state={targetWarehousesState} label="">
+              <WarehouseList
+                data={targetWarehouses}
+                title={`Target warehouses - ${account}`}
+              />
+            </RadioGroup>
           </Flex>
         </>
       )}
@@ -146,6 +153,7 @@ export default function ImportOptions({
           {formatMessage(messages.previousLabel)}
         </Button>
         <Button
+          disabled={loading}
           onClick={() => state.select('4')}
           icon={<IconArrowRight />}
           iconPosition="end"

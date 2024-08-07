@@ -4,13 +4,17 @@ import {
   CardHeader,
   CardTitle,
   Divider,
+  Radio,
+  RadioGroup,
   Stack,
   Text,
+  useRadioState,
 } from '@vtex/admin-ui'
 import React, { Fragment } from 'react'
 import type {
   Category,
   CategoryInput,
+  Dock,
   Warehouse,
 } from 'ssesandbox04.catalog-importer'
 
@@ -118,6 +122,8 @@ export const mapToCategoryInput: (
 
 type WarehouseListProps = { data?: Warehouse[]; title: string }
 export const WarehouseList = ({ data, title }: WarehouseListProps) => {
+  const docksState = useRadioState()
+
   if (!data?.length) return null
 
   return (
@@ -126,21 +132,30 @@ export const WarehouseList = ({ data, title }: WarehouseListProps) => {
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <Stack space="$space-4" fluid>
-        {data.map(
-          ({ id, name, priority, warehouseDocks }: Warehouse, index) => (
-            <Fragment key={`warehouse-${id}`}>
-              <CardContent>
-                <Stack fluid>
-                  <Text variant="title1">{name}</Text>
-                  <Text>ID: {id}</Text>
-                  <Text>Priority: {priority}</Text>
-                  <Text>Docks: {JSON.stringify(warehouseDocks, null, 2)}</Text>
+        {data.map(({ id, name, warehouseDocks }: Warehouse) => (
+          <Fragment key={`warehouse-${id}`}>
+            <Divider />
+            <CardContent>
+              <Stack fluid space="$space-4">
+                <Stack direction="row" space="$space-0">
+                  <Radio value={id} label="" />
+                  <Text variant="title1">
+                    {name} ({id})
+                  </Text>
                 </Stack>
-              </CardContent>
-              {index < data.length - 1 && <Divider />}
-            </Fragment>
-          )
-        )}
+                <RadioGroup state={docksState} label="Dock">
+                  {warehouseDocks?.map(({ dockId }: Dock) => (
+                    <Radio
+                      value={dockId}
+                      label={dockId}
+                      key={`dock-${id}-${dockId}`}
+                    />
+                  ))}
+                </RadioGroup>
+              </Stack>
+            </CardContent>
+          </Fragment>
+        ))}
       </Stack>
     </Card>
   )
