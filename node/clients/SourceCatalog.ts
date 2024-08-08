@@ -189,4 +189,12 @@ export default class SourceCatalog extends HttpClient {
 
     return { Ean, specifications, files }
   }
+
+  private async getPrice(id: ID) {
+    return this.get<PriceDetails>(ENDPOINTS.price.getOrset(id))
+  }
+
+  public async getPrices(skuIds: number[]) {
+    return batch(skuIds, (id) => this.getPrice(id))
+  }
 }

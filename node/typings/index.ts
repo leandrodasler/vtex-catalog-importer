@@ -164,6 +164,26 @@ declare global {
   }
   type ProductSpecificationPayload = Omit<Specification, 'FieldGroupId'> &
     Omit<ProductSpecification, 'Id'>
+
+  type FixedPrices = {
+    tradePolicyId: number
+    value: number
+    listPrice?: null
+    minQuantity: number
+    dateRange?: {
+      from: string
+      to: string
+    }
+  }
+
+  type PriceDetails = {
+    itemId: string
+    listPrice?: number
+    costPrice: number
+    markup: number
+    basePrice: number
+    fixedPrices: FixedPrices[]
+  }
 }
 
 export {}

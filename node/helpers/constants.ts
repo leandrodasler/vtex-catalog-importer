@@ -54,6 +54,9 @@ export const ENDPOINTS = {
     listOrSetFile: (skuId: ID) =>
       `/api/catalog/pvt/stockkeepingunit/${skuId}/file`,
   },
+  price: {
+    getOrset: (id: ID) => `/api/pricing/prices/${id}`,
+  },
 }
 
 const INTERNAL_FIELDS = ['id', 'createdIn', 'lastInteractionIn']
