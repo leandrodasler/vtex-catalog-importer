@@ -40,7 +40,7 @@ const MainTemplate = ({ children, subtitle, headerActions }: Props) => {
         <ToastProvider>
           <Page
             className={csx({
-              'button[data-size="normal"]': {
+              'button[data-size="normal"], button[data-command]': {
                 height: 'auto',
                 minHeight: '2.25rem',
               },

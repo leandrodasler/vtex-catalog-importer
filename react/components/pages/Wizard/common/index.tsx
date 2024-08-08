@@ -1,6 +1,22 @@
-import { Stack } from '@vtex/admin-ui'
-import React from 'react'
-import type { Category, CategoryInput } from 'ssesandbox04.catalog-importer'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Divider,
+  Radio,
+  RadioGroup,
+  Stack,
+  Text,
+  useRadioState,
+} from '@vtex/admin-ui'
+import React, { Fragment } from 'react'
+import type {
+  Category,
+  CategoryInput,
+  Dock,
+  Warehouse,
+} from 'ssesandbox04.catalog-importer'
 
 import type { CheckedCategories, CheckedCategory } from '..'
 import { Checked, Unchecked } from '../../../common'
@@ -102,4 +118,45 @@ export const mapToCategoryInput: (
     ...category,
     children: mapToCategoryInput(category.children),
   })) as CategoryInput[]
+}
+
+type WarehouseListProps = { data?: Warehouse[]; title: string }
+export const WarehouseList = ({ data, title }: WarehouseListProps) => {
+  const docksState = useRadioState()
+
+  if (!data?.length) return null
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+      </CardHeader>
+      <Stack space="$space-4" fluid>
+        {data.map(({ id, name, warehouseDocks }: Warehouse) => (
+          <Fragment key={`warehouse-${id}`}>
+            <Divider />
+            <CardContent>
+              <Stack fluid space="$space-4">
+                <Stack direction="row" space="$space-0">
+                  <Radio value={id} label="" />
+                  <Text variant="title1">
+                    {name} ({id})
+                  </Text>
+                </Stack>
+                <RadioGroup state={docksState} label="Dock">
+                  {warehouseDocks?.map(({ dockId }: Dock) => (
+                    <Radio
+                      value={dockId}
+                      label={dockId}
+                      key={`dock-${id}-${dockId}`}
+                    />
+                  ))}
+                </RadioGroup>
+              </Stack>
+            </CardContent>
+          </Fragment>
+        ))}
+      </Stack>
+    </Card>
+  )
 }

@@ -6,9 +6,9 @@ import { batch, ENDPOINTS } from '../helpers'
 
 const populateSource = async (context: Context) => {
   // const { adminAuth, cosmos } = context.clients
-  const { adminAuth, targetCatalog, sourceCatalog } = context.clients
+  const { privateClient, targetCatalog, sourceCatalog } = context.clients
 
-  const user = await adminAuth.getUser().catch(() => {
+  const user = await privateClient.getUser().catch(() => {
     context.status = 401
     context.body = 'Not allowed'
   })

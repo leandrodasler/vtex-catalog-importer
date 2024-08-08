@@ -1,4 +1,3 @@
-import type { NumberInputValue } from '@vtex/admin-ui'
 import {
   Card,
   Center,
@@ -10,6 +9,8 @@ import {
   TabList,
   TabPanel,
   csx,
+  useRadioState,
+  useSwitchState,
   useTabState,
 } from '@vtex/admin-ui'
 import React, { Suspense, lazy, useCallback, useState } from 'react'
@@ -37,12 +38,6 @@ export type CheckedCategory = Category & {
 
 export interface CheckedCategories {
   [key: string]: CheckedCategory
-}
-
-export interface Options {
-  checkedItems: number[]
-  value: NumberInputValue
-  stockOption: StocksOption
 }
 
 export const STOCK_OPTIONS: Record<string, StocksOption> = {
@@ -83,20 +78,19 @@ export default function Wizard() {
   })
 
   const [settings, setSettings] = useState<AppSettingsInput>()
-
   const [
     checkedTreeOptions,
     setCheckedTreeOptions,
   ] = useState<CheckedCategories>({})
 
-  const [optionsChecked, setOptionsChecked] = useState<Options>({
-    checkedItems: [IMPORT_OPTIONS.IMPORT_IMAGE, IMPORT_OPTIONS.IMPORT_PRICE],
-    value: '',
-    stockOption: STOCK_OPTIONS.KEEP_SOURCE,
+  const importImagesState = useSwitchState<boolean>({ defaultValue: true })
+  const importPricesState = useSwitchState<boolean>({ defaultValue: true })
+  const stocksOptionState = useRadioState({
+    defaultValue: STOCK_OPTIONS.KEEP_SOURCE,
   })
 
+  const [stockValue, setStockValue] = useState(0)
   const [successImport, setSuccessImport] = useState(false)
-
   const { loading, error } = useQueryCustom(APP_SETTINGS_QUERY, {
     toastError: false,
     onCompleted(data) {
@@ -105,7 +99,6 @@ export default function Wizard() {
   })
 
   const selectedId = state.selectedId ?? ''
-
   const isStepDisabled = useCallback(
     (steps: string[]) => successImport || steps.includes(selectedId),
     [selectedId, successImport]
@@ -189,8 +182,12 @@ export default function Wizard() {
           {state.selectedId === '3' && (
             <ImportOptions
               state={state}
-              optionsChecked={optionsChecked}
-              setOptionsChecked={setOptionsChecked}
+              settings={settings}
+              importImagesState={importImagesState}
+              importPricesState={importPricesState}
+              stocksOptionState={stocksOptionState}
+              stockValue={stockValue}
+              setStockValue={setStockValue}
             />
           )}
         </Suspense>
@@ -204,8 +201,11 @@ export default function Wizard() {
         <Suspense key="step-4" fallback={<SuspenseFallback />}>
           {state.selectedId === '4' && settings && (
             <StartProcessing
+              importImages={importImagesState.value}
+              importPrices={importPricesState.value}
+              stocksOption={stocksOptionState.value as StocksOption}
+              stockValue={stockValue}
               checkedTreeOptions={checkedTreeOptions}
-              optionsChecked={optionsChecked}
               state={state}
               settings={settings}
               setSuccessImport={setSuccessImport}

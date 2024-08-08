@@ -15,7 +15,7 @@
     "@types/ramda": "types/npm-ramda#dist",
     "@vtex/test-tools": "^1.0.0",
     "@vtex/tsconfig": "^0.5.6",
-    "ssesandbox04.catalog-importer": "https://teste--cubostecnologia.myvtex.com/_v/private/typings/linked/v1/ssesandbox04.catalog-importer@0.0.2+build1723064659/public/@types/ssesandbox04.catalog-importer",
+    "ssesandbox04.catalog-importer": "https://teste--cubostecnologia.myvtex.com/_v/private/typings/linked/v1/ssesandbox04.catalog-importer@0.0.2+build1723129464/public/@types/ssesandbox04.catalog-importer",
     "typescript": "3.9.7"
   },
   "scripts": {

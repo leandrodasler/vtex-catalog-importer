@@ -54,6 +54,9 @@ export const ENDPOINTS = {
     listOrSetFile: (skuId: ID) =>
       `/api/catalog/pvt/stockkeepingunit/${skuId}/file`,
   },
+  stock: {
+    listWarehouses: '/api/logistics/pvt/configuration/warehouses',
+  },
   price: {
     getOrset: (id: ID) => `/api/pricing/prices/${id}`,
   },

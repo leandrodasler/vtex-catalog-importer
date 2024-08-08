@@ -1,6 +1,8 @@
 import type { TabState } from '@vtex/admin-ui'
 import {
   Button,
+  Column,
+  Columns,
   Flex,
   IconArrowLeft,
   IconArrowLineDown,
@@ -23,10 +25,11 @@ import type {
   AppSettingsInput,
   Mutation,
   MutationExecuteImportArgs,
+  StocksOption,
 } from 'ssesandbox04.catalog-importer'
 
-import type { CheckedCategories, Options } from '.'
-import { IMPORT_OPTIONS, STOCK_OPTIONS } from '.'
+import type { CheckedCategories } from '.'
+import { STOCK_OPTIONS } from '.'
 import {
   ModalButtons,
   Tree,
@@ -45,7 +48,10 @@ const ShowImportModal = lazy(() => import('../History/ShowImportModal'))
 
 interface StartProcessingProps {
   checkedTreeOptions: CheckedCategories
-  optionsChecked: Options
+  importImages: boolean
+  importPrices: boolean
+  stocksOption: StocksOption
+  stockValue?: number
   state: TabState
   settings: AppSettingsInput
   setSuccessImport: React.Dispatch<React.SetStateAction<boolean>>
@@ -53,7 +59,10 @@ interface StartProcessingProps {
 
 const StartProcessing: React.FC<StartProcessingProps> = ({
   checkedTreeOptions,
-  optionsChecked,
+  stocksOption,
+  importImages,
+  importPrices,
+  stockValue,
   state,
   settings,
   setSuccessImport,
@@ -110,25 +119,20 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
           args: {
             categoryTree: mapToCategoryInput(treeData),
             settings,
-            importImages: optionsChecked.checkedItems.includes(
-              IMPORT_OPTIONS.IMPORT_IMAGE
-            ),
-            importPrices: optionsChecked.checkedItems.includes(
-              IMPORT_OPTIONS.IMPORT_PRICE
-            ),
-            stocksOption: optionsChecked.stockOption,
-            ...(optionsChecked.stockOption === STOCK_OPTIONS.TO_BE_DEFINED && {
-              stockValue: +optionsChecked.value,
-            }),
+            importImages,
+            importPrices,
+            stocksOption,
+            ...(stocksOption === STOCK_OPTIONS.TO_BE_DEFINED && { stockValue }),
           },
         },
       }),
     [
       executeImport,
-      optionsChecked.checkedItems,
-      optionsChecked.stockOption,
-      optionsChecked.value,
+      importImages,
+      importPrices,
       settings,
+      stockValue,
+      stocksOption,
       treeData,
     ]
   )
@@ -140,58 +144,53 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
 
   return (
     <Stack space="$space-4" fluid>
-      <Flex
-        direction={{ mobile: 'column', tablet: 'row' }}
-        align={{ mobile: 'center', tablet: 'start' }}
-        justify="space-evenly"
-        className={csx({ gap: '$space-4' })}
-      >
-        <Flex justify="flex-start" direction="column">
-          <Flex direction="row">
-            {categoryTree.length && (
-              <Tree
-                data={categoryTree}
-                title={formatMessage(messages.optionsCategories)}
-              />
-            )}
+      <Columns space={{ mobile: '$space-0', tablet: '$space-12' }}>
+        <Column
+          units={{ mobile: 12, tablet: 6 }}
+          className={csx({ marginBottom: '$space-4' })}
+        >
+          <Flex justify={{ mobile: 'left', tablet: 'right' }}>
+            <Flex direction="row" justify="left">
+              {categoryTree.length && (
+                <Tree
+                  data={categoryTree}
+                  title={formatMessage(messages.optionsCategories)}
+                />
+              )}
+            </Flex>
           </Flex>
-        </Flex>
-        <div>
-          <Text variant="title1">{formatMessage(messages.optionsLabel)}</Text>
-          <div>
-            {formatMessage(messages.settingsAccountLabel)}:{' '}
-            <b>
-              {settings.useDefault
-                ? formatMessage(messages.settingsDefaultShort)
-                : settings.account}
-            </b>
-          </div>
-          <ImportOption
-            condition={optionsChecked.checkedItems.includes(
-              IMPORT_OPTIONS.IMPORT_IMAGE
-            )}
-            label={formatMessage(messages.importImage)}
-          />
-          <ImportOption
-            condition={optionsChecked.checkedItems.includes(
-              IMPORT_OPTIONS.IMPORT_PRICE
-            )}
-            label={formatMessage(messages.importPrice)}
-          />
-          <div>
-            {formatMessage(messages.importStocks)}:{' '}
-            <b>
-              {getStockOptionLabel(optionsChecked.stockOption).toLowerCase()}
-            </b>
-          </div>
-          {optionsChecked.stockOption === STOCK_OPTIONS.TO_BE_DEFINED && (
+        </Column>
+        <Column units={{ mobile: 12, tablet: 6 }}>
+          <Stack>
+            <Text variant="title1">{formatMessage(messages.optionsLabel)}</Text>
             <div>
-              {formatMessage(messages.stockValue)}:{' '}
-              <b>{optionsChecked.value}</b>
+              {formatMessage(messages.settingsAccountLabel)}:{' '}
+              <b>
+                {settings.useDefault
+                  ? formatMessage(messages.settingsDefaultShort)
+                  : settings.account}
+              </b>
             </div>
-          )}
-        </div>
-      </Flex>
+            <ImportOption
+              condition={importImages}
+              label={formatMessage(messages.importImage)}
+            />
+            <ImportOption
+              condition={importPrices}
+              label={formatMessage(messages.importPrice)}
+            />
+            <div>
+              {formatMessage(messages.importStocks)}:{' '}
+              <b>{getStockOptionLabel(stocksOption).toLowerCase()}</b>
+            </div>
+            {stocksOption === STOCK_OPTIONS.TO_BE_DEFINED && (
+              <div>
+                {formatMessage(messages.stockValue)}: <b>{stockValue}</b>
+              </div>
+            )}
+          </Stack>
+        </Column>
+      </Columns>
       <Flex
         justify="space-between"
         className={csx({ marginTop: '$space-4', gap: '$space-3' })}

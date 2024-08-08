@@ -34,13 +34,6 @@ export default class TargetCatalog extends HttpClient {
     return this.post<T, Partial<T>>(ENDPOINTS.sku.set, payload)
   }
 
-  public async createPrice(id: ID, payload: Partial<PriceDetails>) {
-    return this.put<{ Id: string }, Partial<PriceDetails>>(
-      ENDPOINTS.price.getOrset(id),
-      payload
-    )
-  }
-
   private async associateProductSpecification(
     productId: ID,
     payload: AssociatedSpecification
