@@ -42,6 +42,7 @@
 
   "admin/options.label": "Opciones de la importación",
   "admin/options.categories": "Categorías seleccionadas",
+  "admin/options.imagesPrices": "Imágenes y precios",
   "admin/options.import.image": "Importar imágenes",
   "admin/options.import.price": "Importar precios",
   "admin/options.import.stocks": "Inventarios",
@@ -49,6 +50,12 @@
   "admin/options.defined": "Por definir",
   "admin/options.source": "Mantener como en origen",
   "admin/options.stockValue": "Inventario por definir para todos los SKUs",
+  "admin/options.warehouses.label": "Elija la coincidencia entre los almacenes de origen y destino",
+  "admin/options.warehouses.tooltip": "Los valores de inventario de los SKUs importados se asignarán al almacén de destino",
+  "admin/options.warehouses.source": "Almacenes de origen - {account}",
+  "admin/options.warehouses.target": "Almacenes de destino - {account}",
+  "admin/options.sourceWarehouse": "Almacén de origen",
+  "admin/options.targetWarehouse": "Almacén de destino",
 
   "admin/start.label": "Iniciar importación",
   "admin/start.confirmation": "¿Estás seguro de que deseas iniciar la importación?",

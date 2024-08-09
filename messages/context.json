@@ -42,6 +42,7 @@
 
   "admin/options.label": "Import options",
   "admin/options.categories": "Selected categories",
+  "admin/options.imagesPrices": "Images and prices",
   "admin/options.import.image": "Import images",
   "admin/options.import.price": "Import prices",
   "admin/options.import.stocks": "Stocks",
@@ -49,6 +50,12 @@
   "admin/options.defined": "To be defined",
   "admin/options.source": "Keep the source",
   "admin/options.stockValue": "Stock to be defined for all SKUs",
+  "admin/options.warehouses.label": "Choose the match between source and target warehouses",
+  "admin/options.warehouses.tooltip": "The inventory values of imported SKUs will be assigned to target warehouse",
+  "admin/options.warehouses.source": "Source warehouses - {account}",
+  "admin/options.warehouses.target": "Target warehouses - {account}",
+  "admin/options.sourceWarehouse": "Source warehouse",
+  "admin/options.targetWarehouse": "Target warehouse",
 
   "admin/start.label": "Start import",
   "admin/start.confirmation": "Are you sure you want to start import?",

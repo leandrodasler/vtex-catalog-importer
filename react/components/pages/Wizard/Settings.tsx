@@ -1,4 +1,4 @@
-import type { TabState } from '@vtex/admin-ui'
+import type { RadioState, TabState } from '@vtex/admin-ui'
 import {
   Button,
   Flex,
@@ -37,6 +37,8 @@ type Props = {
   settings?: AppSettingsInput
   setSettings: (settings: AppSettingsInput) => void
   setCheckedTreeOptions: React.Dispatch<React.SetStateAction<CheckedCategories>>
+  sourceWarehousesState: RadioState
+  targetWarehousesState: RadioState
 }
 
 const SETTINGS_OPTIONS = {
@@ -44,10 +46,16 @@ const SETTINGS_OPTIONS = {
   CUSTOM: 2,
 }
 
-const Settings = (props: Props) => {
+const Settings = ({
+  state,
+  settings,
+  setSettings,
+  setCheckedTreeOptions,
+  sourceWarehousesState,
+  targetWarehousesState,
+}: Props) => {
   const { formatMessage } = useIntl()
   const showToast = useToast()
-  const { state, settings, setSettings, setCheckedTreeOptions } = props
   const form = useFormState<AppSettingsInput>({ defaultValues: settings })
   const resetModal = useModalState()
   const defaultSettingsState = useRadioState({
@@ -115,6 +123,8 @@ const Settings = (props: Props) => {
         newSettings.useDefault !== settings?.useDefault
       ) {
         setCheckedTreeOptions({})
+        sourceWarehousesState.setValue(null)
+        targetWarehousesState.setValue(null)
       }
 
       updateAppSettings({ variables: { settings: newSettings } })
@@ -126,6 +136,8 @@ const Settings = (props: Props) => {
       settings?.account,
       settings?.useDefault,
       showToast,
+      sourceWarehousesState,
+      targetWarehousesState,
       updateAppSettings,
     ]
   )

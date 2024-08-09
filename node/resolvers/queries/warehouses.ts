@@ -1,8 +1,8 @@
 export const warehouses = async (_: unknown, __: unknown, context: Context) => {
-  const [target, source] = await Promise.all([
-    context.clients.privateClient.getWarehouses(),
+  const [source, target] = await Promise.all([
     context.clients.sourceCatalog.getWarehouses(),
+    context.clients.privateClient.getWarehouses(),
   ])
 
-  return { target, source }
+  return { source, target }
 }

@@ -1,17 +1,10 @@
 fragment WarehouseFields on Warehouse {
   id
   name
-  warehouseDocks {
-    dockId
-    time
-    cost
-  }
-  priority
-  isActive
 }
 
-query getWarehouses {
-  warehouses {
+query getWarehouses($settings: AppSettingsInput) {
+  warehouses(settings: $settings) {
     source {
       ...WarehouseFields
     }

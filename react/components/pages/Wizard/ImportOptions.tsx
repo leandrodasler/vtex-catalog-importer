@@ -16,12 +16,16 @@ import {
   RadioGroup,
   Stack,
   Switch,
+  Tooltip,
   useBreakpoint,
-  useRadioState,
 } from '@vtex/admin-ui'
 import React from 'react'
 import { useIntl } from 'react-intl'
-import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
+import type {
+  AppSettingsInput,
+  Query,
+  QueryWarehousesArgs,
+} from 'ssesandbox04.catalog-importer'
 import { useRuntime } from 'vtex.render-runtime'
 
 import { STOCK_OPTIONS } from '.'
@@ -37,6 +41,8 @@ interface Props {
   stocksOptionState: RadioState
   stockValue: number
   setStockValue: React.Dispatch<React.SetStateAction<number>>
+  sourceWarehousesState: RadioState
+  targetWarehousesState: RadioState
 }
 
 export default function ImportOptions({
@@ -47,18 +53,33 @@ export default function ImportOptions({
   stocksOptionState,
   stockValue,
   setStockValue,
+  sourceWarehousesState,
+  targetWarehousesState,
 }: Props) {
   const { account } = useRuntime()
   const { formatMessage } = useIntl()
   const { breakpoint } = useBreakpoint()
-  const { data, loading } = useQueryCustom(WAREHOUSES_QUERY, {
-    fetchPolicy: 'network-only',
-  })
+  const { data, loading } = useQueryCustom<Query, QueryWarehousesArgs>(
+    WAREHOUSES_QUERY,
+    {
+      variables: { settings },
+      onCompleted({ warehouses }) {
+        if (!sourceWarehousesState.value) {
+          sourceWarehousesState.setValue(warehouses.source[0].id)
+        }
 
-  const targetWarehousesState = useRadioState()
-  const sourceWarehousesState = useRadioState()
-  const targetWarehouses = data?.warehouses.target
+        if (!targetWarehousesState.value) {
+          targetWarehousesState.setValue(warehouses.target[0].id)
+        }
+      },
+    }
+  )
+
   const sourceWarehouses = data?.warehouses.source
+  const targetWarehouses = data?.warehouses.target
+  const sourceAccount = settings?.useDefault
+    ? formatMessage(messages.settingsDefaultShort)
+    : settings?.account
 
   return (
     <Stack space="$space-4" fluid>
@@ -68,10 +89,7 @@ export default function ImportOptions({
           className={csx({ marginBottom: '$space-4' })}
         >
           <Flex justify={{ mobile: 'left', tablet: 'right' }}>
-            <CheckboxGroup
-              label="Images and prices"
-              id="options-checkbox-group"
-            >
+            <CheckboxGroup label={formatMessage(messages.optionsImagesPrices)}>
               <Switch
                 state={importImagesState}
                 label={formatMessage(messages.importImage)}
@@ -115,32 +133,31 @@ export default function ImportOptions({
         <SuspenseFallback />
       ) : (
         <>
-          <Label className={csx({ color: '$secondary' })}>
-            Choose the match between warehouses and docks:
-          </Label>
+          <Center>
+            <Label className={csx({ color: '$secondary' })}>
+              {formatMessage(messages.warehousesLabel)}{' '}
+            </Label>
+            <Tooltip text={formatMessage(messages.warehousesTooltip)} />
+          </Center>
           <Flex
             className={csx({ gap: '$space-4' })}
             direction={{ mobile: 'column', tablet: 'row' }}
           >
-            <RadioGroup state={sourceWarehousesState} label="">
-              <WarehouseList
-                data={sourceWarehouses}
-                title={`Source warehouses - ${
-                  settings?.useDefault
-                    ? formatMessage(messages.settingsDefaultShort)
-                    : settings?.account
-                }`}
-              />
-            </RadioGroup>
+            <WarehouseList
+              state={sourceWarehousesState}
+              data={sourceWarehouses}
+              title={formatMessage(messages.warehousesSource, {
+                account: sourceAccount,
+              })}
+            />
             <Center>
               {breakpoint === 'mobile' ? <IconArrowDown /> : <IconArrowRight />}
             </Center>
-            <RadioGroup state={targetWarehousesState} label="">
-              <WarehouseList
-                data={targetWarehouses}
-                title={`Target warehouses - ${account}`}
-              />
-            </RadioGroup>
+            <WarehouseList
+              state={targetWarehousesState}
+              data={targetWarehouses}
+              title={formatMessage(messages.warehousesTarget, { account })}
+            />
           </Flex>
         </>
       )}
