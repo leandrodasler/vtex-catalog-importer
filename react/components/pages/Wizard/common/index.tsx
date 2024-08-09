@@ -1,20 +1,21 @@
+import type { RadioState } from '@vtex/admin-ui'
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
+  csx,
   Divider,
   Radio,
   RadioGroup,
   Stack,
+  Tag,
   Text,
-  useRadioState,
 } from '@vtex/admin-ui'
 import React, { Fragment } from 'react'
 import type {
   Category,
   CategoryInput,
-  Dock,
   Warehouse,
 } from 'ssesandbox04.catalog-importer'
 
@@ -120,43 +121,42 @@ export const mapToCategoryInput: (
   })) as CategoryInput[]
 }
 
-type WarehouseListProps = { data?: Warehouse[]; title: string }
-export const WarehouseList = ({ data, title }: WarehouseListProps) => {
-  const docksState = useRadioState()
+type WarehouseListProps = {
+  data?: Warehouse[]
+  title: string
+  state: RadioState
+}
 
+const warehouseContentTheme = csx({ paddingTop: '$space-6' })
+const DividerNoMargin = () => (
+  <Divider className={csx({ marginTop: '$space-0' })} />
+)
+
+export const WarehouseList = ({ data, title, state }: WarehouseListProps) => {
   if (!data?.length) return null
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className={csx({ bg: '$secondary' })}>
         <CardTitle>{title}</CardTitle>
       </CardHeader>
-      <Stack space="$space-4" fluid>
-        {data.map(({ id, name, warehouseDocks }: Warehouse) => (
-          <Fragment key={`warehouse-${id}`}>
-            <Divider />
-            <CardContent>
-              <Stack fluid space="$space-4">
-                <Stack direction="row" space="$space-0">
-                  <Radio value={id} label="" />
+      {data.map(({ id, name }: Warehouse, index: number) => (
+        <Fragment key={`warehouse-${id}`}>
+          <CardContent className={warehouseContentTheme}>
+            <RadioGroup state={state} label="">
+              <Radio
+                value={id}
+                label={
                   <Text variant="title1">
-                    {name} ({id})
+                    {name} <Tag label={id} />
                   </Text>
-                </Stack>
-                <RadioGroup state={docksState} label="Dock">
-                  {warehouseDocks?.map(({ dockId }: Dock) => (
-                    <Radio
-                      value={dockId}
-                      label={dockId}
-                      key={`dock-${id}-${dockId}`}
-                    />
-                  ))}
-                </RadioGroup>
-              </Stack>
-            </CardContent>
-          </Fragment>
-        ))}
-      </Stack>
+                }
+              />
+            </RadioGroup>
+          </CardContent>
+          {index < data.length - 1 && <DividerNoMargin />}
+        </Fragment>
+      ))}
     </Card>
   )
 }

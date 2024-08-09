@@ -49,6 +49,12 @@
   "admin/options.defined": "A ser definido",
   "admin/options.source": "Manter como na origem",
   "admin/options.stockValue": "Estoque a ser definido para todos os SKUs",
+  "admin/options.warehouses.label": "Escolha a correspondência entre os estoques de origem e de destino",
+  "admin/options.warehouses.tooltip": "Os valores de estoque dos SKUs importados serão atribuídos ao estoque de destino",
+  "admin/options.warehouses.source": "Estoques de origem - {account}",
+  "admin/options.warehouses.target": "Estoques de destino - {account}",
+  "admin/options.sourceWarehouse": "Estoque de origem",
+  "admin/options.targetWarehouse": "Estoque de destino",
 
   "admin/start.label": "Iniciar importação",
   "admin/start.confirmation": "Está certo de que deseja iniciar a importação?",

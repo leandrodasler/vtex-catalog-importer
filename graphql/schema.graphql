@@ -58,6 +58,8 @@ type Import {
   sourcePricesTotal: Int!
   sourceStocksTotal: Int!
   stockValue: Int
+  sourceWarehouse: String!
+  targetWarehouse: String!
   status: ImportStatus!
   error: String
   entityError: String
@@ -70,6 +72,8 @@ input ImportInput {
   importPrices: Boolean!
   stocksOption: StocksOption!
   stockValue: Int
+  sourceWarehouse: String!
+  targetWarehouse: String!
   status: ImportStatus
 }
 
@@ -118,14 +122,14 @@ type Warehouse {
 }
 
 type WarehousesResult {
-  target: [Warehouse!]!
   source: [Warehouse!]!
+  target: [Warehouse!]!
 }
 
 type Query {
   appSettings: AppSettings! @WithSettings
   categories(settings: AppSettingsInput): [Category!] @WithSettings
-  warehouses: WarehousesResult! @WithSettings
+  warehouses(settings: AppSettingsInput): WarehousesResult! @WithSettings
   imports(args: SearchInput!): ImportsResult!
   importProgress(id: ID!): ImportProgress!
 }

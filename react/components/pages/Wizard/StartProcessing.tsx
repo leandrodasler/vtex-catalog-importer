@@ -54,6 +54,8 @@ interface StartProcessingProps {
   stockValue?: number
   state: TabState
   settings: AppSettingsInput
+  sourceWarehouse: string
+  targetWarehouse: string
   setSuccessImport: React.Dispatch<React.SetStateAction<boolean>>
 }
 
@@ -65,6 +67,8 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
   stockValue,
   state,
   settings,
+  sourceWarehouse,
+  targetWarehouse,
   setSuccessImport,
 }) => {
   const { formatMessage } = useIntl()
@@ -122,6 +126,8 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
             importImages,
             importPrices,
             stocksOption,
+            sourceWarehouse,
+            targetWarehouse,
             ...(stocksOption === STOCK_OPTIONS.TO_BE_DEFINED && { stockValue }),
           },
         },
@@ -131,8 +137,10 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
       importImages,
       importPrices,
       settings,
+      sourceWarehouse,
       stockValue,
       stocksOption,
+      targetWarehouse,
       treeData,
     ]
   )
@@ -188,6 +196,14 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
                 {formatMessage(messages.stockValue)}: <b>{stockValue}</b>
               </div>
             )}
+            <div>
+              {formatMessage(messages.sourceWarehouse)}:{' '}
+              <b>{sourceWarehouse}</b>
+            </div>
+            <div>
+              {formatMessage(messages.targetWarehouse)}:{' '}
+              <b>{targetWarehouse}</b>
+            </div>
           </Stack>
         </Column>
       </Columns>
