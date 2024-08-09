@@ -35,6 +35,7 @@ export const messages = defineMessages({
   categoriesSourceError: { id: 'admin/categories.source.error' },
   optionsLabel: { id: 'admin/options.label' },
   optionsCategories: { id: 'admin/options.categories' },
+  optionsImagesPrices: { id: 'admin/options.imagesPrices' },
   importImage: { id: 'admin/options.import.image' },
   importPrice: { id: 'admin/options.import.price' },
   importStocks: { id: 'admin/options.import.stocks' },

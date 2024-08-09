@@ -89,10 +89,7 @@ export default function ImportOptions({
           className={csx({ marginBottom: '$space-4' })}
         >
           <Flex justify={{ mobile: 'left', tablet: 'right' }}>
-            <CheckboxGroup
-              label="Images and prices"
-              id="options-checkbox-group"
-            >
+            <CheckboxGroup label={formatMessage(messages.optionsImagesPrices)}>
               <Switch
                 state={importImagesState}
                 label={formatMessage(messages.importImage)}

@@ -42,6 +42,7 @@
 
   "admin/options.label": "Opções da importação",
   "admin/options.categories": "Categorias selecionadas",
+  "admin/options.imagesPrices": "Imagens e preços",
   "admin/options.import.image": "Importar imagens",
   "admin/options.import.price": "Importar preços",
   "admin/options.import.stocks": "Estoques",
