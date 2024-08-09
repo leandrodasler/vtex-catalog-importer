@@ -1,25 +1,36 @@
-import { updateCurrentImport } from '../../helpers'
+import { sequentialBatch, updateCurrentImport } from '../../helpers'
 
 const handlePrices = async (context: AppEventContext) => {
   // TODO: process prices import
-  const { importEntity } = context.clients
-  const { id, settings = {} } = context.state.body
-  const { entity } = context.state
+  const { importEntity, sourceCatalog, privateClient } = context.clients
+
+  const { id: executionImportId, settings = {} } = context.state.body
+  const { entity, skuIds, mapSkus } = context.state
   const { account: sourceAccount } = settings
-  const sourcePricesTotal = 3
+
+  if (!skuIds?.length) return
+  const sourcePrices = await sourceCatalog.getPrices(skuIds)
+  const sourcePricesTotal = sourcePrices.length
 
   await updateCurrentImport(context, { sourcePricesTotal })
 
-  for (let i = 1; i <= sourcePricesTotal; i++) {
-    // eslint-disable-next-line no-await-in-loop
+  await sequentialBatch(sourcePrices, async ({ itemId, ...price }) => {
+    const payload = { ...price }
+
+    const skuId = mapSkus?.[+itemId]
+
+    if (!skuId) return
+    const { Id: targetId } = await privateClient.createPrice(skuId, payload)
+
     await importEntity.save({
-      executionImportId: id,
+      executionImportId,
       name: entity,
       sourceAccount,
-      sourceId: i,
-      payload: { name: `${entity} ${i}` },
+      sourceId: itemId,
+      targetId,
+      payload,
     })
-  }
+  })
 }
 
 export default handlePrices

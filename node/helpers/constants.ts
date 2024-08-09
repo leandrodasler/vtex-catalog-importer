@@ -57,6 +57,9 @@ export const ENDPOINTS = {
   stock: {
     listWarehouses: '/api/logistics/pvt/configuration/warehouses',
   },
+  price: {
+    getOrset: (id: ID) => `/api/pricing/prices/${id}`,
+  },
 }
 
 const INTERNAL_FIELDS = ['id', 'createdIn', 'lastInteractionIn']

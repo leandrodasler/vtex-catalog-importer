@@ -23,4 +23,8 @@ export default class PrivateClient extends JanusClient {
       .get<Warehouse[]>(ENDPOINTS.stock.listWarehouses)
       .then((data) => data.filter(({ isActive }) => isActive))
   }
+
+  public async createPrice(id: ID, payload: Partial<PriceDetails>) {
+    return this.http.put<{ Id: string }>(ENDPOINTS.price.getOrset(id), payload)
+  }
 }

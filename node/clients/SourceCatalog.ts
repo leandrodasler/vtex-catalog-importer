@@ -197,4 +197,12 @@ export default class SourceCatalog extends HttpClient {
   public async getWarehouses() {
     return this.get<Warehouse[]>(ENDPOINTS.stock.listWarehouses)
   }
+
+  private async getPrice(id: ID) {
+    return this.get<PriceDetails>(ENDPOINTS.price.getOrset(id))
+  }
+
+  public async getPrices(skuIds: number[]) {
+    return batch(skuIds, (id) => this.getPrice(id))
+  }
 }
