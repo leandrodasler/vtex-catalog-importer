@@ -29,7 +29,12 @@ import type {
 import { useRuntime } from 'vtex.render-runtime'
 
 import { STOCK_OPTIONS } from '.'
-import { messages, SuspenseFallback } from '../../common'
+import {
+  ErrorMessage,
+  goToWarehousePage,
+  messages,
+  SuspenseFallback,
+} from '../../common'
 import { useQueryCustom, WAREHOUSES_QUERY } from '../../graphql'
 import { WarehouseList } from './common'
 
@@ -59,17 +64,18 @@ export default function ImportOptions({
   const { account } = useRuntime()
   const { formatMessage } = useIntl()
   const { breakpoint } = useBreakpoint()
-  const { data, loading } = useQueryCustom<Query, QueryWarehousesArgs>(
+  const { data, loading, error } = useQueryCustom<Query, QueryWarehousesArgs>(
     WAREHOUSES_QUERY,
     {
+      toastError: false,
       variables: { settings },
       onCompleted({ warehouses }) {
         if (!sourceWarehousesState.value) {
-          sourceWarehousesState.setValue(warehouses.source[0].id)
+          sourceWarehousesState.setValue(warehouses.source[0]?.id)
         }
 
         if (!targetWarehousesState.value) {
-          targetWarehousesState.setValue(warehouses.target[0].id)
+          targetWarehousesState.setValue(warehouses.target[0]?.id)
         }
       },
     }
@@ -80,6 +86,9 @@ export default function ImportOptions({
   const sourceAccount = settings?.useDefault
     ? formatMessage(messages.settingsDefaultShort)
     : settings?.account
+
+  const disabledNext =
+    loading || !sourceWarehousesState.value || !targetWarehousesState.value
 
   return (
     <Stack space="$space-4" fluid>
@@ -129,38 +138,62 @@ export default function ImportOptions({
           </RadioGroup>
         </Column>
       </Columns>
-      {loading ? (
-        <SuspenseFallback />
-      ) : (
-        <>
-          <Center>
-            <Label className={csx({ color: '$secondary' })}>
-              {formatMessage(messages.warehousesLabel)}{' '}
-            </Label>
-            <Tooltip text={formatMessage(messages.warehousesTooltip)} />
-          </Center>
-          <Flex
-            className={csx({ gap: '$space-4' })}
-            direction={{ mobile: 'column', tablet: 'row' }}
-          >
-            <WarehouseList
-              state={sourceWarehousesState}
-              data={sourceWarehouses}
-              title={formatMessage(messages.warehousesSource, {
-                account: sourceAccount,
-              })}
-            />
-            <Center>
-              {breakpoint === 'mobile' ? <IconArrowDown /> : <IconArrowRight />}
-            </Center>
-            <WarehouseList
-              state={targetWarehousesState}
-              data={targetWarehouses}
-              title={formatMessage(messages.warehousesTarget, { account })}
-            />
-          </Flex>
-        </>
+      {loading && <SuspenseFallback />}
+      {!loading && !sourceWarehouses?.length && (
+        <Center>
+          <ErrorMessage title={messages.warehousesSourceError} error={error} />
+        </Center>
       )}
+      {!loading && !error && !targetWarehouses?.length && (
+        <Center>
+          <ErrorMessage
+            title={formatMessage(messages.warehousesEmpty, { account })}
+          >
+            <Flex justify="end">
+              <Button variant="neutralTertiary" onClick={goToWarehousePage}>
+                {formatMessage(messages.warehousesEmptyAction)}
+              </Button>
+            </Flex>
+          </ErrorMessage>
+        </Center>
+      )}
+      {!loading &&
+        !error &&
+        !!sourceWarehouses?.length &&
+        !!targetWarehouses?.length && (
+          <>
+            <Center>
+              <Label className={csx({ color: '$secondary' })}>
+                {formatMessage(messages.warehousesLabel)}{' '}
+              </Label>
+              <Tooltip text={formatMessage(messages.warehousesTooltip)} />
+            </Center>
+            <Flex
+              className={csx({ gap: '$space-4' })}
+              direction={{ mobile: 'column', tablet: 'row' }}
+            >
+              <WarehouseList
+                state={sourceWarehousesState}
+                data={sourceWarehouses}
+                title={formatMessage(messages.warehousesSource, {
+                  account: sourceAccount,
+                })}
+              />
+              <Center>
+                {breakpoint === 'mobile' ? (
+                  <IconArrowDown />
+                ) : (
+                  <IconArrowRight />
+                )}
+              </Center>
+              <WarehouseList
+                state={targetWarehousesState}
+                data={targetWarehouses}
+                title={formatMessage(messages.warehousesTarget, { account })}
+              />
+            </Flex>
+          </>
+        )}
       <Flex justify="space-between">
         <Button
           variant="secondary"
@@ -170,7 +203,7 @@ export default function ImportOptions({
           {formatMessage(messages.previousLabel)}
         </Button>
         <Button
-          disabled={loading}
+          disabled={disabledNext}
           onClick={() => state.select('4')}
           icon={<IconArrowRight />}
           iconPosition="end"

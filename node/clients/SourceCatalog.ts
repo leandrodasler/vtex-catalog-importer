@@ -1,9 +1,5 @@
 import type { InstanceOptions, Maybe } from '@vtex/api'
-import type {
-  AppSettings,
-  Category,
-  Warehouse,
-} from 'ssesandbox04.catalog-importer'
+import type { AppSettings, Category } from 'ssesandbox04.catalog-importer'
 
 import { batch, ENDPOINTS } from '../helpers'
 import HttpClient from './HttpClient'
@@ -192,10 +188,6 @@ export default class SourceCatalog extends HttpClient {
     })
 
     return { Ean, specifications, files }
-  }
-
-  public async getWarehouses() {
-    return this.get<Warehouse[]>(ENDPOINTS.stock.listWarehouses)
   }
 
   private async getPrice(id: ID) {

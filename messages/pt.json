@@ -50,10 +50,13 @@
   "admin/options.defined": "A ser definido",
   "admin/options.source": "Manter como na origem",
   "admin/options.stockValue": "Estoque a ser definido para todos os SKUs",
+  "admin/options.warehouses.empty": "Não foram encontrados estoques na conta {account}",
+  "admin/options.warehouses.empty.action": "Criar estoque",
   "admin/options.warehouses.label": "Escolha a correspondência entre os estoques de origem e de destino",
   "admin/options.warehouses.tooltip": "Os valores de estoque dos SKUs importados serão atribuídos ao estoque de destino",
   "admin/options.warehouses.source": "Estoques de origem - {account}",
   "admin/options.warehouses.target": "Estoques de destino - {account}",
+  "admin/options.warehouses.source.error": "Não foi possível obter os estoques da conta de origem",
   "admin/options.sourceWarehouse": "Estoque de origem",
   "admin/options.targetWarehouse": "Estoque de destino",
 

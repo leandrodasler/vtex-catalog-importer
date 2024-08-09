@@ -33,25 +33,29 @@ export const SuspenseFallback = () => (
 )
 
 type ErrorMessageProps = {
-  error: string | GraphQLError
+  error?: string | GraphQLError
   title?: string | MessageDescriptor
+  children?: React.ReactNode
 }
-export const ErrorMessage = ({ error, title }: ErrorMessageProps) => {
+export const ErrorMessage = ({ error, title, children }: ErrorMessageProps) => {
   const { formatMessage } = useIntl()
 
   return (
     <Alert variant="critical" className={csx({ wordBreak: 'break-word' })}>
-      <Stack space="$space-2">
+      <Stack space="$space-2" fluid>
         {title && (
           <Text variant="action1">
             {typeof title === 'string' ? title : formatMessage(title)}
           </Text>
         )}
-        <Text>
-          {typeof error === 'string'
-            ? error
-            : formatMessage(getGraphQLMessageDescriptor(error))}
-        </Text>
+        {!!error && (
+          <Text>
+            {typeof error === 'string'
+              ? error
+              : formatMessage(getGraphQLMessageDescriptor(error))}
+          </Text>
+        )}
+        {children}
       </Stack>
     </Alert>
   )
@@ -140,6 +144,10 @@ export const goToHistoryPage = (id?: string) => {
 
 export const goToWizardPage = () => {
   window.parent.location.href = '/admin/catalog-importer/wizard'
+}
+
+export const goToWarehousePage = () => {
+  window.parent.location.href = '/admin/shipping-strategy/warehouses'
 }
 
 type TreeSorterField = { name: string }

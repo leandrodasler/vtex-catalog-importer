@@ -1,6 +1,6 @@
 import type { InstanceOptions, IOContext, IOResponse } from '@vtex/api'
 import { ExternalClient } from '@vtex/api'
-import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
+import type { AppSettingsInput, Warehouse } from 'ssesandbox04.catalog-importer'
 
 import { ENDPOINTS } from '../helpers'
 
@@ -70,5 +70,11 @@ export default class HttpClient extends ExternalClient {
       .catch(() => {
         throw new Error('admin/settings.default.error')
       })
+  }
+
+  public async getWarehouses() {
+    return this.get<Warehouse[]>(ENDPOINTS.stock.listWarehouses).then((data) =>
+      data.filter(({ isActive }) => isActive)
+    )
   }
 }

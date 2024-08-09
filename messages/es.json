@@ -50,10 +50,13 @@
   "admin/options.defined": "Por definir",
   "admin/options.source": "Mantener como en origen",
   "admin/options.stockValue": "Inventario por definir para todos los SKUs",
+  "admin/options.warehouses.empty": "No se encontraron almacenes en la cuenta {account}",
+  "admin/options.warehouses.empty.action": "Crear almacén",
   "admin/options.warehouses.label": "Elija la coincidencia entre los almacenes de origen y destino",
   "admin/options.warehouses.tooltip": "Los valores de inventario de los SKUs importados se asignarán al almacén de destino",
   "admin/options.warehouses.source": "Almacenes de origen - {account}",
   "admin/options.warehouses.target": "Almacenes de destino - {account}",
+  "admin/options.warehouses.source.error": "No se pueden obtener los almacenes de la cuenta de origen",
   "admin/options.sourceWarehouse": "Almacén de origen",
   "admin/options.targetWarehouse": "Almacén de destino",
 
