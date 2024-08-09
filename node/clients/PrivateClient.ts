@@ -6,10 +6,10 @@ import { ENDPOINTS } from '../helpers'
 
 export default class PrivateClient extends JanusClient {
   constructor(context: IOContext, options?: InstanceOptions) {
-    super(context, {
-      ...options,
-      headers: { VtexIdclientAutcookie: context.adminUserAuthToken as string },
-    })
+    const { adminUserAuthToken, authToken } = context
+    const VtexIdclientAutcookie = (adminUserAuthToken ?? authToken) as string
+
+    super(context, { ...options, headers: { VtexIdclientAutcookie } })
   }
 
   public async getUser() {
@@ -22,9 +22,5 @@ export default class PrivateClient extends JanusClient {
     return this.http
       .get<Warehouse[]>(ENDPOINTS.stock.listWarehouses)
       .then((data) => data.filter(({ isActive }) => isActive))
-  }
-
-  public async createPrice(id: ID, payload: Partial<PriceDetails>) {
-    return this.http.put<{ Id: string }>(ENDPOINTS.price.getOrset(id), payload)
   }
 }

@@ -5,12 +5,6 @@
   "minReplicas": 8,
   "maxReplicas": 60,
   "workers": 4,
-  "events": {
-    "runImport": {
-      "sender": "ssesandbox04.catalog-importer",
-      "keys": ["runImport"]
-    }
-  },
   "routes": {
     "status": {
       "path": "/_v/vtex-catalog-importer/status",

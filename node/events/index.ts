@@ -37,4 +37,4 @@ const runImport = async (context: AppEventContext) => {
   }
 }
 
-export default { runImport }
+export default runImport

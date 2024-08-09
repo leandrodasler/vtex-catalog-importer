@@ -199,10 +199,14 @@ export default class SourceCatalog extends HttpClient {
   }
 
   private async getPrice(id: ID) {
-    return this.get<PriceDetails>(ENDPOINTS.price.getOrset(id))
+    return this.get<PriceDetails>(ENDPOINTS.price.getOrset(id)).catch(
+      () => null
+    )
   }
 
   public async getPrices(skuIds: number[]) {
-    return batch(skuIds, (id) => this.getPrice(id))
+    const prices = await batch(skuIds, (id) => this.getPrice(id))
+
+    return prices.filter((p) => p !== null) as PriceDetails[]
   }
 }

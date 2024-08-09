@@ -29,9 +29,8 @@ const populateSource = async (context: Context) => {
   console.log('cleaning brands')
   const brands = await targetCatalog.get<Brand[]>(ENDPOINTS.brand.list)
 
-  batch(
-    brands,
-    ({ id }) => +id > 2000005 && targetCatalog.deleteEntity('brand', id)
+  batch(brands, ({ id }) =>
+    /* +id > 2000005 && */ targetCatalog.deleteEntity('brand', id)
   )
 
   console.log('cleaning categories')
@@ -39,13 +38,12 @@ const populateSource = async (context: Context) => {
     await targetCatalog.get<Category[]>(ENDPOINTS.category.list)
   )
 
-  batch(
-    categories,
-    ({ id }) => +id > 7 && targetCatalog.deleteEntity('category', id)
+  batch(categories, ({ id }) =>
+    /* +id > 7 && */ targetCatalog.deleteEntity('category', id)
   )
 
   console.log('cleaning products')
-  targetCatalog.getProductIds(12).then(({ productIds, skuIds }) => {
+  targetCatalog.getProductIds(/* 12 */).then(({ productIds, skuIds }) => {
     batch(productIds, (id) => targetCatalog.deleteEntity('product', id))
     batch(skuIds, (id) => targetCatalog.deleteEntity('sku', id))
   })

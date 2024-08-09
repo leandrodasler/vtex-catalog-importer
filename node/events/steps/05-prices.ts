@@ -1,9 +1,7 @@
 import { sequentialBatch, updateCurrentImport } from '../../helpers'
 
 const handlePrices = async (context: AppEventContext) => {
-  // TODO: process prices import
-  const { importEntity, sourceCatalog, privateClient } = context.clients
-
+  const { importEntity, sourceCatalog, targetCatalog } = context.clients
   const { id: executionImportId, settings = {} } = context.state.body
   const { entity, skuIds, mapSkus } = context.state
   const { account: sourceAccount } = settings
@@ -14,13 +12,17 @@ const handlePrices = async (context: AppEventContext) => {
 
   await updateCurrentImport(context, { sourcePricesTotal })
 
-  await sequentialBatch(sourcePrices, async ({ itemId, ...price }) => {
-    const payload = { ...price }
+  await sequentialBatch(sourcePrices, async (sourcePrice) => {
+    const { itemId, basePrice, ...price } = sourcePrice
+    const payload = {
+      ...price,
+      ...(!price.costPrice && basePrice && { basePrice }),
+    }
 
     const skuId = mapSkus?.[+itemId]
 
     if (!skuId) return
-    const { Id: targetId } = await privateClient.createPrice(skuId, payload)
+    const { Id: targetId } = await targetCatalog.createPrice(skuId, payload)
 
     await importEntity.save({
       executionImportId,

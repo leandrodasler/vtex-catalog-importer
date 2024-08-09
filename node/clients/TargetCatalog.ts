@@ -5,13 +5,11 @@ import HttpClient from './HttpClient'
 
 export default class TargetCatalog extends HttpClient {
   protected getRequestConfig(): InstanceOptions {
-    return {
-      ...this.options,
-      headers: {
-        ...this.options?.headers,
-        VtexIdclientAutcookie: this.context.authToken ?? '',
-      },
-    }
+    const { adminUserAuthToken, authToken } = this.context
+    const VtexIdclientAutcookie = (adminUserAuthToken ?? authToken) as string
+    const headers = { ...this.options?.headers, VtexIdclientAutcookie }
+
+    return { ...this.options, headers }
   }
 
   protected getUrl(path: string) {
@@ -97,6 +95,13 @@ export default class TargetCatalog extends HttpClient {
       batch(payload, (file) =>
         this.post<T, Partial<T>>(ENDPOINTS.sku.listOrSetFile(id), file)
       )
+    )
+  }
+
+  public async createPrice(id: ID, payload: Partial<PriceDetails>) {
+    return this.put<never, Partial<PriceDetails>>(
+      ENDPOINTS.price.getOrset(id),
+      payload
     )
   }
 

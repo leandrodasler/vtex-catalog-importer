@@ -4,6 +4,7 @@ import {
   getFirstImportRunning,
   getFirstImportToBeDeleted,
 } from '.'
+import runImport from '../events'
 
 let cachedContext: Context | undefined
 const TIMEOUT = 10000
@@ -20,15 +21,16 @@ const verifyImports = async () => {
   const context = getCachedContext()
 
   if (!context || (await getFirstImportRunning(context))) return
-  const nextPendingImport = await getFirstImportPending(context)
+  const nextImportToBeDeleted = await getFirstImportToBeDeleted(context)
 
-  if (nextPendingImport) {
-    context.clients.events.sendEvent('', 'runImport', nextPendingImport)
+  if (nextImportToBeDeleted) {
+    deleteImport(context, nextImportToBeDeleted.id)
   } else {
-    const nextImportToBeDeleted = await getFirstImportToBeDeleted(context)
+    const nextPendingImport = await getFirstImportPending(context)
 
-    if (nextImportToBeDeleted) {
-      deleteImport(context, nextImportToBeDeleted.id)
+    if (nextPendingImport) {
+      context.state.body = nextPendingImport
+      runImport(context)
     }
   }
 }
