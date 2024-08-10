@@ -72,6 +72,8 @@ export const IMPORT_EXECUTION_FIELDS = [
   'importPrices',
   'stocksOption',
   'stockValue',
+  'sourceWarehouse',
+  'targetWarehouse',
   'sourceBrandsTotal',
   'sourceCategoriesTotal',
   'sourceProductsTotal',

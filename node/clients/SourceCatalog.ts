@@ -121,7 +121,7 @@ export default class SourceCatalog extends HttpClient {
       const { IsActive, CategoryId } = product
       const inCategoryTree = categories.find((c) => c.id === String(CategoryId))
 
-      if (!IsActive || !inCategoryTree) return
+      if (!IsActive || !inCategoryTree || !productAndSkuIds[id].length) return
 
       data.push(product)
       skuIds.push(...productAndSkuIds[id])
