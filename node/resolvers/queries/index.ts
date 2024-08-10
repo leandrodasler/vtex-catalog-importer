@@ -2,6 +2,12 @@ import { appSettings } from './appSettings'
 import { categories } from './categories'
 import { importProgress } from './importProgress'
 import { imports } from './imports'
-import { warehouses } from './warehouses'
+import { targetWarehouses } from './targetWarehouses'
 
-export default { appSettings, categories, imports, importProgress, warehouses }
+export default {
+  appSettings,
+  categories,
+  imports,
+  importProgress,
+  targetWarehouses,
+}

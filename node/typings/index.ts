@@ -7,18 +7,25 @@ import type { Clients } from '../clients'
 
 declare global {
   type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+
   type ID = string | number
+
   type User = { user: string }
+
   type WithInternalFields<T> = T & {
     id: string
     createdIn: string
     lastInteractionIn: string
     dataEntityId: string
   }
+
   type ServiceState = RecorderState & { settings?: AppSettingsInput }
+
   type Context = ServiceContext<Clients, ServiceState>
+
   type EntityMap = Record<number, number>
-  type EventState = RecorderState & {
+
+  type EventState = Omit<RecorderState, 'body'> & {
     body: Partial<WithInternalFields<Import>>
     entity?: string
     mapCategories?: EntityMap
@@ -27,14 +34,20 @@ declare global {
     mapSkus?: EntityMap
     skuIds?: number[]
   }
+
   type AppEventContext = ServiceContext<Clients, EventState>
+
   type AppContext = Context | AppEventContext
+
   type WithSettingsArgs = {
     settings?: AppSettingsInput
     args?: { settings?: AppSettingsInput }
   }
+
   type WithSettingsField = GraphQLField<unknown, Context, WithSettingsArgs>
+
   type Brand = BrandFromClients
+
   type BrandDetails = {
     Id: number
     Name: string
@@ -46,6 +59,7 @@ declare global {
     Score?: number
     LinkId?: string
   }
+
   type CategoryDetails = {
     Id: number
     Name: string
@@ -63,10 +77,12 @@ declare global {
     LinkId: string
     HasChildren: boolean
   }
+
   type ProductAndSkuIds = {
     data: Record<string, number[]>
     range: { total: number; from: number; to: number }
   }
+
   type ProductDetails = {
     Id: number
     Name: string
@@ -87,6 +103,7 @@ declare global {
     ShowWithoutStock: boolean
     Score: number
   }
+
   type SkuDetails = {
     Id: number
     ProductId: number
@@ -116,20 +133,24 @@ declare global {
     KitItensSellApart: boolean
     Videos: string[]
   }
+
   type ProductSpecification = {
     Id: number
     Name: string
     Value: string[]
   }
+
   type SkuSpecification = {
     FieldName: string
     FieldValues: string[]
     FieldGroupName: string
   }
+
   type SkuImage = {
     ImageUrl: string
     FileId: number
   }
+
   type SkuContext = {
     SkuSpecifications: SkuSpecification[]
     Images: SkuImage[]
@@ -137,6 +158,7 @@ declare global {
       Ean?: string
     }
   }
+
   type SkuFileDetails = {
     Id: number
     ArchiveId: number
@@ -148,20 +170,24 @@ declare global {
     Url: string
     FileLocation: string
   }
+
   type Specification = {
     FieldGroupId: number
     Name: string
     GroupName: string
   }
+
   type SpecificationGroup = {
     Name: string
   }
+
   type AssociatedSpecification = {
     FieldName: string
     GroupName: string
     RootLevelSpecification: boolean
     FieldValues: string[]
   }
+
   type ProductSpecificationPayload = Omit<Specification, 'FieldGroupId'> &
     Omit<ProductSpecification, 'Id'>
 
@@ -183,6 +209,30 @@ declare global {
     markup: number
     basePrice: number
     fixedPrices: FixedPrices[]
+  }
+
+  type SkuInventory = {
+    skuId: string
+    warehouseId: string
+    warehouseName: string
+    totalQuantity: number
+    reservedQuantity: number
+    hasUnlimitedQuantity: boolean
+    timeToRefill?: string
+    dateOfSupplyUtc?: string
+    leadTime: string
+  }
+
+  type SkuInventoryBySku = {
+    skuId: string
+    balance: SkuInventory[]
+  }
+
+  type SkuInventoryPayload = {
+    quantity: number
+    unlimitedQuantity: boolean
+    dateUtcOnBalanceSystem?: string
+    leadTime?: string
   }
 }
 

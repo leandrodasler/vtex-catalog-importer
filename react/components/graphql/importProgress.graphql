@@ -51,7 +51,6 @@ query importProgress($id: ID!) {
       importPrices
       stocksOption
       stockValue
-      sourceWarehouse
       targetWarehouse
       sourceBrandsTotal
       sourceCategoriesTotal

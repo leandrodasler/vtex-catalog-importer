@@ -1,0 +1,6 @@
+query getTargetWarehouses {
+  targetWarehouses {
+    id
+    name
+  }
+}

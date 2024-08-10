@@ -58,7 +58,6 @@ type Import {
   sourcePricesTotal: Int!
   sourceStocksTotal: Int!
   stockValue: Int
-  sourceWarehouse: String!
   targetWarehouse: String!
   status: ImportStatus!
   error: String
@@ -72,7 +71,6 @@ input ImportInput {
   importPrices: Boolean!
   stocksOption: StocksOption!
   stockValue: Int
-  sourceWarehouse: String!
   targetWarehouse: String!
   status: ImportStatus
 }
@@ -121,15 +119,10 @@ type Warehouse {
   isActive: Boolean!
 }
 
-type WarehousesResult {
-  source: [Warehouse!]!
-  target: [Warehouse!]!
-}
-
 type Query {
   appSettings: AppSettings! @WithSettings
   categories(settings: AppSettingsInput): [Category!] @WithSettings
-  warehouses(settings: AppSettingsInput): WarehousesResult! @WithSettings
+  targetWarehouses: [Warehouse!]!
   imports(args: SearchInput!): ImportsResult!
   importProgress(id: ID!): ImportProgress!
 }

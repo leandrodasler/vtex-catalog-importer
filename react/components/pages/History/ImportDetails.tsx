@@ -110,12 +110,6 @@ const ImportDetails = ({ currentImport }: Props) => {
         )}
         <section>
           <Text variant="title1">
-            {formatMessage(messages.sourceWarehouse)}:{' '}
-          </Text>
-          {currentImport.sourceWarehouse}
-        </section>
-        <section>
-          <Text variant="title1">
             {formatMessage(messages.targetWarehouse)}:{' '}
           </Text>
           {currentImport.targetWarehouse}

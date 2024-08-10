@@ -7,7 +7,7 @@
     "sourceAccount": { "type": ["string", "null"] },
     "sourceId": { "type": ["string", "integer", "null"] },
     "targetId": { "type": ["string", "integer", "null"] },
-    "pathParams": { "type": ["string", "null"] },
+    "pathParams": { "type": ["object", "null"] },
     "payload": { "type": "object" }
   },
   "v-cache": false,
@@ -16,7 +16,6 @@
     "executionImportId",
     "sourceAccount",
     "sourceId",
-    "targetId",
-    "pathParams"
+    "targetId"
   ]
 }

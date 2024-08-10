@@ -201,4 +201,22 @@ export default class SourceCatalog extends HttpClient {
 
     return prices.filter((p) => p !== null) as PriceDetails[]
   }
+
+  private async getInventory(skuId: ID) {
+    return this.get<SkuInventoryBySku>(ENDPOINTS.stock.listBySku(skuId))
+      .then(({ balance }) => {
+        const inventory =
+          balance.find((i) => i.hasUnlimitedQuantity || i.totalQuantity > 0) ??
+          balance[0]
+
+        return inventory ? { ...inventory, skuId } : null
+      })
+      .catch(() => null)
+  }
+
+  public async getInventories(skuIds: number[]) {
+    const inventories = await batch(skuIds, (id) => this.getInventory(id))
+
+    return inventories.filter((i) => i) as SkuInventory[]
+  }
 }

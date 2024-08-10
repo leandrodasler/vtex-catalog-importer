@@ -1,26 +1,44 @@
-/* eslint-disable no-console */
-import { updateCurrentImport } from '../../helpers'
+import { sequentialBatch, updateCurrentImport } from '../../helpers'
 
 const handleStocks = async (context: AppEventContext) => {
-  // TODO: process stocks import
-  const { importEntity } = context.clients
-  const { id, settings = {} } = context.state.body
-  const { entity } = context.state
+  const { importEntity, sourceCatalog, targetCatalog } = context.clients
+  const {
+    id: executionImportId,
+    settings = {},
+    targetWarehouse,
+  } = context.state.body
+
+  const { entity, skuIds, mapSkus } = context.state
   const { account: sourceAccount } = settings
-  const sourceStocksTotal = 3
+
+  if (!targetWarehouse || !skuIds?.length || !mapSkus) return
+
+  const sourceStocks = await sourceCatalog.getInventories(skuIds)
+  const sourceStocksTotal = sourceStocks.length
 
   await updateCurrentImport(context, { sourceStocksTotal })
+  await sequentialBatch(sourceStocks, async (sourceStock) => {
+    const {
+      skuId,
+      totalQuantity: quantity,
+      hasUnlimitedQuantity: unlimitedQuantity,
+      leadTime,
+    } = sourceStock
 
-  for (let i = 1; i <= sourceStocksTotal; i++) {
-    // eslint-disable-next-line no-await-in-loop
+    const targetSku = mapSkus[+skuId]
+    const payload = { quantity, unlimitedQuantity, leadTime }
+
+    await targetCatalog.createInventory(targetSku, targetWarehouse, payload)
     await importEntity.save({
-      executionImportId: id,
+      executionImportId,
       name: entity,
       sourceAccount,
-      sourceId: i,
-      payload: { name: `${entity} ${i}` },
+      sourceId: skuId,
+      targetId: targetSku,
+      payload,
+      pathParams: { skus: targetSku, warehouses: targetWarehouse },
     })
-  }
+  })
 }
 
 export default handleStocks

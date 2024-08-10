@@ -44,21 +44,23 @@ export const ENDPOINTS = {
   },
   sku: {
     set: '/api/catalog/pvt/stockkeepingunit',
-    getContext: (skuId: ID) =>
-      `/api/catalog_system/pvt/sku/stockkeepingunitbyid/${skuId}`,
+    getContext: (id: ID) =>
+      `/api/catalog_system/pvt/sku/stockkeepingunitbyid/${id}`,
     updateOrDetails: (id: ID) => `/api/catalog/pvt/stockkeepingunit/${id}`,
-    setEan: (skuId: ID, ean: string) =>
-      `/api/catalog/pvt/stockkeepingunit/${skuId}/ean/${ean}`,
-    setSpecification: (skuId: ID) =>
-      `/api/catalog/pvt/stockkeepingunit/${skuId}/specificationvalue`,
-    listOrSetFile: (skuId: ID) =>
-      `/api/catalog/pvt/stockkeepingunit/${skuId}/file`,
+    setEan: (id: ID, ean: string) =>
+      `/api/catalog/pvt/stockkeepingunit/${id}/ean/${ean}`,
+    setSpecification: (id: ID) =>
+      `/api/catalog/pvt/stockkeepingunit/${id}/specificationvalue`,
+    listOrSetFile: (id: ID) => `/api/catalog/pvt/stockkeepingunit/${id}/file`,
+  },
+  price: {
+    getOrset: (skuId: ID) => `/api/pricing/prices/${skuId}`,
   },
   stock: {
     listWarehouses: '/api/logistics/pvt/configuration/warehouses',
-  },
-  price: {
-    getOrset: (id: ID) => `/api/pricing/prices/${id}`,
+    listBySku: (skuId: ID) => `/api/logistics/pvt/inventory/skus/${skuId}`,
+    set: (skuId: ID, warehouseId: ID) =>
+      `/api/logistics/pvt/inventory/skus/${skuId}/warehouses/${warehouseId}`,
   },
 }
 
@@ -72,7 +74,6 @@ export const IMPORT_EXECUTION_FIELDS = [
   'importPrices',
   'stocksOption',
   'stockValue',
-  'sourceWarehouse',
   'targetWarehouse',
   'sourceBrandsTotal',
   'sourceCategoriesTotal',

@@ -37,7 +37,6 @@ type Props = {
   settings?: AppSettingsInput
   setSettings: (settings: AppSettingsInput) => void
   setCheckedTreeOptions: React.Dispatch<React.SetStateAction<CheckedCategories>>
-  sourceWarehousesState: RadioState
   targetWarehousesState: RadioState
 }
 
@@ -51,7 +50,6 @@ const Settings = ({
   settings,
   setSettings,
   setCheckedTreeOptions,
-  sourceWarehousesState,
   targetWarehousesState,
 }: Props) => {
   const { formatMessage } = useIntl()
@@ -123,7 +121,6 @@ const Settings = ({
         newSettings.useDefault !== settings?.useDefault
       ) {
         setCheckedTreeOptions({})
-        sourceWarehousesState.setValue(null)
         targetWarehousesState.setValue(null)
       }
 
@@ -136,7 +133,6 @@ const Settings = ({
       settings?.account,
       settings?.useDefault,
       showToast,
-      sourceWarehousesState,
       targetWarehousesState,
       updateAppSettings,
     ]

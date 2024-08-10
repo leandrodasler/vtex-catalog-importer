@@ -25,6 +25,7 @@ const handlePrices = async (context: AppEventContext) => {
       sourceId: itemId,
       targetId: skuId,
       payload,
+      pathParams: { prices: skuId },
     })
   })
 }

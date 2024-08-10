@@ -18,6 +18,7 @@ import { useIntl } from 'react-intl'
 import type {
   AppSettingsInput,
   Category,
+  Query,
   StocksOption,
 } from 'ssesandbox04.catalog-importer'
 
@@ -90,13 +91,14 @@ export default function Wizard() {
   })
 
   const [stockValue, setStockValue] = useState(0)
-  const sourceWarehousesState = useRadioState()
   const targetWarehousesState = useRadioState()
   const [successImport, setSuccessImport] = useState(false)
-  const { loading, error } = useQueryCustom(APP_SETTINGS_QUERY, {
+  const { loading, error } = useQueryCustom<{
+    appSettings: Query['appSettings']
+  }>(APP_SETTINGS_QUERY, {
     toastError: false,
-    onCompleted(data) {
-      setSettings(data.appSettings)
+    onCompleted({ appSettings }) {
+      setSettings(appSettings)
     },
   })
 
@@ -153,7 +155,6 @@ export default function Wizard() {
               settings={settings}
               setSettings={setSettings}
               setCheckedTreeOptions={setCheckedTreeOptions}
-              sourceWarehousesState={sourceWarehousesState}
               targetWarehousesState={targetWarehousesState}
             />
           )}
@@ -186,13 +187,11 @@ export default function Wizard() {
           {state.selectedId === '3' && (
             <ImportOptions
               state={state}
-              settings={settings}
               importImagesState={importImagesState}
               importPricesState={importPricesState}
               stocksOptionState={stocksOptionState}
               stockValue={stockValue}
               setStockValue={setStockValue}
-              sourceWarehousesState={sourceWarehousesState}
               targetWarehousesState={targetWarehousesState}
             />
           )}
@@ -214,7 +213,6 @@ export default function Wizard() {
               checkedTreeOptions={checkedTreeOptions}
               state={state}
               settings={settings}
-              sourceWarehouse={sourceWarehousesState.value as string}
               targetWarehouse={targetWarehousesState.value as string}
               setSuccessImport={setSuccessImport}
             />

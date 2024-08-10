@@ -98,11 +98,19 @@ export default class TargetCatalog extends HttpClient {
     )
   }
 
-  public async createPrice(id: ID, payload: Partial<PriceDetails>) {
-    return this.put<never, Partial<PriceDetails>>(
-      ENDPOINTS.price.getOrset(id),
-      payload
-    )
+  public async createPrice<T extends PriceDetails>(
+    skuId: ID,
+    payload: Partial<T>
+  ) {
+    return this.put<never, Partial<T>>(ENDPOINTS.price.getOrset(skuId), payload)
+  }
+
+  public async createInventory<T extends SkuInventoryPayload>(
+    skuId: ID,
+    warehouseId: ID,
+    payload: T
+  ) {
+    return this.put<never, T>(ENDPOINTS.stock.set(skuId, warehouseId), payload)
   }
 
   /* remove this after */

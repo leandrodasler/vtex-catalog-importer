@@ -16,7 +16,6 @@
     "importPrices": { "type": "boolean" },
     "stocksOption": { "type": "string" },
     "stockValue": { "type": ["integer", "null"] },
-    "sourceWarehouse": { "type": "string" },
     "targetWarehouse": { "type": "string" },
     "sourceBrandsTotal": { "type": ["integer"] },
     "sourceCategoriesTotal": { "type": ["integer"] },

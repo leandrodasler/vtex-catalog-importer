@@ -1,23 +1,6 @@
-import type { RadioState } from '@vtex/admin-ui'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  csx,
-  Divider,
-  Radio,
-  RadioGroup,
-  Stack,
-  Tag,
-  Text,
-} from '@vtex/admin-ui'
-import React, { Fragment } from 'react'
-import type {
-  Category,
-  CategoryInput,
-  Warehouse,
-} from 'ssesandbox04.catalog-importer'
+import { Stack } from '@vtex/admin-ui'
+import React from 'react'
+import type { Category, CategoryInput } from 'ssesandbox04.catalog-importer'
 
 import type { CheckedCategories, CheckedCategory } from '..'
 import { Checked, Unchecked } from '../../../common'
@@ -119,44 +102,4 @@ export const mapToCategoryInput: (
     ...category,
     children: mapToCategoryInput(category.children),
   })) as CategoryInput[]
-}
-
-type WarehouseListProps = {
-  data?: Warehouse[]
-  title: string
-  state: RadioState
-}
-
-const warehouseContentTheme = csx({ paddingTop: '$space-6' })
-const DividerNoMargin = () => (
-  <Divider className={csx({ marginTop: '$space-0' })} />
-)
-
-export const WarehouseList = ({ data, title, state }: WarehouseListProps) => {
-  if (!data?.length) return null
-
-  return (
-    <Card>
-      <CardHeader className={csx({ bg: '$secondary' })}>
-        <CardTitle>{title}</CardTitle>
-      </CardHeader>
-      {data.map(({ id, name }: Warehouse, index: number) => (
-        <Fragment key={`warehouse-${id}`}>
-          <CardContent className={warehouseContentTheme}>
-            <RadioGroup state={state} label="">
-              <Radio
-                value={id}
-                label={
-                  <Text variant="title1">
-                    {name} <Tag label={id} />
-                  </Text>
-                }
-              />
-            </RadioGroup>
-          </CardContent>
-          {index < data.length - 1 && <DividerNoMargin />}
-        </Fragment>
-      ))}
-    </Card>
-  )
 }
