@@ -80,20 +80,20 @@ export default class TargetCatalog extends HttpClient {
     )
   }
 
-  public async createSkuEan(id: ID, ean?: string) {
+  public async createSkuEan(skuId: ID, ean?: string) {
     if (!ean) return
 
-    return this.post(ENDPOINTS.sku.setEan(id, ean))
+    return this.post(ENDPOINTS.sku.setEan(skuId, ean))
   }
 
   public async createSkuFiles<T extends SkuFileDetails>(
-    id: ID,
+    skuId: ID,
     payload: Array<Partial<T>>
   ) {
     return (
       payload.length &&
-      batch(payload, (file) =>
-        this.post<T, Partial<T>>(ENDPOINTS.sku.listOrSetFile(id), file)
+      sequentialBatch(payload, (file) =>
+        this.post<T, Partial<T>>(ENDPOINTS.sku.listOrSetFile(skuId), file)
       )
     )
   }

@@ -116,6 +116,7 @@ export const CATEGORY_DELAY = 500
 export const DEFAULT_BATCH_CONCURRENCY = 500
 export const ONE_RESULT = { page: 1, pageSize: 1 }
 export const COMMON_WHERE = `(status<>${IMPORT_STATUS.TO_BE_DELETED})AND(status<>${IMPORT_STATUS.DELETING})`
+export const GET_SKUS_CONCURRENCY = 25
 
 export const STEPS = [
   { entity: 'brand', handler: handleBrands },
