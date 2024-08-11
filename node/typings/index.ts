@@ -111,7 +111,6 @@ declare global {
     ActivateIfPossible: boolean
     Name: string
     RefId: string
-    Ean?: string
     PackagedHeight: number
     PackagedLength: number
     PackagedWidth: number

@@ -47,8 +47,8 @@ export const ENDPOINTS = {
     getContext: (id: ID) =>
       `/api/catalog_system/pvt/sku/stockkeepingunitbyid/${id}`,
     updateOrDetails: (id: ID) => `/api/catalog/pvt/stockkeepingunit/${id}`,
-    setEan: (id: ID, ean: string) =>
-      `/api/catalog/pvt/stockkeepingunit/${id}/ean/${ean}`,
+    setEan: (id: ID, ean?: string) =>
+      `/api/catalog/pvt/stockkeepingunit/${id}/ean${ean ? `/${ean}` : ''}`,
     setSpecification: (id: ID) =>
       `/api/catalog/pvt/stockkeepingunit/${id}/specificationvalue`,
     listOrSetFile: (id: ID) => `/api/catalog/pvt/stockkeepingunit/${id}/file`,

@@ -5,6 +5,8 @@ const handleStocks = async (context: AppEventContext) => {
   const {
     id: executionImportId,
     settings = {},
+    stocksOption = 'KEEP_SOURCE',
+    stockValue,
     targetWarehouse,
   } = context.state.body
 
@@ -18,12 +20,18 @@ const handleStocks = async (context: AppEventContext) => {
 
   await updateCurrentImport(context, { sourceStocksTotal })
   await sequentialBatch(sourceStocks, async (sourceStock) => {
-    const {
-      skuId,
-      totalQuantity: quantity,
-      hasUnlimitedQuantity: unlimitedQuantity,
-      leadTime,
-    } = sourceStock
+    const { skuId, totalQuantity, hasUnlimitedQuantity, leadTime } = sourceStock
+
+    const quantity =
+      stocksOption === 'KEEP_SOURCE'
+        ? totalQuantity
+        : stocksOption === 'TO_BE_DEFINED'
+        ? stockValue ?? 0
+        : undefined
+
+    const unlimitedQuantity =
+      stocksOption === 'UNLIMITED' ||
+      (hasUnlimitedQuantity && stocksOption === 'KEEP_SOURCE')
 
     const targetSku = mapSkus[+skuId]
     const payload = { quantity, unlimitedQuantity, leadTime }

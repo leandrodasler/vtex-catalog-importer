@@ -2,11 +2,17 @@ import { sequentialBatch, updateCurrentImport } from '../../helpers'
 
 const handlePrices = async (context: AppEventContext) => {
   const { importEntity, sourceCatalog, targetCatalog } = context.clients
-  const { id: executionImportId, settings = {} } = context.state.body
+  const {
+    id: executionImportId,
+    settings = {},
+    importPrices,
+  } = context.state.body
+
   const { entity, skuIds, mapSkus } = context.state
   const { account: sourceAccount } = settings
 
-  if (!skuIds?.length || !mapSkus) return
+  if (!importPrices || !skuIds?.length || !mapSkus) return
+
   const sourcePrices = await sourceCatalog.getPrices(skuIds)
   const sourcePricesTotal = sourcePrices.length
 

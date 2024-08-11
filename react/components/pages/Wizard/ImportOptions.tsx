@@ -14,12 +14,12 @@ import {
   Flex,
   IconArrowLeft,
   IconArrowRight,
-  NumberInput,
   Radio,
   RadioGroup,
   Spinner,
   Stack,
   Switch,
+  TextInput,
   Tooltip,
 } from '@vtex/admin-ui'
 import React from 'react'
@@ -73,7 +73,7 @@ export default function ImportOptions({
     <Stack space="$space-4" fluid>
       <Columns space={{ mobile: '$space-0', tablet: '$space-12' }}>
         <Column units={columnUnits} className={notLastColumnTheme}>
-          <Flex justify="center">
+          <Flex justify={{ mobile: 'left', tablet: 'center' }}>
             <CheckboxGroup
               label={
                 <Stack direction="row">
@@ -96,7 +96,7 @@ export default function ImportOptions({
           </Flex>
         </Column>
         <Column units={columnUnits} className={notLastColumnTheme}>
-          <Flex justify="center">
+          <Flex justify={{ mobile: 'left', tablet: 'center' }}>
             <RadioGroup
               state={stocksOptionState}
               label={formatMessage(messages.importStocks)}
@@ -114,12 +114,13 @@ export default function ImportOptions({
                 label={formatMessage(messages.optionsTO_BE_DEFINED)}
               />
               {stocksOptionState.value === STOCK_OPTIONS.TO_BE_DEFINED && (
-                <Flex className={csx({ width: 175 })}>
-                  <NumberInput
+                <Flex className={csx({ width: 100 })}>
+                  <TextInput
+                    type="number"
                     // label={formatMessage(messages.stockValue)}
                     value={stockValue}
                     min={0}
-                    onChange={(v) => setStockValue(+v)}
+                    onChange={(v) => setStockValue(+v.target.value)}
                   />
                 </Flex>
               )}
@@ -127,7 +128,7 @@ export default function ImportOptions({
           </Flex>
         </Column>
         <Column units={columnUnits}>
-          <Flex justify="center">
+          <Flex justify={{ mobile: 'left', tablet: 'center' }}>
             {loading && <Spinner />}
             {error && (
               <Center>

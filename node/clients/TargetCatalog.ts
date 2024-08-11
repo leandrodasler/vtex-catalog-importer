@@ -1,6 +1,6 @@
 import type { InstanceOptions } from '@vtex/api'
 
-import { batch, ENDPOINTS, sequentialBatch } from '../helpers'
+import { batch, delay, ENDPOINTS, sequentialBatch } from '../helpers'
 import HttpClient from './HttpClient'
 
 export default class TargetCatalog extends HttpClient {
@@ -108,9 +108,12 @@ export default class TargetCatalog extends HttpClient {
   public async createInventory<T extends SkuInventoryPayload>(
     skuId: ID,
     warehouseId: ID,
-    payload: T
+    payload: Partial<T>
   ) {
-    return this.put<never, T>(ENDPOINTS.stock.set(skuId, warehouseId), payload)
+    return this.put<never, Partial<T>>(
+      ENDPOINTS.stock.set(skuId, warehouseId),
+      payload
+    )
   }
 
   /* remove this after */
@@ -132,6 +135,7 @@ export default class TargetCatalog extends HttpClient {
 
       from += maxPerPage
       to += maxPerPage
+      await delay(500)
       await getRange()
     }
 
@@ -139,7 +143,7 @@ export default class TargetCatalog extends HttpClient {
     const productIds = Object.keys(result)
     const skuIds = Object.values(result).flat()
 
-    return { productIds, skuIds }
+    return { result, productIds, skuIds }
   }
 
   /* remove this after */
@@ -194,20 +198,20 @@ export default class TargetCatalog extends HttpClient {
 
     return this.get<SkuDetails>(ENDPOINTS.sku.updateOrDetails(id))
       .then((sku) => {
-        this.put<SkuDetails, Partial<SkuDetails>>(
-          ENDPOINTS.sku.updateOrDetails(id),
-          {
-            ...sku,
-            Name: newName,
-            ActivateIfPossible: false,
-            RefId: newName,
-            IsActive: false,
-          }
-        )
+        Promise.all([
+          this.put<SkuDetails, Partial<SkuDetails>>(
+            ENDPOINTS.sku.updateOrDetails(id),
+            {
+              ...sku,
+              Name: newName,
+              ActivateIfPossible: false,
+              RefId: newName,
+              IsActive: false,
+            }
+          ),
 
-        if (sku.Ean) {
-          this.delete(ENDPOINTS.sku.setEan(id, sku.Ean))
-        }
+          this.delete(ENDPOINTS.sku.setEan(id)),
+        ])
       })
       .catch(() => {})
   }
