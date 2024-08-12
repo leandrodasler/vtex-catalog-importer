@@ -43,7 +43,7 @@
   "admin/options.label": "Opciones de la importación",
   "admin/options.categories": "Categorías seleccionadas",
   "admin/options.imagesPrices": "Imágenes y precios",
-  "admin/options.imagesPrices.tooltip": "Si no se importan imágenes o precios, los SKU importados estarán inactivos",
+  "admin/options.imagesPrices.tooltip": "Si no se importan imágenes o precios, los SKU de esta importación estarán inactivos",
   "admin/options.import.image": "Importar imágenes",
   "admin/options.import.price": "Importar precios",
   "admin/options.import.stocks": "Inventarios",
@@ -53,8 +53,7 @@
   "admin/options.stockValue": "Inventario por definir para todos los SKUs",
   "admin/options.warehouses.empty": "No se encontraron almacenes en la cuenta {account}",
   "admin/options.warehouses.empty.action": "Crear almacén",
-  "admin/options.warehouses.label": "Elija lo almacén de destino",
-  "admin/options.warehouses.tooltip": "Los valores de inventario de los SKUs importados se asignarán al almacén de destino",
+  "admin/options.warehouses.tooltip": "Los valores de inventario de los SKUs importados se vincularán al almacén de destino",
   "admin/options.warehouses.error": "No se pueden obtener los almacenes",
   "admin/options.targetWarehouse": "Almacén de destino",
 

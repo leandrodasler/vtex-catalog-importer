@@ -28,10 +28,12 @@ declare global {
   type EventState = Omit<RecorderState, 'body'> & {
     body: Partial<WithInternalFields<Import>>
     entity?: string
-    mapCategories?: EntityMap
-    mapBrands?: EntityMap
-    mapProducts?: EntityMap
-    mapSkus?: EntityMap
+    mapCategory?: EntityMap
+    mapBrand?: EntityMap
+    mapProduct?: EntityMap
+    mapSku?: EntityMap
+    mapSourceSkuProduct?: EntityMap
+    mapSourceSkuSellerStock?: EntityMap
     skuIds?: number[]
   }
 
@@ -208,6 +210,17 @@ declare global {
     markup: number
     basePrice: number
     fixedPrices: FixedPrices[]
+    sellerStock?: number
+  }
+
+  type SalesChannelOffer = {
+    price: number
+    listPrice: number
+    availableQuantity: number
+  }
+
+  type SkuOffer = {
+    sellersOffers?: Array<{ salesChannelOffer: SalesChannelOffer[] }>
   }
 
   type SkuInventory = {

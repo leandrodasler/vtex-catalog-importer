@@ -1,9 +1,10 @@
 import { sequentialBatch } from '../../helpers'
 
 const handleSkus = async (context: AppEventContext) => {
-  const { entity, skuIds, mapProducts } = context.state
+  const { entity, skuIds, mapProduct } = context.state
 
-  if (!skuIds?.length) return
+  if (!skuIds?.length || !mapProduct) return
+
   const { sourceCatalog, targetCatalog, importEntity } = context.clients
   const {
     id: executionImportId,
@@ -13,11 +14,12 @@ const handleSkus = async (context: AppEventContext) => {
 
   const { account: sourceAccount } = settings
   const sourceSkus = await sourceCatalog.getSkus(skuIds)
-  const mapSkus: EntityMap = {}
+  const mapSku: EntityMap = {}
+  const mapSourceSkuProduct: EntityMap = {}
 
   await sequentialBatch(sourceSkus, async ({ Id, ...sku }) => {
     const { ProductId, IsActive } = sku
-    const targetProductId = mapProducts?.[ProductId]
+    const targetProductId = mapProduct[ProductId]
     const skuContext = await sourceCatalog.getSkuContext(Id, importImages)
     const { Ean, specifications, files } = skuContext
 
@@ -45,10 +47,12 @@ const handleSkus = async (context: AppEventContext) => {
       payload,
     })
 
-    mapSkus[Id] = targetId
+    mapSku[Id] = targetId
+    mapSourceSkuProduct[Id] = ProductId
   })
 
-  context.state.mapSkus = mapSkus
+  context.state.mapSku = mapSku
+  context.state.mapSourceSkuProduct = mapSourceSkuProduct
 }
 
 export default handleSkus

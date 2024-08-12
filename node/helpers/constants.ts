@@ -55,6 +55,8 @@ export const ENDPOINTS = {
   },
   price: {
     getOrset: (skuId: ID) => `/api/pricing/prices/${skuId}`,
+    listOffers: (productId: ID, skuId: ID) =>
+      `/api/offer-manager/pvt/product/${productId}/sku/${skuId}`,
   },
   stock: {
     listWarehouses: '/api/logistics/pvt/configuration/warehouses',

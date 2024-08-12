@@ -46,7 +46,6 @@ export const messages = defineMessages({
   stockValue: { id: 'admin/options.stockValue' },
   warehousesEmpty: { id: 'admin/options.warehouses.empty' },
   warehousesEmptyAction: { id: 'admin/options.warehouses.empty.action' },
-  warehousesLabel: { id: 'admin/options.warehouses.label' },
   warehousesTooltip: { id: 'admin/options.warehouses.tooltip' },
   warehousesError: { id: 'admin/options.warehouses.error' },
   targetWarehouse: { id: 'admin/options.targetWarehouse' },

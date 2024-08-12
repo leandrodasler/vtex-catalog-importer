@@ -157,7 +157,7 @@ export default function ImportOptions({
                   state={targetWarehousesState}
                   label={
                     <Stack direction="row">
-                      {formatMessage(messages.warehousesLabel)}
+                      {formatMessage(messages.targetWarehouse)}
                       <Tooltip
                         text={formatMessage(messages.warehousesTooltip)}
                       />

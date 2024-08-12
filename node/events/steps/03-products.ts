@@ -8,7 +8,7 @@ const handleProducts = async (context: AppEventContext) => {
     categoryTree,
   } = context.state.body
 
-  const { entity, mapCategories, mapBrands } = context.state
+  const { entity, mapCategory, mapBrand } = context.state
   const { account: sourceAccount } = settings
   const { data: sourceProducts, skuIds } = await sourceCatalog.getProducts(
     categoryTree
@@ -18,14 +18,14 @@ const handleProducts = async (context: AppEventContext) => {
 
   const sourceProductsTotal = sourceProducts.length
   const sourceSkusTotal = skuIds.length
-  const mapProducts: EntityMap = {}
+  const mapProduct: EntityMap = {}
 
   await updateCurrentImport(context, { sourceProductsTotal, sourceSkusTotal })
   await sequentialBatch(sourceProducts, async ({ Id, ...product }) => {
     const { DepartmentId, CategoryId, BrandId, RefId, LinkId } = product
-    const targetDepartmentId = mapCategories?.[DepartmentId]
-    const targetCategoryId = mapCategories?.[CategoryId]
-    const targetBrandId = mapBrands?.[BrandId]
+    const targetDepartmentId = mapCategory?.[DepartmentId]
+    const targetCategoryId = mapCategory?.[CategoryId]
+    const targetBrandId = mapBrand?.[BrandId]
 
     const payload = {
       ...product,
@@ -49,10 +49,10 @@ const handleProducts = async (context: AppEventContext) => {
       payload,
     })
 
-    mapProducts[Id] = targetId
+    mapProduct[Id] = targetId
   })
 
-  context.state.mapProducts = mapProducts
+  context.state.mapProduct = mapProduct
 }
 
 export default handleProducts

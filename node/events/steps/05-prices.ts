@@ -8,20 +8,31 @@ const handlePrices = async (context: AppEventContext) => {
     importPrices,
   } = context.state.body
 
-  const { entity, skuIds, mapSkus } = context.state
+  const { entity, skuIds, mapSku, mapSourceSkuProduct } = context.state
   const { account: sourceAccount } = settings
 
-  if (!importPrices || !skuIds?.length || !mapSkus) return
+  if (!importPrices || !skuIds?.length || !mapSku || !mapSourceSkuProduct) {
+    return
+  }
 
-  const sourcePrices = await sourceCatalog.getPrices(skuIds)
+  const sourcePrices = await sourceCatalog.getPrices(
+    skuIds,
+    mapSourceSkuProduct
+  )
+
   const sourcePricesTotal = sourcePrices.length
+  const mapSourceSkuSellerStock: EntityMap = {}
 
   await updateCurrentImport(context, { sourcePricesTotal })
   await sequentialBatch(sourcePrices, async (sourcePrice) => {
-    const { itemId, basePrice, ...price } = sourcePrice
+    const { itemId, basePrice, sellerStock, ...price } = sourcePrice
     const includeBasePrice = price.costPrice === null || price.markup === null
     const payload = { ...price, ...(includeBasePrice && { basePrice }) }
-    const skuId = mapSkus[+itemId]
+    const skuId = mapSku[+itemId]
+
+    if (sellerStock) {
+      mapSourceSkuSellerStock[+itemId] = sellerStock
+    }
 
     await targetCatalog.createPrice(skuId, payload)
     await importEntity.save({
@@ -34,6 +45,8 @@ const handlePrices = async (context: AppEventContext) => {
       pathParams: { prices: skuId },
     })
   })
+
+  context.state.mapSourceSkuSellerStock = mapSourceSkuSellerStock
 }
 
 export default handlePrices

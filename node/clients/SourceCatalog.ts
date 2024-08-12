@@ -190,38 +190,77 @@ export default class SourceCatalog extends HttpClient {
     return { Ean, specifications, files }
   }
 
-  private async getPrice(id: ID) {
-    return this.get<PriceDetails>(ENDPOINTS.price.getOrset(id)).catch(
-      () => null
+  private async getSellerPrice(skuId: ID, productId: ID) {
+    const [offer] = await this.get<SkuOffer[]>(
+      ENDPOINTS.price.listOffers(productId, skuId)
+    )
+
+    const salesChannelOffer = offer?.sellersOffers?.find((o) =>
+      o.salesChannelOffer.find(({ price }) => price)
+    )?.salesChannelOffer?.[0]
+
+    if (salesChannelOffer) {
+      const { listPrice, price, availableQuantity } = salesChannelOffer
+
+      return {
+        itemId: skuId,
+        listPrice,
+        costPrice: price,
+        basePrice: price,
+        markup: null,
+        sellerStock: availableQuantity,
+      }
+    }
+
+    return null
+  }
+
+  private async getPrice(skuId: ID, productId: ID) {
+    return this.get<PriceDetails>(ENDPOINTS.price.getOrset(skuId)).catch(() =>
+      this.getSellerPrice(skuId, productId).catch(() => null)
     )
   }
 
-  public async getPrices(skuIds: number[]) {
+  public async getPrices(skuIds: number[], mapSourceSkuProduct: EntityMap) {
     const prices = await batch(
       skuIds,
-      (id) => this.getPrice(id),
+      (id) => this.getPrice(id, mapSourceSkuProduct[id]),
       GET_SKUS_CONCURRENCY
     )
 
     return prices.filter((p) => p !== null) as PriceDetails[]
   }
 
-  private async getInventory(skuId: ID) {
+  private generateSellerInventory(skuId: ID, sellerStock?: number) {
+    if (sellerStock) {
+      return { skuId, totalQuantity: sellerStock }
+    }
+
+    return null
+  }
+
+  private async getInventory(skuId: ID, sellerStock?: number) {
     return this.get<SkuInventoryBySku>(ENDPOINTS.stock.listBySku(skuId))
       .then(({ balance }) => {
         const inventory =
           balance.find((i) => i.hasUnlimitedQuantity || i.totalQuantity > 0) ??
           balance[0]
 
-        return inventory ? { ...inventory, skuId } : null
+        return inventory?.hasUnlimitedQuantity ||
+          (inventory?.totalQuantity ?? 0) > 0
+          ? { ...inventory, skuId }
+          : this.generateSellerInventory(skuId, sellerStock)
       })
-      .catch(() => null)
+      .catch(() => this.generateSellerInventory(skuId, sellerStock))
   }
 
-  public async getInventories(skuIds: number[]) {
+  public async getInventories(
+    skuIds: number[],
+    mapSourceSkuSellerStock: EntityMap
+  ) {
     const inventories = await batch(
       skuIds,
-      (id) => this.getInventory(id),
+      (id) => this.getInventory(id, mapSourceSkuSellerStock[id]),
       GET_SKUS_CONCURRENCY
     )
 

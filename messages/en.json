@@ -43,7 +43,7 @@
   "admin/options.label": "Import options",
   "admin/options.categories": "Selected categories",
   "admin/options.imagesPrices": "Images and prices",
-  "admin/options.imagesPrices.tooltip": "If images or prices are not imported, the imported SKUs will be inactive",
+  "admin/options.imagesPrices.tooltip": "If images or prices are not imported the SKUs from this import will be inactive",
   "admin/options.import.image": "Import images",
   "admin/options.import.price": "Import prices",
   "admin/options.import.stocks": "Stocks",
@@ -53,8 +53,7 @@
   "admin/options.stockValue": "Stock to be defined for all SKUs",
   "admin/options.warehouses.empty": "No warehouses found in account {account}",
   "admin/options.warehouses.empty.action": "Create warehouse",
-  "admin/options.warehouses.label": "Choose the target warehouse",
-  "admin/options.warehouses.tooltip": "The inventory values of imported SKUs will be assigned to the target warehouse",
+  "admin/options.warehouses.tooltip": "The inventory values of imported SKUs will be linked to the target warehouse",
   "admin/options.warehouses.error": "Unable to get warehouses",
   "admin/options.targetWarehouse": "Target warehouse",
 

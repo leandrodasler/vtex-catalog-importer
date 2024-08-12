@@ -10,12 +10,23 @@ const handleStocks = async (context: AppEventContext) => {
     targetWarehouse,
   } = context.state.body
 
-  const { entity, skuIds, mapSkus } = context.state
+  const { entity, skuIds, mapSku, mapSourceSkuSellerStock } = context.state
   const { account: sourceAccount } = settings
 
-  if (!targetWarehouse || !skuIds?.length || !mapSkus) return
+  if (
+    !targetWarehouse ||
+    !skuIds?.length ||
+    !mapSku ||
+    !mapSourceSkuSellerStock
+  ) {
+    return
+  }
 
-  const sourceStocks = await sourceCatalog.getInventories(skuIds)
+  const sourceStocks = await sourceCatalog.getInventories(
+    skuIds,
+    mapSourceSkuSellerStock
+  )
+
   const sourceStocksTotal = sourceStocks.length
 
   await updateCurrentImport(context, { sourceStocksTotal })
@@ -33,7 +44,7 @@ const handleStocks = async (context: AppEventContext) => {
       stocksOption === 'UNLIMITED' ||
       (hasUnlimitedQuantity && stocksOption === 'KEEP_SOURCE')
 
-    const targetSku = mapSkus[+skuId]
+    const targetSku = mapSku[+skuId]
     const payload = { quantity, unlimitedQuantity, leadTime }
 
     await targetCatalog.createInventory(targetSku, targetWarehouse, payload)
