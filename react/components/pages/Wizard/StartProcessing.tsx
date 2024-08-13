@@ -18,7 +18,7 @@ import {
   useModalState,
   useToast,
 } from '@vtex/admin-ui'
-import React, { Suspense, lazy, useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useMutation } from 'react-apollo'
 import { useIntl } from 'react-intl'
 import type {
@@ -42,9 +42,8 @@ import {
   EXECUTE_IMPORT_MUTATION,
   getGraphQLMessageDescriptor,
 } from '../../graphql'
+import ShowImportModal from '../History/ShowImportModal'
 import { ImportOption, buildTree, mapToCategoryInput } from './common'
-
-const ShowImportModal = lazy(() => import('../History/ShowImportModal'))
 
 interface StartProcessingProps {
   checkedTreeOptions: CheckedCategories
@@ -105,9 +104,10 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
     },
   })
 
-  const treeData = useMemo(() => buildTree(checkedTreeOptions), [
-    checkedTreeOptions,
-  ])
+  const treeData = useMemo(
+    () => buildTree(checkedTreeOptions),
+    [checkedTreeOptions]
+  )
 
   const categoryTree = useMemo(
     () => treeData.sort(treeSorter).map(categoryTreeMapper),
@@ -259,14 +259,13 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
           </ModalContent>
         </Modal>
       )}
-      <Suspense fallback={null}>
-        {importModal.open && importData?.executeImport && (
-          <ShowImportModal
-            modalState={importModal}
-            id={importData.executeImport}
-          />
-        )}
-      </Suspense>
+
+      {importModal.open && importData?.executeImport && (
+        <ShowImportModal
+          modalState={importModal}
+          id={importData.executeImport}
+        />
+      )}
     </Stack>
   )
 }
