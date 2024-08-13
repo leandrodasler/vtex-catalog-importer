@@ -32,11 +32,11 @@ export const SuspenseFallback = () => (
   </Center>
 )
 
-type ErrorMessageProps = {
+type ErrorMessageProps = React.PropsWithChildren<{
   error?: string | GraphQLError
   title?: string | MessageDescriptor
-  children?: React.ReactNode
-}
+}>
+
 export const ErrorMessage = ({ error, title, children }: ErrorMessageProps) => {
   const { formatMessage } = useIntl()
 
@@ -215,8 +215,9 @@ export const Tree = <T extends NodeTree>({ data, title }: TreeProps<T>) => {
   )
 }
 
-type ModalButtonsProps = { children: React.ReactNode }
-export const ModalButtons = ({ children }: ModalButtonsProps) => (
+type OnlyChildrenProp = React.PropsWithChildren<unknown>
+
+export const ModalButtons = ({ children }: OnlyChildrenProp) => (
   <Stack
     className={csx({ marginTop: '$space-6' })}
     fluid
@@ -226,4 +227,25 @@ export const ModalButtons = ({ children }: ModalButtonsProps) => (
   >
     {children}
   </Stack>
+)
+
+export const InputInlineWrapper = ({ children }: OnlyChildrenProp) => (
+  <Flex
+    className={csx({
+      ' [data-wrap][data-space-inside]': {
+        flexWrap: 'nowrap',
+        alignItems: 'center',
+      },
+      ' [data-space-inside] > input:is(:first-child)': {
+        marginLeft: 0,
+        '&[type="checkbox"]': { minWidth: '2.25rem' },
+        '&[type="radio"]': { minWidth: '1.25rem' },
+      },
+      ' [data-space-inside="true"] > input:is(:first-child)': {
+        '&[type="checkbox"]': { minWidth: '1.25rem' },
+      },
+    })}
+  >
+    {children}
+  </Flex>
 )

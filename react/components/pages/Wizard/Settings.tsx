@@ -26,7 +26,12 @@ import type {
 } from 'ssesandbox04.catalog-importer'
 
 import type { CheckedCategories } from '.'
-import { handleTrim, messages, ModalButtons } from '../../common'
+import {
+  handleTrim,
+  InputInlineWrapper,
+  messages,
+  ModalButtons,
+} from '../../common'
 import {
   getGraphQLMessageDescriptor,
   UPDATE_APP_SETTINGS_MUTATION,
@@ -181,14 +186,18 @@ const Settings = ({
             space="$space-4"
             direction={{ mobile: 'column', tablet: 'row' }}
           >
-            <Radio
-              value={SETTINGS_OPTIONS.DEFAULT}
-              label={formatMessage(messages.settingsDefaultLabel)}
-            />
-            <Radio
-              value={SETTINGS_OPTIONS.CUSTOM}
-              label={formatMessage(messages.settingsCustomLabel)}
-            />
+            <InputInlineWrapper>
+              <Radio
+                value={SETTINGS_OPTIONS.DEFAULT}
+                label={formatMessage(messages.settingsDefaultLabel)}
+              />
+            </InputInlineWrapper>
+            <InputInlineWrapper>
+              <Radio
+                value={SETTINGS_OPTIONS.CUSTOM}
+                label={formatMessage(messages.settingsCustomLabel)}
+              />
+            </InputInlineWrapper>
             <Button
               variant="tertiary"
               disabled={loadingUpdate}

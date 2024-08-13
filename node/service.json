@@ -10,8 +10,8 @@
       "path": "/_v/vtex-catalog-importer/status",
       "public": true
     },
-    "populateSource": {
-      "path": "/_v/vtex-catalog-importer/populateSource",
+    "cleanCatalog": {
+      "path": "/_v/vtex-catalog-importer/cleanCatalog",
       "public": true
     }
   }

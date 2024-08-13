@@ -21,11 +21,10 @@ import { useRuntime } from 'vtex.render-runtime'
 
 import { SuspenseFallback, messages } from '.'
 
-type Props = {
-  children: React.ReactNode
+type Props = React.PropsWithChildren<{
   subtitle: MessageDescriptor
   headerActions?: React.ReactNode
-}
+}>
 
 const MainTemplate = ({ children, subtitle, headerActions }: Props) => {
   const { locale } = useRuntime().culture

@@ -26,6 +26,7 @@ import type {
 import type { CheckedCategories } from '.'
 import {
   ErrorMessage,
+  InputInlineWrapper,
   SuspenseFallback,
   categoryTreeMapper,
   messages,
@@ -151,11 +152,13 @@ const CategoryTree = ({
             )}
           </>
         )}
-        <Checkbox
-          checked={!!checkedTreeOptions?.[category.id]?.checked}
-          label={category.name}
-          onChange={() => handleCategoryChange(category.id)}
-        />
+        <InputInlineWrapper>
+          <Checkbox
+            checked={!!checkedTreeOptions?.[category.id]?.checked}
+            label={category.name}
+            onChange={() => handleCategoryChange(category.id)}
+          />
+        </InputInlineWrapper>
       </div>
       {expandedCategories[category.id] &&
         category.children?.map((child: Category) =>

@@ -7,11 +7,15 @@ import {
   ModalDismiss,
   ModalHeader,
   ModalTitle,
+  Stack,
+  Switch,
+  Text,
+  useSwitchState,
 } from '@vtex/admin-ui'
 import React from 'react'
 import { useIntl } from 'react-intl'
 
-import { messages, ModalButtons } from '../../common'
+import { InputInlineWrapper, messages, ModalButtons } from '../../common'
 import { useDeleteImport } from './common'
 
 type Props = {
@@ -27,6 +31,7 @@ const DeleteConfirmationModal = ({
 }: Props) => {
   const { formatMessage } = useIntl()
   const { loading, handleDelete } = useDeleteImport(setDeleted, modalState)
+  const state = useSwitchState<boolean>()
 
   const handleDeleteImport = () => {
     if (deleteId) {
@@ -41,12 +46,25 @@ const DeleteConfirmationModal = ({
         <ModalDismiss disabled={loading} />
       </ModalHeader>
       <ModalContent>
-        {formatMessage(messages.importDeleteText)}
+        <Stack space="$space-4">
+          <Text>{formatMessage(messages.importDeleteText)}</Text>
+          <InputInlineWrapper>
+            <Switch
+              state={state}
+              label={
+                <Text variant="action1">
+                  {formatMessage(messages.importDeleteCheck)}
+                </Text>
+              }
+            />
+          </InputInlineWrapper>
+        </Stack>
         <ModalButtons>
           <Button
             loading={loading}
             onClick={handleDeleteImport}
             variant="critical"
+            disabled={!state.value}
             icon={<IconTrash />}
           >
             {formatMessage(messages.deleteLabel)}

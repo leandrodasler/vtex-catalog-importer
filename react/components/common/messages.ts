@@ -75,6 +75,7 @@ export const messages = defineMessages({
   importPaginationLabel: { id: 'admin/import.pagination.label' },
   importDelete: { id: 'admin/import.delete' },
   importDeleteText: { id: 'admin/import.delete.text' },
+  importDeleteCheck: { id: 'admin/import.delete.check' },
   importDeleteNotAllowed: { id: 'admin/import.delete.notAllowed' },
   importResultsLabel: { id: 'admin/import.results.label' },
   importResultsErrorLabel: { id: 'admin/import.results.error.label' },

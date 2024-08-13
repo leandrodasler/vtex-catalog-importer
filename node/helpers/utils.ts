@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import type { ErrorLike, Maybe } from '@vtex/api'
 import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
@@ -45,27 +44,6 @@ export const sequentialBatch = async <T, R = void>(
   return batch(data, elementCallback, 1)
 }
 
-export const printImport = (context: AppEventContext) => {
-  const {
-    entity,
-    body: {
-      categoryTree,
-      createdIn,
-      lastInteractionIn,
-      user,
-      settings,
-      ...importExecution
-    },
-  } = context.state
-
-  if (entity) {
-    console.log('========================')
-    console.log(`import step for entity "${entity}"`)
-  }
-
-  console.log(`IMPORT: ${JSON.stringify(importExecution)}`)
-}
-
 export const handleError = async (context: AppEventContext, e: ErrorLike) => {
   const data = e.response?.data
   const statusText = e.response?.statusText
@@ -74,18 +52,12 @@ export const handleError = async (context: AppEventContext, e: ErrorLike) => {
   const error = `${e.message}${errorDetail ? ` - ${errorDetail}` : ''}`
   const entityError = context.state.entity
 
-  console.log('========================')
-  console.log(error)
-  console.log(e)
-
   await delay(STEP_DELAY)
   await updateCurrentImport(context, {
     status: IMPORT_STATUS.ERROR,
     error,
     entityError,
   })
-
-  printImport(context)
 }
 
 export const processStepFactory = (context: AppEventContext) => async (
@@ -94,7 +66,6 @@ export const processStepFactory = (context: AppEventContext) => async (
   if (context.state.body.error) return
   await delay(STEP_DELAY)
   context.state.entity = STEPS.find(({ handler }) => handler === step)?.entity
-  printImport(context)
 
   return step(context).catch((e) => handleError(context, e))
 }

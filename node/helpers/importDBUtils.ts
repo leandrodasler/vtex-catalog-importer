@@ -42,7 +42,6 @@ const deleteEntityFactory = (context: AppContext) => (
 
   importEntity.delete(id)
 
-  /* remove this after */
   if (name && targetId) {
     targetCatalog.deleteEntity(name, targetId)
   }

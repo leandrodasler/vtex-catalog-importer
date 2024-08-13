@@ -116,8 +116,7 @@ export default class TargetCatalog extends HttpClient {
     )
   }
 
-  /* remove this after */
-  public async getProductIds(initial = 1) {
+  public async getProductAndSkuIds(initial = 1) {
     const maxPerPage = 250
     let result: ProductAndSkuIds['data'] = {}
     let from = initial
@@ -140,13 +139,10 @@ export default class TargetCatalog extends HttpClient {
     }
 
     await getRange()
-    const productIds = Object.keys(result)
-    const skuIds = Object.values(result).flat()
 
-    return { result, productIds, skuIds }
+    return result
   }
 
-  /* remove this after */
   private async deleteBrand(id: ID) {
     return this.delete(ENDPOINTS.brand.updateOrDetails(id))
       .catch(() => {
@@ -164,7 +160,6 @@ export default class TargetCatalog extends HttpClient {
       .catch(() => {})
   }
 
-  /* remove this after */
   private async deleteCategory(id: ID) {
     return this.put<CategoryDetails, Partial<CategoryDetails>>(
       ENDPOINTS.category.updateOrDetails(id),
@@ -172,7 +167,6 @@ export default class TargetCatalog extends HttpClient {
     ).catch(() => {})
   }
 
-  /* remove this after */
   private async deleteProduct(id: ID) {
     const newName = `DELETED-${id}-${Date.now()}`
 
@@ -192,7 +186,6 @@ export default class TargetCatalog extends HttpClient {
       .catch(() => {})
   }
 
-  /* remove this after */
   private async deleteSku(id: ID) {
     const newName = `DELETED-${id}-${Date.now()}`
 
@@ -216,7 +209,6 @@ export default class TargetCatalog extends HttpClient {
       .catch(() => {})
   }
 
-  /* remove this after */
   public async deleteEntity(entity: string, id: ID) {
     if (!entity || !id) return null
 

@@ -14,7 +14,6 @@ const resultCardTheme = csx({
 
 const resultSkeletonTheme = csx({ width: '100%', position: 'absolute' })
 const resultDetailTheme = cx(resultSkeletonTheme, csx({ paddingY: '$space-1' }))
-const titleTheme = csx({ fontWeight: 'bold' })
 
 const ImportEntityResult = ({ title, current, total, loading }: Props) => {
   const { percentage, localePercentage } = useLocalePercentage(current, total)
@@ -30,7 +29,7 @@ const ImportEntityResult = ({ title, current, total, loading }: Props) => {
         {!!current && current === total && <Checked />}
         {(!current || current !== total) && loading && <Loading />}
         {(!current || current !== total) && !loading && <Unchecked />}
-        <Text className={titleTheme}>{title}: </Text>
+        <Text variant="action1">{title}: </Text>
         <Text>
           {current} / {total} - {localePercentage}
         </Text>

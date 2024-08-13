@@ -32,7 +32,6 @@ export const ENDPOINTS = {
       `/api/catalog_system/pub/specification/groupGet/${groupId}`,
   },
   product: {
-    /* remove this after */
     listAll: (from: number, to: number) =>
       `/api/catalog_system/pvt/products/GetProductAndSkuIds?_from=${from}&_to=${to}`,
     listByCategory: (categoryId: ID, from: number, to: number) =>
