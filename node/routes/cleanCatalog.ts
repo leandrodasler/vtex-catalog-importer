@@ -21,15 +21,17 @@ const cleanCatalog = async (context: Context) => {
         ENDPOINTS.product.updateOrDetails(id)
       )
 
-      if (product.Name.includes('DELETED-')) {
-        const skuIds = productAndSkuIds[id]
+      if (!product.Name.includes('DELETED-')) return
 
-        await batch(
-          skuIds,
-          (skuId) => targetCatalog.deleteEntity('sku', skuId),
-          25
-        )
-      }
+      await targetCatalog.deleteEntity('product', id)
+
+      const skuIds = productAndSkuIds[id]
+
+      await batch(
+        skuIds,
+        (skuId) => targetCatalog.deleteEntity('sku', skuId),
+        25
+      )
     },
     25
   )
