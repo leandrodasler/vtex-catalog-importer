@@ -8,8 +8,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged",
-      "post-merge": "vtex setup && yarn format"
+      "pre-commit": "vtex setup -i && lint-staged",
+      "post-merge": "vtex setup"
     }
   },
   "lint-staged": {

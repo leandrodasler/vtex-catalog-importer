@@ -104,10 +104,9 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
     },
   })
 
-  const treeData = useMemo(
-    () => buildTree(checkedTreeOptions),
-    [checkedTreeOptions]
-  )
+  const treeData = useMemo(() => buildTree(checkedTreeOptions), [
+    checkedTreeOptions,
+  ])
 
   const categoryTree = useMemo(
     () => treeData.sort(treeSorter).map(categoryTreeMapper),

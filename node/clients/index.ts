@@ -67,7 +67,7 @@ export default {
     events: {
       retries: 0,
       timeout: 300000,
-      concurrency: 1,
+      concurrency: CONCURRENCY,
     },
   },
 } as ClientsConfig<Clients>
