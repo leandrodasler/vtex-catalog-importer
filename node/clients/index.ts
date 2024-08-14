@@ -49,7 +49,7 @@ export class Clients extends IOClients {
 }
 
 const memoryCache = new LRUCache<string, Cached>({ max: 5000 })
-const CONCURRENCY = 10
+const CONCURRENCY = 1
 
 export default {
   implementation: Clients,
