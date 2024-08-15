@@ -27,7 +27,6 @@ import {
 } from '../../common'
 import { IMPORTS_QUERY, useQueryCustom } from '../../graphql'
 import { statusBeforeFinished } from './common'
-import DeleteConfirmationModal from './DeleteConfirmationModal'
 import ShowImportModal from './ShowImportModal'
 import useImportColumns from './useImportColumns'
 
@@ -45,16 +44,9 @@ export default function History() {
   const { formatMessage } = useIntl()
   const [deleted, setDeleted] = useState<string[]>([])
   const importModal = useModalState()
-  const deleteConfirmationModal = useModalState()
   const [importIdModal, setImportIdModal] = useState('')
-  const [deleteId, setDeleteId] = useState('')
 
-  const columns = useImportColumns({
-    importModal,
-    setImportIdModal,
-    deleteConfirmationModal,
-    setDeleteId,
-  })
+  const columns = useImportColumns()
 
   const { data, loading, refetch } = useQueryCustom<Query, QueryImportsArgs>(
     IMPORTS_QUERY,
@@ -162,12 +154,9 @@ export default function History() {
         </TBody>
       </Table>
       {importModal.open && (
-        <ShowImportModal modalState={importModal} id={importIdModal} />
-      )}
-      {deleteConfirmationModal.open && (
-        <DeleteConfirmationModal
-          modalState={deleteConfirmationModal}
-          deleteId={deleteId}
+        <ShowImportModal
+          modalState={importModal}
+          id={importIdModal}
           setDeleted={setDeleted}
         />
       )}

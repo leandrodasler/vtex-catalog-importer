@@ -1,7 +1,8 @@
-import type { useModalState } from '@vtex/admin-ui'
 import {
+  Button,
   Column,
   Columns,
+  IconTrash,
   Modal,
   ModalContent,
   ModalDismiss,
@@ -10,6 +11,7 @@ import {
   Stack,
   Tag,
   csx,
+  useModalState,
 } from '@vtex/admin-ui'
 import React, { useMemo } from 'react'
 import { useIntl } from 'react-intl'
@@ -18,8 +20,14 @@ import type {
   QueryImportProgressArgs,
 } from 'ssesandbox04.catalog-importer'
 
-import { SuspenseFallback, messages, useStatusLabel } from '../../common'
+import {
+  ModalButtons,
+  SuspenseFallback,
+  messages,
+  useStatusLabel,
+} from '../../common'
 import { IMPORT_PROGRESS_QUERY, useQueryCustom } from '../../graphql'
+import DeleteConfirmationModal from './DeleteConfirmationModal'
 import ImportDetails from './ImportDetails'
 import ImportResults from './ImportResults'
 import { statusBeforeFinished } from './common'
@@ -28,6 +36,7 @@ import { mapStatusToVariant } from './useImportColumns'
 type Props = {
   modalState: ReturnType<typeof useModalState>
   id: string
+  setDeleted?: React.Dispatch<React.SetStateAction<string[]>>
 }
 
 const firstColumnTheme = csx({
@@ -43,7 +52,7 @@ const firstColumnTheme = csx({
 
 const POLLING_INTERVAL = 100
 
-const ShowImportModal = ({ modalState, id }: Props) => {
+const ShowImportModal = ({ modalState, id, setDeleted }: Props) => {
   const { formatMessage } = useIntl()
   const getStatusLabel = useStatusLabel()
 
@@ -59,6 +68,8 @@ const ShowImportModal = ({ modalState, id }: Props) => {
       }
     },
   })
+
+  const deleteConfirmationModal = useModalState()
 
   const importProgress = data?.importProgress
   const currentImport = importProgress?.currentImport
@@ -107,6 +118,28 @@ const ShowImportModal = ({ modalState, id }: Props) => {
           </Columns>
         )}
       </ModalContent>
+      {id && setDeleted && (
+        <ModalButtons>
+          <Button
+            loading={loading}
+            variant="critical"
+            onClick={() => {
+              deleteConfirmationModal.show()
+            }}
+            icon={<IconTrash />}
+            className={csx({ margin: '$space-4' })}
+          >
+            {formatMessage(messages.deleteLabel)}
+          </Button>
+        </ModalButtons>
+      )}
+      {deleteConfirmationModal.open && setDeleted && (
+        <DeleteConfirmationModal
+          modalState={deleteConfirmationModal}
+          deleteId={id}
+          setDeleted={setDeleted}
+        />
+      )}
     </Modal>
   )
 }

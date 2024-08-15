@@ -1,12 +1,5 @@
-import type { TagProps, useModalState } from '@vtex/admin-ui'
-import {
-  Flex,
-  IconEye,
-  IconTrash,
-  Tag,
-  createColumns,
-  csx,
-} from '@vtex/admin-ui'
+import type { TagProps } from '@vtex/admin-ui'
+import { Flex, Tag, createColumns, csx } from '@vtex/admin-ui'
 import React from 'react'
 import { useIntl } from 'react-intl'
 import type { Import, ImportStatus } from 'ssesandbox04.catalog-importer'
@@ -29,19 +22,7 @@ export const mapStatusToVariant: Record<ImportStatus, TagProps['variant']> = {
   DELETING: 'red',
 }
 
-type Props = {
-  importModal: ReturnType<typeof useModalState>
-  setImportIdModal: React.Dispatch<React.SetStateAction<string>>
-  deleteConfirmationModal: ReturnType<typeof useModalState>
-  setDeleteId: React.Dispatch<React.SetStateAction<string>>
-}
-
-const useImportColumns = ({
-  importModal,
-  setImportIdModal,
-  deleteConfirmationModal,
-  setDeleteId,
-}: Props) => {
+const useImportColumns = () => {
   const { formatMessage } = useIntl()
   const getStatusLabel = useStatusLabel()
   const { getStartedAt, getFinishedAt } = useLocaleDate()
@@ -132,35 +113,6 @@ const useImportColumns = ({
             variant={mapStatusToVariant[item.status]}
           />
         ),
-      },
-    },
-    {
-      id: 'id',
-      resolver: {
-        type: 'menu',
-        actions: [
-          {
-            label: formatMessage(messages.importViewLabel),
-            icon: <IconEye />,
-            onClick: (item) => {
-              const url = new URL(window.parent.location.href)
-
-              url.searchParams.set('id', item.id)
-              window.parent.history.replaceState(null, '', url.toString())
-              importModal.show()
-              setImportIdModal(item.id)
-            },
-          },
-          {
-            label: formatMessage(messages.deleteLabel),
-            critical: true,
-            icon: <IconTrash />,
-            onClick: (item) => {
-              deleteConfirmationModal.show()
-              setDeleteId(item.id)
-            },
-          },
-        ],
       },
     },
   ])
