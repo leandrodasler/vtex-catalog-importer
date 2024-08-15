@@ -39,3 +39,4 @@ lerna-debug.log
 yarn-error.log
 *.orig
 vtex-login.sh
+.yarn/
