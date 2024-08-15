@@ -44,14 +44,9 @@ export default function History() {
   const { formatMessage } = useIntl()
   const [deleted, setDeleted] = useState<string[]>([])
   const importModal = useModalState()
-  const deleteConfirmationModal = useModalState()
   const [importIdModal, setImportIdModal] = useState('')
 
-  const columns = useImportColumns({
-    importModal,
-    setImportIdModal,
-    deleteConfirmationModal,
-  })
+  const columns = useImportColumns()
 
   const { data, loading, refetch } = useQueryCustom<Query, QueryImportsArgs>(
     IMPORTS_QUERY,
