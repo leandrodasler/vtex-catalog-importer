@@ -74,10 +74,10 @@ const ShowImportModal = ({ modalState, id, setDeleted }: Props) => {
   const importProgress = data?.importProgress
   const currentImport = importProgress?.currentImport
   const status = importProgress?.status
-  const isLoading = useMemo(
-    () => loading || statusBeforeFinished(status),
-    [loading, status]
-  )
+  const isLoading = useMemo(() => loading || statusBeforeFinished(status), [
+    loading,
+    status,
+  ])
 
   return (
     <Modal state={modalState} size="large">
