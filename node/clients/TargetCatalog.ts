@@ -16,6 +16,10 @@ export default class TargetCatalog extends HttpClient {
     return `http://${this.context.account}.${ENDPOINTS.host}${path}`
   }
 
+  public async getBrands() {
+    return this.get<Brand[]>(ENDPOINTS.brand.list)
+  }
+
   public async createBrand<T extends BrandDetails>(payload: Partial<T>) {
     return this.post<T, Partial<T>>(ENDPOINTS.brand.set, payload)
   }
