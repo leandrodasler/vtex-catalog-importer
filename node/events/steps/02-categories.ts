@@ -14,6 +14,7 @@ const handleCategories = async (context: AppEventContext) => {
   if (!categoryTree) return
 
   const categories = sourceCatalog.flatCategoryTree(categoryTree)
+  const targetCategories = await targetCatalog.getCategoryTreeFlattened()
   const sourceCategoriesTotal = categories.length
 
   await updateCurrentImport(context, { sourceCategoriesTotal })
@@ -22,6 +23,10 @@ const handleCategories = async (context: AppEventContext) => {
 
   await sequentialBatch(sourceCategories, async ({ Id, ...category }) => {
     const { FatherCategoryId, GlobalCategoryId = 0 } = category
+    const existingCategory = targetCategories.find(
+      (targetCategory) => targetCategory.name === category.Name
+    )
+
     const payload = {
       ...category,
       GlobalCategoryId: GlobalCategoryId || undefined,
@@ -30,7 +35,9 @@ const handleCategories = async (context: AppEventContext) => {
         : undefined,
     }
 
-    const { Id: targetId } = await targetCatalog.createCategory(payload)
+    const { Id: targetId } = existingCategory
+      ? { Id: +existingCategory.id }
+      : await targetCatalog.createCategory(payload)
 
     await importEntity.save({
       executionImportId,
@@ -38,7 +45,8 @@ const handleCategories = async (context: AppEventContext) => {
       sourceAccount,
       sourceId: Id,
       targetId,
-      payload,
+      payload: existingCategory ? { ...existingCategory } : payload,
+      pathParams: existingCategory ? { category: targetId } : null,
     })
 
     mapCategory[Id] = targetId

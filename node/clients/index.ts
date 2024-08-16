@@ -49,23 +49,22 @@ export class Clients extends IOClients {
 }
 
 const memoryCache = new LRUCache<string, Cached>({ max: 5000 })
+const RETRIES = 10
+const TIMEOUT = 3000
 const CONCURRENCY = 1
-const TIMEOUT = 300000
 
 export default {
   implementation: Clients,
   options: {
     default: {
-      retries: 0,
+      exponentialTimeoutCoefficient: 2,
+      exponentialBackoffCoefficient: 2,
+      initialBackoffDelay: 100,
+      retries: RETRIES,
       timeout: TIMEOUT,
       concurrency: CONCURRENCY,
       memoryCache,
       asyncSetCache: true,
-    },
-    events: {
-      retries: 0,
-      timeout: TIMEOUT,
-      concurrency: CONCURRENCY,
     },
   },
 } as ClientsConfig<Clients>

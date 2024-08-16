@@ -117,25 +117,23 @@ const ShowImportModal = ({ modalState, id, setDeleted }: Props) => {
             </Column>
           </Columns>
         )}
+        {id && setDeleted && (
+          <ModalButtons>
+            <Button
+              disabled={isLoading || deleteConfirmationModal.open}
+              variant="critical"
+              onClick={() => deleteConfirmationModal.show()}
+              icon={<IconTrash />}
+            >
+              {formatMessage(messages.deleteLabel)}
+            </Button>
+          </ModalButtons>
+        )}
       </ModalContent>
-      {id && setDeleted && (
-        <ModalButtons>
-          <Button
-            loading={loading}
-            variant="critical"
-            onClick={() => {
-              deleteConfirmationModal.show()
-            }}
-            icon={<IconTrash />}
-            className={csx({ margin: '$space-4' })}
-          >
-            {formatMessage(messages.deleteLabel)}
-          </Button>
-        </ModalButtons>
-      )}
       {deleteConfirmationModal.open && setDeleted && (
         <DeleteConfirmationModal
           modalState={deleteConfirmationModal}
+          showImportModalState={modalState}
           deleteId={id}
           setDeleted={setDeleted}
         />

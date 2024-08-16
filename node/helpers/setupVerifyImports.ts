@@ -21,18 +21,21 @@ const verifyImports = async () => {
   const context = getCachedContext()
 
   if (!context || (await getFirstImportRunning(context))) return
+
   const nextImportToBeDeleted = await getFirstImportToBeDeleted(context)
 
   if (nextImportToBeDeleted) {
     deleteImport(context, nextImportToBeDeleted.id)
-  } else {
-    const nextPendingImport = await getFirstImportPending(context)
 
-    if (nextPendingImport) {
-      context.state.body = nextPendingImport
-      runImport(context)
-    }
+    return
   }
+
+  const nextPendingImport = await getFirstImportPending(context)
+
+  if (!nextPendingImport) return
+
+  context.state.body = nextPendingImport
+  runImport(context)
 }
 
 export const setupVerifyImports = () => {

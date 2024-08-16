@@ -1,6 +1,10 @@
 import type { InstanceOptions, IOContext, IOResponse } from '@vtex/api'
 import { ExternalClient } from '@vtex/api'
-import type { AppSettingsInput, Warehouse } from 'ssesandbox04.catalog-importer'
+import type {
+  AppSettingsInput,
+  Category,
+  Warehouse,
+} from 'ssesandbox04.catalog-importer'
 
 import { ENDPOINTS } from '../helpers'
 
@@ -76,5 +80,32 @@ export default class HttpClient extends ExternalClient {
     return this.get<Warehouse[]>(ENDPOINTS.stock.listWarehouses).then((data) =>
       data.filter(({ isActive }) => isActive)
     )
+  }
+
+  public flatCategoryTree(
+    categoryTree: Category[],
+    level = 0,
+    result: Category[][] = []
+  ) {
+    if (!result[level]) {
+      result[level] = []
+    }
+
+    categoryTree.forEach((category) => {
+      result[level].push(category)
+      if (category.children?.length) {
+        this.flatCategoryTree(category.children, level + 1, result)
+      }
+    })
+
+    return result.flat()
+  }
+
+  public async getCategoryTree() {
+    return this.get<Category[]>(ENDPOINTS.category.list)
+  }
+
+  public async getCategoryTreeFlattened() {
+    return this.flatCategoryTree(await this.getCategoryTree())
   }
 }

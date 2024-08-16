@@ -49,7 +49,15 @@ export const handleError = async (context: AppEventContext, e: ErrorLike) => {
   const statusText = e.response?.statusText
   const fallbackMessage = data && typeof data === 'string' ? data : statusText
   const errorDetail = data?.Message ?? data?.message ?? fallbackMessage
-  const error = `${e.message}${errorDetail ? ` - ${errorDetail}` : ''}`
+  const errorDetailFormatted = errorDetail ? ` - ${errorDetail}` : ''
+  const requestError =
+    e.config?.method && e.config?.url
+      ? ` - Request data: ${e.config.method.toUpperCase()} ${e.config.url} ${
+          e.config?.data ?? ''
+        }`
+      : ''
+
+  const error = `${e.message}${errorDetailFormatted}${requestError}`
   const entityError = context.state.entity
 
   await delay(STEP_DELAY)

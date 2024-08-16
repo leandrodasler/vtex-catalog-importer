@@ -1,4 +1,4 @@
-import type { InstanceOptions, Maybe } from '@vtex/api'
+import type { InstanceOptions } from '@vtex/api'
 import type { AppSettings, Category } from 'ssesandbox04.catalog-importer'
 
 import { batch, ENDPOINTS, GET_SKUS_CONCURRENCY } from '../helpers'
@@ -36,29 +36,6 @@ export default class SourceCatalog extends HttpClient {
     return this.get<Brand[]>(ENDPOINTS.brand.list).then((data) =>
       batch(data, (brand) => this.getBrandDetails(brand))
     )
-  }
-
-  public async getCategoryTree() {
-    return this.get<Maybe<Category[]>>(ENDPOINTS.category.list)
-  }
-
-  public flatCategoryTree(
-    categoryTree: Category[],
-    level = 0,
-    result: Category[][] = []
-  ) {
-    if (!result[level]) {
-      result[level] = []
-    }
-
-    categoryTree.forEach((category) => {
-      result[level].push(category)
-      if (category.children?.length) {
-        this.flatCategoryTree(category.children, level + 1, result)
-      }
-    })
-
-    return result.flat()
   }
 
   private async getCategoryDetails({ id }: Category) {
