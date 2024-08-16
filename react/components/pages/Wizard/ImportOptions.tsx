@@ -1,9 +1,4 @@
-import type {
-  RadioState,
-  ResponsiveProp,
-  TabState,
-  useSwitchState,
-} from '@vtex/admin-ui'
+import type { RadioState, TabState, useSwitchState } from '@vtex/admin-ui'
 import {
   Button,
   Center,
@@ -30,9 +25,12 @@ import { useRuntime } from 'vtex.render-runtime'
 import { STOCK_OPTIONS } from '.'
 import {
   ErrorMessage,
+  FlexCenterResponsive,
   goToWarehousePage,
   InputInlineWrapper,
   messages,
+  notLastColumnTheme,
+  threeColumnsUnits,
 } from '../../common'
 import { useQueryCustom, WAREHOUSES_QUERY } from '../../graphql'
 
@@ -45,9 +43,6 @@ interface Props {
   setStockValue: React.Dispatch<React.SetStateAction<number>>
   targetWarehousesState: RadioState
 }
-
-const columnUnits: ResponsiveProp<4 | 12> = { mobile: 12, tablet: 4 }
-const notLastColumnTheme = csx({ marginBottom: '$space-4' })
 
 export default function ImportOptions({
   state,
@@ -77,8 +72,8 @@ export default function ImportOptions({
   return (
     <Stack space="$space-4" fluid>
       <Columns space={{ mobile: '$space-0', tablet: '$space-12' }}>
-        <Column units={columnUnits} className={notLastColumnTheme}>
-          <Flex justify={{ mobile: 'left', tablet: 'center' }}>
+        <Column units={threeColumnsUnits} className={notLastColumnTheme}>
+          <FlexCenterResponsive>
             <CheckboxGroup
               label={
                 <Stack direction="row">
@@ -102,10 +97,10 @@ export default function ImportOptions({
                 />
               </InputInlineWrapper>
             </CheckboxGroup>
-          </Flex>
+          </FlexCenterResponsive>
         </Column>
-        <Column units={columnUnits} className={notLastColumnTheme}>
-          <Flex justify={{ mobile: 'left', tablet: 'center' }}>
+        <Column units={threeColumnsUnits} className={notLastColumnTheme}>
+          <FlexCenterResponsive>
             <RadioGroup
               state={stocksOptionState}
               label={formatMessage(messages.importStocks)}
@@ -139,10 +134,10 @@ export default function ImportOptions({
                 </Flex>
               )}
             </RadioGroup>
-          </Flex>
+          </FlexCenterResponsive>
         </Column>
-        <Column units={columnUnits}>
-          <Flex justify={{ mobile: 'left', tablet: 'center' }}>
+        <Column units={threeColumnsUnits}>
+          <FlexCenterResponsive>
             {loading && <Spinner />}
             {error && (
               <Center>
@@ -186,7 +181,7 @@ export default function ImportOptions({
                 </RadioGroup>
               </Center>
             )}
-          </Flex>
+          </FlexCenterResponsive>
         </Column>
       </Columns>
       <Flex justify="space-between">

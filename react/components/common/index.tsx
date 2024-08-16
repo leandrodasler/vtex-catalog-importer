@@ -1,3 +1,4 @@
+import type { ResponsiveProp } from '@vtex/admin-ui'
 import {
   Alert,
   Center,
@@ -227,6 +228,22 @@ export const ModalButtons = ({ children }: OnlyChildrenProp) => (
   >
     {children}
   </Stack>
+)
+
+export const threeColumnsUnits: ResponsiveProp<4 | 12> = {
+  mobile: 12,
+  tablet: 4,
+}
+
+export const twoColumnsUnits: ResponsiveProp<6 | 12> = {
+  mobile: 12,
+  tablet: 6,
+}
+
+export const notLastColumnTheme = csx({ marginBottom: '$space-4' })
+
+export const FlexCenterResponsive = ({ children }: OnlyChildrenProp) => (
+  <Flex justify={{ mobile: 'left', tablet: 'center' }}>{children}</Flex>
 )
 
 export const InputInlineWrapper = ({ children }: OnlyChildrenProp) => (

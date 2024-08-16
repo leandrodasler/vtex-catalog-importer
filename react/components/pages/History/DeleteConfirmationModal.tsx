@@ -20,18 +20,25 @@ import { useDeleteImport } from './common'
 
 type Props = {
   modalState: ReturnType<typeof useModalState>
+  showImportModalState: ReturnType<typeof useModalState>
   deleteId: string | undefined
-  setDeleted: React.Dispatch<React.SetStateAction<string[]>>
+  setDeleted?: React.Dispatch<React.SetStateAction<string[]>>
 }
 
 const DeleteConfirmationModal = ({
   modalState,
   deleteId,
+  showImportModalState,
   setDeleted,
 }: Props) => {
   const { formatMessage } = useIntl()
-  const { loading, handleDelete } = useDeleteImport(setDeleted, modalState)
-  const state = useSwitchState<boolean>()
+  const { loading, handleDelete } = useDeleteImport(
+    modalState,
+    showImportModalState,
+    setDeleted
+  )
+
+  const checkDeleteState = useSwitchState<boolean>()
 
   const handleDeleteImport = () => {
     if (deleteId) {
@@ -50,7 +57,7 @@ const DeleteConfirmationModal = ({
           <Text>{formatMessage(messages.importDeleteText)}</Text>
           <InputInlineWrapper>
             <Switch
-              state={state}
+              state={checkDeleteState}
               label={
                 <Text variant="action1">
                   {formatMessage(messages.importDeleteCheck)}
@@ -64,7 +71,7 @@ const DeleteConfirmationModal = ({
             loading={loading}
             onClick={handleDeleteImport}
             variant="critical"
-            disabled={!state.value}
+            disabled={!checkDeleteState.value}
             icon={<IconTrash />}
           >
             {formatMessage(messages.deleteLabel)}

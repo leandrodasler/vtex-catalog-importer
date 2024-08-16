@@ -11,7 +11,7 @@ export const executeImport = async (
   const user = await context.clients.privateClient.getUser()
   const { useDefault } = args.settings
   const settings = useDefault ? { useDefault } : args.settings
-  const status = args.status ?? IMPORT_STATUS.PENDING
+  const status = IMPORT_STATUS.PENDING
   const entityPayload = { ...args, user, settings, status }
 
   const id = await context.clients.importExecution

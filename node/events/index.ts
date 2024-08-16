@@ -19,14 +19,16 @@ const runImport = async (context: AppEventContext) => {
     }
 
     const { importExecution, httpClient, sourceCatalog } = context.clients
-    const currentSettings = settings.useDefault
-      ? await httpClient.getDefaultSettings()
-      : settings
-
     const importData = await importExecution.get(
       id,
       IMPORT_EXECUTION_FULL_FIELDS
     )
+
+    if (importData.status !== IMPORT_STATUS.PENDING) return
+
+    const currentSettings = settings.useDefault
+      ? await httpClient.getDefaultSettings()
+      : settings
 
     sourceCatalog.setSettings(currentSettings)
     context.state.body = { ...importData, settings: currentSettings }

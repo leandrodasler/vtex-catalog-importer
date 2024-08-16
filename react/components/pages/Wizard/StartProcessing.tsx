@@ -31,11 +31,14 @@ import type {
 import type { CheckedCategories } from '.'
 import { STOCK_OPTIONS } from '.'
 import {
+  FlexCenterResponsive,
   ModalButtons,
   Tree,
   categoryTreeMapper,
   messages,
+  notLastColumnTheme,
   treeSorter,
+  twoColumnsUnits,
   useStockOptionLabel,
 } from '../../common'
 import {
@@ -148,11 +151,8 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
   return (
     <Stack space="$space-4" fluid>
       <Columns space={{ mobile: '$space-0', tablet: '$space-12' }}>
-        <Column
-          units={{ mobile: 12, tablet: 6 }}
-          className={csx({ marginBottom: '$space-4' })}
-        >
-          <Flex justify={{ mobile: 'left', tablet: 'right' }}>
+        <Column units={twoColumnsUnits} className={notLastColumnTheme}>
+          <FlexCenterResponsive>
             <Flex direction="row" justify="left">
               {categoryTree.length && (
                 <Tree
@@ -161,41 +161,45 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
                 />
               )}
             </Flex>
-          </Flex>
+          </FlexCenterResponsive>
         </Column>
-        <Column units={{ mobile: 12, tablet: 6 }}>
-          <Stack>
-            <Text variant="title1">{formatMessage(messages.optionsLabel)}</Text>
-            <div>
-              {formatMessage(messages.settingsAccountLabel)}:{' '}
-              <b>
-                {settings.useDefault
-                  ? formatMessage(messages.settingsDefaultShort)
-                  : settings.account}
-              </b>
-            </div>
-            <ImportOption
-              condition={importImages}
-              label={formatMessage(messages.importImage)}
-            />
-            <ImportOption
-              condition={importPrices}
-              label={formatMessage(messages.importPrice)}
-            />
-            <div>
-              {formatMessage(messages.importStocks)}:{' '}
-              <b>{getStockOptionLabel(stocksOption).toLowerCase()}</b>
-            </div>
-            {stocksOption === STOCK_OPTIONS.TO_BE_DEFINED && (
+        <Column units={twoColumnsUnits}>
+          <FlexCenterResponsive>
+            <Stack>
+              <Text variant="title1">
+                {formatMessage(messages.optionsLabel)}
+              </Text>
               <div>
-                {formatMessage(messages.stockValue)}: <b>{stockValue}</b>
+                {formatMessage(messages.settingsAccountLabel)}:{' '}
+                <b>
+                  {settings.useDefault
+                    ? formatMessage(messages.settingsDefaultShort)
+                    : settings.account}
+                </b>
               </div>
-            )}
-            <div>
-              {formatMessage(messages.targetWarehouse)}:{' '}
-              <b>{targetWarehouse}</b>
-            </div>
-          </Stack>
+              <ImportOption
+                condition={importImages}
+                label={formatMessage(messages.importImage)}
+              />
+              <ImportOption
+                condition={importPrices}
+                label={formatMessage(messages.importPrice)}
+              />
+              <div>
+                {formatMessage(messages.importStocks)}:{' '}
+                <b>{getStockOptionLabel(stocksOption).toLowerCase()}</b>
+              </div>
+              {stocksOption === STOCK_OPTIONS.TO_BE_DEFINED && (
+                <div>
+                  {formatMessage(messages.stockValue)}: <b>{stockValue}</b>
+                </div>
+              )}
+              <div>
+                {formatMessage(messages.targetWarehouse)}:{' '}
+                <b>{targetWarehouse}</b>
+              </div>
+            </Stack>
+          </FlexCenterResponsive>
         </Column>
       </Columns>
       <Flex

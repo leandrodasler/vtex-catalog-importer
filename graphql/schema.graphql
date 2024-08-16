@@ -72,7 +72,6 @@ input ImportInput {
   stocksOption: StocksOption!
   stockValue: Int
   targetWarehouse: String!
-  status: ImportStatus
 }
 
 input SearchInput {

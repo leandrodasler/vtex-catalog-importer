@@ -16,8 +16,9 @@ import {
 } from '../../../graphql'
 
 export const useDeleteImport = (
-  setDeleted: React.Dispatch<React.SetStateAction<string[]>>,
-  modalState: ReturnType<typeof useModalState>
+  modalState: ReturnType<typeof useModalState>,
+  showImportModalState: ReturnType<typeof useModalState>,
+  setDeleted?: React.Dispatch<React.SetStateAction<string[]>>
 ) => {
   const showToast = useToast()
   const { formatMessage } = useIntl()
@@ -33,8 +34,9 @@ export const useDeleteImport = (
       })
     },
     onCompleted(data) {
-      setDeleted((prev) => [...prev, data.deleteImport])
+      setDeleted?.((prev) => [...prev, data.deleteImport])
       modalState.hide()
+      showImportModalState.hide()
     },
   })
 
