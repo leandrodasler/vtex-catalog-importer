@@ -5,9 +5,12 @@ import HttpClient from './HttpClient'
 
 export default class TargetCatalog extends HttpClient {
   protected getRequestConfig(): InstanceOptions {
-    const { adminUserAuthToken, authToken } = this.context
-    const VtexIdclientAutcookie = (adminUserAuthToken ?? authToken) as string
-    const headers = { ...this.options?.headers, VtexIdclientAutcookie }
+    const VtexIdclientAutcookie = this.context.adminUserAuthToken as string
+    const headers = {
+      ...this.options?.headers,
+      VtexIdclientAutcookie,
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+    }
 
     return { ...this.options, headers }
   }

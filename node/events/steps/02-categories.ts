@@ -1,4 +1,8 @@
-import { sequentialBatch, updateCurrentImport } from '../../helpers'
+import {
+  getTargetEntityBySourceId,
+  sequentialBatch,
+  updateCurrentImport,
+} from '../../helpers'
 
 const handleCategories = async (context: AppEventContext) => {
   const { sourceCatalog, targetCatalog, importEntity } = context.clients
@@ -23,9 +27,9 @@ const handleCategories = async (context: AppEventContext) => {
 
   await sequentialBatch(sourceCategories, async ({ Id, ...category }) => {
     const { FatherCategoryId, GlobalCategoryId = 0 } = category
-    const existingCategory = targetCategories.find(
-      (targetCategory) => targetCategory.name === category.Name
-    )
+    const existingCategory =
+      targetCategories.find((c) => c.name === category.Name) ??
+      (await getTargetEntityBySourceId(context, Id))
 
     const payload = {
       ...category,

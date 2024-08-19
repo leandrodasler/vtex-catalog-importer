@@ -1,5 +1,5 @@
-import type { Cached, ClientsConfig } from '@vtex/api'
-import { IOClients, LRUCache } from '@vtex/api'
+import type { ClientsConfig } from '@vtex/api'
+import { IOClients } from '@vtex/api'
 import { masterDataFor } from '@vtex/clients'
 import type {
   ImportEntity,
@@ -48,11 +48,6 @@ export class Clients extends IOClients {
   }
 }
 
-const memoryCache = new LRUCache<string, Cached>({ max: 5000 })
-const RETRIES = 10
-const TIMEOUT = 3000
-const CONCURRENCY = 1
-
 export default {
   implementation: Clients,
   options: {
@@ -60,11 +55,9 @@ export default {
       exponentialTimeoutCoefficient: 2,
       exponentialBackoffCoefficient: 2,
       initialBackoffDelay: 100,
-      retries: RETRIES,
-      timeout: TIMEOUT,
-      concurrency: CONCURRENCY,
-      memoryCache,
-      asyncSetCache: true,
+      retries: 10,
+      timeout: 3000,
+      concurrency: 1,
     },
   },
 } as ClientsConfig<Clients>

@@ -57,10 +57,7 @@ const CategoryTree = ({
   const { data, loading, error, refetch } = useQueryCustom<
     Query,
     QueryCategoriesArgs
-  >(CATEGORIES_QUERY, {
-    variables: { settings },
-    toastError: false,
-  })
+  >(CATEGORIES_QUERY, { variables: { settings }, toastError: false })
 
   const [
     expandedCategories,

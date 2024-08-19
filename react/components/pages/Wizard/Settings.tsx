@@ -17,7 +17,6 @@ import {
 } from '@vtex/admin-ui'
 import { Form, TextInput, useFormState } from '@vtex/admin-ui-form'
 import React, { useCallback } from 'react'
-import { useMutation } from 'react-apollo'
 import { useIntl } from 'react-intl'
 import type {
   AppSettingsInput,
@@ -32,10 +31,7 @@ import {
   messages,
   ModalButtons,
 } from '../../common'
-import {
-  getGraphQLMessageDescriptor,
-  UPDATE_APP_SETTINGS_MUTATION,
-} from '../../graphql'
+import { UPDATE_APP_SETTINGS_MUTATION, useMutationCustom } from '../../graphql'
 
 type Props = {
   state: TabState
@@ -49,6 +45,8 @@ const SETTINGS_OPTIONS = {
   DEFAULT: 1,
   CUSTOM: 2,
 }
+
+const toastKey = 'settings-message'
 
 const Settings = ({
   state,
@@ -70,21 +68,15 @@ const Settings = ({
 
   const defaultSettingsValue = defaultSettingsState.value
 
-  const [updateAppSettings, { loading: loadingUpdate }] = useMutation<
+  const { mutationFactory, loading } = useMutationCustom<
     Mutation,
     MutationUpdateAppSettingsArgs
   >(UPDATE_APP_SETTINGS_MUTATION, {
     notifyOnNetworkStatusChange: true,
-    onError(error) {
-      showToast({
-        message: formatMessage(getGraphQLMessageDescriptor(error)),
-        variant: 'critical',
-        key: 'settings-message',
-      })
-    },
-    onCompleted(data) {
-      setSettings(data.updateAppSettings)
-      form.reset(data.updateAppSettings)
+    toastKey,
+    onCompleted({ updateAppSettings }) {
+      setSettings(updateAppSettings)
+      form.reset(updateAppSettings)
 
       if (!resetModal.open) {
         state.select('2')
@@ -92,7 +84,7 @@ const Settings = ({
         showToast({
           message: formatMessage(messages.settingsResetSuccess),
           variant: 'positive',
-          key: 'settings-message',
+          key: toastKey,
         })
 
         resetModal.hide()
@@ -110,7 +102,7 @@ const Settings = ({
         showToast({
           message: formatMessage(messages.settingsMissingError),
           variant: 'critical',
-          key: 'settings-message',
+          key: toastKey,
         })
 
         return
@@ -129,23 +121,24 @@ const Settings = ({
         targetWarehousesState.setValue(null)
       }
 
-      updateAppSettings({ variables: { settings: newSettings } })
+      mutationFactory({ variables: { settings: newSettings } })()
     },
     [
       defaultSettingsValue,
       formatMessage,
+      mutationFactory,
       setCheckedTreeOptions,
       settings?.account,
       settings?.useDefault,
       showToast,
       targetWarehousesState,
-      updateAppSettings,
     ]
   )
 
-  const handleResetSettings = useCallback(() => {
-    updateAppSettings({ variables: { settings: {} } })
-  }, [updateAppSettings])
+  const handleResetSettings = useCallback(
+    () => mutationFactory({ variables: { settings: {} } })(),
+    [mutationFactory]
+  )
 
   return (
     <Form state={form} onSubmit={handleSubmit}>
@@ -160,7 +153,7 @@ const Settings = ({
           {formatMessage(messages.settingsResetText)}
           <ModalButtons>
             <Button
-              disabled={loadingUpdate}
+              disabled={loading}
               variant="secondary"
               onClick={() => resetModal.hide()}
             >
@@ -168,8 +161,8 @@ const Settings = ({
             </Button>
             <Button
               onClick={handleResetSettings}
-              disabled={loadingUpdate}
-              loading={resetModal.open && loadingUpdate}
+              disabled={loading}
+              loading={resetModal.open && loading}
             >
               {formatMessage(messages.settingsResetLabel)}
             </Button>
@@ -200,7 +193,7 @@ const Settings = ({
             </InputInlineWrapper>
             <Button
               variant="tertiary"
-              disabled={loadingUpdate}
+              disabled={loading}
               onClick={() => resetModal.show()}
             >
               {formatMessage(messages.settingsResetLabel)}
@@ -235,8 +228,8 @@ const Settings = ({
         <Flex justify="end">
           <Button
             type="submit"
-            loading={!resetModal.open && loadingUpdate}
-            disabled={loadingUpdate}
+            loading={!resetModal.open && loading}
+            disabled={loading}
             icon={<IconArrowRight />}
             iconPosition="end"
           >

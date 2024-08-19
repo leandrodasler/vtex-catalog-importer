@@ -26,9 +26,13 @@ export default class HttpClient extends ExternalClient {
     method: HttpMethod = 'GET',
     body?: Body
   ) {
-    const url = this.getUrl(path)
+    const originalUrl = this.getUrl(path)
+    const objectUrl = new URL(originalUrl)
+
+    objectUrl.searchParams.append('timestamp', Date.now().toString())
+    const url = objectUrl.toString()
     const config = this.getRequestConfig()
-    const getData = (response: IOResponse<Response>) => response.data
+    const getData = ({ data }: IOResponse<Response>) => data
 
     switch (method) {
       case 'POST':

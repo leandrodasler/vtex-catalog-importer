@@ -130,7 +130,7 @@ const ShowImportModal = ({ modalState, id, setDeleted }: Props) => {
           </ModalButtons>
         )}
       </ModalContent>
-      {deleteConfirmationModal.open && setDeleted && (
+      {deleteConfirmationModal.open && id && setDeleted && (
         <DeleteConfirmationModal
           modalState={deleteConfirmationModal}
           showImportModalState={modalState}

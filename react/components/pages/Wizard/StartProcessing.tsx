@@ -19,7 +19,6 @@ import {
   useToast,
 } from '@vtex/admin-ui'
 import React, { useCallback, useMemo } from 'react'
-import { useMutation } from 'react-apollo'
 import { useIntl } from 'react-intl'
 import type {
   AppSettingsInput,
@@ -41,10 +40,7 @@ import {
   twoColumnsUnits,
   useStockOptionLabel,
 } from '../../common'
-import {
-  EXECUTE_IMPORT_MUTATION,
-  getGraphQLMessageDescriptor,
-} from '../../graphql'
+import { EXECUTE_IMPORT_MUTATION, useMutationCustom } from '../../graphql'
 import ShowImportModal from '../History/ShowImportModal'
 import { ImportOption, buildTree, mapToCategoryInput } from './common'
 
@@ -59,6 +55,8 @@ interface StartProcessingProps {
   targetWarehouse: string
   setSuccessImport: React.Dispatch<React.SetStateAction<boolean>>
 }
+
+const toastKey = 'execute-import-message'
 
 const StartProcessing: React.FC<StartProcessingProps> = ({
   checkedTreeOptions,
@@ -77,18 +75,11 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
   const importModal = useModalState()
   const getStockOptionLabel = useStockOptionLabel()
 
-  const [executeImport, { loading, data: importData }] = useMutation<
+  const { mutationFactory, loading, data: importData } = useMutationCustom<
     Mutation,
     MutationExecuteImportArgs
   >(EXECUTE_IMPORT_MUTATION, {
-    notifyOnNetworkStatusChange: true,
-    onError(error) {
-      showToast({
-        message: formatMessage(getGraphQLMessageDescriptor(error)),
-        variant: 'critical',
-        key: 'execute-import-message',
-      })
-    },
+    toastKey,
     onCompleted(data) {
       if (!data.executeImport) {
         return
@@ -102,7 +93,7 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
         message: formatMessage(messages.startSuccess),
         duration: 5000,
         variant: 'positive',
-        key: 'execute-import-message',
+        key: toastKey,
       })
     },
   })
@@ -118,7 +109,7 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
 
   const handleStartImport = useCallback(
     () =>
-      executeImport({
+      mutationFactory({
         variables: {
           args: {
             categoryTree: mapToCategoryInput(treeData),
@@ -130,11 +121,11 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
             ...(stocksOption === STOCK_OPTIONS.TO_BE_DEFINED && { stockValue }),
           },
         },
-      }),
+      })(),
     [
-      executeImport,
       importImages,
       importPrices,
+      mutationFactory,
       settings,
       stockValue,
       stocksOption,

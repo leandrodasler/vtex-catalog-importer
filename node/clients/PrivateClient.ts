@@ -5,8 +5,7 @@ import { ENDPOINTS } from '../helpers'
 
 export default class PrivateClient extends JanusClient {
   constructor(context: IOContext, options?: InstanceOptions) {
-    const { adminUserAuthToken, authToken } = context
-    const VtexIdclientAutcookie = (adminUserAuthToken ?? authToken) as string
+    const VtexIdclientAutcookie = context.adminUserAuthToken as string
 
     super(context, { ...options, headers: { VtexIdclientAutcookie } })
   }

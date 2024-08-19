@@ -1,9 +1,13 @@
 import { useToast } from '@vtex/admin-ui'
-import { useRef, useState } from 'react'
-import type { QueryHookOptions } from 'react-apollo'
-import { useQuery } from 'react-apollo'
+import { useCallback, useRef, useState } from 'react'
+import type {
+  MutationFunctionOptions,
+  MutationHookOptions,
+  QueryHookOptions,
+} from 'react-apollo'
+import { useMutation, useQuery } from 'react-apollo'
 import { useIntl } from 'react-intl'
-import type { Query } from 'ssesandbox04.catalog-importer'
+import type { Mutation, Query } from 'ssesandbox04.catalog-importer'
 
 export { default as APP_SETTINGS_QUERY } from './appSettings.graphql'
 export { default as CATEGORIES_QUERY } from './categories.graphql'
@@ -19,6 +23,14 @@ export type GraphQLError = {
   message: string
 }
 
+type CustomGraphQLOptions = { toastError?: boolean; toastKey?: string }
+
+type CustomQueryHookOptions<T, V> = QueryHookOptions<T, V> &
+  CustomGraphQLOptions
+
+type CustomMutationHookOptions<T, V> = MutationHookOptions<T, V> &
+  CustomGraphQLOptions
+
 const MAX_RETRIES = 5
 const RETRY_DELAY = 500
 
@@ -26,39 +38,113 @@ export const getGraphQLMessageDescriptor = (error: GraphQLError) => ({
   id: (error.graphQLErrors?.[0]?.message ?? error.message) as string,
 })
 
-export const useQueryCustom = <T = Query, V = undefined>(
-  query: T,
-  options?: QueryHookOptions<T, V> & { toastError?: boolean }
+const useErrorRetry = <T = Query, V = undefined>(
+  options?: CustomQueryHookOptions<T, V>
 ) => {
   const { formatMessage } = useIntl()
   const showToast = useToast()
   const retries = useRef(0)
   const [finishRetries, setFinishRetries] = useState(false)
-  const { onError, toastError = true } = options ?? {}
+  const { onError, toastError = true, toastKey: key } = options ?? {}
+  const retryError = (e: GraphQLError, refetch: () => void) => {
+    if (e.message.includes('500') && retries.current < MAX_RETRIES) {
+      setTimeout(() => refetch(), RETRY_DELAY)
+      retries.current++
+    } else {
+      toastError &&
+        showToast({
+          message: formatMessage(getGraphQLMessageDescriptor(e)),
+          variant: 'critical',
+          key,
+        })
+
+      setFinishRetries(true)
+      onError?.(e)
+    }
+  }
+
+  return { retries, finishRetries, setFinishRetries, retryError }
+}
+
+const getCommonOptions = <T = Query, V = undefined>(
+  setFinishRetries: React.Dispatch<React.SetStateAction<boolean>>,
+  retries: React.MutableRefObject<number>,
+  options?: CustomQueryHookOptions<T, V> | CustomMutationHookOptions<T, V>
+) => {
+  return {
+    notifyOnNetworkStatusChange: true,
+    ...options,
+    onCompleted(data: T) {
+      setFinishRetries(false)
+      retries.current = 0
+      options?.onCompleted?.(data)
+    },
+  }
+}
+
+export const useQueryCustom = <T = Query, V = undefined>(
+  query: T,
+  options?: CustomQueryHookOptions<T, V>
+) => {
+  const {
+    retries,
+    finishRetries,
+    setFinishRetries,
+    retryError,
+  } = useErrorRetry(options)
 
   const { refetch, loading, error, ...rest } = useQuery<T, V>(query, {
-    notifyOnNetworkStatusChange: true,
+    ...getCommonOptions(setFinishRetries, retries, options),
     onError(e) {
-      if (e.message.includes('500') && retries.current < MAX_RETRIES) {
-        setTimeout(() => refetch(), RETRY_DELAY)
-        retries.current++
-      } else {
-        toastError &&
-          showToast({
-            message: formatMessage(getGraphQLMessageDescriptor(e)),
-            variant: 'critical',
-          })
-
-        setFinishRetries(true)
-        onError?.(e)
-      }
+      retryError(e, refetch)
     },
-    ...options,
   })
 
   return {
     refetch,
-    loading: loading || (error !== undefined && !finishRetries),
+    loading: loading || (error && !finishRetries),
+    ...(finishRetries && { error }),
+    ...rest,
+  }
+}
+
+export const useMutationCustom = <T = Mutation, V = undefined>(
+  mutation: T,
+  options?: CustomMutationHookOptions<T, V>
+) => {
+  const {
+    retries,
+    finishRetries,
+    setFinishRetries,
+    retryError,
+  } = useErrorRetry(options)
+
+  const [mutationFn, { loading, error, ...rest }] = useMutation<T, V>(
+    mutation,
+    getCommonOptions(setFinishRetries, retries, options)
+  )
+
+  const retryWithLimit = useCallback(
+    async (fn: typeof mutationFn, fnOptions: MutationFunctionOptions<T, V>) => {
+      return fn(fnOptions).catch((e) => {
+        if (retries.current < MAX_RETRIES + 1) {
+          retryError(e, () => retryWithLimit(fn, fnOptions))
+        }
+      })
+    },
+    [retries, retryError]
+  )
+
+  const mutationFactory = useCallback(
+    (fnOptions: MutationFunctionOptions<T, V>) => () => {
+      retryWithLimit(mutationFn, fnOptions)
+    },
+    [mutationFn, retryWithLimit]
+  )
+
+  return {
+    mutationFactory,
+    loading: loading || (error && !finishRetries),
     ...(finishRetries && { error }),
     ...rest,
   }

@@ -47,7 +47,7 @@ const DeleteConfirmationModal = ({
   }
 
   return (
-    <Modal state={modalState}>
+    <Modal state={modalState} size="small">
       <ModalHeader>
         <ModalTitle> {formatMessage(messages.importDelete)}</ModalTitle>
         <ModalDismiss disabled={loading} />
