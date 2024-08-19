@@ -1,5 +1,5 @@
 import {
-  getTargetEntityBySourceId,
+  getTargetEntityByName,
   sequentialBatch,
   updateCurrentImport,
 } from '../../helpers'
@@ -28,8 +28,9 @@ const handleCategories = async (context: AppEventContext) => {
   await sequentialBatch(sourceCategories, async ({ Id, ...category }) => {
     const { FatherCategoryId, GlobalCategoryId = 0 } = category
     const existingCategory =
-      targetCategories.find((c) => c.name === category.Name) ??
-      (await getTargetEntityBySourceId(context, Id))
+      targetCategories.find(
+        (c) => c.name.toLowerCase() === category.Name.toLowerCase()
+      ) ?? (await getTargetEntityByName(context, category.Name))
 
     const payload = {
       ...category,
@@ -50,6 +51,7 @@ const handleCategories = async (context: AppEventContext) => {
       sourceId: Id,
       targetId,
       payload: existingCategory ? { ...existingCategory } : payload,
+      title: category.Name,
       pathParams: existingCategory ? { category: targetId } : null,
     })
 

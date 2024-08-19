@@ -47,6 +47,7 @@ const handleProducts = async (context: AppEventContext) => {
       sourceId: Id,
       targetId,
       payload,
+      title: product.Name,
     })
 
     mapProduct[Id] = targetId

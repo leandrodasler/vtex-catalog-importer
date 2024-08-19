@@ -8,7 +8,8 @@
     "sourceId": { "type": ["string", "integer", "null"] },
     "targetId": { "type": ["string", "integer", "null"] },
     "pathParams": { "type": ["object", "null"] },
-    "payload": { "type": "object" }
+    "payload": { "type": "object" },
+    "title": { "type": ["string", "null"] }
   },
   "v-cache": false,
   "v-indexed": [
@@ -16,6 +17,7 @@
     "executionImportId",
     "sourceAccount",
     "sourceId",
-    "targetId"
+    "targetId",
+    "title"
   ]
 }

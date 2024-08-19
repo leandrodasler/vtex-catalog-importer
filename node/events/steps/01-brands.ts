@@ -1,5 +1,5 @@
 import {
-  getTargetEntityBySourceId,
+  getTargetEntityByName,
   sequentialBatch,
   updateCurrentImport,
 } from '../../helpers'
@@ -17,8 +17,9 @@ const handleBrands = async (context: AppEventContext) => {
 
   await sequentialBatch(sourceBrands, async ({ Id, ...brand }) => {
     const existingBrand =
-      targetBrands.find((b) => b.name === brand.Name) ??
-      (await getTargetEntityBySourceId(context, Id))
+      targetBrands.find(
+        (b) => b.name.toLowerCase() === brand.Name.toLowerCase()
+      ) ?? (await getTargetEntityByName(context, brand.Name))
 
     const payload = { ...brand }
 
@@ -33,6 +34,7 @@ const handleBrands = async (context: AppEventContext) => {
       sourceId: Id,
       targetId,
       payload: existingBrand ? { ...existingBrand } : payload,
+      title: brand.Name,
       pathParams: existingBrand ? { brand: targetId } : null,
     })
 

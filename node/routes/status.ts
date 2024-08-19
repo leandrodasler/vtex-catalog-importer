@@ -27,7 +27,13 @@ const status = async (context: Context) => {
     (b) => b.isActive
   )
 
-  const targetCategories = await targetCatalog.getCategoryTreeFlattened()
+  const categories = await targetCatalog.getCategoryTreeFlattened()
+  const targetCategories = categories.map(({ children, ...c }) => ({
+    ...c,
+    ...(children?.length && {
+      children: children.map((ch) => ch.id).join(','),
+    }),
+  }))
 
   const {
     data: imports,
@@ -65,6 +71,10 @@ const status = async (context: Context) => {
         overflow: auto;
         padding: 5px;
         border: 1px solid #ccc;
+      }
+      pre {
+        word-break: break-word;
+        white-space: break-spaces;
       }
     </style>
   </head>

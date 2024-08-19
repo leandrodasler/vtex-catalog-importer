@@ -45,6 +45,7 @@ const handleSkus = async (context: AppEventContext) => {
       sourceId: Id,
       targetId,
       payload,
+      title: sku.Name,
     })
 
     mapSku[Id] = targetId
