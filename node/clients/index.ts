@@ -12,6 +12,10 @@ import PrivateClient from './PrivateClient'
 import SourceCatalog from './SourceCatalog'
 import TargetCatalog from './TargetCatalog'
 
+const STABLE_SCHEMA_VERSION = '0.0.11'
+const { VTEX_APP_VENDOR, VTEX_APP_NAME } = process.env
+const STABLE_SCHEMA_APP_ID = `${VTEX_APP_VENDOR}.${VTEX_APP_NAME}@${STABLE_SCHEMA_VERSION}`
+
 export class Clients extends IOClients {
   public get httpClient() {
     return this.getOrSet('httpClient', HttpClient)
@@ -36,14 +40,14 @@ export class Clients extends IOClients {
   public get importExecution() {
     return this.getOrSet(
       'importExecution',
-      masterDataFor<ImportExecution>('importExecution')
+      masterDataFor<ImportExecution>('importExecution', STABLE_SCHEMA_APP_ID)
     )
   }
 
   public get importEntity() {
     return this.getOrSet(
       'importEntity',
-      masterDataFor<ImportEntity>('importEntity')
+      masterDataFor<ImportEntity>('importEntity', STABLE_SCHEMA_APP_ID)
     )
   }
 }
