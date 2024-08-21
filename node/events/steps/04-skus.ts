@@ -17,7 +17,7 @@ const handleSkus = async (context: AppEventContext) => {
   const mapSku: EntityMap = {}
   const mapSourceSkuProduct: EntityMap = {}
 
-  await sequentialBatch(sourceSkus, async ({ Id, ...sku }) => {
+  await sequentialBatch(sourceSkus, async ({ Id, RefId, ...sku }) => {
     const { ProductId, IsActive } = sku
     const targetProductId = mapProduct[ProductId]
     const skuContext = await sourceCatalog.getSkuContext(Id, importImages)
@@ -34,7 +34,7 @@ const handleSkus = async (context: AppEventContext) => {
 
     await Promise.all([
       targetCatalog.associateSkuSpecifications(targetId, specifications),
-      targetCatalog.createSkuEan(targetId, Ean),
+      targetCatalog.createSkuEan(targetId, Ean ?? RefId),
       targetCatalog.createSkuFiles(targetId, files),
     ])
 
