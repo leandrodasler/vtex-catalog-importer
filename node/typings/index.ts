@@ -197,7 +197,7 @@ declare global {
   type FixedPrices = {
     tradePolicyId: number
     value: number
-    listPrice?: null
+    listPrice?: number
     minQuantity: number
     dateRange?: {
       from: string
@@ -227,14 +227,12 @@ declare global {
 
   type SkuInventory = {
     skuId: string
-    warehouseId: string
-    warehouseName: string
     totalQuantity: number
     reservedQuantity: number
     hasUnlimitedQuantity: boolean
     timeToRefill?: string
     dateOfSupplyUtc?: string
-    leadTime: string
+    leadTime?: string
   }
 
   type SkuInventoryBySku = {

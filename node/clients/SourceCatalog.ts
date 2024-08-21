@@ -208,8 +208,13 @@ export default class SourceCatalog extends HttpClient {
     return prices.filter((p) => p !== null) as PriceDetails[]
   }
 
-  private generateInventory(skuId: ID, totalQuantity = 0) {
-    return { skuId, totalQuantity }
+  private generateInventory(skuId: ID, totalQuantity = 0): SkuInventory {
+    return {
+      skuId: String(skuId),
+      totalQuantity,
+      reservedQuantity: 0,
+      hasUnlimitedQuantity: false,
+    }
   }
 
   private async getInventory(skuId: ID, sellerStock?: number) {
