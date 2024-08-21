@@ -24,15 +24,18 @@ const handleCategories = async (context: AppEventContext) => {
   await updateCurrentImport(context, { sourceCategoriesTotal })
   const sourceCategories = await sourceCatalog.getCategories(categories)
   const mapCategory: EntityMap = {}
+  const mapCategoryName: EntityMapName = {}
 
   await sequentialBatch(sourceCategories, async ({ Id, ...category }) => {
     const { FatherCategoryId, GlobalCategoryId = 0 } = category
     const existingCategory =
+      mapCategoryName[category.Name] ??
       targetCategories.find(
         (c) => c.name.toLowerCase() === category.Name.toLowerCase()
-      ) ?? (await getTargetEntityByName(context, category.Name))
+      ) ??
+      (await getTargetEntityByName(context, category.Name))
 
-    const payload = {
+    const payloadNew = {
       ...category,
       GlobalCategoryId: GlobalCategoryId || undefined,
       FatherCategoryId: FatherCategoryId
@@ -42,7 +45,9 @@ const handleCategories = async (context: AppEventContext) => {
 
     const { Id: targetId } = existingCategory
       ? { Id: +existingCategory.id }
-      : await targetCatalog.createCategory(payload)
+      : await targetCatalog.createCategory(payloadNew)
+
+    const payload = existingCategory ? { ...existingCategory } : payloadNew
 
     await importEntity.save({
       executionImportId,
@@ -50,12 +55,13 @@ const handleCategories = async (context: AppEventContext) => {
       sourceAccount,
       sourceId: Id,
       targetId,
-      payload: existingCategory ? { ...existingCategory } : payload,
+      payload,
       title: category.Name,
       pathParams: existingCategory ? { category: targetId } : null,
     })
 
     mapCategory[Id] = targetId
+    mapCategoryName[category.Name] = { id: targetId }
   })
 
   context.state.mapCategory = mapCategory
