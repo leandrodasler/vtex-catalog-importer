@@ -208,12 +208,13 @@ export default class SourceCatalog extends HttpClient {
     return prices.filter((p) => p !== null) as PriceDetails[]
   }
 
-  private generateSellerInventory(skuId: ID, sellerStock?: number) {
-    if (sellerStock) {
-      return { skuId, totalQuantity: sellerStock }
+  private generateInventory(skuId: ID, totalQuantity = 0): SkuInventory {
+    return {
+      skuId: String(skuId),
+      totalQuantity,
+      reservedQuantity: 0,
+      hasUnlimitedQuantity: false,
     }
-
-    return null
   }
 
   private async getInventory(skuId: ID, sellerStock?: number) {
@@ -226,21 +227,19 @@ export default class SourceCatalog extends HttpClient {
         return inventory?.hasUnlimitedQuantity ||
           (inventory?.totalQuantity ?? 0) > 0
           ? { ...inventory, skuId }
-          : this.generateSellerInventory(skuId, sellerStock)
+          : this.generateInventory(skuId, sellerStock)
       })
-      .catch(() => this.generateSellerInventory(skuId, sellerStock))
+      .catch(() => this.generateInventory(skuId, sellerStock))
   }
 
   public async getInventories(
     skuIds: number[],
     mapSourceSkuSellerStock: EntityMap
   ) {
-    const inventories = await batch(
+    return batch(
       skuIds,
       (id) => this.getInventory(id, mapSourceSkuSellerStock[id]),
       GET_SKUS_CONCURRENCY
     )
-
-    return inventories.filter((i) => i) as SkuInventory[]
   }
 }

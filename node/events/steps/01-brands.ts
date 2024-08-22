@@ -14,18 +14,23 @@ const handleBrands = async (context: AppEventContext) => {
 
   await updateCurrentImport(context, { sourceBrandsTotal: sourceBrands.length })
   const mapBrand: EntityMap = {}
+  const mapBrandName: EntityMapName = {}
 
   await sequentialBatch(sourceBrands, async ({ Id, ...brand }) => {
     const existingBrand =
+      mapBrandName[brand.Name] ??
       targetBrands.find(
         (b) => b.name.toLowerCase() === brand.Name.toLowerCase()
-      ) ?? (await getTargetEntityByName(context, brand.Name))
+      ) ??
+      (await getTargetEntityByName(context, brand.Name))
 
-    const payload = { ...brand }
+    const payloadNew = { ...brand }
 
     const { Id: targetId } = existingBrand
       ? { Id: +existingBrand.id }
-      : await targetCatalog.createBrand(payload)
+      : await targetCatalog.createBrand(payloadNew)
+
+    const payload = existingBrand ? { ...existingBrand } : payloadNew
 
     await importEntity.save({
       executionImportId,
@@ -33,12 +38,13 @@ const handleBrands = async (context: AppEventContext) => {
       sourceAccount,
       sourceId: Id,
       targetId,
-      payload: existingBrand ? { ...existingBrand } : payload,
+      payload,
       title: brand.Name,
       pathParams: existingBrand ? { brand: targetId } : null,
     })
 
     mapBrand[Id] = targetId
+    mapBrandName[brand.Name] = { id: targetId }
   })
 
   context.state.mapBrand = mapBrand
