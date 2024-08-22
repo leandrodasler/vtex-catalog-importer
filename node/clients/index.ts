@@ -54,7 +54,7 @@ export default {
       exponentialBackoffCoefficient: 2,
       initialBackoffDelay: 100,
       retries: 10,
-      timeout: 30000,
+      timeout: 300000,
       concurrency: 1,
     },
   },

@@ -7,6 +7,7 @@ import {
   IMPORT_EXECUTION_FULL_FIELDS,
   IMPORT_STATUS,
   ONE_RESULT,
+  setCachedContext,
   STEPS_ENTITIES,
 } from '../../helpers'
 
@@ -15,6 +16,7 @@ export const importProgress = async (
   { id }: QueryImportProgressArgs,
   context: Context
 ) => {
+  setCachedContext(context)
   const currentImport = (await context.clients.importExecution.get(
     id,
     IMPORT_EXECUTION_FULL_FIELDS
