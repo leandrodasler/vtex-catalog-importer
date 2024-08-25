@@ -121,6 +121,9 @@ export const DEFAULT_BATCH_CONCURRENCY = 500
 export const ONE_RESULT = { page: 1, pageSize: 1 }
 export const COMMON_WHERE = `(status<>${IMPORT_STATUS.TO_BE_DELETED})AND(status<>${IMPORT_STATUS.DELETING})`
 export const GET_SKUS_CONCURRENCY = 25
+export const DEFAULT_VBASE_BUCKET = 'catalog-importer'
+export const PRODUCT_REF_ID_ERROR = 'same RefId'
+export const PRODUCT_LINK_ID_ERROR = 'same LinkId'
 
 export const STEPS = [
   { entity: 'brand', handler: handleBrands },

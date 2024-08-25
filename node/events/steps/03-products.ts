@@ -1,4 +1,8 @@
-import { sequentialBatch, updateCurrentImport } from '../../helpers'
+import {
+  incrementVBaseEntity,
+  sequentialBatch,
+  updateCurrentImport,
+} from '../../helpers'
 
 const handleProducts = async (context: AppEventContext) => {
   const { sourceCatalog, targetCatalog, importEntity } = context.clients
@@ -21,8 +25,8 @@ const handleProducts = async (context: AppEventContext) => {
   const mapProduct: EntityMap = {}
 
   await updateCurrentImport(context, { sourceProductsTotal, sourceSkusTotal })
-  await sequentialBatch(sourceProducts, async ({ Id, RefId, ...product }) => {
-    const { DepartmentId, CategoryId, BrandId, LinkId } = product
+  await sequentialBatch(sourceProducts, async ({ Id, ...product }) => {
+    const { DepartmentId, CategoryId, BrandId } = product
     const targetDepartmentId = mapCategory?.[DepartmentId]
     const targetCategoryId = mapCategory?.[CategoryId]
     const targetBrandId = mapBrand?.[BrandId]
@@ -32,7 +36,6 @@ const handleProducts = async (context: AppEventContext) => {
       DepartmentId: targetDepartmentId,
       CategoryId: targetCategoryId,
       BrandId: targetBrandId,
-      RefId: LinkId,
     }
 
     const { Id: targetId } = await targetCatalog.createProduct(payload)
@@ -40,15 +43,17 @@ const handleProducts = async (context: AppEventContext) => {
 
     await targetCatalog.associateProductSpecifications(targetId, specifications)
 
-    await importEntity.save({
-      executionImportId,
-      name: entity,
-      sourceAccount,
-      sourceId: Id,
-      targetId,
-      payload,
-      title: product.Name,
-    })
+    await importEntity
+      .save({
+        executionImportId,
+        name: entity,
+        sourceAccount,
+        sourceId: Id,
+        targetId,
+        payload,
+        title: product.Name,
+      })
+      .catch(() => incrementVBaseEntity(context))
 
     mapProduct[Id] = targetId
   })

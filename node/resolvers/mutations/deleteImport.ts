@@ -1,6 +1,7 @@
 import type { MutationDeleteImportArgs } from 'ssesandbox04.catalog-importer'
 
 import {
+  DEFAULT_VBASE_BUCKET,
   IMPORT_STATUS,
   setCachedContext,
   updateImportStatus,
@@ -21,6 +22,7 @@ export const deleteImport = async (
     throw new Error('admin/import.delete.notAllowed')
   }
 
+  context.clients.vbase.deleteFile(DEFAULT_VBASE_BUCKET, id).catch(() => {})
   updateImportStatus(context, id, IMPORT_STATUS.TO_BE_DELETED)
 
   return id

@@ -1,4 +1,4 @@
-import { sequentialBatch } from '../../helpers'
+import { incrementVBaseEntity, sequentialBatch } from '../../helpers'
 
 const handleSkus = async (context: AppEventContext) => {
   const { entity, skuIds, mapProduct } = context.state
@@ -38,15 +38,17 @@ const handleSkus = async (context: AppEventContext) => {
       targetCatalog.createSkuFiles(targetId, files),
     ])
 
-    await importEntity.save({
-      executionImportId,
-      name: entity,
-      sourceAccount,
-      sourceId: Id,
-      targetId,
-      payload,
-      title: sku.Name,
-    })
+    await importEntity
+      .save({
+        executionImportId,
+        name: entity,
+        sourceAccount,
+        sourceId: Id,
+        targetId,
+        payload,
+        title: sku.Name,
+      })
+      .catch(() => incrementVBaseEntity(context))
 
     mapSku[Id] = targetId
     mapSourceSkuProduct[Id] = ProductId

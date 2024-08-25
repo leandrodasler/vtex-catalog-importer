@@ -90,7 +90,9 @@ export const Unchecked = () => {
   )
 }
 
-export const Loading = () => <Spinner size={20} />
+const loadingTheme = csx({ animation: 'unset' })
+
+export const Loading = () => <Spinner size={20} className={loadingTheme} />
 
 type EmptyViewProps = { text: string; onClick: () => void }
 export const EmptyView = ({ text, onClick }: EmptyViewProps) => {

@@ -1,6 +1,13 @@
 import type { InstanceOptions } from '@vtex/api'
 
-import { batch, delay, ENDPOINTS, sequentialBatch } from '../helpers'
+import {
+  batch,
+  delay,
+  ENDPOINTS,
+  PRODUCT_LINK_ID_ERROR,
+  PRODUCT_REF_ID_ERROR,
+  sequentialBatch,
+} from '../helpers'
 import HttpClient from './HttpClient'
 
 export default class TargetCatalog extends HttpClient {
@@ -31,8 +38,38 @@ export default class TargetCatalog extends HttpClient {
     return this.post<T, Partial<T>>(ENDPOINTS.category.set, payload)
   }
 
+  private async createUniqueProduct<T extends ProductDetails>(
+    payload: Partial<T>,
+    countRefId = 0,
+    countLinkId = 0
+  ): Promise<T> {
+    const { RefId, LinkId } = payload
+    const newRefId = RefId && countRefId ? `${RefId}-${countRefId}` : RefId
+    const newLinkId =
+      LinkId && countLinkId ? `${LinkId}-${countLinkId}` : LinkId
+
+    const newPayload = { ...payload, RefId: newRefId, LinkId: newLinkId }
+
+    return this.post<T, Partial<T>>(ENDPOINTS.product.set, newPayload).catch(
+      (e) => {
+        const refIdError = e.response?.data?.includes?.(PRODUCT_REF_ID_ERROR)
+        const linkIdError = e.response?.data?.includes?.(PRODUCT_LINK_ID_ERROR)
+
+        if (refIdError) {
+          return this.createUniqueProduct(payload, countRefId + 1, countLinkId)
+        }
+
+        if (linkIdError) {
+          return this.createUniqueProduct(payload, countRefId, countLinkId + 1)
+        }
+
+        throw e
+      }
+    )
+  }
+
   public async createProduct<T extends ProductDetails>(payload: Partial<T>) {
-    return this.post<T, Partial<T>>(ENDPOINTS.product.set, payload)
+    return this.createUniqueProduct(payload)
   }
 
   public async createSku<T extends SkuDetails>(payload: Partial<T>) {

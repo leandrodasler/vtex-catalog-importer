@@ -1,5 +1,6 @@
 import {
   getTargetEntityByName,
+  incrementVBaseEntity,
   sequentialBatch,
   updateCurrentImport,
 } from '../../helpers'
@@ -49,16 +50,18 @@ const handleCategories = async (context: AppEventContext) => {
 
     const payload = existingCategory ? { ...existingCategory } : payloadNew
 
-    await importEntity.save({
-      executionImportId,
-      name: entity,
-      sourceAccount,
-      sourceId: Id,
-      targetId,
-      payload,
-      title: category.Name,
-      pathParams: existingCategory ? { category: targetId } : null,
-    })
+    await importEntity
+      .save({
+        executionImportId,
+        name: entity,
+        sourceAccount,
+        sourceId: Id,
+        targetId,
+        payload,
+        title: category.Name,
+        pathParams: existingCategory ? { category: targetId } : null,
+      })
+      .catch(() => incrementVBaseEntity(context))
 
     mapCategory[Id] = targetId
     mapCategoryName[category.Name] = { id: targetId }

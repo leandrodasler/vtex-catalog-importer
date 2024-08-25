@@ -1,4 +1,8 @@
-import { sequentialBatch, updateCurrentImport } from '../../helpers'
+import {
+  incrementVBaseEntity,
+  sequentialBatch,
+  updateCurrentImport,
+} from '../../helpers'
 
 const handlePrices = async (context: AppEventContext) => {
   const { importEntity, sourceCatalog, targetCatalog } = context.clients
@@ -35,15 +39,17 @@ const handlePrices = async (context: AppEventContext) => {
     }
 
     await targetCatalog.createPrice(skuId, payload)
-    await importEntity.save({
-      executionImportId,
-      name: entity,
-      sourceAccount,
-      sourceId: itemId,
-      targetId: skuId,
-      payload,
-      pathParams: { prices: skuId },
-    })
+    await importEntity
+      .save({
+        executionImportId,
+        name: entity,
+        sourceAccount,
+        sourceId: itemId,
+        targetId: skuId,
+        payload,
+        pathParams: { prices: skuId },
+      })
+      .catch(() => incrementVBaseEntity(context))
   })
 
   context.state.mapSourceSkuSellerStock = mapSourceSkuSellerStock

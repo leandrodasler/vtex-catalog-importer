@@ -1,7 +1,13 @@
 import type { ErrorLike, Maybe } from '@vtex/api'
 import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
-import { DEFAULT_BATCH_CONCURRENCY, IMPORT_STATUS, STEP_DELAY, STEPS } from '.'
+import {
+  DEFAULT_BATCH_CONCURRENCY,
+  DEFAULT_VBASE_BUCKET,
+  IMPORT_STATUS,
+  STEP_DELAY,
+  STEPS,
+} from '.'
 import { updateCurrentImport } from './importDBUtils'
 
 export const getCurrentSettings = async ({ clients: { apps } }: Context) =>
@@ -76,4 +82,16 @@ export const processStepFactory = (context: AppEventContext) => async (
   context.state.entity = STEPS.find(({ handler }) => handler === step)?.entity
 
   return step(context).catch((e) => handleError(context, e))
+}
+
+export const incrementVBaseEntity = async (context: AppEventContext) => {
+  const { vbase } = context.clients
+  const { id = '' } = context.state.body
+  const { entity = '' } = context.state
+  const json =
+    (await vbase.getJSON<VBaseJSON>(DEFAULT_VBASE_BUCKET, id, true)) ?? {}
+
+  const newJson = { ...json, [entity]: (json[entity] ?? 0) + 1 }
+
+  return vbase.saveJSON(DEFAULT_VBASE_BUCKET, id, newJson)
 }

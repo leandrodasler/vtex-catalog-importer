@@ -1,5 +1,6 @@
 import {
   getTargetEntityByName,
+  incrementVBaseEntity,
   sequentialBatch,
   updateCurrentImport,
 } from '../../helpers'
@@ -32,16 +33,18 @@ const handleBrands = async (context: AppEventContext) => {
 
     const payload = existingBrand ? { ...existingBrand } : payloadNew
 
-    await importEntity.save({
-      executionImportId,
-      name: entity,
-      sourceAccount,
-      sourceId: Id,
-      targetId,
-      payload,
-      title: brand.Name,
-      pathParams: existingBrand ? { brand: targetId } : null,
-    })
+    await importEntity
+      .save({
+        executionImportId,
+        name: entity,
+        sourceAccount,
+        sourceId: Id,
+        targetId,
+        payload,
+        title: brand.Name,
+        pathParams: existingBrand ? { brand: targetId } : null,
+      })
+      .catch(() => incrementVBaseEntity(context))
 
     mapBrand[Id] = targetId
     mapBrandName[brand.Name] = { id: targetId }

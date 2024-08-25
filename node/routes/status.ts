@@ -1,6 +1,12 @@
 import { method } from '@vtex/api'
+import type { ImportExecution } from 'ssesandbox04.catalog-importer'
 
-import { IMPORT_ENTITY_FIELDS, IMPORT_EXECUTION_FIELDS } from '../helpers'
+import {
+  batch,
+  DEFAULT_VBASE_BUCKET,
+  IMPORT_ENTITY_FIELDS,
+  IMPORT_EXECUTION_FIELDS,
+} from '../helpers'
 
 const PAG = { page: 1, pageSize: 500 }
 const SORT = 'createdIn desc'
@@ -14,6 +20,7 @@ const status = async (context: Context) => {
     importExecution,
     importEntity,
     targetCatalog,
+    vbase,
   } = context.clients
 
   const user = await privateClient.getUser().catch(() => {
@@ -36,9 +43,17 @@ const status = async (context: Context) => {
   }))
 
   const {
-    data: imports,
+    data: dataImports,
     pagination: { total: totalImports },
   } = await importExecution.searchRaw(PAG, IMPORT_EXECUTION_FIELDS, SORT)
+
+  const imports = await batch(
+    dataImports as Array<WithInternalFields<ImportExecution>>,
+    async (i) => ({
+      ...i,
+      vbaseJson: await vbase.getJSON(DEFAULT_VBASE_BUCKET, i.id, true),
+    })
+  )
 
   const {
     data: entities,
