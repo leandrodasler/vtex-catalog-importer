@@ -1,4 +1,8 @@
-import { incrementVBaseEntity, sequentialBatch } from '../../helpers'
+import {
+  getEntityBySourceId,
+  incrementVBaseEntity,
+  sequentialBatch,
+} from '../../helpers'
 
 const handleSkus = async (context: AppEventContext) => {
   const { entity, skuIds, mapProduct } = context.state
@@ -18,6 +22,16 @@ const handleSkus = async (context: AppEventContext) => {
   const mapSourceSkuProduct: EntityMap = {}
 
   await sequentialBatch(sourceSkus, async ({ Id, RefId, ...sku }) => {
+    const migrated = await getEntityBySourceId(context, Id)
+
+    if (migrated?.targetId) {
+      mapSku[Id] = +migrated.targetId
+    }
+
+    if (mapSku[Id]) {
+      return
+    }
+
     const { ProductId, IsActive } = sku
     const targetProductId = mapProduct[ProductId]
     const skuContext = await sourceCatalog.getSkuContext(Id, importImages)

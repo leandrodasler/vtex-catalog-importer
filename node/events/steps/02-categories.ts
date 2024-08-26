@@ -1,5 +1,6 @@
 import {
-  getTargetEntityByName,
+  getEntityBySourceId,
+  getEntityByTitle,
   incrementVBaseEntity,
   sequentialBatch,
   updateCurrentImport,
@@ -28,13 +29,23 @@ const handleCategories = async (context: AppEventContext) => {
   const mapCategoryName: EntityMapName = {}
 
   await sequentialBatch(sourceCategories, async ({ Id, ...category }) => {
+    const migrated = await getEntityBySourceId(context, Id)
+
+    if (migrated?.targetId) {
+      mapCategory[Id] = +migrated.targetId
+    }
+
+    if (mapCategory[Id]) {
+      return
+    }
+
     const { FatherCategoryId, GlobalCategoryId = 0 } = category
     const existingCategory =
       mapCategoryName[category.Name] ??
       targetCategories.find(
         (c) => c.name.toLowerCase() === category.Name.toLowerCase()
       ) ??
-      (await getTargetEntityByName(context, category.Name))
+      (await getEntityByTitle(context, category.Name))
 
     const payloadNew = {
       ...category,

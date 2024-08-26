@@ -1,4 +1,5 @@
 import {
+  getEntityBySourceId,
   incrementVBaseEntity,
   sequentialBatch,
   updateCurrentImport,
@@ -32,10 +33,20 @@ const handleStocks = async (context: AppEventContext) => {
   )
 
   const sourceStocksTotal = sourceStocks.length
+  const mapStock: EntityMap = {}
 
   await updateCurrentImport(context, { sourceStocksTotal })
   await sequentialBatch(sourceStocks, async (sourceStock) => {
     const { skuId, totalQuantity, hasUnlimitedQuantity, leadTime } = sourceStock
+    const migrated = await getEntityBySourceId(context, skuId)
+
+    if (migrated?.targetId) {
+      mapStock[+skuId] = +migrated.targetId
+    }
+
+    if (mapStock[+skuId]) {
+      return
+    }
 
     const quantity =
       stocksOption === 'KEEP_SOURCE'
@@ -63,6 +74,8 @@ const handleStocks = async (context: AppEventContext) => {
         pathParams: { skus: targetSku, warehouses: targetWarehouse },
       })
       .catch(() => incrementVBaseEntity(context))
+
+    mapStock[+skuId] = targetSku
   })
 }
 

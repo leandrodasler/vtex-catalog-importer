@@ -66,7 +66,7 @@ export const updateImportStatus = async (
 
 const getFirstResult = <T>(data: T[]) => data[0] as Maybe<WithInternalFields<T>>
 
-export const getTargetEntityByName = async (
+export const getEntityByTitle = async (
   context: AppEventContext,
   name: string
 ) => {
@@ -79,6 +79,14 @@ export const getTargetEntityByName = async (
   if (!entity) return null
 
   return { ...entity.payload, id: +(entity.targetId as ID) }
+}
+
+export const getEntityBySourceId = async (context: AppEventContext, id: ID) => {
+  const where = `(executionImportId=${context.state.body.id})AND(name=${context.state.entity})AND(sourceId="${id}")`
+
+  return context.clients.importEntity
+    .search(ONE_RESULT, IMPORT_ENTITY_FIELDS, '', where)
+    .then((r) => getFirstResult<ImportEntity>(r))
 }
 
 export const deleteImport = async (context: AppContext, importId: string) => {

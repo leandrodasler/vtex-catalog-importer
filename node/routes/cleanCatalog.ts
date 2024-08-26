@@ -29,8 +29,6 @@ const cleanCatalog = async (context: Context) => {
 
   const productAndSkuIds = await targetCatalog.getProductAndSkuIds()
 
-  let deletedProducts = 0
-
   batch(
     Object.keys(productAndSkuIds),
     async (id) => {
@@ -39,8 +37,6 @@ const cleanCatalog = async (context: Context) => {
       )
 
       if (!product.IsActive) return
-
-      deletedProducts++
 
       await targetCatalog.deleteEntity('product', id)
 
@@ -58,10 +54,12 @@ const cleanCatalog = async (context: Context) => {
   context.status = 200
 
   context.body = `Catalog cleaned successfully!
-===================================================
+=============================================================
 Deleted ${brands.length} brands
 Deleted ${categories.length} categories
-Deleted ${deletedProducts} products and their skus`
+${
+  Object.keys(productAndSkuIds).length
+} products and their skus will be deleted in background`
 }
 
 export default method({ GET: cleanCatalog })

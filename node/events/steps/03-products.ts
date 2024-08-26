@@ -1,4 +1,5 @@
 import {
+  getEntityBySourceId,
   incrementVBaseEntity,
   sequentialBatch,
   updateCurrentImport,
@@ -26,6 +27,16 @@ const handleProducts = async (context: AppEventContext) => {
 
   await updateCurrentImport(context, { sourceProductsTotal, sourceSkusTotal })
   await sequentialBatch(sourceProducts, async ({ Id, ...product }) => {
+    const migrated = await getEntityBySourceId(context, Id)
+
+    if (migrated?.targetId) {
+      mapProduct[Id] = +migrated.targetId
+    }
+
+    if (mapProduct[Id]) {
+      return
+    }
+
     const { DepartmentId, CategoryId, BrandId } = product
     const targetDepartmentId = mapCategory?.[DepartmentId]
     const targetCategoryId = mapCategory?.[CategoryId]

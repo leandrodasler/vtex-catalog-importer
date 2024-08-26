@@ -162,11 +162,11 @@ export default class TargetCatalog extends HttpClient {
     )
   }
 
-  public async getProductAndSkuIds(initial = 1) {
+  public async getProductAndSkuIds(initial = 1, max?: number) {
     const maxPerPage = 250
     let result: ProductAndSkuIds['data'] = {}
     let from = initial
-    let to = maxPerPage
+    let to = max ? Math.min(initial + maxPerPage - 1, max) : maxPerPage
 
     const getRange = async () => {
       const { data, range } = await this.get<ProductAndSkuIds>(
@@ -174,12 +174,13 @@ export default class TargetCatalog extends HttpClient {
       )
 
       result = { ...result, ...data }
-      if (range.total <= to) {
+
+      if (range.total <= to || (max && from >= max)) {
         return
       }
 
       from += maxPerPage
-      to += maxPerPage
+      to = max ? Math.min(from + maxPerPage - 1, max) : from + maxPerPage - 1
       await delay(500)
       await getRange()
     }

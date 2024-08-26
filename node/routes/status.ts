@@ -30,15 +30,6 @@ const status = async (context: Context) => {
 
   if (!user) return
 
-  const targetBrands = await targetCatalog.getBrands()
-  const categories = await targetCatalog.getCategoryTreeFlattened()
-  const targetCategories = categories.map(({ children, ...c }) => ({
-    ...c,
-    ...(children?.length && {
-      children: children.map((ch) => ch.id).join(','),
-    }),
-  }))
-
   const {
     data: dataImports,
     pagination: { total: totalImports },
@@ -56,6 +47,15 @@ const status = async (context: Context) => {
     data: entities,
     pagination: { total: totalEntities },
   } = await importEntity.searchRaw(PAG, IMPORT_ENTITY_FIELDS, SORT)
+
+  const targetBrands = await targetCatalog.getBrands()
+  const categories = await targetCatalog.getCategoryTreeFlattened()
+  const targetCategories = categories.map(({ children, ...c }) => ({
+    ...c,
+    ...(children?.length && {
+      children: children.map((ch) => ch.id).join(','),
+    }),
+  }))
 
   context.status = 200
   context.set('Content-Type', 'text/html')
@@ -80,6 +80,7 @@ const status = async (context: Context) => {
         flex: 1;
         max-width: 50%;
         min-width: 45%;
+        max-height: 500px;
         overflow: auto;
         padding: 5px;
         border: 1px solid #ccc;
@@ -94,6 +95,14 @@ const status = async (context: Context) => {
     <h1>VTEX Catalog Importer Status</h1>
     <h2>Logged as ${user}</h2>
     <div class="flex">
+    <section>
+      <h3>Imports - total: ${totalImports}</h3>
+      ${outputHTML(imports)}
+    </section>
+    <section>
+      <h3>Entities - total: ${totalEntities}</h3>
+      ${outputHTML(entities)}
+    </section>
       <section>
         <h3>Target active brands - total: ${targetBrands.length}</h3>
         ${outputHTML(targetBrands)}
@@ -101,14 +110,6 @@ const status = async (context: Context) => {
       <section>
         <h3>Target active categories - total: ${targetCategories.length}</h3>
         ${outputHTML(targetCategories)}
-      </section>
-      <section>
-        <h3>Imports - total: ${totalImports}</h3>
-        ${outputHTML(imports)}
-      </section>
-      <section>
-        <h3>Entities - total: ${totalEntities}</h3>
-        ${outputHTML(entities)}
       </section>
     </div>
   </body>

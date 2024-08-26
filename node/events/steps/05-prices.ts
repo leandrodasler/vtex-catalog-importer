@@ -1,4 +1,5 @@
 import {
+  getEntityBySourceId,
   incrementVBaseEntity,
   sequentialBatch,
   updateCurrentImport,
@@ -25,11 +26,22 @@ const handlePrices = async (context: AppEventContext) => {
   )
 
   const sourcePricesTotal = sourcePrices.length
+  const mapPrice: EntityMap = {}
   const mapSourceSkuSellerStock: EntityMap = {}
 
   await updateCurrentImport(context, { sourcePricesTotal })
   await sequentialBatch(sourcePrices, async (sourcePrice) => {
     const { itemId, basePrice, sellerStock, ...price } = sourcePrice
+    const migrated = await getEntityBySourceId(context, itemId)
+
+    if (migrated?.targetId) {
+      mapPrice[+itemId] = +migrated.targetId
+    }
+
+    if (mapPrice[+itemId]) {
+      return
+    }
+
     const includeBasePrice = price.costPrice === null || price.markup === null
     const payload = { ...price, ...(includeBasePrice && { basePrice }) }
     const skuId = mapSku[+itemId]
@@ -50,6 +62,8 @@ const handlePrices = async (context: AppEventContext) => {
         pathParams: { prices: skuId },
       })
       .catch(() => incrementVBaseEntity(context))
+
+    mapPrice[+itemId] = skuId
   })
 
   context.state.mapSourceSkuSellerStock = mapSourceSkuSellerStock

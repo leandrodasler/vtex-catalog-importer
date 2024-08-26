@@ -1,5 +1,6 @@
 import {
-  getTargetEntityByName,
+  getEntityBySourceId,
+  getEntityByTitle,
   incrementVBaseEntity,
   sequentialBatch,
   updateCurrentImport,
@@ -18,12 +19,22 @@ const handleBrands = async (context: AppEventContext) => {
   const mapBrandName: EntityMapName = {}
 
   await sequentialBatch(sourceBrands, async ({ Id, ...brand }) => {
+    const migrated = await getEntityBySourceId(context, Id)
+
+    if (migrated?.targetId) {
+      mapBrand[Id] = +migrated.targetId
+    }
+
+    if (mapBrand[Id]) {
+      return
+    }
+
     const existingBrand =
       mapBrandName[brand.Name] ??
       targetBrands.find(
         (b) => b.name.toLowerCase() === brand.Name.toLowerCase()
       ) ??
-      (await getTargetEntityByName(context, brand.Name))
+      (await getEntityByTitle(context, brand.Name))
 
     const payloadNew = { ...brand }
 
