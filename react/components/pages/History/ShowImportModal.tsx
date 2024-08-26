@@ -120,7 +120,7 @@ const ShowImportModal = ({ modalState, id, setDeleted }: Props) => {
         {id && setDeleted && (
           <ModalButtons>
             <Button
-              disabled={isLoading || deleteConfirmationModal.open}
+              disabled={status === 'RUNNING' || deleteConfirmationModal.open}
               variant="critical"
               onClick={() => deleteConfirmationModal.show()}
               icon={<IconTrash />}

@@ -34,10 +34,7 @@ export default class SourceCatalog extends HttpClient {
 
   public async getBrands() {
     return this.get<Brand[]>(ENDPOINTS.brand.list).then((data) =>
-      batch(
-        data.filter((b) => b.isActive),
-        (brand) => this.getBrandDetails(brand)
-      )
+      batch(data, (brand) => this.getBrandDetails(brand))
     )
   }
 

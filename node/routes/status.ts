@@ -30,10 +30,7 @@ const status = async (context: Context) => {
 
   if (!user) return
 
-  const targetBrands = (await targetCatalog.getBrands()).filter(
-    (b) => b.isActive
-  )
-
+  const targetBrands = await targetCatalog.getBrands()
   const categories = await targetCatalog.getCategoryTreeFlattened()
   const targetCategories = categories.map(({ children, ...c }) => ({
     ...c,

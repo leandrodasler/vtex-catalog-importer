@@ -1,4 +1,4 @@
-import type { RadioState, TabState } from '@vtex/admin-ui'
+import type { TabState } from '@vtex/admin-ui'
 import {
   Button,
   Flex,
@@ -38,7 +38,6 @@ type Props = {
   settings?: AppSettingsInput
   setSettings: (settings: AppSettingsInput) => void
   setCheckedTreeOptions: React.Dispatch<React.SetStateAction<CheckedCategories>>
-  targetWarehousesState: RadioState
 }
 
 const SETTINGS_OPTIONS = {
@@ -53,7 +52,6 @@ const Settings = ({
   settings,
   setSettings,
   setCheckedTreeOptions,
-  targetWarehousesState,
 }: Props) => {
   const { formatMessage } = useIntl()
   const showToast = useToast()
@@ -118,7 +116,6 @@ const Settings = ({
         newSettings.useDefault !== settings?.useDefault
       ) {
         setCheckedTreeOptions({})
-        targetWarehousesState.setValue(null)
       }
 
       mutationFactory({ variables: { settings: newSettings } })()
@@ -131,7 +128,6 @@ const Settings = ({
       settings?.account,
       settings?.useDefault,
       showToast,
-      targetWarehousesState,
     ]
   )
 

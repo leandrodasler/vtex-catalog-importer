@@ -155,7 +155,6 @@ export default function Wizard() {
               settings={settings}
               setSettings={setSettings}
               setCheckedTreeOptions={setCheckedTreeOptions}
-              targetWarehousesState={targetWarehousesState}
             />
           )}
         </Suspense>
