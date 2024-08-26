@@ -3,8 +3,6 @@ import {
   getFirstImportPending,
   getFirstImportRunning,
   getFirstImportToBeDeleted,
-  IMPORT_STATUS,
-  updateImportStatus,
 } from '.'
 import runImport from '../events'
 
@@ -19,28 +17,10 @@ export function setCachedContext(context: Context) {
   cachedContext = context
 }
 
-let someImportRan = false
-
 const verifyImports = async () => {
   const context = getCachedContext()
 
-  if (!context) return
-
-  const firstImportRunning = await getFirstImportRunning(context)
-
-  if (firstImportRunning) {
-    if (!someImportRan) {
-      await updateImportStatus(
-        context,
-        firstImportRunning.id,
-        IMPORT_STATUS.PENDING
-      )
-    }
-
-    someImportRan = true
-
-    return
-  }
+  if (!context || (await getFirstImportRunning(context))) return
 
   const nextImportToBeDeleted = await getFirstImportToBeDeleted(context)
 
@@ -54,7 +34,6 @@ const verifyImports = async () => {
 
   if (!nextPendingImport) return
 
-  someImportRan = true
   context.state.body = nextPendingImport
   runImport(context)
 }

@@ -47,7 +47,11 @@ export default class SourceCatalog extends HttpClient {
   }
 
   public async getCategories(categories: Category[]) {
-    return batch(categories, (category) => this.getCategoryDetails(category))
+    return batch(
+      categories,
+      (category) => this.getCategoryDetails(category),
+      GET_DETAILS_CONCURRENCY
+    )
   }
 
   private async getProductAndSkuIds(categoryTree: Category[]) {
