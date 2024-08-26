@@ -27,7 +27,9 @@ export default class TargetCatalog extends HttpClient {
   }
 
   public async getBrands() {
-    return this.get<Brand[]>(ENDPOINTS.brand.list)
+    return (await this.get<Brand[]>(ENDPOINTS.brand.list)).filter(
+      (b) => b.isActive
+    )
   }
 
   public async createBrand<T extends BrandDetails>(payload: Partial<T>) {

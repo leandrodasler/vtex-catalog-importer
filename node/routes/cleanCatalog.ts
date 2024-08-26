@@ -12,7 +12,24 @@ const cleanCatalog = async (context: Context) => {
 
   if (!user) return
 
+  const [allBrands, categories] = await Promise.all([
+    targetCatalog.getBrands(),
+    targetCatalog.getCategoryTreeFlattened(),
+  ])
+
+  const brands = allBrands.filter((b) => b.isActive)
+
+  await batch(brands, (b) => targetCatalog.deleteEntity('brand', b.id), 25)
+
+  await batch(
+    categories,
+    (c) => targetCatalog.deleteEntity('category', c.id),
+    25
+  )
+
   const productAndSkuIds = await targetCatalog.getProductAndSkuIds()
+
+  let deletedProducts = 0
 
   batch(
     Object.keys(productAndSkuIds),
@@ -21,7 +38,9 @@ const cleanCatalog = async (context: Context) => {
         ENDPOINTS.product.updateOrDetails(id)
       )
 
-      if (!product.Name.includes('DELETED-')) return
+      if (!product.IsActive) return
+
+      deletedProducts++
 
       await targetCatalog.deleteEntity('product', id)
 
@@ -37,7 +56,12 @@ const cleanCatalog = async (context: Context) => {
   )
 
   context.status = 200
-  context.body = 'Catalog cleaned successfully'
+
+  context.body = `Catalog cleaned successfully!
+===================================================
+Deleted ${brands.length} brands
+Deleted ${categories.length} categories
+Deleted ${deletedProducts} products and their skus`
 }
 
 export default method({ GET: cleanCatalog })
