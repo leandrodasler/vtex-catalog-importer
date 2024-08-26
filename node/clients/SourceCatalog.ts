@@ -1,7 +1,7 @@
 import type { InstanceOptions } from '@vtex/api'
 import type { AppSettings, Category } from 'ssesandbox04.catalog-importer'
 
-import { batch, ENDPOINTS, GET_SKUS_CONCURRENCY } from '../helpers'
+import { batch, ENDPOINTS, GET_DETAILS_CONCURRENCY } from '../helpers'
 import HttpClient from './HttpClient'
 
 export default class SourceCatalog extends HttpClient {
@@ -36,7 +36,8 @@ export default class SourceCatalog extends HttpClient {
     return this.get<Brand[]>(ENDPOINTS.brand.list).then((data) =>
       batch(
         data.filter((b) => b.isActive),
-        (brand) => this.getBrandDetails(brand)
+        (brand) => this.getBrandDetails(brand),
+        GET_DETAILS_CONCURRENCY
       )
     )
   }
@@ -140,7 +141,11 @@ export default class SourceCatalog extends HttpClient {
   }
 
   public async getSkus(skuIds: number[] = []) {
-    return batch(skuIds, (id) => this.getSkuDetails(id), GET_SKUS_CONCURRENCY)
+    return batch(
+      skuIds,
+      (id) => this.getSkuDetails(id),
+      GET_DETAILS_CONCURRENCY
+    )
   }
 
   private async getSkuFiles(id: ID) {
@@ -205,7 +210,7 @@ export default class SourceCatalog extends HttpClient {
     const prices = await batch(
       skuIds,
       (id) => this.getPrice(id, mapSourceSkuProduct[id]),
-      GET_SKUS_CONCURRENCY
+      GET_DETAILS_CONCURRENCY
     )
 
     return prices.filter((p) => p !== null) as PriceDetails[]
@@ -242,7 +247,7 @@ export default class SourceCatalog extends HttpClient {
     return batch(
       skuIds,
       (id) => this.getInventory(id, mapSourceSkuSellerStock[id]),
-      GET_SKUS_CONCURRENCY
+      GET_DETAILS_CONCURRENCY
     )
   }
 }

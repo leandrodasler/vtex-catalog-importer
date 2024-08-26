@@ -37,6 +37,8 @@ const verifyImports = async () => {
       )
     }
 
+    someImportRan = true
+
     return
   }
 
