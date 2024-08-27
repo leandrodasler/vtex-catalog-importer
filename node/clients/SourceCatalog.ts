@@ -35,7 +35,7 @@ export default class SourceCatalog extends HttpClient {
   public async getBrands() {
     return this.get<Brand[]>(ENDPOINTS.brand.list).then((data) =>
       batch(
-        data.filter((b) => b.name.includes('DELETED-')),
+        data.filter((b) => !b.name.includes('DELETED-')),
         (brand) => this.getBrandDetails(brand),
         GET_DETAILS_CONCURRENCY
       )
