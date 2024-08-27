@@ -1,10 +1,13 @@
 {
   "memory": 1024,
   "ttl": 60,
-  "timeout": 180,
-  "minReplicas": 8,
-  "maxReplicas": 60,
+  "timeout": 60,
+  "minReplicas": 2,
+  "maxReplicas": 5,
   "workers": 1,
+  "rateLimitPerReplica": {
+    "concurrent": 1
+  },
   "routes": {
     "status": {
       "path": "/_v/vtex-catalog-importer/status",
