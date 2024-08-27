@@ -79,6 +79,8 @@ const ShowImportModal = ({ modalState, id, setDeleted }: Props) => {
     status,
   ])
 
+  const firstLoading = isLoading && !currentImport
+
   return (
     <Modal state={modalState} size="large">
       <ModalHeader>
@@ -100,7 +102,7 @@ const ShowImportModal = ({ modalState, id, setDeleted }: Props) => {
         <ModalDismiss />
       </ModalHeader>
       <ModalContent>
-        {isLoading && !currentImport && <SuspenseFallback />}
+        {firstLoading && <SuspenseFallback />}
         {currentImport && (
           <Columns space={{ mobile: '$space-0', tablet: '$space-4' }}>
             <Column
@@ -120,7 +122,11 @@ const ShowImportModal = ({ modalState, id, setDeleted }: Props) => {
         {id && setDeleted && (
           <ModalButtons>
             <Button
-              disabled={status === 'RUNNING' || deleteConfirmationModal.open}
+              disabled={
+                firstLoading ||
+                status === 'RUNNING' ||
+                deleteConfirmationModal.open
+              }
               variant="critical"
               onClick={() => deleteConfirmationModal.show()}
               icon={<IconTrash />}

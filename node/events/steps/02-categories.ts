@@ -1,6 +1,5 @@
 import {
   getEntityBySourceId,
-  getEntityByTitle,
   incrementVBaseEntity,
   sequentialBatch,
   updateCurrentImport,
@@ -20,13 +19,11 @@ const handleCategories = async (context: AppEventContext) => {
   if (!categoryTree) return
 
   const categories = sourceCatalog.flatCategoryTree(categoryTree)
-  const targetCategories = await targetCatalog.getCategoryTreeFlattened()
   const sourceCategoriesTotal = categories.length
 
   await updateCurrentImport(context, { sourceCategoriesTotal })
   const sourceCategories = await sourceCatalog.getCategories(categories)
   const mapCategory: EntityMap = {}
-  const mapCategoryName: EntityMapName = {}
 
   await sequentialBatch(sourceCategories, async ({ Id, ...category }) => {
     const migrated = await getEntityBySourceId(context, Id)
@@ -40,14 +37,8 @@ const handleCategories = async (context: AppEventContext) => {
     }
 
     const { FatherCategoryId, GlobalCategoryId = 0 } = category
-    const existingCategory =
-      mapCategoryName[category.Name] ??
-      targetCategories.find(
-        (c) => c.name.toLowerCase() === category.Name.toLowerCase()
-      ) ??
-      (await getEntityByTitle(context, category.Name))
 
-    const payloadNew = {
+    const payload = {
       ...category,
       GlobalCategoryId: GlobalCategoryId || undefined,
       FatherCategoryId: FatherCategoryId
@@ -55,11 +46,7 @@ const handleCategories = async (context: AppEventContext) => {
         : undefined,
     }
 
-    const { Id: targetId } = existingCategory
-      ? { Id: +existingCategory.id }
-      : await targetCatalog.createCategory(payloadNew)
-
-    const payload = existingCategory ? { ...existingCategory } : payloadNew
+    const { Id: targetId } = await targetCatalog.createCategory(payload)
 
     await importEntity
       .save({
@@ -70,12 +57,10 @@ const handleCategories = async (context: AppEventContext) => {
         targetId,
         payload,
         title: category.Name,
-        pathParams: existingCategory ? { category: targetId } : null,
       })
       .catch(() => incrementVBaseEntity(context))
 
     mapCategory[Id] = targetId
-    mapCategoryName[category.Name] = { id: targetId }
   })
 
   context.state.mapCategory = mapCategory
