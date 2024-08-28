@@ -52,8 +52,6 @@ query importProgress($id: ID!) {
       stocksOption
       stockValue
       targetWarehouse
-      sourceBrandsTotal
-      sourceCategoriesTotal
       sourceProductsTotal
       sourceSkusTotal
       sourcePricesTotal
@@ -62,8 +60,6 @@ query importProgress($id: ID!) {
       error
       entityError
     }
-    brands
-    categories
     products
     skus
     prices

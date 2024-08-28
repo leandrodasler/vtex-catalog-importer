@@ -30,8 +30,6 @@ declare global {
   type EventState = Omit<RecorderState, 'body'> & {
     body: Partial<WithInternalFields<Import>>
     entity?: string
-    mapCategory?: EntityMap
-    mapBrand?: EntityMap
     mapProduct?: EntityMap
     mapSku?: EntityMap
     mapSourceSkuProduct?: EntityMap
@@ -108,6 +106,11 @@ declare global {
     MetaTagDescription: string
     ShowWithoutStock: boolean
     Score: number
+  }
+
+  type ProductPayload = ProductDetails & {
+    CategoryPath: string
+    BrandName: string
   }
 
   type SkuDetails = {

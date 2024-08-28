@@ -13,7 +13,7 @@ const handleProducts = async (context: AppEventContext) => {
     categoryTree,
   } = context.state.body
 
-  const { entity, mapCategory, mapBrand } = context.state
+  const { entity } = context.state
   const { account: sourceAccount } = settings
   const { data: sourceProducts, skuIds } = await sourceCatalog.getProducts(
     categoryTree
@@ -26,29 +26,17 @@ const handleProducts = async (context: AppEventContext) => {
   const mapProduct: EntityMap = {}
 
   await updateCurrentImport(context, { sourceProductsTotal, sourceSkusTotal })
-  await sequentialBatch(sourceProducts, async ({ Id, ...product }) => {
+  await sequentialBatch(sourceProducts, async (data) => {
+    const { Id, BrandId, CategoryId, DepartmentId, ...product } = data
     const migrated = await getEntityBySourceId(context, Id)
 
     if (migrated?.targetId) {
       mapProduct[Id] = +migrated.targetId
     }
 
-    if (mapProduct[Id]) {
-      return
-    }
+    if (mapProduct[Id]) return
 
-    const { DepartmentId, CategoryId, BrandId } = product
-    const targetDepartmentId = mapCategory?.[DepartmentId]
-    const targetCategoryId = mapCategory?.[CategoryId]
-    const targetBrandId = mapBrand?.[BrandId]
-
-    const payload = {
-      ...product,
-      DepartmentId: targetDepartmentId,
-      CategoryId: targetCategoryId,
-      BrandId: targetBrandId,
-    }
-
+    const payload = { ...product }
     const { Id: targetId } = await targetCatalog.createProduct(payload)
     const specifications = await sourceCatalog.getProductSpecifications(Id)
 

@@ -1,7 +1,5 @@
 import type { ImportStatus } from 'ssesandbox04.catalog-importer'
 
-import handleBrands from '../events/steps/01-brands'
-import handleCategories from '../events/steps/02-categories'
 import handleProducts from '../events/steps/03-products'
 import handleSkus from '../events/steps/04-skus'
 import handlePrices from '../events/steps/05-prices'
@@ -78,8 +76,6 @@ export const IMPORT_EXECUTION_FIELDS = [
   'stocksOption',
   'stockValue',
   'targetWarehouse',
-  'sourceBrandsTotal',
-  'sourceCategoriesTotal',
   'sourceProductsTotal',
   'sourceSkusTotal',
   'sourcePricesTotal',
@@ -116,7 +112,6 @@ export const IMPORT_STATUS: { [keyof in ImportStatus]: ImportStatus } = {
 }
 
 export const STEP_DELAY = 1000
-export const CATEGORY_DELAY = 500
 export const DEFAULT_BATCH_CONCURRENCY = 500
 export const ONE_RESULT = { page: 1, pageSize: 1 }
 export const COMMON_WHERE = `(status<>${IMPORT_STATUS.TO_BE_DELETED})AND(status<>${IMPORT_STATUS.DELETING})`
@@ -126,8 +121,6 @@ export const PRODUCT_REF_ID_ERROR = 'same RefId'
 export const PRODUCT_LINK_ID_ERROR = 'same LinkId'
 
 export const STEPS = [
-  { entity: 'brand', handler: handleBrands },
-  { entity: 'category', handler: handleCategories },
   { entity: 'product', handler: handleProducts },
   { entity: 'sku', handler: handleSkus },
   { entity: 'price', handler: handlePrices },

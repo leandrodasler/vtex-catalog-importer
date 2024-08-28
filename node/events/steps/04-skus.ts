@@ -28,9 +28,7 @@ const handleSkus = async (context: AppEventContext) => {
       mapSku[Id] = +migrated.targetId
     }
 
-    if (mapSku[Id]) {
-      return
-    }
+    if (mapSku[Id]) return
 
     const { ProductId, IsActive } = sku
     const targetProductId = mapProduct[ProductId]

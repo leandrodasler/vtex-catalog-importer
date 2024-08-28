@@ -28,7 +28,7 @@ export default class SourceCatalog extends HttpClient {
     return `http://${this.settings.account}.${ENDPOINTS.host}${path}`
   }
 
-  private async getBrandDetails({ id }: Brand) {
+  private async getBrandDetails(id: string) {
     return this.get<BrandDetails>(ENDPOINTS.brand.updateOrDetails(id))
   }
 
@@ -36,7 +36,7 @@ export default class SourceCatalog extends HttpClient {
     return this.get<Brand[]>(ENDPOINTS.brand.list).then((data) =>
       batch(
         data.filter((b) => !b.name.includes('DELETED-')),
-        (brand) => this.getBrandDetails(brand),
+        (b) => this.getBrandDetails(b.id),
         GET_DETAILS_CONCURRENCY
       )
     )
@@ -94,21 +94,82 @@ export default class SourceCatalog extends HttpClient {
     return this.get<ProductDetails>(ENDPOINTS.product.updateOrDetails(id))
   }
 
+  private findParentCategory(
+    id: string,
+    categories: Category[]
+  ): Category | null {
+    for (const category of categories) {
+      if (category.children?.some((sub) => sub.id === id)) {
+        return category
+      }
+
+      if (category.children) {
+        const parentCategory = this.findParentCategory(id, category.children)
+
+        if (parentCategory) {
+          return parentCategory
+        }
+      }
+    }
+
+    return null
+  }
+
+  private findCategory(id: string, categories: Category[]): Category | null {
+    for (const category of categories) {
+      if (category.id === id) {
+        return category
+      }
+
+      if (category.children) {
+        const subCategory = this.findCategory(id, category.children)
+
+        if (subCategory) {
+          return subCategory
+        }
+      }
+    }
+
+    return null
+  }
+
+  private getCategoryPath(categoryId: number, categories: Category[]) {
+    let id = String(categoryId)
+    const category = this.findCategory(id, categories)
+
+    if (!category) return ''
+
+    let parent: Category | null
+    const path: string[] = [category.name]
+
+    while ((parent = this.findParentCategory(id, categories))) {
+      path.unshift(parent.name)
+      id = parent.id
+    }
+
+    return path.join('/')
+  }
+
   public async getProducts(categoryTree: Category[] = []) {
     const productAndSkuIds = await this.getProductAndSkuIds(categoryTree)
     const productIds = Object.keys(productAndSkuIds)
     const categories = this.flatCategoryTree(categoryTree)
-    const data: ProductDetails[] = []
+    const data: ProductPayload[] = []
     const skuIds: number[] = []
 
     await batch(productIds, async (id) => {
       const product = await this.getProductDetails(id)
-      const { IsActive, CategoryId } = product
+      const { IsActive, CategoryId, BrandId } = product
       const inCategoryTree = categories.find((c) => c.id === String(CategoryId))
 
       if (!IsActive || !inCategoryTree || !productAndSkuIds[id].length) return
 
-      data.push(product)
+      const CategoryPath = this.getCategoryPath(CategoryId, categoryTree)
+      const BrandName = await this.getBrandDetails(String(BrandId)).then(
+        (b) => b.Name
+      )
+
+      data.push({ ...product, CategoryPath, BrandName })
       skuIds.push(...productAndSkuIds[id])
     })
 

@@ -38,9 +38,7 @@ const handlePrices = async (context: AppEventContext) => {
       mapPrice[+itemId] = +migrated.targetId
     }
 
-    if (mapPrice[+itemId]) {
-      return
-    }
+    if (mapPrice[+itemId]) return
 
     const includeBasePrice = price.costPrice === null || price.markup === null
     const payload = { ...price, ...(includeBasePrice && { basePrice }) }

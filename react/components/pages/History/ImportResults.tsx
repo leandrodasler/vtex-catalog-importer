@@ -20,47 +20,25 @@ const ImportResults = ({ importProgress, loading }: Props) => {
     currentImport: {
       error,
       entityError,
-      sourceBrandsTotal,
-      sourceCategoriesTotal,
       sourceProductsTotal,
       sourceSkusTotal,
       sourcePricesTotal,
       sourceStocksTotal,
     },
-    brands,
-    categories,
     products,
     skus,
     prices,
     stocks,
   } = importProgress
 
-  const total = brands + categories + products + skus + prices + stocks
+  const total = +products + +skus + +prices + +stocks
 
   const errorTitle = getEntityLabel(entityError)
 
   return (
     <Stack space="$space-2" fluid>
       <Text variant="title1">{formatMessage(messages.importResultsLabel)}</Text>
-      {error && (!entityError || entityError === 'brand') && (
-        <ErrorMessage error={error} title={errorTitle} />
-      )}
-      <ImportEntityResult
-        title={formatMessage(messages.importResultsBRANDLabel)}
-        current={brands}
-        total={sourceBrandsTotal}
-        loading={loading}
-      />
-      {error && entityError === 'category' && (
-        <ErrorMessage error={error} title={errorTitle} />
-      )}
-      <ImportEntityResult
-        title={formatMessage(messages.importResultsCATEGORYLabel)}
-        current={categories}
-        total={sourceCategoriesTotal}
-        loading={loading}
-      />
-      {error && entityError === 'product' && (
+      {error && (!entityError || entityError === 'product') && (
         <ErrorMessage error={error} title={errorTitle} />
       )}
       <ImportEntityResult

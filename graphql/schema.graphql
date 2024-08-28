@@ -51,8 +51,6 @@ type Import {
   importImages: Boolean!
   importPrices: Boolean!
   stocksOption: StocksOption!
-  sourceBrandsTotal: Int!
-  sourceCategoriesTotal: Int!
   sourceProductsTotal: Int!
   sourceSkusTotal: Int!
   sourcePricesTotal: Int!
@@ -94,8 +92,6 @@ type ImportsResult {
 
 type ImportProgress {
   currentImport: Import!
-  brands: Int!
-  categories: Int!
   products: Int!
   skus: Int!
   prices: Int!
