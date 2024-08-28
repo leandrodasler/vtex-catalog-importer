@@ -70,7 +70,7 @@ export default class TargetCatalog extends HttpClient {
     )
   }
 
-  public async createProduct<T extends ProductDetails>(payload: Partial<T>) {
+  public async createProduct<T extends ProductPayload>(payload: Partial<T>) {
     return this.createUniqueProduct(payload)
   }
 

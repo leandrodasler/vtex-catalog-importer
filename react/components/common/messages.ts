@@ -79,8 +79,6 @@ export const messages = defineMessages({
   importDeleteNotAllowed: { id: 'admin/import.delete.notAllowed' },
   importResultsLabel: { id: 'admin/import.results.label' },
   importResultsErrorLabel: { id: 'admin/import.results.error.label' },
-  importResultsBRANDLabel: { id: 'admin/import.results.brand.label' },
-  importResultsCATEGORYLabel: { id: 'admin/import.results.category.label' },
   importResultsPRODUCTLabel: { id: 'admin/import.results.product.label' },
   importResultsSKULabel: { id: 'admin/import.results.sku.label' },
   importResultsPRICELabel: { id: 'admin/import.results.price.label' },

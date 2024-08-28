@@ -29,14 +29,7 @@ export const importProgress = async (
     .getJSON<VBaseJSON>(DEFAULT_VBASE_BUCKET, id, true)
     .catch(() => null)
 
-  const [
-    brands,
-    categories,
-    products,
-    skus,
-    prices,
-    stocks,
-  ] = await Promise.all(
+  const [products, skus, prices, stocks] = await Promise.all(
     STEPS_ENTITIES.map((entity) =>
       importEntity
         .searchRaw(
@@ -49,8 +42,6 @@ export const importProgress = async (
     )
   )
 
-  const sourceBrandsTotal = currentImport.sourceBrandsTotal ?? 0
-  const sourceCategoriesTotal = currentImport.sourceCategoriesTotal ?? 0
   const sourceProductsTotal = currentImport.sourceProductsTotal ?? 0
   const sourceSkusTotal = currentImport.sourceSkusTotal ?? 0
   const sourcePricesTotal = currentImport.sourcePricesTotal ?? 0
@@ -58,9 +49,7 @@ export const importProgress = async (
   const { status } = currentImport
   const completed =
     status === IMPORT_STATUS.ERROR ||
-    (brands >= sourceBrandsTotal &&
-      categories >= sourceCategoriesTotal &&
-      products >= sourceProductsTotal &&
+    (products >= sourceProductsTotal &&
       skus >= sourceSkusTotal &&
       prices >= sourcePricesTotal &&
       stocks >= sourceStocksTotal)
@@ -68,15 +57,11 @@ export const importProgress = async (
   return {
     currentImport: {
       ...currentImport,
-      sourceBrandsTotal,
-      sourceCategoriesTotal,
       sourceProductsTotal,
       sourceSkusTotal,
       sourcePricesTotal,
       sourceStocksTotal,
     },
-    brands,
-    categories,
     products,
     skus,
     prices,

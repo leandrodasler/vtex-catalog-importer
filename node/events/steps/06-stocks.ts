@@ -44,9 +44,7 @@ const handleStocks = async (context: AppEventContext) => {
       mapStock[+skuId] = +migrated.targetId
     }
 
-    if (mapStock[+skuId]) {
-      return
-    }
+    if (mapStock[+skuId]) return
 
     const quantity =
       stocksOption === 'KEEP_SOURCE'
