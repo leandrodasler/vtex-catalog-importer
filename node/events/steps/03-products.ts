@@ -13,8 +13,11 @@ const handleProducts = async (context: AppEventContext) => {
     categoryTree,
   } = context.state.body
 
-  const { entity } = context.state
+  const { entity, mapCategory } = context.state
   const { account: sourceAccount } = settings
+
+  if (!mapCategory) return
+
   const { data: sourceProducts, skuIds } = await sourceCatalog.getProducts(
     categoryTree
   )
@@ -37,10 +40,21 @@ const handleProducts = async (context: AppEventContext) => {
     if (mapProduct[Id]) return
 
     const payload = { ...product }
-    const { Id: targetId } = await targetCatalog.createProduct(payload)
-    const specifications = await sourceCatalog.getProductSpecifications(Id)
 
-    await targetCatalog.associateProductSpecifications(targetId, specifications)
+    const {
+      Id: targetId,
+      DepartmentId: _,
+      ...created
+    } = await targetCatalog.createProduct(payload)
+
+    const specifications = await sourceCatalog.getProductSpecifications(Id)
+    const targetCategoryId = mapCategory[CategoryId]
+    const updatePayload = { ...created, CategoryId: targetCategoryId }
+
+    await Promise.all([
+      targetCatalog.associateProductSpecifications(targetId, specifications),
+      targetCatalog.updateProduct(targetId, updatePayload),
+    ])
 
     await importEntity
       .save({
@@ -49,7 +63,7 @@ const handleProducts = async (context: AppEventContext) => {
         sourceAccount,
         sourceId: Id,
         targetId,
-        payload,
+        payload: { ...payload, ...updatePayload },
         title: product.Name,
       })
       .catch(() => incrementVBaseEntity(context))

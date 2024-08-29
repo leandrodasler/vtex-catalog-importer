@@ -17,6 +17,7 @@
     "stocksOption": { "type": "string" },
     "stockValue": { "type": ["integer", "null"] },
     "targetWarehouse": { "type": "string" },
+    "sourceCategoriesTotal": { "type": ["integer"] },
     "sourceProductsTotal": { "type": ["integer"] },
     "sourceSkusTotal": { "type": ["integer"] },
     "sourcePricesTotal": { "type": ["integer"] },
@@ -26,5 +27,7 @@
     "entityError": { "type": ["string", "null"] }
   },
   "v-cache": false,
-  "v-indexed": ["user", "status", "settings"]
+  "v-indexed": ["user", "status", "settings"],
+  "v-security": { "allowGetAll": true },
+  "v-immediate-indexing": true
 }

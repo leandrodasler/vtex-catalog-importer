@@ -83,6 +83,7 @@
 
   "admin/import.results.label": "Resultados",
   "admin/import.results.error.label": "Erro ao importar {entity}:",
+  "admin/import.results.category.label": "Categorias",
   "admin/import.results.product.label": "Produtos",
   "admin/import.results.sku.label": "SKUs",
   "admin/import.results.price.label": "Preços",

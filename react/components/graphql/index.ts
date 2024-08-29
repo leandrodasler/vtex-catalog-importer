@@ -47,7 +47,16 @@ const useErrorRetry = <T = Query, V = undefined>(
   const [finishRetries, setFinishRetries] = useState(false)
   const { onError, toastError = true, toastKey: key } = options ?? {}
   const retryError = (e: GraphQLError, refetch: () => void) => {
-    if (e.message.includes('500') && retries.current < MAX_RETRIES) {
+    const message = e.message.toLowerCase()
+    const messageToRetry =
+      message.includes('500') ||
+      message.includes('429') ||
+      message.includes('network error') ||
+      message.includes('networkerror') ||
+      message.includes('genericerror') ||
+      message.includes('unhealthy')
+
+    if (messageToRetry && retries.current < MAX_RETRIES) {
       setTimeout(() => refetch(), RETRY_DELAY)
       retries.current++
     } else {

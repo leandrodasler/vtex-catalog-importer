@@ -30,6 +30,7 @@ declare global {
   type EventState = Omit<RecorderState, 'body'> & {
     body: Partial<WithInternalFields<Import>>
     entity?: string
+    mapCategory?: EntityMap
     mapProduct?: EntityMap
     mapSku?: EntityMap
     mapSourceSkuProduct?: EntityMap

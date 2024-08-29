@@ -74,6 +74,16 @@ export default class TargetCatalog extends HttpClient {
     return this.createUniqueProduct(payload)
   }
 
+  public async updateProduct<T extends ProductPayload>(
+    id: ID,
+    payload: Partial<T>
+  ) {
+    return this.put<T, Partial<T>>(
+      ENDPOINTS.product.updateOrDetails(id),
+      payload
+    )
+  }
+
   public async createSku<T extends SkuDetails>(payload: Partial<T>) {
     return this.post<T, Partial<T>>(ENDPOINTS.sku.set, payload)
   }
@@ -190,23 +200,6 @@ export default class TargetCatalog extends HttpClient {
     return result
   }
 
-  private async deleteBrand(id: ID) {
-    return this.delete(ENDPOINTS.brand.updateOrDetails(id))
-      .catch(() => {
-        const newName = `DELETED-${id}-${Date.now()}`
-
-        return this.put<BrandDetails, Partial<BrandDetails>>(
-          ENDPOINTS.brand.updateOrDetails(id),
-          {
-            Name: newName,
-            LinkId: newName,
-            Active: false,
-          }
-        )
-      })
-      .catch(() => {})
-  }
-
   private async deleteCategory(id: ID) {
     return this.put<CategoryDetails, Partial<CategoryDetails>>(
       ENDPOINTS.category.updateOrDetails(id),
@@ -260,9 +253,6 @@ export default class TargetCatalog extends HttpClient {
     if (!entity || !id) return null
 
     switch (entity) {
-      case 'brand':
-        return this.deleteBrand(id)
-
       case 'category':
         return this.deleteCategory(id)
 

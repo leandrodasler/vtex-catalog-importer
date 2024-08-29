@@ -12,25 +12,10 @@ const cleanCatalog = async (context: Context) => {
 
   if (!user) return
 
-  const [allBrands, categories] = await Promise.all([
-    targetCatalog.getBrands(),
-    targetCatalog.getCategoryTreeFlattened(),
-  ])
-
-  const brands = allBrands.filter((b) => b.isActive)
-
-  await batch(brands, (b) => targetCatalog.deleteEntity('brand', b.id), 25)
-
-  await batch(
-    categories,
-    (c) => targetCatalog.deleteEntity('category', c.id),
-    25
-  )
-
   const productAndSkuIds = await targetCatalog.getProductAndSkuIds()
 
   batch(
-    Object.keys(productAndSkuIds),
+    Object.keys(productAndSkuIds).reverse(),
     async (id) => {
       const product = await targetCatalog.get<ProductDetails>(
         ENDPOINTS.product.updateOrDetails(id)
@@ -48,6 +33,21 @@ const cleanCatalog = async (context: Context) => {
         25
       )
     },
+    25
+  )
+
+  const [allBrands, categories] = await Promise.all([
+    targetCatalog.getBrands(),
+    targetCatalog.getCategoryTreeFlattened(),
+  ])
+
+  const brands = allBrands.filter((b) => b.isActive)
+
+  await batch(brands, (b) => targetCatalog.deleteEntity('brand', b.id), 25)
+
+  await batch(
+    categories,
+    (c) => targetCatalog.deleteEntity('category', c.id),
     25
   )
 

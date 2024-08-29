@@ -19,5 +19,7 @@
     "sourceId",
     "targetId",
     "title"
-  ]
+  ],
+  "v-security": { "allowGetAll": true },
+  "v-immediate-indexing": true
 }
