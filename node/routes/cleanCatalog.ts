@@ -12,54 +12,63 @@ const cleanCatalog = async (context: Context) => {
 
   if (!user) return
 
+  const deleteProducts = async (
+    productAndSkuIds: Record<string, number[]>,
+    reverse = false
+  ) => {
+    const productIds = Object.keys(productAndSkuIds)
+
+    return batch(
+      reverse ? productIds.reverse() : productIds,
+      async (id) => {
+        const product = await targetCatalog.get<ProductDetails>(
+          ENDPOINTS.product.updateOrDetails(id)
+        )
+
+        if (!product.IsActive) return
+
+        await targetCatalog.deleteEntity('product', id)
+
+        const skuIds = productAndSkuIds[id]
+
+        await batch(
+          skuIds,
+          (skuId) => targetCatalog.deleteEntity('sku', skuId),
+          25
+        )
+      },
+      25
+    )
+  }
+
   const productAndSkuIds = await targetCatalog.getProductAndSkuIds()
 
-  batch(
-    Object.keys(productAndSkuIds).reverse(),
-    async (id) => {
-      const product = await targetCatalog.get<ProductDetails>(
-        ENDPOINTS.product.updateOrDetails(id)
-      )
+  deleteProducts(productAndSkuIds).then(() => {
+    deleteProducts(productAndSkuIds, true).then(async () => {
+      const [allBrands, categories] = await Promise.all([
+        targetCatalog.getBrands(),
+        targetCatalog.getCategoryTreeFlattened(),
+      ])
 
-      if (!product.IsActive) return
+      const brands = allBrands.filter((b) => b.isActive)
 
-      await targetCatalog.deleteEntity('product', id)
-
-      const skuIds = productAndSkuIds[id]
+      await batch(brands, (b) => targetCatalog.deleteEntity('brand', b.id), 25)
 
       await batch(
-        skuIds,
-        (skuId) => targetCatalog.deleteEntity('sku', skuId),
+        categories,
+        (c) => targetCatalog.deleteEntity('category', c.id),
         25
       )
-    },
-    25
-  )
-
-  const [allBrands, categories] = await Promise.all([
-    targetCatalog.getBrands(),
-    targetCatalog.getCategoryTreeFlattened(),
-  ])
-
-  const brands = allBrands.filter((b) => b.isActive)
-
-  await batch(brands, (b) => targetCatalog.deleteEntity('brand', b.id), 25)
-
-  await batch(
-    categories,
-    (c) => targetCatalog.deleteEntity('category', c.id),
-    25
-  )
+    })
+  })
 
   context.status = 200
 
   context.body = `Catalog cleaned successfully!
 =============================================================
-Deleted ${brands.length} brands
-Deleted ${categories.length} categories
 ${
   Object.keys(productAndSkuIds).length
-} products and their skus will be deleted in background`
+} products and their skus will be deleted in background, well as all brands and categories.`
 }
 
 export default method({ GET: cleanCatalog })

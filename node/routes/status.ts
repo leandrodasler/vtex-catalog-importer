@@ -6,6 +6,7 @@ import {
   DEFAULT_VBASE_BUCKET,
   IMPORT_ENTITY_FIELDS,
   IMPORT_EXECUTION_FIELDS,
+  setCachedContext,
 } from '../helpers'
 
 const PAG = { page: 1, pageSize: 500 }
@@ -15,6 +16,8 @@ const outputHTML = (data?: unknown[]) =>
   data?.length ? `<pre>${JSON.stringify(data, null, 2)}</pre>` : ''
 
 const status = async (context: Context) => {
+  setCachedContext(context)
+
   const {
     privateClient,
     importExecution,

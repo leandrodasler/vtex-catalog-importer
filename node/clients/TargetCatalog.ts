@@ -266,4 +266,10 @@ export default class TargetCatalog extends HttpClient {
         return null
     }
   }
+
+  public async deleteSchema(dataEntity: string, defaultSchema: string) {
+    return this.delete(
+      ENDPOINTS.schema(dataEntity, defaultSchema)
+    ).catch(() => {})
+  }
 }

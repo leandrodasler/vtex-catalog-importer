@@ -25,7 +25,7 @@ const verifyImports = async () => {
   const nextImportToBeDeleted = await getFirstImportToBeDeleted(context)
 
   if (nextImportToBeDeleted) {
-    deleteImport(context, nextImportToBeDeleted.id)
+    deleteImport(context, nextImportToBeDeleted)
 
     return
   }

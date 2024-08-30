@@ -49,6 +49,12 @@ declare global {
 
   type WithSettingsField = GraphQLField<unknown, Context, WithSettingsArgs>
 
+  type WithCustomSchemaField = GraphQLField<
+    unknown,
+    Context,
+    Record<string, unknown>
+  >
+
   type VBaseJSON = Record<string, number>
 
   type Brand = BrandFromClients

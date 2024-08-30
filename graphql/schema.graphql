@@ -1,4 +1,5 @@
 directive @WithSettings on FIELD | FIELD_DEFINITION
+directive @WithCustomSchema on FIELD | FIELD_DEFINITION
 
 type AppSettings {
   useDefault: Boolean
@@ -120,12 +121,12 @@ type Query {
   appSettings: AppSettings! @WithSettings
   categories(settings: AppSettingsInput): [Category!] @WithSettings
   targetWarehouses: [Warehouse!]!
-  imports(args: SearchInput!): ImportsResult!
-  importProgress(id: ID!): ImportProgress!
+  imports(args: SearchInput!): ImportsResult! @WithCustomSchema
+  importProgress(id: ID!): ImportProgress! @WithCustomSchema
 }
 
 type Mutation {
   updateAppSettings(settings: AppSettingsInput): AppSettings! @WithSettings
-  executeImport(args: ImportInput!): ID! @WithSettings
-  deleteImport(id: ID!): ID!
+  executeImport(args: ImportInput!): ID! @WithSettings @WithCustomSchema
+  deleteImport(id: ID!): ID! @WithCustomSchema
 }

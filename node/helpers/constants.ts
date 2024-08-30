@@ -12,6 +12,8 @@ export const ENDPOINTS = {
   defaultSettings:
     'http://ssesandbox04.myvtex.com/catalog-importer-configuration/settings',
   user: '/api/vtexid/credential/validate',
+  schema: (dataEntity: string, defaultSchema: string) =>
+    `/api/dataentities/${dataEntity}/schemas/${defaultSchema}`,
   brand: {
     list: '/api/catalog_system/pvt/brand/list',
     set: '/api/catalog/pvt/brand',
@@ -64,6 +66,12 @@ export const ENDPOINTS = {
     set: (skuId: ID, warehouseId: ID) =>
       `/api/logistics/pvt/inventory/skus/${skuId}/warehouses/${warehouseId}`,
   },
+}
+
+export const CURRENT_MD_SCHEMA = '0.0.4'
+export const MD_ENTITIES = {
+  import: 'importExecution',
+  entity: 'importEntity',
 }
 
 const INTERNAL_FIELDS = ['id', 'createdIn', 'lastInteractionIn']

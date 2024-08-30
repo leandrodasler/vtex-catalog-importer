@@ -89,8 +89,14 @@ export const getEntityBySourceId = async (context: AppEventContext, id: ID) => {
     .then((r) => getFirstResult<ImportEntity>(r))
 }
 
-export const deleteImport = async (context: AppContext, importId: string) => {
-  await updateImportStatus(context, importId, DELETING)
+export const deleteImport = async (
+  context: AppContext,
+  { status, id: importId }: WithInternalFields<ImportExecution>
+) => {
+  if (status !== DELETING) {
+    await updateImportStatus(context, importId, DELETING)
+  }
+
   const entities = await getEntities(
     context,
     importId,

@@ -6,11 +6,15 @@ import type {
   ImportExecution,
 } from 'ssesandbox04.catalog-importer'
 
+import { CURRENT_MD_SCHEMA, MD_ENTITIES } from '../helpers'
 import Cosmos from './Cosmos'
 import HttpClient from './HttpClient'
 import PrivateClient from './PrivateClient'
 import SourceCatalog from './SourceCatalog'
 import TargetCatalog from './TargetCatalog'
+
+const { VTEX_APP_VENDOR, VTEX_APP_NAME } = process.env
+const STABLE_SCHEMA_APP_ID = `${VTEX_APP_VENDOR}.${VTEX_APP_NAME}@${CURRENT_MD_SCHEMA}`
 
 export class Clients extends IOClients {
   public get httpClient() {
@@ -34,15 +38,17 @@ export class Clients extends IOClients {
   }
 
   public get importExecution() {
-    const entity = 'importExecution'
-
-    return this.getOrSet(entity, masterDataFor<ImportExecution>(entity))
+    return this.getOrSet(
+      MD_ENTITIES.import,
+      masterDataFor<ImportExecution>(MD_ENTITIES.import, STABLE_SCHEMA_APP_ID)
+    )
   }
 
   public get importEntity() {
-    const entity = 'importEntity'
-
-    return this.getOrSet(entity, masterDataFor<ImportEntity>(entity))
+    return this.getOrSet(
+      MD_ENTITIES.entity,
+      masterDataFor<ImportEntity>(MD_ENTITIES.entity, STABLE_SCHEMA_APP_ID)
+    )
   }
 }
 
