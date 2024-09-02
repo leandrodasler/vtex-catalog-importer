@@ -31,7 +31,7 @@ type CustomQueryHookOptions<T, V> = QueryHookOptions<T, V> &
 type CustomMutationHookOptions<T, V> = MutationHookOptions<T, V> &
   CustomGraphQLOptions
 
-const MAX_RETRIES = 5
+const MAX_RETRIES = 10
 const RETRY_DELAY = 500
 
 export const getGraphQLMessageDescriptor = (error: GraphQLError) => ({
@@ -57,7 +57,7 @@ const useErrorRetry = <T = Query, V = undefined>(
       message.includes('unhealthy')
 
     if (messageToRetry && retries.current < MAX_RETRIES) {
-      setTimeout(() => refetch(), RETRY_DELAY)
+      setTimeout(() => refetch(), RETRY_DELAY * (retries.current + 1))
       retries.current++
     } else {
       toastError &&

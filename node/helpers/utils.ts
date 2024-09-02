@@ -5,6 +5,7 @@ import {
   DEFAULT_BATCH_CONCURRENCY,
   DEFAULT_VBASE_BUCKET,
   IMPORT_STATUS,
+  MAX_RETRIES,
   STEP_DELAY,
   STEPS,
 } from '.'
@@ -16,9 +17,34 @@ export const getCurrentSettings = async ({ clients: { apps } }: Context) =>
 export const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms))
 
+const promiseWithConditionalRetry = async <T, R = void>(
+  fn: (element: T) => Promise<Maybe<R>> | R,
+  arg: T,
+  retries = 0
+): Promise<Maybe<R>> => {
+  return Promise.resolve(fn?.(arg))?.catch(async (e) => {
+    const message = e.message.toLowerCase()
+    const messageToRetry =
+      message.includes('500') ||
+      message.includes('429') ||
+      message.includes('network error') ||
+      message.includes('networkerror') ||
+      message.includes('genericerror') ||
+      message.includes('unhealthy')
+
+    if (messageToRetry && retries < MAX_RETRIES) {
+      await delay(STEP_DELAY * (retries + 1))
+
+      return promiseWithConditionalRetry(fn, arg, retries + 1)
+    }
+
+    throw e
+  })
+}
+
 export const batch = async <T, R = void>(
   data: T[],
-  elementCallback: (element: T) => Maybe<Promise<R>> | R,
+  elementCallback: (element: T) => Promise<Maybe<R>> | R,
   concurrency = DEFAULT_BATCH_CONCURRENCY
 ) => {
   const cloneData = [...data]
@@ -28,7 +54,9 @@ export const batch = async <T, R = void>(
     if (!cloneData.length) return
 
     const result = ((await Promise.all(
-      cloneData.splice(0, concurrency).map(elementCallback)
+      cloneData.splice(0, concurrency).map(async (element) => {
+        return promiseWithConditionalRetry(elementCallback, element)
+      })
     )) as unknown) as R
 
     if (result) {
@@ -45,7 +73,7 @@ export const batch = async <T, R = void>(
 
 export const sequentialBatch = async <T, R = void>(
   data: T[],
-  elementCallback: (element: T) => Maybe<Promise<R>> | R
+  elementCallback: (element: T) => Promise<Maybe<R>> | R
 ) => {
   return batch(data, elementCallback, 1)
 }

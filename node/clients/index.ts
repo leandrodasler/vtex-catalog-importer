@@ -6,7 +6,7 @@ import type {
   ImportExecution,
 } from 'ssesandbox04.catalog-importer'
 
-import { CURRENT_MD_SCHEMA, MD_ENTITIES } from '../helpers'
+import { CURRENT_MD_SCHEMA, MAX_RETRIES, MD_ENTITIES } from '../helpers'
 import Cosmos from './Cosmos'
 import HttpClient from './HttpClient'
 import PrivateClient from './PrivateClient'
@@ -59,7 +59,7 @@ export default {
       exponentialTimeoutCoefficient: 2,
       exponentialBackoffCoefficient: 2,
       initialBackoffDelay: 100,
-      retries: 10,
+      retries: MAX_RETRIES,
       timeout: 300000,
       concurrency: 1,
     },
