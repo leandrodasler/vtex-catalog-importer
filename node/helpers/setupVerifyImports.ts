@@ -8,9 +8,9 @@ import {
 } from '.'
 import runImport from '../events'
 
-let cachedContext: Context | undefined
 const TIMEOUT = 10000
-let hasImportRun = false
+let cachedContext: Context | undefined
+let hasImportRun: boolean | undefined
 
 export function getCachedContext() {
   return cachedContext
@@ -52,6 +52,8 @@ const verifyImports = async () => {
 
   if (!nextPendingImport) return
 
+  setHasImportRun()
+
   if (nextPendingImport.status === IMPORT_STATUS.RUNNING) {
     await updateImportStatus(
       context,
@@ -62,7 +64,6 @@ const verifyImports = async () => {
 
   context.state.body = nextPendingImport
   runImport(context)
-  setHasImportRun()
 }
 
 export const setupVerifyImports = () => {

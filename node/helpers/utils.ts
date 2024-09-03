@@ -4,6 +4,7 @@ import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 import {
   DEFAULT_BATCH_CONCURRENCY,
   DEFAULT_VBASE_BUCKET,
+  IMPORT_EXECUTION_FULL_FIELDS,
   IMPORT_STATUS,
   MAX_RETRIES,
   STEP_DELAY,
@@ -108,6 +109,19 @@ export const handleError = async (context: AppEventContext, e: ErrorLike) => {
 export const processStepFactory = (context: AppEventContext) => async (
   step: (context: AppEventContext) => Promise<void>
 ) => {
+  if (!context.state.body.id) return
+
+  const importData = await context.clients.importExecution.get(
+    context.state.body.id,
+    IMPORT_EXECUTION_FULL_FIELDS
+  )
+
+  const { settings, ...currentImport } = importData
+
+  if (importData.status !== IMPORT_STATUS.RUNNING) return
+
+  context.state.body = { ...context.state.body, ...currentImport }
+
   if (context.state.body.error) return
   await delay(STEP_DELAY)
   context.state.entity = STEPS.find(({ handler }) => handler === step)?.entity
