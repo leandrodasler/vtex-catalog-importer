@@ -25,8 +25,11 @@ const promiseWithConditionalRetry = async <T, R = void>(
   return Promise.resolve(fn?.(arg))?.catch(async (e) => {
     const message = e.message.toLowerCase()
     const messageToRetry =
-      message.includes('500') ||
+      message.includes('400') ||
       message.includes('429') ||
+      message.includes('500') ||
+      message.includes('502') ||
+      message.includes('503') ||
       message.includes('network error') ||
       message.includes('networkerror') ||
       message.includes('genericerror') ||

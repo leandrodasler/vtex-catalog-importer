@@ -33,6 +33,8 @@ const status = async (context: Context) => {
 
   if (!user) return
 
+  const reload = context.request.query?.reload === '1'
+
   const {
     data: dataImports,
     pagination: { total: totalImports },
@@ -67,6 +69,7 @@ const status = async (context: Context) => {
   context.body = `<html>
   <head>
     <title>VTEX Catalog Importer Status</title>
+    ${reload ? '<meta http-equiv="refresh" content="5">' : ''}
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <style>
       body {
@@ -96,6 +99,11 @@ const status = async (context: Context) => {
   </head>
   <body>
     <h1>VTEX Catalog Importer Status</h1>
+    <form>
+      <label><input type="checkbox" name="reload" value="1" ${
+        reload ? 'checked' : ''
+      } onchange="this.form.submit()" />Reload automatically</label>
+    </form>
     <h2>Logged as ${user}</h2>
     <div class="flex">
     <section>
