@@ -33,7 +33,7 @@ const verifyImports = async () => {
 
     if (lastEntity?.createdIn) {
       const diffDate = Date.now() - new Date(lastEntity.createdIn).getTime()
-      const maxMinutes = context.vtex.workspace === 'master' ? 60 : 10
+      const maxMinutes = context.vtex.production ? 60 : 10
 
       if (diffDate > maxMinutes * 60 * 1000) {
         await updateImportStatus(

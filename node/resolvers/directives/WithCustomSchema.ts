@@ -61,20 +61,19 @@ export default class WithCustomSchema extends SchemaDirectiveVisitor {
 
     field.resolve = async (...params) => {
       const [root, args, context, info] = params
-      const { workspace } = context.vtex
+      const { workspace, production } = context.vtex
       const defaultSchema = VTEX_APP_VERSION as string
       const workspaceSchema = `${defaultSchema}-${workspace}`
-      const isWorkspaceMaster = workspace === 'master'
 
       // getting and deleting schemas created by masterdata builder
-      const schemas = await (isWorkspaceMaster
+      const schemas = await (production
         ? getAndCleanSchemas(context, mdEntities, defaultSchema)
         : getAndCleanSchemas(context, mdEntities, workspaceSchema))
 
       // creating new schemas with a known name
       await createSchemas(context, schemas, CURRENT_MD_SCHEMA)
 
-      if (!isWorkspaceMaster) {
+      if (!production) {
         await createSchemas(
           context,
           schemas,

@@ -157,21 +157,27 @@ export default class SourceCatalog extends HttpClient {
     const data: ProductPayload[] = []
     const skuIds: number[] = []
 
-    await batch(productIds, async (id) => {
-      const product = await this.getProductDetails(id)
-      const { IsActive, CategoryId, BrandId } = product
-      const inCategoryTree = categories.find((c) => c.id === String(CategoryId))
+    await batch(
+      productIds,
+      async (id) => {
+        const product = await this.getProductDetails(id)
+        const { IsActive, CategoryId, BrandId } = product
+        const inCategoryTree = categories.find(
+          (c) => c.id === String(CategoryId)
+        )
 
-      if (!IsActive || !inCategoryTree || !productAndSkuIds[id].length) return
+        if (!IsActive || !inCategoryTree || !productAndSkuIds[id].length) return
 
-      const CategoryPath = this.getCategoryPath(CategoryId, categoryTree)
-      const BrandName = await this.getBrandDetails(String(BrandId)).then(
-        (b) => b.Name
-      )
+        const CategoryPath = this.getCategoryPath(CategoryId, categoryTree)
+        const BrandName = await this.getBrandDetails(String(BrandId)).then(
+          (b) => b.Name
+        )
 
-      data.push({ ...product, CategoryPath, BrandName })
-      skuIds.push(...productAndSkuIds[id])
-    })
+        data.push({ ...product, CategoryPath, BrandName })
+        skuIds.push(...productAndSkuIds[id])
+      },
+      GET_DETAILS_CONCURRENCY
+    )
 
     return { data, skuIds }
   }
@@ -194,10 +200,14 @@ export default class SourceCatalog extends HttpClient {
     return this.get<ProductSpecification[]>(
       ENDPOINTS.specification.listByProduct(id)
     ).then((data) =>
-      batch(data, async ({ Id, ...rest }) => ({
-        ...(await this.getSpecification(Id)),
-        ...rest,
-      }))
+      batch(
+        data,
+        async ({ Id, ...rest }) => ({
+          ...(await this.getSpecification(Id)),
+          ...rest,
+        }),
+        GET_DETAILS_CONCURRENCY
+      )
     )
   }
 
