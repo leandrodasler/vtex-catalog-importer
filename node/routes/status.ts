@@ -1,9 +1,13 @@
 import { method } from '@vtex/api'
-import type { ImportExecution } from 'ssesandbox04.catalog-importer'
+import type {
+  ImportEntity,
+  ImportExecution,
+} from 'ssesandbox04.catalog-importer'
 
 import {
   batch,
   DEFAULT_VBASE_BUCKET,
+  getLastEntity,
   IMPORT_ENTITY_FIELDS,
   IMPORT_EXECUTION_FIELDS,
   setCachedContext,
@@ -14,6 +18,11 @@ const SORT = 'createdIn desc'
 
 const outputHTML = (data?: unknown[]) =>
   data?.length ? `<pre>${JSON.stringify(data, null, 2)}</pre>` : ''
+
+const formatDate = (date: string | Date) =>
+  `${new Date(date).toLocaleString('pt-BR')} UTC`
+
+const diffDate = (date: string) => Date.now() - new Date(date).getTime()
 
 const status = async (context: Context) => {
   setCachedContext(context)
@@ -42,16 +51,34 @@ const status = async (context: Context) => {
 
   const imports = await batch(
     dataImports as Array<WithInternalFields<ImportExecution>>,
-    async (i) => ({
-      ...i,
-      vbaseJson: await vbase.getJSON(DEFAULT_VBASE_BUCKET, i.id, true),
-    })
+    async (i) => {
+      const lastEntity = await getLastEntity(context, i)
+
+      return {
+        ...(lastEntity?.createdIn && {
+          lastEntityDate: `${formatDate(lastEntity.createdIn)} - ${Math.floor(
+            diffDate(lastEntity.createdIn) / 1000 / 60
+          )} minutes ago`,
+        }),
+        date: formatDate(i.createdIn),
+        dateLastInteraction: formatDate(i.lastInteractionIn),
+        ...i,
+        vbaseJson: await vbase.getJSON(DEFAULT_VBASE_BUCKET, i.id, true),
+      }
+    }
   )
 
   const {
-    data: entities,
+    data: dataEntities,
     pagination: { total: totalEntities },
   } = await importEntity.searchRaw(PAG, IMPORT_ENTITY_FIELDS, SORT)
+
+  const entities = (dataEntities as Array<
+    WithInternalFields<ImportEntity>
+  >).map((e) => ({
+    ...(e?.createdIn && { date: formatDate(e.createdIn) }),
+    ...e,
+  }))
 
   const targetBrands = await targetCatalog.getBrands()
   const categories = await targetCatalog.getCategoryTreeFlattened()
@@ -95,14 +122,25 @@ const status = async (context: Context) => {
         word-break: break-word;
         white-space: break-spaces;
       }
+      h1 span {
+        float: right;
+        padding: 5px;
+        border-radius: 5px;
+        background: #ccc;
+        font-size: 50%;
+      }
     </style>
   </head>
   <body>
-    <h1>VTEX Catalog Importer Status</h1>
+    <h1>VTEX Catalog Importer Status <span>Version ${
+      process.env.VTEX_APP_VERSION
+    }</span></h1>
     <form>
       <label><input type="checkbox" name="reload" value="1" ${
         reload ? 'checked' : ''
-      } onchange="this.form.submit()" />Reload automatically</label>
+      } onchange="this.form.submit()" />Reload automatically - Last update: ${formatDate(
+    new Date()
+  )}</label>
     </form>
     <h2>Logged as ${user}</h2>
     <div class="flex">

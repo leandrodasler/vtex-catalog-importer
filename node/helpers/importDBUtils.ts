@@ -89,6 +89,18 @@ export const getEntityBySourceId = async (context: AppEventContext, id: ID) => {
     .then((r) => getFirstResult<ImportEntity>(r))
 }
 
+export const getLastEntity = async (
+  context: AppContext,
+  { id }: WithInternalFields<ImportExecution>
+) => {
+  const sort = 'createdIn desc'
+  const where = `executionImportId=${id}`
+
+  return context.clients.importEntity
+    .search(ONE_RESULT, IMPORT_ENTITY_FIELDS, sort, where)
+    .then((r) => getFirstResult<ImportEntity>(r))
+}
+
 export const deleteImport = async (
   context: AppContext,
   { status, id: importId }: WithInternalFields<ImportExecution>
