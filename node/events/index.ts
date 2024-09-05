@@ -24,7 +24,7 @@ const runImport = async (context: AppEventContext) => {
       IMPORT_EXECUTION_FULL_FIELDS
     )
 
-    if (importData.status !== IMPORT_STATUS.PENDING) return
+    if (!importData || importData.status !== IMPORT_STATUS.PENDING) return
 
     const currentSettings = settings.useDefault
       ? await httpClient.getDefaultSettings()

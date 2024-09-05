@@ -31,16 +31,22 @@ const verifyImports = async () => {
   if (importRunning) {
     const lastEntity = await getLastEntity(context, importRunning)
 
-    if (lastEntity?.createdIn) {
+    if (lastEntity) {
       const diffDate = Date.now() - new Date(lastEntity.createdIn).getTime()
       const maxMinutes = context.vtex.production ? 60 : 10
 
       if (diffDate > maxMinutes * 60 * 1000) {
+        await context.clients.importEntity.update(lastEntity.id, {
+          updated: Date.now(),
+        })
+
         await updateImportStatus(
           context,
           importRunning.id,
           IMPORT_STATUS.PENDING
         )
+
+        await delay(TIMEOUT)
       }
     }
 
