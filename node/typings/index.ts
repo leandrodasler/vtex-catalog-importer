@@ -116,6 +116,7 @@ declare global {
   }
 
   type ProductPayload = ProductDetails & {
+    newId?: number
     CategoryPath: string
     BrandName: string
   }

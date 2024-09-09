@@ -1,10 +1,7 @@
 import {
-  delay,
-  GET_DETAILS_CONCURRENCY,
+  batch,
   getEntityBySourceId,
   incrementVBaseEntity,
-  sequentialBatch,
-  STEP_DELAY,
   updateCurrentImport,
 } from '../../helpers'
 
@@ -21,8 +18,10 @@ const handleProducts = async (context: AppEventContext) => {
 
   if (!mapCategory) return
 
+  const lastProductId = await targetCatalog.getLastProductId()
   const { data: sourceProducts, skuIds } = await sourceCatalog.getProducts(
-    categoryTree
+    categoryTree,
+    lastProductId
   )
 
   context.state.skuIds = skuIds
@@ -33,10 +32,8 @@ const handleProducts = async (context: AppEventContext) => {
 
   await updateCurrentImport(context, { sourceProductsTotal, sourceSkusTotal })
 
-  let count = 0
-
-  await sequentialBatch(sourceProducts, async (data) => {
-    const { Id, BrandId, CategoryId, DepartmentId, ...product } = data
+  await batch(sourceProducts, async (data) => {
+    const { Id, newId, BrandId, CategoryId, DepartmentId, ...product } = data
     const migrated = await getEntityBySourceId(context, Id)
 
     if (migrated?.targetId) {
@@ -45,7 +42,7 @@ const handleProducts = async (context: AppEventContext) => {
 
     if (mapProduct[Id]) return
 
-    const payload = { ...product }
+    const payload = { Id: newId, ...product }
 
     const {
       Id: targetId,
@@ -75,10 +72,6 @@ const handleProducts = async (context: AppEventContext) => {
       .catch(() => incrementVBaseEntity(context))
 
     mapProduct[Id] = targetId
-
-    if (++count % GET_DETAILS_CONCURRENCY === 0) {
-      await delay(STEP_DELAY)
-    }
   })
 
   context.state.mapProduct = mapProduct

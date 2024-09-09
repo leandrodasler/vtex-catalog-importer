@@ -50,7 +50,7 @@ const firstColumnTheme = csx({
   },
 })
 
-const POLLING_INTERVAL = 100
+const POLLING_INTERVAL = 1000
 
 const ShowImportModal = ({ modalState, id, setDeleted }: Props) => {
   const { formatMessage } = useIntl()

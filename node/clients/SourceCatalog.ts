@@ -150,11 +150,11 @@ export default class SourceCatalog extends HttpClient {
     return path.join('/')
   }
 
-  public async getProducts(categoryTree: Category[] = []) {
+  public async getProducts(categoryTree: Category[] = [], lastProductId = 0) {
     const productAndSkuIds = await this.getProductAndSkuIds(categoryTree)
     const productIds = Object.keys(productAndSkuIds)
     const categories = this.flatCategoryTree(categoryTree)
-    const data: ProductPayload[] = []
+    const products: ProductPayload[] = []
     const skuIds: number[] = []
 
     await batch(
@@ -173,11 +173,16 @@ export default class SourceCatalog extends HttpClient {
           (b) => b.Name
         )
 
-        data.push({ ...product, CategoryPath, BrandName })
+        products.push({ ...product, CategoryPath, BrandName })
         skuIds.push(...productAndSkuIds[id])
       },
       GET_DETAILS_CONCURRENCY
     )
+
+    const data = products.map((p, index) => ({
+      ...p,
+      ...(lastProductId && { newId: lastProductId + index + 1 }),
+    }))
 
     return { data, skuIds }
   }
@@ -215,12 +220,17 @@ export default class SourceCatalog extends HttpClient {
     return this.get<SkuDetails>(ENDPOINTS.sku.updateOrDetails(id))
   }
 
-  public async getSkus(skuIds: number[] = []) {
-    return batch(
+  public async getSkus(skuIds: number[] = [], lastSkuId = 0) {
+    const skus = await batch(
       skuIds,
       (id) => this.getSkuDetails(id),
       GET_DETAILS_CONCURRENCY
     )
+
+    return skus.map((data, index) => ({
+      ...data,
+      ...(lastSkuId && { newId: lastSkuId + index + 1 }),
+    }))
   }
 
   private async getSkuFiles(id: ID) {

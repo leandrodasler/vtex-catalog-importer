@@ -6,7 +6,7 @@ import type {
 } from 'ssesandbox04.catalog-importer'
 
 import {
-  DEFAULT_BATCH_CONCURRENCY,
+  DEFAULT_CONCURRENCY,
   IMPORT_ENTITY_FIELDS,
   IMPORT_EXECUTION_FIELDS,
   IMPORT_STATUS,
@@ -109,11 +109,7 @@ export const deleteImport = async (
     await updateImportStatus(context, importId, DELETING)
   }
 
-  const entities = await getEntities(
-    context,
-    importId,
-    DEFAULT_BATCH_CONCURRENCY
-  )
+  const entities = await getEntities(context, importId, DEFAULT_CONCURRENCY)
 
   batch(entities.data, deleteEntityFactory(context))
 

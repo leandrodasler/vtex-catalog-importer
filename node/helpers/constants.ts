@@ -43,6 +43,8 @@ export const ENDPOINTS = {
       `/api/catalog/pvt/product/${productId}/specificationvalue`,
   },
   sku: {
+    listAll: (page: number, pageSize: number) =>
+      `/api/catalog_system/pvt/sku/stockkeepingunitids?page=${page}&pagesize=${pageSize}`,
     set: '/api/catalog/pvt/stockkeepingunit',
     getContext: (id: ID) =>
       `/api/catalog_system/pvt/sku/stockkeepingunitbyid/${id}`,
@@ -122,11 +124,11 @@ export const IMPORT_STATUS: { [keyof in ImportStatus]: ImportStatus } = {
 }
 
 export const STEP_DELAY = 1000
-export const DEFAULT_BATCH_CONCURRENCY = 500
+export const DEFAULT_CONCURRENCY = 500
+export const GET_DETAILS_CONCURRENCY = 25
 export const MAX_RETRIES = 10
 export const ONE_RESULT = { page: 1, pageSize: 1 }
 export const COMMON_WHERE = `(status<>${IMPORT_STATUS.TO_BE_DELETED})AND(status<>${IMPORT_STATUS.DELETING})`
-export const GET_DETAILS_CONCURRENCY = 25
 export const DEFAULT_VBASE_BUCKET = 'catalog-importer'
 export const PRODUCT_REF_ID_ERROR = 'same RefId'
 export const PRODUCT_LINK_ID_ERROR = 'same LinkId'

@@ -2,7 +2,6 @@ import type { InstanceOptions } from '@vtex/api'
 
 import {
   batch,
-  delay,
   ENDPOINTS,
   PRODUCT_LINK_ID_ERROR,
   PRODUCT_REF_ID_ERROR,
@@ -185,19 +184,40 @@ export default class TargetCatalog extends HttpClient {
 
       result = { ...result, ...data }
 
-      if (range.total <= to || (max && from >= max)) {
+      if (range.total <= to || (max && to >= max)) {
         return
       }
 
       from += maxPerPage
       to = max ? Math.min(from + maxPerPage - 1, max) : from + maxPerPage - 1
-      await delay(500)
       await getRange()
     }
 
     await getRange()
 
     return result
+  }
+
+  public async getLastProductId() {
+    const { range } = await this.get<ProductAndSkuIds>(
+      ENDPOINTS.product.listAll(0, 1)
+    )
+
+    if (!range.total) return 0
+
+    const { data } = await this.get<ProductAndSkuIds>(
+      ENDPOINTS.product.listAll(range.total, range.total)
+    )
+
+    return +Object.keys(data)[0]
+  }
+
+  public async getLastSkuId() {
+    const skuIds = await this.get<number[]>(
+      ENDPOINTS.sku.listAll(1, 1999999999)
+    )
+
+    return skuIds[skuIds.length - 1]
   }
 
   private async deleteCategory(id: ID) {

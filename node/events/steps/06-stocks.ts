@@ -1,7 +1,7 @@
 import {
+  batch,
   getEntityBySourceId,
   incrementVBaseEntity,
-  sequentialBatch,
   updateCurrentImport,
 } from '../../helpers'
 
@@ -36,7 +36,7 @@ const handleStocks = async (context: AppEventContext) => {
   const mapStock: EntityMap = {}
 
   await updateCurrentImport(context, { sourceStocksTotal })
-  await sequentialBatch(sourceStocks, async (sourceStock) => {
+  await batch(sourceStocks, async (sourceStock) => {
     const { skuId, totalQuantity, hasUnlimitedQuantity, leadTime } = sourceStock
     const migrated = await getEntityBySourceId(context, skuId)
 

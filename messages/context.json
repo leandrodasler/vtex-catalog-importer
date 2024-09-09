@@ -77,7 +77,7 @@
   "admin/import.view.label": "View details",
   "admin/import.pagination.label": "Showing {pageSize, plural, one {{pageSize} import} other {last {pageSize} imports}}",
   "admin/import.delete": "Do you really want to delete the import?",
-  "admin/import.delete.text": "By deleting the import, the respective data entered for products and SKUs will be inactivated and will be invisible in the store.",
+  "admin/import.delete.text": "By deleting the import, the respective data entered for categories, products and SKUs will be inactivated and will be invisible in the store.",
   "admin/import.delete.check": "I am aware that the data entered by this import will be inactivated in the catalog",
   "admin/import.delete.notAllowed": "The import can not be deleted because it is running.",
 

@@ -77,7 +77,7 @@
   "admin/import.view.label": "Visualizar detalhes",
   "admin/import.pagination.label": "Exibindo {pageSize, plural, one {{pageSize} importação} other {últimas {pageSize} importações}}",
   "admin/import.delete": "Deseja mesmo excluir a importação?",
-  "admin/import.delete.text": "Ao excluir a importação, os respectivos dados inseridos de produtos e SKUs serão inativados e ficarão invisíveis na loja.",
+  "admin/import.delete.text": "Ao excluir a importação, os respectivos dados inseridos de categorias, produtos e SKUs serão inativados e ficarão invisíveis na loja.",
   "admin/import.delete.check": "Estou ciente de que os dados inseridos por esta importação serão inativados no catálogo",
   "admin/import.delete.notAllowed": "A importação não pode ser excluída porque está em execução.",
 

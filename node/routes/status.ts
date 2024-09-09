@@ -44,6 +44,9 @@ const status = async (context: Context) => {
 
   const reload = context.request.query?.reload === '1'
 
+  const lastProductId = await targetCatalog.getLastProductId()
+  const lastSkuId = await targetCatalog.getLastSkuId()
+
   const {
     data: dataImports,
     pagination: { total: totalImports },
@@ -55,9 +58,11 @@ const status = async (context: Context) => {
       const lastEntity = await getLastEntity(context, i)
 
       return {
-        ...(lastEntity?.createdIn && {
-          lastEntityDate: `${formatDate(lastEntity.createdIn)} - ${Math.floor(
-            diffDate(lastEntity.createdIn) / 1000 / 60
+        ...(lastEntity?.lastInteractionIn && {
+          lastEntityLastInteraction: `${formatDate(
+            lastEntity.lastInteractionIn
+          )} - ${Math.floor(
+            diffDate(lastEntity.lastInteractionIn) / 1000 / 60
           )} minutes ago`,
         }),
         date: formatDate(i.createdIn),
@@ -76,16 +81,17 @@ const status = async (context: Context) => {
   const entities = (dataEntities as Array<
     WithInternalFields<ImportEntity>
   >).map((e) => ({
-    ...(e?.createdIn && { date: formatDate(e.createdIn) }),
+    date: formatDate(e.createdIn),
+    dateLastInteraction: formatDate(e.lastInteractionIn),
     ...e,
   }))
 
   const targetBrands = await targetCatalog.getBrands()
   const categories = await targetCatalog.getCategoryTreeFlattened()
-  const targetCategories = categories.map(({ children, ...c }) => ({
-    ...c,
+  const targetCategories = categories.map(({ children, ...category }) => ({
+    ...category,
     ...(children?.length && {
-      children: children.map((ch) => ch.id).join(','),
+      children: children.map((c) => c.id).join(','),
     }),
   }))
 
@@ -129,20 +135,28 @@ const status = async (context: Context) => {
         background: #ccc;
         font-size: 50%;
       }
+      h1 span:not(:first-child) {
+        margin-right: 5px;
+      }
     </style>
   </head>
   <body>
-    <h1>VTEX Catalog Importer Status <span>Version ${
-      process.env.VTEX_APP_VERSION
-    }</span></h1>
-    <form>
-      <label><input type="checkbox" name="reload" value="1" ${
-        reload ? 'checked' : ''
-      } onchange="this.form.submit()" />Reload automatically - Last update: ${formatDate(
+    <header>
+      <h1>
+        VTEX Catalog Importer Status
+        <span>Version ${process.env.VTEX_APP_VERSION}</span>
+        <span>Last SKU ID: ${lastSkuId}</span>
+        <span>Last product ID: ${lastProductId}</span>
+      </h1>
+      <form>
+        <label><input type="checkbox" name="reload" value="1" ${
+          reload ? 'checked' : ''
+        } onchange="this.form.submit()" />Reload automatically - Last update: ${formatDate(
     new Date()
   )}</label>
-    </form>
-    <h2>Logged as ${user}</h2>
+      </form>
+      <h2>Logged as ${user}</h2>
+    </header>
     <div class="flex">
     <section>
       <h3>Imports - total: ${totalImports}</h3>

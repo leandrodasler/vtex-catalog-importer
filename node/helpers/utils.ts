@@ -2,7 +2,7 @@ import type { ErrorLike, Maybe } from '@vtex/api'
 import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
 import {
-  DEFAULT_BATCH_CONCURRENCY,
+  DEFAULT_CONCURRENCY,
   DEFAULT_VBASE_BUCKET,
   IMPORT_STATUS,
   MAX_RETRIES,
@@ -48,7 +48,7 @@ const promiseWithConditionalRetry = async <T, R = void>(
 export const batch = async <T, R = void>(
   data: T[],
   elementCallback: (element: T) => Promise<Maybe<R>> | R,
-  concurrency = DEFAULT_BATCH_CONCURRENCY
+  concurrency = DEFAULT_CONCURRENCY
 ) => {
   const cloneData = [...data]
   const results: R[] = []

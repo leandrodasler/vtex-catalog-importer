@@ -1,7 +1,7 @@
 import {
+  batch,
   getEntityBySourceId,
   incrementVBaseEntity,
-  sequentialBatch,
   updateCurrentImport,
 } from '../../helpers'
 
@@ -30,7 +30,7 @@ const handlePrices = async (context: AppEventContext) => {
   const mapSourceSkuSellerStock: EntityMap = {}
 
   await updateCurrentImport(context, { sourcePricesTotal })
-  await sequentialBatch(sourcePrices, async (sourcePrice) => {
+  await batch(sourcePrices, async (sourcePrice) => {
     const { itemId, basePrice, sellerStock, ...price } = sourcePrice
     const migrated = await getEntityBySourceId(context, itemId)
 

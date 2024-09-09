@@ -32,7 +32,9 @@ const verifyImports = async () => {
     const lastEntity = await getLastEntity(context, importRunning)
 
     if (lastEntity) {
-      const diffDate = Date.now() - new Date(lastEntity.createdIn).getTime()
+      const diffDate =
+        Date.now() - new Date(lastEntity.lastInteractionIn).getTime()
+
       const maxMinutes = context.vtex.production ? 60 : 10
 
       if (diffDate > maxMinutes * 60 * 1000) {
