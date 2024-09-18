@@ -1,6 +1,7 @@
 import {
   getEntityBySourceId,
   incrementVBaseEntity,
+  promiseWithConditionalRetry,
   sequentialBatch,
   updateCurrentImport,
 } from '../../helpers'
@@ -44,19 +45,24 @@ const handleCategories = async (context: AppEventContext) => {
         : undefined,
     }
 
-    const { Id: targetId } = await targetCatalog.createCategory(payload)
+    const { Id: targetId } = await promiseWithConditionalRetry(
+      () => targetCatalog.createCategory(payload),
+      null
+    )
 
-    await importEntity
-      .save({
-        executionImportId,
-        name: entity,
-        sourceAccount,
-        sourceId: Id,
-        targetId,
-        payload,
-        title: category.Name,
-      })
-      .catch(() => incrementVBaseEntity(context))
+    await promiseWithConditionalRetry(
+      () =>
+        importEntity.save({
+          executionImportId,
+          name: entity,
+          sourceAccount,
+          sourceId: Id,
+          targetId,
+          payload,
+          title: category.Name,
+        }),
+      null
+    ).catch(() => incrementVBaseEntity(context))
 
     mapCategory[Id] = targetId
   })

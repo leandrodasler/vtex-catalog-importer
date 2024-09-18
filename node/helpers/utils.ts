@@ -17,11 +17,11 @@ export const getCurrentSettings = async ({ clients: { apps } }: Context) =>
 export const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms))
 
-const promiseWithConditionalRetry = async <T, R = void>(
-  fn: (element: T) => Promise<Maybe<R>> | R,
+export const promiseWithConditionalRetry = async <T, R = void>(
+  fn: (arg: T) => Promise<R> | R,
   arg: T,
   retries = 0
-): Promise<Maybe<R>> => {
+): Promise<R> => {
   return Promise.resolve(fn?.(arg))?.catch(async (e) => {
     const message = e.message.toLowerCase()
     const messageToRetry =

@@ -112,6 +112,7 @@ export const IMPORT_ENTITY_FIELDS = [
   'pathParams',
   'payload',
   'title',
+  'updated',
 ]
 
 export const IMPORT_STATUS: { [keyof in ImportStatus]: ImportStatus } = {

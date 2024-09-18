@@ -2,6 +2,7 @@ import {
   batch,
   getEntityBySourceId,
   incrementVBaseEntity,
+  promiseWithConditionalRetry,
   updateCurrentImport,
 } from '../../helpers'
 
@@ -48,23 +49,30 @@ const handlePrices = async (context: AppEventContext) => {
       mapSourceSkuSellerStock[+itemId] = sellerStock
     }
 
-    await targetCatalog.createPrice(skuId, payload)
-    await importEntity
-      .save({
-        executionImportId,
-        name: entity,
-        sourceAccount,
-        sourceId: itemId,
-        targetId: skuId,
-        payload,
-        pathParams: { prices: skuId },
-      })
-      .catch(() => incrementVBaseEntity(context))
+    await promiseWithConditionalRetry(
+      () => targetCatalog.createPrice(skuId, payload),
+      null
+    )
+
+    await promiseWithConditionalRetry(
+      () =>
+        importEntity.save({
+          executionImportId,
+          name: entity,
+          sourceAccount,
+          sourceId: itemId,
+          targetId: skuId,
+          payload,
+          pathParams: { prices: skuId },
+        }),
+      null
+    ).catch(() => incrementVBaseEntity(context))
 
     mapPrice[+itemId] = skuId
   })
 
   context.state.mapSourceSkuSellerStock = mapSourceSkuSellerStock
+  context.state.mapSourceSkuProduct = undefined
 }
 
 export default handlePrices

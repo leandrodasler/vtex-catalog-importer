@@ -2,6 +2,7 @@ import {
   batch,
   getEntityBySourceId,
   incrementVBaseEntity,
+  promiseWithConditionalRetry,
   updateCurrentImport,
 } from '../../helpers'
 
@@ -48,33 +49,49 @@ const handleProducts = async (context: AppEventContext) => {
       Id: targetId,
       DepartmentId: _,
       ...created
-    } = await targetCatalog.createProduct(payload)
+    } = await promiseWithConditionalRetry(
+      () => targetCatalog.createProduct(payload),
+      null
+    )
 
     const specifications = await sourceCatalog.getProductSpecifications(Id)
     const targetCategoryId = mapCategory[CategoryId]
     const updatePayload = { ...created, CategoryId: targetCategoryId }
 
     await Promise.all([
-      targetCatalog.associateProductSpecifications(targetId, specifications),
-      targetCatalog.updateProduct(targetId, updatePayload),
+      promiseWithConditionalRetry(
+        () =>
+          targetCatalog.associateProductSpecifications(
+            targetId,
+            specifications
+          ),
+        null
+      ),
+      promiseWithConditionalRetry(
+        () => targetCatalog.updateProduct(targetId, updatePayload),
+        null
+      ),
     ])
 
-    await importEntity
-      .save({
-        executionImportId,
-        name: entity,
-        sourceAccount,
-        sourceId: Id,
-        targetId,
-        payload: { ...payload, ...updatePayload },
-        title: product.Name,
-      })
-      .catch(() => incrementVBaseEntity(context))
+    await promiseWithConditionalRetry(
+      () =>
+        importEntity.save({
+          executionImportId,
+          name: entity,
+          sourceAccount,
+          sourceId: Id,
+          targetId,
+          payload: { ...payload, ...updatePayload },
+          title: product.Name,
+        }),
+      null
+    ).catch(() => incrementVBaseEntity(context))
 
     mapProduct[Id] = targetId
   })
 
   context.state.mapProduct = mapProduct
+  context.state.mapCategory = undefined
 }
 
 export default handleProducts

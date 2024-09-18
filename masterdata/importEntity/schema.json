@@ -9,7 +9,8 @@
     "targetId": { "type": ["string", "integer", "null"] },
     "pathParams": { "type": ["object", "null"] },
     "payload": { "type": "object" },
-    "title": { "type": ["string", "null"] }
+    "title": { "type": ["string", "null"] },
+    "updated": { "type": ["integer", "null"] }
   },
   "v-cache": false,
   "v-indexed": [
@@ -18,7 +19,8 @@
     "sourceAccount",
     "sourceId",
     "targetId",
-    "title"
+    "title",
+    "updated"
   ],
   "v-security": { "allowGetAll": true },
   "v-immediate-indexing": true

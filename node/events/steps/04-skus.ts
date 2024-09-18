@@ -1,4 +1,9 @@
-import { batch, getEntityBySourceId, incrementVBaseEntity } from '../../helpers'
+import {
+  batch,
+  getEntityBySourceId,
+  incrementVBaseEntity,
+  promiseWithConditionalRetry,
+} from '../../helpers'
 
 const handleSkus = async (context: AppEventContext) => {
   const { entity, skuIds, mapProduct } = context.state
@@ -40,25 +45,40 @@ const handleSkus = async (context: AppEventContext) => {
       ActivateIfPossible: IsActive,
     }
 
-    const { Id: targetId } = await targetCatalog.createSku(payload)
+    const { Id: targetId } = await promiseWithConditionalRetry(
+      () => targetCatalog.createSku(payload),
+      null
+    )
 
     await Promise.all([
-      targetCatalog.associateSkuSpecifications(targetId, specifications),
-      targetCatalog.createSkuEan(targetId, Ean ?? RefId),
-      targetCatalog.createSkuFiles(targetId, files),
+      promiseWithConditionalRetry(
+        () =>
+          targetCatalog.associateSkuSpecifications(targetId, specifications),
+        null
+      ),
+      promiseWithConditionalRetry(
+        () => targetCatalog.createSkuEan(targetId, Ean ?? RefId),
+        null
+      ),
+      promiseWithConditionalRetry(
+        () => targetCatalog.createSkuFiles(targetId, files),
+        null
+      ),
     ])
 
-    await importEntity
-      .save({
-        executionImportId,
-        name: entity,
-        sourceAccount,
-        sourceId: Id,
-        targetId,
-        payload,
-        title: sku.Name,
-      })
-      .catch(() => incrementVBaseEntity(context))
+    await promiseWithConditionalRetry(
+      () =>
+        importEntity.save({
+          executionImportId,
+          name: entity,
+          sourceAccount,
+          sourceId: Id,
+          targetId,
+          payload,
+          title: sku.Name,
+        }),
+      null
+    ).catch(() => incrementVBaseEntity(context))
 
     mapSku[Id] = targetId
     mapSourceSkuProduct[Id] = ProductId
@@ -66,6 +86,7 @@ const handleSkus = async (context: AppEventContext) => {
 
   context.state.mapSku = mapSku
   context.state.mapSourceSkuProduct = mapSourceSkuProduct
+  context.state.mapProduct = undefined
 }
 
 export default handleSkus

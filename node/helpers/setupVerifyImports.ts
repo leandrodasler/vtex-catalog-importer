@@ -11,6 +11,8 @@ import {
 import runImport from '../events'
 
 const TIMEOUT = 10000
+const MAX_TIME_LAST_ENTITY = 25 * 60 * 1000
+
 let cachedContext: Context | undefined
 
 export function getCachedContext() {
@@ -35,9 +37,7 @@ const verifyImports = async () => {
       const diffDate =
         Date.now() - new Date(lastEntity.lastInteractionIn).getTime()
 
-      const maxMinutes = context.vtex.production ? 60 : 10
-
-      if (diffDate > maxMinutes * 60 * 1000) {
+      if (diffDate > MAX_TIME_LAST_ENTITY) {
         await context.clients.importEntity.update(lastEntity.id, {
           updated: Date.now(),
         })
