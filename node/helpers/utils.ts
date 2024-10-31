@@ -4,10 +4,12 @@ import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 import {
   DEFAULT_CONCURRENCY,
   DEFAULT_VBASE_BUCKET,
+  IMPORT_EXECUTION_FIELDS,
   IMPORT_STATUS,
   MAX_RETRIES,
   STEP_DELAY,
   STEPS,
+  STEPS_ENTITIES,
 } from '.'
 import { updateCurrentImport } from './importDBUtils'
 
@@ -110,7 +112,27 @@ export const processStepFactory = (context: AppEventContext) => async (
 ) => {
   if (context.state.body.error) return
   await delay(STEP_DELAY)
-  context.state.entity = STEPS.find(({ handler }) => handler === step)?.entity
+
+  const nextEntity = STEPS.find(({ handler }) => handler === step)?.entity
+
+  if (context.state.body.id && nextEntity) {
+    const currentImport = await context.clients.importExecution.get(
+      context.state.body.id,
+      IMPORT_EXECUTION_FIELDS
+    )
+
+    if (
+      currentImport.currentEntity &&
+      STEPS_ENTITIES.indexOf(currentImport.currentEntity as string) >=
+        STEPS_ENTITIES.indexOf(nextEntity)
+    ) {
+      return
+    }
+
+    context.state.entity = nextEntity
+
+    await updateCurrentImport(context, { currentEntity: nextEntity })
+  }
 
   return step(context).catch((e) => handleError(context, e))
 }

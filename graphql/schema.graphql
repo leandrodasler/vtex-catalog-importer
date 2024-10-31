@@ -61,6 +61,7 @@ type Import {
   targetWarehouse: String!
   status: ImportStatus!
   error: String
+  currentEntity: String
   entityError: String
 }
 
