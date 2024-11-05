@@ -150,7 +150,7 @@ export default class SourceCatalog extends HttpClient {
     return path.join('/')
   }
 
-  public async getProducts(categoryTree: Category[] = [], lastProductId = 0) {
+  public async getProducts(categoryTree: Category[] = []) {
     const productAndSkuIds = await this.getProductAndSkuIds(categoryTree)
     const productIds = Object.keys(productAndSkuIds)
     const categories = this.flatCategoryTree(categoryTree)
@@ -179,12 +179,7 @@ export default class SourceCatalog extends HttpClient {
       GET_DETAILS_CONCURRENCY
     )
 
-    const data = products.map((p, index) => ({
-      ...p,
-      ...(lastProductId && { newId: lastProductId + index + 1 }),
-    }))
-
-    return { data, skuIds }
+    return { products, skuIds }
   }
 
   private async getSpecificationGroup(id: ID) {
@@ -220,17 +215,12 @@ export default class SourceCatalog extends HttpClient {
     return this.get<SkuDetails>(ENDPOINTS.sku.updateOrDetails(id))
   }
 
-  public async getSkus(skuIds: number[] = [], lastSkuId = 0) {
-    const skus = await batch(
+  public async getSkus(skuIds: number[] = []) {
+    return batch(
       skuIds,
       (id) => this.getSkuDetails(id),
       GET_DETAILS_CONCURRENCY
     )
-
-    return skus.map((data, index) => ({
-      ...data,
-      ...(lastSkuId && { newId: lastSkuId + index + 1 }),
-    }))
   }
 
   private async getSkuFiles(id: ID) {

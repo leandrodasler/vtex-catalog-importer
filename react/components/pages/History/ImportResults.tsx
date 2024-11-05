@@ -20,6 +20,7 @@ const ImportResults = ({ importProgress, loading }: Props) => {
     currentImport: {
       error,
       entityError,
+      currentEntity,
       sourceCategoriesTotal,
       sourceProductsTotal,
       sourceSkusTotal,
@@ -48,6 +49,7 @@ const ImportResults = ({ importProgress, loading }: Props) => {
         current={categories}
         total={sourceCategoriesTotal}
         loading={loading}
+        isCurrent={currentEntity === 'category'}
       />
       {error && entityError === 'product' && (
         <ErrorMessage error={error} title={errorTitle} />
@@ -57,6 +59,7 @@ const ImportResults = ({ importProgress, loading }: Props) => {
         current={products}
         total={sourceProductsTotal}
         loading={loading}
+        isCurrent={currentEntity === 'product'}
       />
       {error && entityError === 'sku' && (
         <ErrorMessage error={error} title={errorTitle} />
@@ -66,6 +69,7 @@ const ImportResults = ({ importProgress, loading }: Props) => {
         current={skus}
         total={sourceSkusTotal}
         loading={loading}
+        isCurrent={currentEntity === 'sku'}
       />
       {error && entityError === 'price' && (
         <ErrorMessage error={error} title={errorTitle} />
@@ -75,6 +79,7 @@ const ImportResults = ({ importProgress, loading }: Props) => {
         current={prices}
         total={sourcePricesTotal}
         loading={loading}
+        isCurrent={currentEntity === 'price'}
       />
       {error && entityError === 'stock' && (
         <ErrorMessage error={error} title={errorTitle} />
@@ -84,6 +89,7 @@ const ImportResults = ({ importProgress, loading }: Props) => {
         current={stocks}
         total={sourceStocksTotal}
         loading={loading}
+        isCurrent={currentEntity === 'stock'}
       />
       <Text variant="title1">
         {formatMessage(messages.importResultsTotalLabel, { total })}

@@ -18,19 +18,19 @@ const handleSkus = async (context: AppEventContext) => {
   } = context.state.body
 
   const { account: sourceAccount } = settings
-  const lastSkuId = await targetCatalog.getLastSkuId()
-  const sourceSkus = await sourceCatalog.getSkus(skuIds, lastSkuId)
+  const [firstSku, ...sourceSkus] = await sourceCatalog.getSkus(skuIds)
+
   const mapSku: EntityMap = {}
   const mapSourceSkuProduct: EntityMap = {}
 
-  await batch(sourceSkus, async ({ Id, newId, RefId, ...sku }) => {
+  const processSku = async ({ Id, newId, RefId, ...sku }: SkuDetails) => {
     const migrated = await getEntityBySourceId(context, Id)
 
     if (migrated?.targetId) {
       mapSku[Id] = +migrated.targetId
     }
 
-    if (mapSku[Id]) return
+    if (mapSku[Id]) return mapSku[Id]
 
     const { ProductId, IsActive } = sku
     const targetProductId = mapProduct[ProductId]
@@ -39,7 +39,7 @@ const handleSkus = async (context: AppEventContext) => {
 
     const payload = {
       ...sku,
-      Id: newId,
+      ...(newId && { Id: newId }),
       ProductId: targetProductId,
       IsActive: false,
       ActivateIfPossible: IsActive,
@@ -82,7 +82,18 @@ const handleSkus = async (context: AppEventContext) => {
 
     mapSku[Id] = targetId
     mapSourceSkuProduct[Id] = ProductId
-  })
+
+    return targetId
+  }
+
+  const lastSkuId = await processSku(firstSku)
+
+  const skusWithIds = sourceSkus.map((data, index) => ({
+    ...data,
+    newId: lastSkuId + index + 1,
+  }))
+
+  await batch(skusWithIds, processSku)
 
   context.state.mapSku = mapSku
   context.state.mapSourceSkuProduct = mapSourceSkuProduct

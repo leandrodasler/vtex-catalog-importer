@@ -4,7 +4,13 @@ import React from 'react'
 import { Checked, Loading, Unchecked } from '../../common'
 import { EntitySkeleton, useLocalePercentage } from './common'
 
-type Props = { title: string; current: number; total: number; loading: boolean }
+type Props = {
+  title: string
+  current: number
+  total: number
+  loading: boolean
+  isCurrent?: boolean
+}
 
 const resultCardTheme = csx({
   position: 'relative',
@@ -15,11 +21,20 @@ const resultCardTheme = csx({
 const resultSkeletonTheme = csx({ width: '100%', position: 'absolute' })
 const resultDetailTheme = cx(resultSkeletonTheme, csx({ paddingY: '$space-1' }))
 
-const ImportEntityResult = ({ title, current, total, loading }: Props) => {
+const ImportEntityResult = ({
+  title,
+  current,
+  total,
+  loading,
+  isCurrent,
+}: Props) => {
   const { percentage, localePercentage } = useLocalePercentage(current, total)
 
   return (
-    <Card className={resultCardTheme}>
+    <Card
+      className={resultCardTheme}
+      {...(isCurrent && { style: { borderColor: '#AAA' } })}
+    >
       {current < total && (
         <div className={resultSkeletonTheme}>
           <EntitySkeleton width={`${percentage}%`} />

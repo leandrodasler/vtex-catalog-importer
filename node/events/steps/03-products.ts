@@ -19,31 +19,28 @@ const handleProducts = async (context: AppEventContext) => {
 
   if (!mapCategory) return
 
-  const lastProductId = await targetCatalog.getLastProductId()
-  const { data: sourceProducts, skuIds } = await sourceCatalog.getProducts(
-    categoryTree,
-    lastProductId
-  )
+  const { products, skuIds } = await sourceCatalog.getProducts(categoryTree)
+  const [firstProduct, ...sourceProducts] = products
 
   context.state.skuIds = skuIds
 
-  const sourceProductsTotal = sourceProducts.length
+  const sourceProductsTotal = products.length
   const sourceSkusTotal = skuIds.length
   const mapProduct: EntityMap = {}
 
   await updateCurrentImport(context, { sourceProductsTotal, sourceSkusTotal })
 
-  await batch(sourceProducts, async (data) => {
-    const { Id, newId, BrandId, CategoryId, DepartmentId, ...product } = data
+  const processProduct = async (p: ProductDetails) => {
+    const { Id, newId, BrandId, CategoryId, DepartmentId, ...product } = p
     const migrated = await getEntityBySourceId(context, Id)
 
     if (migrated?.targetId) {
       mapProduct[Id] = +migrated.targetId
     }
 
-    if (mapProduct[Id]) return
+    if (mapProduct[Id]) return mapProduct[Id]
 
-    const payload = { Id: newId, ...product }
+    const payload = { ...(newId && { Id: newId }), ...product }
 
     const {
       Id: targetId,
@@ -88,7 +85,18 @@ const handleProducts = async (context: AppEventContext) => {
     ).catch(() => incrementVBaseEntity(context))
 
     mapProduct[Id] = targetId
-  })
+
+    return targetId
+  }
+
+  const lastProductId = await processProduct(firstProduct)
+
+  const productsWithIds = sourceProducts.map((data, index) => ({
+    ...data,
+    newId: lastProductId + index + 1,
+  }))
+
+  await batch(productsWithIds, processProduct)
 
   context.state.mapProduct = mapProduct
   context.state.mapCategory = undefined

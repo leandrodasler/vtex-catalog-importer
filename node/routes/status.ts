@@ -57,6 +57,16 @@ const status = async (context: Context) => {
     async (i) => {
       const lastEntity = await getLastEntity(context, i)
 
+      const {
+        createdIn,
+        lastInteractionIn,
+        settings,
+        importImages,
+        importPrices,
+        targetWarehouse,
+        ...rest
+      } = i
+
       return {
         ...(lastEntity?.lastInteractionIn && {
           lastEntityLastInteraction: `${formatDate(
@@ -65,10 +75,10 @@ const status = async (context: Context) => {
             diffDate(lastEntity.lastInteractionIn) / 1000 / 60
           )} minutes ago`,
         }),
-        date: formatDate(i.createdIn),
-        dateLastInteraction: formatDate(i.lastInteractionIn),
-        ...i,
-        vbaseJson: await vbase.getJSON(DEFAULT_VBASE_BUCKET, i.id, true),
+        createdDate: formatDate(createdIn),
+        lastInteractionDate: formatDate(lastInteractionIn),
+        ...rest,
+        vbaseJson: await vbase.getJSON(DEFAULT_VBASE_BUCKET, rest.id, true),
       }
     }
   )
@@ -80,19 +90,10 @@ const status = async (context: Context) => {
 
   const entities = (dataEntities as Array<
     WithInternalFields<ImportEntity>
-  >).map((e) => ({
-    date: formatDate(e.createdIn),
-    dateLastInteraction: formatDate(e.lastInteractionIn),
+  >).map(({ createdIn, lastInteractionIn, ...e }) => ({
+    createdDate: formatDate(createdIn),
+    lastInteractionDate: formatDate(lastInteractionIn),
     ...e,
-  }))
-
-  const targetBrands = await targetCatalog.getBrands()
-  const categories = await targetCatalog.getCategoryTreeFlattened()
-  const targetCategories = categories.map(({ children, ...category }) => ({
-    ...category,
-    ...(children?.length && {
-      children: children.map((c) => c.id).join(','),
-    }),
   }))
 
   context.status = 200
@@ -119,7 +120,7 @@ const status = async (context: Context) => {
         flex: 1;
         max-width: 50%;
         min-width: 45%;
-        max-height: 500px;
+        max-height: 700px;
         overflow: auto;
         padding: 5px;
         border: 1px solid #ccc;
@@ -158,21 +159,13 @@ const status = async (context: Context) => {
       <h2>Logged as ${user}</h2>
     </header>
     <div class="flex">
-    <section>
-      <h3>Imports - total: ${totalImports}</h3>
-      ${outputHTML(imports)}
-    </section>
-    <section>
-      <h3>Entities - total: ${totalEntities}</h3>
-      ${outputHTML(entities)}
-    </section>
       <section>
-        <h3>Target active brands - total: ${targetBrands.length}</h3>
-        ${outputHTML(targetBrands)}
+        <h3>Imports - showing ${imports.length} of ${totalImports}:</h3>
+        ${outputHTML(imports)}
       </section>
       <section>
-        <h3>Target active categories - total: ${targetCategories.length}</h3>
-        ${outputHTML(targetCategories)}
+        <h3>Entities - showing ${entities.length} of ${totalEntities}:</h3>
+        ${outputHTML(entities)}
       </section>
     </div>
   </body>

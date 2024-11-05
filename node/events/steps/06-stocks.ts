@@ -1,6 +1,8 @@
+import { setCurrentImportId } from '..'
 import {
   batch,
   getEntityBySourceId,
+  IMPORT_STATUS,
   incrementVBaseEntity,
   promiseWithConditionalRetry,
   updateCurrentImport,
@@ -85,6 +87,13 @@ const handleStocks = async (context: AppEventContext) => {
 
   context.state.mapSku = undefined
   context.state.mapSourceSkuSellerStock = undefined
+
+  await updateCurrentImport(context, {
+    status: IMPORT_STATUS.SUCCESS,
+    currentEntity: null,
+  })
+
+  setCurrentImportId(null)
 }
 
 export default handleStocks

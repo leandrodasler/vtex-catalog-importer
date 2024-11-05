@@ -77,7 +77,7 @@ const entitySkeletonTheme = csx({
   background: '$gray10',
   '--admin-ui-bg-skeleton':
     'linear-gradient(90deg, var(--admin-ui-colors-transparent), var(--admin-ui-colors-gray30), var(--admin-ui-colors-transparent))',
-  '&[data-shape="rect"]': { borderRadius: 0 },
+  '&[data-shape="rect"]': { borderRadius: 0, transition: 'width linear 1s' },
 })
 
 export const EntitySkeleton = ({ width }: EntitySkeletonProps) => (

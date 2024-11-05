@@ -95,6 +95,7 @@ declare global {
   }
 
   type ProductDetails = {
+    newId?: number
     Id: number
     Name: string
     DepartmentId: number
@@ -116,12 +117,12 @@ declare global {
   }
 
   type ProductPayload = ProductDetails & {
-    newId?: number
     CategoryPath: string
     BrandName: string
   }
 
   type SkuDetails = {
+    newId?: number
     Id: number
     ProductId: number
     IsActive: boolean

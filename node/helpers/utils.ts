@@ -110,29 +110,33 @@ export const handleError = async (context: AppEventContext, e: ErrorLike) => {
 export const processStepFactory = (context: AppEventContext) => async (
   step: (context: AppEventContext) => Promise<void>
 ) => {
-  if (context.state.body.error) return
-  await delay(STEP_DELAY)
-
   const nextEntity = STEPS.find(({ handler }) => handler === step)?.entity
 
-  if (context.state.body.id && nextEntity) {
-    const currentImport = await context.clients.importExecution.get(
-      context.state.body.id,
-      IMPORT_EXECUTION_FIELDS
-    )
+  if (context.state.body.error || !context.state.body.id || !nextEntity) return
 
-    if (
-      currentImport.currentEntity &&
-      STEPS_ENTITIES.indexOf(currentImport.currentEntity as string) >=
-        STEPS_ENTITIES.indexOf(nextEntity)
-    ) {
-      return
-    }
+  await delay(STEP_DELAY)
 
-    context.state.entity = nextEntity
+  const currentImport = await context.clients.importExecution.get(
+    context.state.body.id,
+    IMPORT_EXECUTION_FIELDS
+  )
 
-    await updateCurrentImport(context, { currentEntity: nextEntity })
+  if (
+    currentImport.currentEntity &&
+    STEPS_ENTITIES.indexOf(currentImport.currentEntity as string) >=
+      STEPS_ENTITIES.indexOf(nextEntity)
+  ) {
+    return
   }
+
+  context.state.entity = nextEntity
+
+  await updateCurrentImport(context, {
+    currentEntity: nextEntity,
+    status: IMPORT_STATUS.RUNNING,
+  })
+
+  await delay(STEP_DELAY)
 
   return step(context).catch((e) => handleError(context, e))
 }

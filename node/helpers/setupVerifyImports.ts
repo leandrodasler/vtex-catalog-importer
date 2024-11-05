@@ -6,12 +6,11 @@ import {
   getFirstImportToBeDeleted,
   getLastEntity,
   IMPORT_STATUS,
-  updateImportStatus,
 } from '.'
-import runImport from '../events'
+import runImport, { getCurrentImportId } from '../events'
 
 const TIMEOUT = 10000
-const MAX_TIME_LAST_ENTITY = 25 * 60 * 1000
+const MAX_TIME_LAST_ENTITY = 15 * 60 * 1000
 
 let cachedContext: Context | undefined
 
@@ -42,11 +41,10 @@ const verifyImports = async () => {
           updated: Date.now(),
         })
 
-        await updateImportStatus(
-          context,
-          importRunning.id,
-          IMPORT_STATUS.PENDING
-        )
+        await context.clients.importExecution.update(importRunning.id, {
+          currentEntity: null,
+          status: IMPORT_STATUS.PENDING,
+        })
 
         await delay(TIMEOUT)
       }
@@ -65,7 +63,7 @@ const verifyImports = async () => {
 
   const nextPendingImport = await getFirstImportPending(context)
 
-  if (!nextPendingImport) return
+  if (!nextPendingImport || getCurrentImportId()) return
 
   context.state.body = nextPendingImport
   runImport(context)

@@ -8,6 +8,16 @@ import {
   updateCurrentImport,
 } from '../helpers'
 
+let currentImportId: string | null = null
+
+export function getCurrentImportId() {
+  return currentImportId
+}
+
+export function setCurrentImportId(id: string | null) {
+  currentImportId = id
+}
+
 const runImport = async (context: AppEventContext) => {
   try {
     const { id, settings } = context.state.body
@@ -24,7 +34,16 @@ const runImport = async (context: AppEventContext) => {
       IMPORT_EXECUTION_FULL_FIELDS
     )
 
-    if (!importData || importData.status !== IMPORT_STATUS.PENDING) return
+    if (
+      !importData ||
+      importData.status !== IMPORT_STATUS.PENDING ||
+      importData.currentEntity ||
+      getCurrentImportId()
+    ) {
+      return
+    }
+
+    setCurrentImportId(id)
 
     const currentSettings = settings.useDefault
       ? await httpClient.getDefaultSettings()
