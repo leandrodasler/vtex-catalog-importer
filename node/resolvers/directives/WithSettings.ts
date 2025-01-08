@@ -15,12 +15,25 @@ export default class WithSettings extends SchemaDirectiveVisitor {
         ? await context.clients.httpClient.getDefaultSettings()
         : settingsArg ?? (await getCurrentSettings(context))
 
-      const { account, vtexAppKey, vtexAppToken } = settings
+      const {
+        authType = 'appKey',
+        account,
+        vtexAppKey,
+        vtexAppToken,
+        userToken,
+      } = settings
+
       const settingEmpty =
-        !account?.trim() || !vtexAppKey?.trim() || !vtexAppToken?.trim()
+        (authType === 'appKey' &&
+          (!account?.trim() || !vtexAppKey?.trim() || !vtexAppToken?.trim())) ||
+        (authType === 'userToken' && (!account?.trim() || !userToken?.trim()))
 
       if (typeof settingsArg?.useDefault === 'boolean' && settingEmpty) {
-        throw new Error('admin/settings.missing.error')
+        if (authType === 'appKey') {
+          throw new Error('admin/settings.missing.error')
+        } else {
+          throw new Error('admin/settings.authType.userToken.missing.error')
+        }
       }
 
       const currentSettings =

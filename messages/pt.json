@@ -36,6 +36,11 @@
   "admin/settings.missing.error": "É necessário informar Conta VTEX de origem, VTEX app key e VTEX app token ao fornecer configurações personalizadas",
   "admin/settings.error": "Não foi possível obter as configurações",
   "admin/settings.default.error": "Não foi possível obter as configurações padrão. Forneça configurações personalizadas em vez disso.",
+  "admin/settings.authType.label": "Tipo de autenticação",
+  "admin/settings.authType.appKey.label": "App Key e App Token",
+  "admin/settings.authType.userToken.label": "Token de usuário",
+  "admin/settings.authType.userToken.helpText": "Token de usuário VTEX, válido por 24 horas",
+  "admin/settings.authType.userToken.missing.error": "É necessário informar uma conta VTEX de origem e um token de usuário ao fornecer configurações personalizadas",
 
   "admin/categories.label": "Selecionar categorias da conta de origem",
   "admin/categories.source.error": "Erro ao carregar a árvore de categorias da conta de origem:",

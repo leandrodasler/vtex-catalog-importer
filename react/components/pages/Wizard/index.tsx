@@ -79,6 +79,7 @@ export default function Wizard() {
   })
 
   const [settings, setSettings] = useState<AppSettingsInput>()
+  const [customAuthType, setCustomAuthType] = useState('appKey')
   const [
     checkedTreeOptions,
     setCheckedTreeOptions,
@@ -99,6 +100,7 @@ export default function Wizard() {
     toastError: false,
     onCompleted({ appSettings }) {
       setSettings(appSettings)
+      setCustomAuthType(appSettings?.authType ?? 'appKey')
     },
   })
 
@@ -155,6 +157,8 @@ export default function Wizard() {
               settings={settings}
               setSettings={setSettings}
               setCheckedTreeOptions={setCheckedTreeOptions}
+              customAuthType={customAuthType}
+              setCustomAuthType={setCustomAuthType}
             />
           )}
         </Suspense>

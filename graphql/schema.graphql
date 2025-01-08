@@ -3,16 +3,20 @@ directive @WithCustomSchema on FIELD | FIELD_DEFINITION
 
 type AppSettings {
   useDefault: Boolean
+  authType: String
   account: String
   vtexAppKey: String
   vtexAppToken: String
+  userToken: String
 }
 
 input AppSettingsInput {
   useDefault: Boolean
+  authType: String
   account: String
   vtexAppKey: String
   vtexAppToken: String
+  userToken: String
 }
 
 type Category {

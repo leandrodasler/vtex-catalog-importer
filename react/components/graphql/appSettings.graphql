@@ -1,8 +1,10 @@
 query getAppSettings {
   appSettings {
+    authType
     useDefault
     account
     vtexAppKey
     vtexAppToken
+    userToken
   }
 }

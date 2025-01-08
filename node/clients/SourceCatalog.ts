@@ -12,14 +12,26 @@ export default class SourceCatalog extends HttpClient {
   }
 
   protected getRequestConfig(): InstanceOptions {
-    const { vtexAppKey, vtexAppToken } = this.settings
+    const {
+      authType = 'appKey',
+      vtexAppKey,
+      vtexAppToken,
+      userToken,
+    } = this.settings
 
     return {
       ...this.options,
       headers: {
         ...this.options?.headers,
-        ...(vtexAppKey && { 'X-VTEX-API-AppKey': vtexAppKey }),
-        ...(vtexAppToken && { 'X-VTEX-API-AppToken': vtexAppToken }),
+
+        ...(authType === 'appKey' &&
+          vtexAppKey && { 'X-VTEX-API-AppKey': vtexAppKey }),
+
+        ...(authType === 'appKey' &&
+          vtexAppToken && { 'X-VTEX-API-AppToken': vtexAppToken }),
+
+        ...(authType === 'userToken' &&
+          userToken && { VtexIdclientAutCookie: userToken }),
       },
     }
   }

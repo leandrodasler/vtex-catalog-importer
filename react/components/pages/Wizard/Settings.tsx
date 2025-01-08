@@ -10,6 +10,7 @@ import {
   ModalTitle,
   Radio,
   RadioGroup,
+  Select,
   Stack,
   useModalState,
   useRadioState,
@@ -38,6 +39,8 @@ type Props = {
   settings?: AppSettingsInput
   setSettings: (settings: AppSettingsInput) => void
   setCheckedTreeOptions: React.Dispatch<React.SetStateAction<CheckedCategories>>
+  customAuthType: string
+  setCustomAuthType: React.Dispatch<React.SetStateAction<string>>
 }
 
 const SETTINGS_OPTIONS = {
@@ -52,6 +55,8 @@ const Settings = ({
   settings,
   setSettings,
   setCheckedTreeOptions,
+  customAuthType,
+  setCustomAuthType,
 }: Props) => {
   const { formatMessage } = useIntl()
   const showToast = useToast()
@@ -95,6 +100,7 @@ const Settings = ({
     (formData: AppSettingsInput) => {
       if (
         defaultSettingsValue === SETTINGS_OPTIONS.CUSTOM &&
+        customAuthType === 'apiKey' &&
         (!formData.account || !formData.vtexAppKey || !formData.vtexAppToken)
       ) {
         showToast({
@@ -106,8 +112,25 @@ const Settings = ({
         return
       }
 
+      if (
+        defaultSettingsValue === SETTINGS_OPTIONS.CUSTOM &&
+        customAuthType === 'userToken' &&
+        !formData.userToken
+      ) {
+        showToast({
+          message: formatMessage(
+            messages.settingsAuthTypeUserTokenMissingError
+          ),
+          variant: 'critical',
+          key: toastKey,
+        })
+
+        return
+      }
+
       const newSettings = {
         ...formData,
+        authType: customAuthType,
         useDefault: defaultSettingsValue === SETTINGS_OPTIONS.DEFAULT,
       }
 
@@ -121,6 +144,7 @@ const Settings = ({
       mutationFactory({ variables: { settings: newSettings } })()
     },
     [
+      customAuthType,
       defaultSettingsValue,
       formatMessage,
       mutationFactory,
@@ -134,6 +158,16 @@ const Settings = ({
   const handleResetSettings = useCallback(
     () => mutationFactory({ variables: { settings: {} } })(),
     [mutationFactory]
+  )
+
+  const accountInput = (
+    <TextInput
+      label={formatMessage(messages.settingsAccountLabel)}
+      helpText={formatMessage(messages.settingsAccountHelpText)}
+      name="account"
+      state={form}
+      onInput={handleTrim}
+    />
   )
 
   return (
@@ -198,27 +232,53 @@ const Settings = ({
         </RadioGroup>
         {defaultSettingsState.value === SETTINGS_OPTIONS.CUSTOM && (
           <>
-            <TextInput
-              label={formatMessage(messages.settingsAccountLabel)}
-              helpText={formatMessage(messages.settingsAccountHelpText)}
-              name="account"
-              state={form}
-              onInput={handleTrim}
-            />
-            <TextInput
-              label={formatMessage(messages.settingsAppKeyLabel)}
-              helpText={formatMessage(messages.settingsAppKeyHelpText)}
-              name="vtexAppKey"
-              state={form}
-              onInput={handleTrim}
-            />
-            <TextInput
-              label={formatMessage(messages.settingsAppTokenLabel)}
-              helpText={formatMessage(messages.settingsAppTokenHelpText)}
-              name="vtexAppToken"
-              state={form}
-              onInput={handleTrim}
-            />
+            <Flex>
+              <Select
+                label={formatMessage(messages.settingsAuthTypeLabel)}
+                value={customAuthType}
+                onChange={(e) => setCustomAuthType(e.target.value)}
+              >
+                <option value="appKey">
+                  {formatMessage(messages.settingsAuthTypeAppKeyLabel)}
+                </option>
+                <option value="userToken">
+                  {formatMessage(messages.settingsAuthTypeUserTokenLabel)}
+                </option>
+              </Select>
+            </Flex>
+            {customAuthType === 'appKey' && (
+              <>
+                {accountInput}
+                <TextInput
+                  label={formatMessage(messages.settingsAppKeyLabel)}
+                  helpText={formatMessage(messages.settingsAppKeyHelpText)}
+                  name="vtexAppKey"
+                  state={form}
+                  onInput={handleTrim}
+                />
+                <TextInput
+                  label={formatMessage(messages.settingsAppTokenLabel)}
+                  helpText={formatMessage(messages.settingsAppTokenHelpText)}
+                  name="vtexAppToken"
+                  state={form}
+                  onInput={handleTrim}
+                />
+              </>
+            )}
+            {customAuthType === 'userToken' && (
+              <>
+                {accountInput}
+                <TextInput
+                  label={formatMessage(messages.settingsAuthTypeUserTokenLabel)}
+                  helpText={formatMessage(
+                    messages.settingsAuthTypeUserTokenHelpText
+                  )}
+                  name="userToken"
+                  state={form}
+                  onInput={handleTrim}
+                />
+              </>
+            )}
           </>
         )}
         <Flex justify="end">
