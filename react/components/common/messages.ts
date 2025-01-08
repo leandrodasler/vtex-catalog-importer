@@ -55,6 +55,17 @@ export const messages = defineMessages({
   settingsAppKeyHelpText: { id: 'admin/settings.appKey.helpText' },
   settingsAppTokenLabel: { id: 'admin/settings.appToken.label' },
   settingsAppTokenHelpText: { id: 'admin/settings.appToken.helpText' },
+  settingsAuthTypeLabel: { id: 'admin/settings.authType.label' },
+  settingsAuthTypeAppKeyLabel: { id: 'admin/settings.authType.appKey.label' },
+  settingsAuthTypeUserTokenLabel: {
+    id: 'admin/settings.authType.userToken.label',
+  },
+  settingsAuthTypeUserTokenHelpText: {
+    id: 'admin/settings.authType.userToken.helpText',
+  },
+  settingsAuthTypeUserTokenMissingError: {
+    id: 'admin/settings.authType.userToken.missing.error',
+  },
   startLabel: { id: 'admin/start.label' },
   startConfirmation: { id: 'admin/start.confirmation' },
   startText: { id: 'admin/start.text' },

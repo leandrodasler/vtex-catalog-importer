@@ -1,8 +1,10 @@
 mutation updateAppSettings($settings: AppSettingsInput) {
   updateAppSettings(settings: $settings) {
+    authType
     useDefault
     account
     vtexAppKey
     vtexAppToken
+    userToken
   }
 }

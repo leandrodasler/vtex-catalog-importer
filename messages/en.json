@@ -36,6 +36,11 @@
   "admin/settings.missing.error": "It's mandatory to input Source VTEX account, VTEX app key and VTEX app token when provide custom settings",
   "admin/settings.error": "Unable to get settings",
   "admin/settings.default.error": "Unable to get default settings. Provide custom settings instead.",
+  "admin/settings.authType.label": "Authentication type",
+  "admin/settings.authType.appKey.label": "App Key and App Token",
+  "admin/settings.authType.userToken.label": "User token",
+  "admin/settings.authType.userToken.helpText": "VTEX user token, valid for 24 hours",
+  "admin/settings.authType.userToken.missing.error": "It's mandatory to input a source VTEX account and an user token when provide custom settings",
 
   "admin/categories.label": "Select categories from source account",
   "admin/categories.source.error": "Error loading category tree from source account:",
