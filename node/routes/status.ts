@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { method } from '@vtex/api'
 import type {
   ImportEntity,
@@ -12,6 +13,7 @@ import {
   IMPORT_EXECUTION_FIELDS,
   setCachedContext,
 } from '../helpers'
+import { FileManager } from '../helpers/files'
 
 const PAG = { page: 1, pageSize: 500 }
 const SORT = 'createdIn desc'
@@ -96,6 +98,24 @@ const status = async (context: Context) => {
     ...e,
   }))
 
+  const file = new FileManager('teste')
+
+  console.log(`deletando ${file.filePath}`)
+  file.delete()
+
+  let sum = 0
+
+  console.log(`escrevendo arquivo ${file.filePath}`)
+
+  for (let i = 0; i < 999999; i++) {
+    sum += i + 1
+    file.append(`${i + 1}=>${sum}\n`)
+  }
+
+  console.log(`finalizando escrita do arquivo ${file.filePath}`)
+
+  const fileContent = await file.findLine('88')
+
   context.status = 200
   context.set('Content-Type', 'text/html')
   context.set('Cache-Control', 'no-cache, no-store, must-revalidate')
@@ -166,6 +186,10 @@ const status = async (context: Context) => {
       <section>
         <h3>Entities - showing ${entities.length} of ${totalEntities}:</h3>
         ${outputHTML(entities)}
+      </section>
+      <section>
+        <h3>File content</h3>
+        <pre>${fileContent}</pre>
       </section>
     </div>
   </body>

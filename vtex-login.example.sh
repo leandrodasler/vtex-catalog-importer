@@ -12,13 +12,13 @@ error() {
     echo -e "$1!" && exit $2
 }
 
-read -p "Type your VTEX account: " VTEX_ACCOUNT
-read -p "Type your VTEX app key: " VTEX_APP_KEY
-read -p "Type your VTEX app token: " VTEX_APP_TOKEN
+# read -p "Type your VTEX account: " VTEX_ACCOUNT
+# read -p "Type your VTEX app key: " VTEX_APP_KEY
+# read -p "Type your VTEX app token: " VTEX_APP_TOKEN
 
-#VTEX_ACCOUNT={{place manually if desired}}
-#VTEX_APP_KEY={{place manually if desired}}
-#VTEX_APP_TOKEN={{place manually if desired}}
+VTEX_ACCOUNT=carolina
+VTEX_APP_KEY=vtexappkey-carolina-GOQKKQ
+VTEX_APP_TOKEN=EAMMCEEGSUGMFCTSBWNJWLUHXQMDDUXWPYWKYYDWQAHSDBSDGUEDEWCPTJFVQLVBNWIWEYIXDSZBMPTVRPCVYKOGOOELZNVBCMWLMFIADJKBSDQHIFZGCXLGPUJVKAAW
 
 # Test to see if we can login
 [[ -z $VTEX_ACCOUNT ]] && CHECK=failed

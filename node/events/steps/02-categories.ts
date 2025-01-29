@@ -5,6 +5,7 @@ import {
   sequentialBatch,
   updateCurrentImport,
 } from '../../helpers'
+import { FileManager } from '../../helpers/files'
 
 const handleCategories = async (context: AppEventContext) => {
   const { sourceCatalog, targetCatalog, importEntity } = context.clients
@@ -24,16 +25,20 @@ const handleCategories = async (context: AppEventContext) => {
 
   await updateCurrentImport(context, { sourceCategoriesTotal })
   const sourceCategories = await sourceCatalog.getCategories(categories)
-  const mapCategory: EntityMap = {}
+  // const mapCategory: EntityMap = {}
+
+  const categoryFile = new FileManager(`categories-${executionImportId}`)
 
   await sequentialBatch(sourceCategories, async ({ Id, ...category }) => {
     const migrated = await getEntityBySourceId(context, Id)
 
     if (migrated?.targetId) {
-      mapCategory[Id] = +migrated.targetId
+      // mapCategory[Id] = +migrated.targetId
+      categoryFile.append(`${Id}=>${migrated.targetId}\n`)
     }
 
-    if (mapCategory[Id]) return
+    // if (mapCategory[Id]) return
+    if (await categoryFile.findLine(Id)) return
 
     const { FatherCategoryId, GlobalCategoryId = 0 } = category
 
@@ -41,7 +46,7 @@ const handleCategories = async (context: AppEventContext) => {
       ...category,
       GlobalCategoryId: GlobalCategoryId || undefined,
       FatherCategoryId: FatherCategoryId
-        ? mapCategory[FatherCategoryId]
+        ? +((await categoryFile.findLine(FatherCategoryId)) ?? 0) || undefined // mapCategory[FatherCategoryId]
         : undefined,
     }
 
@@ -64,10 +69,11 @@ const handleCategories = async (context: AppEventContext) => {
       null
     ).catch(() => incrementVBaseEntity(context))
 
-    mapCategory[Id] = targetId
+    // mapCategory[Id] = targetId
+    categoryFile.append(`${Id}=>${targetId}\n`)
   })
 
-  context.state.mapCategory = mapCategory
+  // context.state.mapCategory = mapCategory
 }
 
 export default handleCategories
