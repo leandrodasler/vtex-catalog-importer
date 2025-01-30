@@ -1,4 +1,5 @@
 export * from './constants'
+export * from './FileManager'
 export * from './importDBUtils'
 export * from './mappers'
 export * from './setupVerifyImports'

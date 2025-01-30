@@ -23,43 +23,24 @@ export class FileManager {
     return fs.appendFileSync(this.filePath, data, { encoding: 'utf8' })
   }
 
-  public read() {
-    return fs.readFileSync(this.filePath, 'utf8')
+  public getLineIterator() {
+    const fileStream = fs.createReadStream(this.filePath)
+
+    return readline.createInterface({
+      input: fileStream,
+      crlfDelay: Infinity,
+    })
   }
 
   public async findLine(prefix: string | number) {
     if (!this.exists()) return null
 
-    // const fileStream = fs.createReadStream(this.filePath)
+    const lineIterator = this.getLineIterator()
 
-    const rl = this.getLineIterator() /* readline.createInterface({
-      input: fileStream,
-      crlfDelay: Infinity,
-    }) */
-
-    for await (const line of rl) {
+    for await (const line of lineIterator) {
       if (line.startsWith(`${prefix}=>`)) {
         return line.split('=>')[1].trim()
       }
-    }
-
-    return null
-  }
-
-  public getLineIterator() {
-    const fileStream = fs.createReadStream(this.filePath)
-
-    const rl = readline.createInterface({
-      input: fileStream,
-      crlfDelay: Infinity,
-    })
-
-    return rl
-  }
-
-  public async getFirstLine(rl: readline.Interface) {
-    for await (const line of rl) {
-      return line
     }
 
     return null

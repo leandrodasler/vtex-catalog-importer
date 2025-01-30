@@ -1,10 +1,10 @@
 import {
   batch,
+  FileManager,
   getEntityBySourceId,
   incrementVBaseEntity,
   promiseWithConditionalRetry,
 } from '../../helpers'
-import { FileManager } from '../../helpers/files'
 
 const handleSkus = async (context: AppEventContext) => {
   const { entity /* skuIds */ /* mapProduct */ } = context.state

@@ -1,13 +1,13 @@
 import { setCurrentImportId } from '..'
 import {
   batch,
+  FileManager,
   getEntityBySourceId,
   IMPORT_STATUS,
   incrementVBaseEntity,
   promiseWithConditionalRetry,
   updateCurrentImport,
 } from '../../helpers'
-import { FileManager } from '../../helpers/files'
 
 const handleStocks = async (context: AppEventContext) => {
   const { importEntity, sourceCatalog, targetCatalog } = context.clients
@@ -111,6 +111,27 @@ const handleStocks = async (context: AppEventContext) => {
   })
 
   setCurrentImportId(null)
+
+  const categoryFile = new FileManager(`categories-${executionImportId}`)
+  const productFile = new FileManager(`products-${executionImportId}`)
+  const productDetailsFile = new FileManager(
+    `productDetails-${executionImportId}`
+  )
+
+  const priceFile = new FileManager(`prices-${executionImportId}`)
+
+  const sourceSkuProductFile = new FileManager(
+    `sourceSkuProduct-${executionImportId}`
+  )
+
+  categoryFile.delete()
+  productFile.delete()
+  productDetailsFile.delete()
+  sourceSkuProductFile.delete()
+  priceFile.delete()
+  skuFile.delete()
+  skuIdsFile.delete()
+  sourceSkuSellerStockFile.delete()
 }
 
 export default handleStocks

@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
 import {
+  FileManager,
   getEntityBySourceId,
   incrementVBaseEntity,
   promiseWithConditionalRetry,
   updateCurrentImport,
 } from '../../helpers'
-import { FileManager } from '../../helpers/files'
 
 const handleProducts = async (context: AppEventContext) => {
   const { sourceCatalog, targetCatalog, importEntity } = context.clients
@@ -119,32 +119,12 @@ const handleProducts = async (context: AppEventContext) => {
 
   const productLineIterator = productDetailsFile.getLineIterator()
 
-  // const firstProduct = JSON.parse(
-  //   (await productDetailsFile.getFirstLine(productLineIterator)) ?? '{}'
-  // )
-
-  // console.log('firstProduct', firstProduct)
-
-  // console.log('processando primeiro produto')
-  // const lastProductId = await processProduct(firstProduct)
-
-  // console.log('lastProductId', lastProductId)
-
-  // const productsWithIds = sourceProducts.map((data, index) => ({
-  //   ...data,
-  //   newId: lastProductId + index + 1,
-  // }))
-
-  // await batch(productsWithIds, processProduct)
-
   let index = 1
   let lastProductId = 0
   let promises: Array<Promise<number>> = []
 
   for await (const line of productLineIterator) {
     const product = JSON.parse(line)
-
-    console.log('product', product)
 
     if (index === 1) {
       lastProductId = await processProduct(product)
@@ -158,7 +138,7 @@ const handleProducts = async (context: AppEventContext) => {
         })
       )
 
-      if (promises.length === 500) {
+      if (promises.length === 250) {
         await Promise.all(promises)
         promises = []
       }

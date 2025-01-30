@@ -1,11 +1,11 @@
 import {
   batch,
+  FileManager,
   getEntityBySourceId,
   incrementVBaseEntity,
   promiseWithConditionalRetry,
   updateCurrentImport,
 } from '../../helpers'
-import { FileManager } from '../../helpers/files'
 
 const handlePrices = async (context: AppEventContext) => {
   const { importEntity, sourceCatalog, targetCatalog } = context.clients

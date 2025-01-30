@@ -1,8 +1,12 @@
 import type { InstanceOptions } from '@vtex/api'
 import type { AppSettings, Category } from 'ssesandbox04.catalog-importer'
 
-import { batch, ENDPOINTS, GET_DETAILS_CONCURRENCY } from '../helpers'
-import { FileManager } from '../helpers/files'
+import {
+  batch,
+  ENDPOINTS,
+  FileManager,
+  GET_DETAILS_CONCURRENCY,
+} from '../helpers'
 import HttpClient from './HttpClient'
 
 export default class SourceCatalog extends HttpClient {
