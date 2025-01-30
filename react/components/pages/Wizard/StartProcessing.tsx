@@ -258,6 +258,7 @@ const StartProcessing: React.FC<StartProcessingProps> = ({
         <ShowImportModal
           modalState={importModal}
           id={importData.executeImport}
+          setDeleted={() => {}}
         />
       )}
     </Stack>

@@ -1,32 +1,55 @@
+/* eslint-disable no-console */
 import {
-  batch,
   getEntityBySourceId,
   incrementVBaseEntity,
   promiseWithConditionalRetry,
   updateCurrentImport,
 } from '../../helpers'
+import { FileManager } from '../../helpers/files'
 
 const handleProducts = async (context: AppEventContext) => {
   const { sourceCatalog, targetCatalog, importEntity } = context.clients
   const {
-    id: executionImportId,
+    id: executionImportId = '',
     settings = {},
     categoryTree,
   } = context.state.body
 
-  const { entity, mapCategory } = context.state
+  const { entity /* mapCategory */ } = context.state
   const { account: sourceAccount } = settings
 
-  if (!mapCategory) return
+  // if (!mapCategory) return
 
-  const { products, skuIds } = await sourceCatalog.getProducts(categoryTree)
-  const [firstProduct, ...sourceProducts] = products
+  const categoryFile = new FileManager(`categories-${executionImportId}`)
 
-  context.state.skuIds = skuIds
+  if (!categoryFile.exists()) return
 
-  const sourceProductsTotal = products.length
-  const sourceSkusTotal = skuIds.length
-  const mapProduct: EntityMap = {}
+  // const { products, skuIds } = await sourceCatalog.getProducts(categoryTree)
+  const {
+    sourceProductsTotal,
+    sourceSkusTotal,
+  } = await sourceCatalog.generateProductAndSkuFiles(
+    executionImportId,
+    categoryTree
+  )
+
+  console.log('SALVANDO OS PRODUTOS EM UM ARQUIVO')
+
+  const productDetailsFile = new FileManager(
+    `productDetails-${executionImportId}`
+  )
+
+  if (!productDetailsFile.exists()) return
+
+  // const [firstProduct, ...sourceProducts] = products
+
+  // context.state.skuIds = skuIds
+
+  // const sourceProductsTotal = products.length
+  // const sourceSkusTotal = skuIds.length
+  // const mapProduct: EntityMap = {}
+
+  const productFile = new FileManager(`products-${executionImportId}`)
 
   await updateCurrentImport(context, { sourceProductsTotal, sourceSkusTotal })
 
@@ -35,10 +58,14 @@ const handleProducts = async (context: AppEventContext) => {
     const migrated = await getEntityBySourceId(context, Id)
 
     if (migrated?.targetId) {
-      mapProduct[Id] = +migrated.targetId
+      // mapProduct[Id] = +migrated.targetId
+      productFile.append(`${Id}=>${migrated.targetId}\n`)
     }
 
-    if (mapProduct[Id]) return mapProduct[Id]
+    // if (mapProduct[Id]) return mapProduct[Id]
+    const currentProcessed = await productFile.findLine(Id)
+
+    if (currentProcessed) return +currentProcessed
 
     const payload = { ...(newId && { Id: newId }), ...product }
 
@@ -52,7 +79,7 @@ const handleProducts = async (context: AppEventContext) => {
     )
 
     const specifications = await sourceCatalog.getProductSpecifications(Id)
-    const targetCategoryId = mapCategory[CategoryId]
+    const targetCategoryId = +((await categoryFile.findLine(CategoryId)) ?? 0) // mapCategory[CategoryId]
     const updatePayload = { ...created, CategoryId: targetCategoryId }
 
     await Promise.all([
@@ -84,22 +111,66 @@ const handleProducts = async (context: AppEventContext) => {
       null
     ).catch(() => incrementVBaseEntity(context))
 
-    mapProduct[Id] = targetId
+    // mapProduct[Id] = targetId
+    productFile.append(`${Id}=>${targetId}\n`)
 
     return targetId
   }
 
-  const lastProductId = await processProduct(firstProduct)
+  const productLineIterator = productDetailsFile.getLineIterator()
 
-  const productsWithIds = sourceProducts.map((data, index) => ({
-    ...data,
-    newId: lastProductId + index + 1,
-  }))
+  // const firstProduct = JSON.parse(
+  //   (await productDetailsFile.getFirstLine(productLineIterator)) ?? '{}'
+  // )
 
-  await batch(productsWithIds, processProduct)
+  // console.log('firstProduct', firstProduct)
 
-  context.state.mapProduct = mapProduct
-  context.state.mapCategory = undefined
+  // console.log('processando primeiro produto')
+  // const lastProductId = await processProduct(firstProduct)
+
+  // console.log('lastProductId', lastProductId)
+
+  // const productsWithIds = sourceProducts.map((data, index) => ({
+  //   ...data,
+  //   newId: lastProductId + index + 1,
+  // }))
+
+  // await batch(productsWithIds, processProduct)
+
+  let index = 1
+  let lastProductId = 0
+  let promises: Array<Promise<number>> = []
+
+  for await (const line of productLineIterator) {
+    const product = JSON.parse(line)
+
+    console.log('product', product)
+
+    if (index === 1) {
+      lastProductId = await processProduct(product)
+      index++
+      console.log('lastProductId', lastProductId)
+    } else {
+      promises.push(
+        processProduct({
+          ...product,
+          newId: lastProductId ? lastProductId + index++ : undefined,
+        })
+      )
+
+      if (promises.length === 500) {
+        await Promise.all(promises)
+        promises = []
+      }
+    }
+  }
+
+  if (promises.length) {
+    await Promise.all(promises)
+  }
+
+  // context.state.mapProduct = mapProduct
+  // context.state.mapCategory = undefined
 }
 
 export default handleProducts

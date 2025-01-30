@@ -124,7 +124,7 @@ const ShowImportModal = ({ modalState, id, setDeleted }: Props) => {
             <Button
               disabled={
                 firstLoading ||
-                status === 'RUNNING' ||
+                // status === 'RUNNING' ||
                 deleteConfirmationModal.open
               }
               variant="critical"

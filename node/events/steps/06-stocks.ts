@@ -7,6 +7,7 @@ import {
   promiseWithConditionalRetry,
   updateCurrentImport,
 } from '../../helpers'
+import { FileManager } from '../../helpers/files'
 
 const handleStocks = async (context: AppEventContext) => {
   const { importEntity, sourceCatalog, targetCatalog } = context.clients
@@ -18,21 +19,37 @@ const handleStocks = async (context: AppEventContext) => {
     targetWarehouse,
   } = context.state.body
 
-  const { entity, skuIds, mapSku, mapSourceSkuSellerStock } = context.state
+  const {
+    entity,
+    // skuIds /* , mapSku */,
+    // mapSourceSkuSellerStock,
+  } = context.state
+
   const { account: sourceAccount } = settings
+
+  const skuIdsFile = new FileManager(`skuIds-${executionImportId}`)
 
   if (
     !targetWarehouse ||
-    !skuIds?.length ||
-    !mapSku ||
-    !mapSourceSkuSellerStock
+    !skuIdsFile.exists()
+    // !skuIds?.length // ||
+    // !mapSku ||
+    // !mapSourceSkuSellerStock
   ) {
     return
   }
 
+  const skuFile = new FileManager(`skus-${executionImportId}`)
+  const sourceSkuSellerStockFile = new FileManager(
+    `sourceSkuSellerStock-${executionImportId}`
+  )
+
+  if (!skuFile.exists() || !sourceSkuSellerStockFile.exists()) return
+
   const sourceStocks = await sourceCatalog.getInventories(
-    skuIds,
-    mapSourceSkuSellerStock
+    skuIdsFile,
+    // mapSourceSkuSellerStock
+    sourceSkuSellerStockFile
   )
 
   const sourceStocksTotal = sourceStocks.length
@@ -60,7 +77,7 @@ const handleStocks = async (context: AppEventContext) => {
       stocksOption === 'UNLIMITED' ||
       (hasUnlimitedQuantity && stocksOption === 'KEEP_SOURCE')
 
-    const targetSku = mapSku[+skuId]
+    const targetSku = +((await skuFile.findLine(skuId)) ?? 0) // mapSku[+skuId]
     const payload = { quantity, unlimitedQuantity, leadTime }
 
     await promiseWithConditionalRetry(
@@ -85,8 +102,8 @@ const handleStocks = async (context: AppEventContext) => {
     mapStock[+skuId] = targetSku
   })
 
-  context.state.mapSku = undefined
-  context.state.mapSourceSkuSellerStock = undefined
+  // context.state.mapSku = undefined
+  // context.state.mapSourceSkuSellerStock = undefined
 
   await updateCurrentImport(context, {
     status: IMPORT_STATUS.SUCCESS,

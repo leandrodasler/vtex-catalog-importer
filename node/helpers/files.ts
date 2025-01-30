@@ -9,7 +9,7 @@ export class FileManager {
     this.filePath = path.resolve(__dirname, filePath)
   }
 
-  private exists() {
+  public exists() {
     return fs.existsSync(this.filePath)
   }
 
@@ -28,6 +28,25 @@ export class FileManager {
   }
 
   public async findLine(prefix: string | number) {
+    if (!this.exists()) return null
+
+    // const fileStream = fs.createReadStream(this.filePath)
+
+    const rl = this.getLineIterator() /* readline.createInterface({
+      input: fileStream,
+      crlfDelay: Infinity,
+    }) */
+
+    for await (const line of rl) {
+      if (line.startsWith(`${prefix}=>`)) {
+        return line.split('=>')[1].trim()
+      }
+    }
+
+    return null
+  }
+
+  public getLineIterator() {
     const fileStream = fs.createReadStream(this.filePath)
 
     const rl = readline.createInterface({
@@ -35,10 +54,12 @@ export class FileManager {
       crlfDelay: Infinity,
     })
 
+    return rl
+  }
+
+  public async getFirstLine(rl: readline.Interface) {
     for await (const line of rl) {
-      if (line.startsWith(`${prefix}=>`)) {
-        return line.split('=>')[1].trim()
-      }
+      return line
     }
 
     return null

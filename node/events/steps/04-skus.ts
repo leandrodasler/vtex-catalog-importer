@@ -4,11 +4,12 @@ import {
   incrementVBaseEntity,
   promiseWithConditionalRetry,
 } from '../../helpers'
+import { FileManager } from '../../helpers/files'
 
 const handleSkus = async (context: AppEventContext) => {
-  const { entity, skuIds, mapProduct } = context.state
+  const { entity /* skuIds */ /* mapProduct */ } = context.state
 
-  if (!skuIds?.length || !mapProduct) return
+  // if (!skuIds?.length /* || !mapProduct */) return
 
   const { sourceCatalog, targetCatalog, importEntity } = context.clients
   const {
@@ -17,23 +18,37 @@ const handleSkus = async (context: AppEventContext) => {
     importImages = true,
   } = context.state.body
 
-  const { account: sourceAccount } = settings
-  const [firstSku, ...sourceSkus] = await sourceCatalog.getSkus(skuIds)
+  const productFile = new FileManager(`products-${executionImportId}`)
+  const skuIdsFile = new FileManager(`skuIds-${executionImportId}`)
 
-  const mapSku: EntityMap = {}
-  const mapSourceSkuProduct: EntityMap = {}
+  if (!productFile.exists() || !skuIdsFile.exists()) return
+
+  const { account: sourceAccount } = settings
+  const [firstSku, ...sourceSkus] = await sourceCatalog.getSkus(skuIdsFile)
+
+  // const mapSku: EntityMap = {}
+  const skuFile = new FileManager(`skus-${executionImportId}`)
+  // const mapSourceSkuProduct: EntityMap = {}
+  const sourceSkuProductFile = new FileManager(
+    `sourceSkuProduct-${executionImportId}`
+  )
 
   const processSku = async ({ Id, newId, RefId, ...sku }: SkuDetails) => {
     const migrated = await getEntityBySourceId(context, Id)
 
     if (migrated?.targetId) {
-      mapSku[Id] = +migrated.targetId
+      // mapSku[Id] = +migrated.targetId
+      skuFile.append(`${Id}=>${migrated.targetId}\n`)
     }
 
-    if (mapSku[Id]) return mapSku[Id]
+    // if (mapSku[Id]) return mapSku[Id]
+
+    const currentProcessed = await skuFile.findLine(Id)
+
+    if (currentProcessed) return +currentProcessed
 
     const { ProductId, IsActive } = sku
-    const targetProductId = mapProduct[ProductId]
+    const targetProductId = +((await productFile.findLine(ProductId)) ?? 0) // mapProduct[ProductId]
     const skuContext = await sourceCatalog.getSkuContext(Id, importImages)
     const { Ean, specifications, files } = skuContext
 
@@ -80,8 +95,10 @@ const handleSkus = async (context: AppEventContext) => {
       null
     ).catch(() => incrementVBaseEntity(context))
 
-    mapSku[Id] = targetId
-    mapSourceSkuProduct[Id] = ProductId
+    // mapSku[Id] = targetId
+    skuFile.append(`${Id}=>${targetId}\n`)
+    // mapSourceSkuProduct[Id] = ProductId
+    sourceSkuProductFile.append(`${Id}=>${ProductId}\n`)
 
     return targetId
   }
@@ -95,9 +112,9 @@ const handleSkus = async (context: AppEventContext) => {
 
   await batch(skusWithIds, processSku)
 
-  context.state.mapSku = mapSku
-  context.state.mapSourceSkuProduct = mapSourceSkuProduct
-  context.state.mapProduct = undefined
+  // context.state.mapSku = mapSku
+  // context.state.mapSourceSkuProduct = mapSourceSkuProduct
+  // context.state.mapProduct = undefined
 }
 
 export default handleSkus

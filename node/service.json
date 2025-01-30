@@ -14,5 +14,11 @@
       "path": "/_v/vtex-catalog-importer/cleanCatalog",
       "public": true
     }
+  },
+  "events": {
+    "runImportEvent": {
+      "sender": "ssesandbox04.catalog-importer",
+      "keys": ["runImport"]
+    }
   }
 }
