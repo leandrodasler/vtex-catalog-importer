@@ -126,7 +126,7 @@ const handleSkus = async (context: AppEventContext) => {
       taskQueue.push(task)
 
       if (taskQueue.length >= MAX_CONCURRENT_TASKS) {
-        await Promise.race(taskQueue)
+        await Promise.all(taskQueue)
         taskQueue.splice(0, taskQueue.findIndex((t) => t === task) + 1)
       }
     }
