@@ -1,6 +1,7 @@
 import { setCurrentImportId } from '..'
 import {
   batch,
+  FileManager,
   getEntityBySourceId,
   IMPORT_STATUS,
   incrementVBaseEntity,
@@ -18,21 +19,21 @@ const handleStocks = async (context: AppEventContext) => {
     targetWarehouse,
   } = context.state.body
 
-  const { entity, skuIds, mapSku, mapSourceSkuSellerStock } = context.state
+  const { entity } = context.state
   const { account: sourceAccount } = settings
+  const skuIdsFile = new FileManager(`skuIds-${executionImportId}`)
+  const skuFile = new FileManager(`skus-${executionImportId}`)
+  const sourceSkuSellerStockFile = new FileManager(
+    `sourceSkuSellerStock-${executionImportId}`
+  )
 
-  if (
-    !targetWarehouse ||
-    !skuIds?.length ||
-    !mapSku ||
-    !mapSourceSkuSellerStock
-  ) {
+  if (!targetWarehouse || !skuIdsFile.exists() || !skuFile.exists()) {
     return
   }
 
   const sourceStocks = await sourceCatalog.getInventories(
-    skuIds,
-    mapSourceSkuSellerStock
+    skuIdsFile,
+    sourceSkuSellerStockFile
   )
 
   const sourceStocksTotal = sourceStocks.length
@@ -60,7 +61,7 @@ const handleStocks = async (context: AppEventContext) => {
       stocksOption === 'UNLIMITED' ||
       (hasUnlimitedQuantity && stocksOption === 'KEEP_SOURCE')
 
-    const targetSku = mapSku[+skuId]
+    const targetSku = +((await skuFile.findLine(skuId)) ?? 0)
     const payload = { quantity, unlimitedQuantity, leadTime }
 
     await promiseWithConditionalRetry(
@@ -85,15 +86,33 @@ const handleStocks = async (context: AppEventContext) => {
     mapStock[+skuId] = targetSku
   })
 
-  context.state.mapSku = undefined
-  context.state.mapSourceSkuSellerStock = undefined
-
   await updateCurrentImport(context, {
     status: IMPORT_STATUS.SUCCESS,
     currentEntity: null,
   })
 
   setCurrentImportId(null)
+
+  const categoryFile = new FileManager(`categories-${executionImportId}`)
+  const productFile = new FileManager(`products-${executionImportId}`)
+  const productDetailsFile = new FileManager(
+    `productDetails-${executionImportId}`
+  )
+
+  const priceFile = new FileManager(`prices-${executionImportId}`)
+
+  const sourceSkuProductFile = new FileManager(
+    `sourceSkuProduct-${executionImportId}`
+  )
+
+  categoryFile.delete()
+  productFile.delete()
+  productDetailsFile.delete()
+  sourceSkuProductFile.delete()
+  priceFile.delete()
+  skuFile.delete()
+  skuIdsFile.delete()
+  sourceSkuSellerStockFile.delete()
 }
 
 export default handleStocks

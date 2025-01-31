@@ -68,5 +68,13 @@ export default {
       timeout: 300000,
       concurrency: DEFAULT_CONCURRENCY,
     },
+    events: {
+      exponentialTimeoutCoefficient: 2,
+      exponentialBackoffCoefficient: 2,
+      initialBackoffDelay: 100,
+      retries: 1,
+      timeout: 300000,
+      concurrency: DEFAULT_CONCURRENCY,
+    },
   },
 } as ClientsConfig<Clients>

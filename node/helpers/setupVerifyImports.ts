@@ -7,7 +7,7 @@ import {
   getLastEntity,
   IMPORT_STATUS,
 } from '.'
-import runImport, { getCurrentImportId } from '../events'
+import { getCurrentImportId } from '../events'
 
 const TIMEOUT = 10000
 const MAX_TIME_LAST_ENTITY = 15 * 60 * 1000
@@ -65,8 +65,14 @@ const verifyImports = async () => {
 
   if (!nextPendingImport || getCurrentImportId()) return
 
-  context.state.body = nextPendingImport
-  runImport(context)
+  // context.state.body = nextPendingImport
+  // runImport(context)
+  const { adminUserAuthToken } = context.vtex
+
+  context.clients.events.sendEvent('', 'runImport', {
+    adminUserAuthToken,
+    ...nextPendingImport,
+  })
 }
 
 export const setupVerifyImports = () => {

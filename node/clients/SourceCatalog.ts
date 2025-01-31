@@ -1,7 +1,12 @@
 import type { InstanceOptions } from '@vtex/api'
 import type { AppSettings, Category } from 'ssesandbox04.catalog-importer'
 
-import { batch, ENDPOINTS, GET_DETAILS_CONCURRENCY } from '../helpers'
+import {
+  batch,
+  ENDPOINTS,
+  FileManager,
+  GET_DETAILS_CONCURRENCY,
+} from '../helpers'
 import HttpClient from './HttpClient'
 
 export default class SourceCatalog extends HttpClient {
@@ -182,6 +187,69 @@ export default class SourceCatalog extends HttpClient {
     return { products, skuIds }
   }
 
+  public async generateProductAndSkuFiles(
+    executionImportId: string,
+    categoryTree: Category[] = []
+  ) {
+    const productAndSkuIds = await this.getProductAndSkuIds(categoryTree)
+    const productIds = Object.keys(productAndSkuIds)
+    const categories = this.flatCategoryTree(categoryTree)
+
+    const productDetailsFile = new FileManager(
+      `productDetails-${executionImportId}`
+    ).getWriteStream()
+
+    const skuIdsFile = new FileManager(
+      `skuIds-${executionImportId}`
+    ).getWriteStream()
+
+    const results = await batch(
+      productIds,
+      async (id) => {
+        const product = await this.getProductDetails(id)
+        const { IsActive, CategoryId, BrandId } = product
+        const inCategoryTree = categories.find(
+          (c) => c.id === String(CategoryId)
+        )
+
+        if (!IsActive || !inCategoryTree || !productAndSkuIds[id].length) {
+          return { products: 0, skus: 0 }
+        }
+
+        const CategoryPath = this.getCategoryPath(CategoryId, categoryTree)
+        const BrandName = await this.getBrandDetails(String(BrandId)).then(
+          (b) => b.Name
+        )
+
+        const productData = { ...product, CategoryPath, BrandName }
+
+        productDetailsFile.write(`${JSON.stringify(productData)}\n`)
+
+        for (const skuId of productAndSkuIds[id]) {
+          skuIdsFile.write(`${skuId}\n`)
+        }
+
+        return { products: 1, skus: productAndSkuIds[id].length }
+      },
+      GET_DETAILS_CONCURRENCY
+    )
+
+    productDetailsFile.end()
+    skuIdsFile.end()
+
+    const { sourceProductsTotal, sourceSkusTotal } = results.reduce(
+      (acc, curr) => {
+        acc.sourceProductsTotal += curr.products
+        acc.sourceSkusTotal += curr.skus
+
+        return acc
+      },
+      { sourceProductsTotal: 0, sourceSkusTotal: 0 }
+    )
+
+    return { sourceProductsTotal, sourceSkusTotal }
+  }
+
   private async getSpecificationGroup(id: ID) {
     return this.get<SpecificationGroup>(ENDPOINTS.specification.getGroup(id))
   }
@@ -215,7 +283,15 @@ export default class SourceCatalog extends HttpClient {
     return this.get<SkuDetails>(ENDPOINTS.sku.updateOrDetails(id))
   }
 
-  public async getSkus(skuIds: number[] = []) {
+  public async getSkus(skuIdsFile: FileManager) {
+    const skuLineIterator = skuIdsFile.getLineIterator()
+
+    const skuIds: number[] = []
+
+    for await (const line of skuLineIterator) {
+      skuIds.push(Number(line))
+    }
+
     return batch(
       skuIds,
       (id) => this.getSkuDetails(id),
@@ -281,14 +357,34 @@ export default class SourceCatalog extends HttpClient {
     )
   }
 
-  public async getPrices(skuIds: number[], mapSourceSkuProduct: EntityMap) {
-    const prices = await batch(
-      skuIds,
-      (id) => this.getPrice(id, mapSourceSkuProduct[id]),
-      GET_DETAILS_CONCURRENCY
-    )
+  public async getPrices(
+    skuIdsFile: FileManager,
+    sourceSkuProductFile: FileManager
+  ) {
+    const skuLineIterator = skuIdsFile.getLineIterator()
 
-    return prices.filter((p) => p !== null) as PriceDetails[]
+    const prices: Array<
+      | PriceDetails
+      | {
+          itemId: ID
+          listPrice: number
+          costPrice: number
+          basePrice: number
+          markup: null
+          sellerStock: number
+        }
+    > = []
+
+    for await (const id of skuLineIterator) {
+      const productId = (await sourceSkuProductFile.findLine(id)) as string
+      const price = await this.getPrice(id, productId)
+
+      if (price) {
+        prices.push(price)
+      }
+    }
+
+    return prices as PriceDetails[]
   }
 
   private generateInventory(skuId: ID, totalQuantity = 0): SkuInventory {
@@ -316,12 +412,25 @@ export default class SourceCatalog extends HttpClient {
   }
 
   public async getInventories(
-    skuIds: number[],
-    mapSourceSkuSellerStock: EntityMap
+    skuIdsFile: FileManager,
+    sourceSkuSellerStockFile: FileManager
   ) {
+    const skuLineIterator = skuIdsFile.getLineIterator()
+
+    const skuIds: number[] = []
+
+    for await (const line of skuLineIterator) {
+      skuIds.push(Number(line))
+    }
+
     return batch(
       skuIds,
-      (id) => this.getInventory(id, mapSourceSkuSellerStock[id]),
+      async (id) => {
+        const sellerStock =
+          +((await sourceSkuSellerStockFile.findLine(id)) ?? 0) || undefined
+
+        return this.getInventory(id, sellerStock)
+      },
       GET_DETAILS_CONCURRENCY
     )
   }

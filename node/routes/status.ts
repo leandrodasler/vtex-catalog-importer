@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { method } from '@vtex/api'
 import type {
   ImportEntity,
@@ -20,7 +21,7 @@ const outputHTML = (data?: unknown[]) =>
   data?.length ? `<pre>${JSON.stringify(data, null, 2)}</pre>` : ''
 
 const formatDate = (date: string | Date) =>
-  `${new Date(date).toLocaleString('pt-BR')} UTC`
+  `${new Date(date).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`
 
 const diffDate = (date: string) => Date.now() - new Date(date).getTime()
 

@@ -1,4 +1,4 @@
-import type { RecorderState, ServiceContext } from '@vtex/api'
+import type { EventContext, RecorderState, ServiceContext } from '@vtex/api'
 import type { Brand as BrandFromClients } from '@vtex/clients'
 import type { GraphQLField } from 'graphql'
 import type { AppSettingsInput, Import } from 'ssesandbox04.catalog-importer'
@@ -30,17 +30,19 @@ declare global {
   type EventState = Omit<RecorderState, 'body'> & {
     body: Partial<WithInternalFields<Import>>
     entity?: string
-    mapCategory?: EntityMap
-    mapProduct?: EntityMap
-    mapSku?: EntityMap
-    mapSourceSkuProduct?: EntityMap
-    mapSourceSkuSellerStock?: EntityMap
-    skuIds?: number[]
+    // mapCategory?: EntityMap
+    // mapProduct?: EntityMap
+    // mapSku?: EntityMap
+    // mapSourceSkuProduct?: EntityMap
+    // mapSourceSkuSellerStock?: EntityMap
+    // skuIds?: number[]
   }
 
   type AppEventContext = ServiceContext<Clients, EventState>
 
   type AppContext = Context | AppEventContext
+
+  type CustomEventContext = EventContext<Clients, EventState>
 
   type WithSettingsArgs = {
     settings?: AppSettingsInput

@@ -10,8 +10,12 @@ import {
 import HttpClient from './HttpClient'
 
 export default class TargetCatalog extends HttpClient {
+  private adminUserAuthToken: string | null = null
+
   protected getRequestConfig(): InstanceOptions {
-    const VtexIdclientAutcookie = this.context.adminUserAuthToken as string
+    const VtexIdclientAutcookie =
+      this.adminUserAuthToken ?? (this.context.adminUserAuthToken as string)
+
     const headers = {
       ...this.options?.headers,
       VtexIdclientAutcookie,
@@ -19,6 +23,10 @@ export default class TargetCatalog extends HttpClient {
     }
 
     return { ...this.options, headers }
+  }
+
+  public setAdminUserAuthToken(authToken: string) {
+    this.adminUserAuthToken = authToken
   }
 
   protected getUrl(path: string) {

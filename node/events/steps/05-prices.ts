@@ -1,5 +1,6 @@
 import {
   batch,
+  FileManager,
   getEntityBySourceId,
   incrementVBaseEntity,
   promiseWithConditionalRetry,
@@ -14,21 +15,34 @@ const handlePrices = async (context: AppEventContext) => {
     importPrices,
   } = context.state.body
 
-  const { entity, skuIds, mapSku, mapSourceSkuProduct } = context.state
+  const { entity } = context.state
+
+  const skuIdsFile = new FileManager(`skuIds-${executionImportId}`)
+
   const { account: sourceAccount } = settings
 
-  if (!importPrices || !skuIds?.length || !mapSku || !mapSourceSkuProduct) {
+  if (!importPrices || !skuIdsFile.exists()) {
     return
   }
 
+  const skuFile = new FileManager(`skus-${executionImportId}`)
+  const sourceSkuProductFile = new FileManager(
+    `sourceSkuProduct-${executionImportId}`
+  )
+
   const sourcePrices = await sourceCatalog.getPrices(
-    skuIds,
-    mapSourceSkuProduct
+    skuIdsFile,
+    sourceSkuProductFile
   )
 
   const sourcePricesTotal = sourcePrices.length
-  const mapPrice: EntityMap = {}
-  const mapSourceSkuSellerStock: EntityMap = {}
+  const priceFile = new FileManager(`prices-${executionImportId}`)
+  const priceFileWriteStream = priceFile.getWriteStream()
+  const sourceSkuSellerStockFile = new FileManager(
+    `sourceSkuSellerStock-${executionImportId}`
+  )
+
+  const sourceSkuSellerStockFileWriteStream = sourceSkuSellerStockFile.getWriteStream()
 
   await updateCurrentImport(context, { sourcePricesTotal })
   await batch(sourcePrices, async (sourcePrice) => {
@@ -36,17 +50,19 @@ const handlePrices = async (context: AppEventContext) => {
     const migrated = await getEntityBySourceId(context, itemId)
 
     if (migrated?.targetId) {
-      mapPrice[+itemId] = +migrated.targetId
+      priceFileWriteStream.write(`${itemId}=>${migrated.targetId}\n`)
     }
 
-    if (mapPrice[+itemId]) return
+    const currentProcessed = await priceFile.findLine(itemId)
+
+    if (currentProcessed) return
 
     const includeBasePrice = price.costPrice === null || price.markup === null
     const payload = { ...price, ...(includeBasePrice && { basePrice }) }
-    const skuId = mapSku[+itemId]
+    const skuId = +((await skuFile.findLine(itemId)) ?? 0)
 
     if (sellerStock) {
-      mapSourceSkuSellerStock[+itemId] = sellerStock
+      sourceSkuSellerStockFileWriteStream.write(`${itemId}=>${sellerStock}\n`)
     }
 
     await promiseWithConditionalRetry(
@@ -68,11 +84,11 @@ const handlePrices = async (context: AppEventContext) => {
       null
     ).catch(() => incrementVBaseEntity(context))
 
-    mapPrice[+itemId] = skuId
+    priceFileWriteStream.write(`${itemId}=>${skuId}\n`)
   })
 
-  context.state.mapSourceSkuSellerStock = mapSourceSkuSellerStock
-  context.state.mapSourceSkuProduct = undefined
+  priceFileWriteStream.end()
+  sourceSkuSellerStockFileWriteStream.end()
 }
 
 export default handlePrices

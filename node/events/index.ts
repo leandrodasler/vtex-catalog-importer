@@ -58,4 +58,13 @@ const runImport = async (context: AppEventContext) => {
   }
 }
 
+export async function runImportEvent(context: CustomEventContext) {
+  const { adminUserAuthToken, ...pendingImport } = context.body
+
+  context.state.body = pendingImport
+  context.clients.targetCatalog.setAdminUserAuthToken(adminUserAuthToken)
+
+  runImport((context as unknown) as AppEventContext)
+}
+
 export default runImport
