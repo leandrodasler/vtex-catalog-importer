@@ -133,6 +133,7 @@ const handleProducts = async (context: AppEventContext) => {
   }
 
   await Promise.all(taskQueue)
+
   productFileWriteStream.end()
 }
 

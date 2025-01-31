@@ -1,6 +1,5 @@
 import { setCurrentImportId } from '..'
 import {
-  batch,
   FileManager,
   getEntityBySourceId,
   IMPORT_STATUS,
@@ -12,7 +11,7 @@ import {
 const handleStocks = async (context: AppEventContext) => {
   const { importEntity, sourceCatalog, targetCatalog } = context.clients
   const {
-    id: executionImportId,
+    id: executionImportId = '',
     settings = {},
     stocksOption = 'KEEP_SOURCE',
     stockValue,
@@ -31,24 +30,32 @@ const handleStocks = async (context: AppEventContext) => {
     return
   }
 
-  const sourceStocks = await sourceCatalog.getInventories(
-    skuIdsFile,
-    sourceSkuSellerStockFile
+  const sourceStocksTotal = await sourceCatalog.generateInventoryDetailsFile(
+    executionImportId
   )
 
-  const sourceStocksTotal = sourceStocks.length
-  const mapStock: EntityMap = {}
+  const inventoryDetailsFile = new FileManager(
+    `inventoryDetails-${executionImportId}`
+  )
+
+  if (!inventoryDetailsFile.exists()) return
+
+  const stockMapFile = new FileManager(`stockMap-${executionImportId}`)
+  const stockMapFileWriteStream = stockMapFile.getWriteStream()
 
   await updateCurrentImport(context, { sourceStocksTotal })
-  await batch(sourceStocks, async (sourceStock) => {
+
+  const processStock = async (sourceStock: SkuInventory) => {
     const { skuId, totalQuantity, hasUnlimitedQuantity, leadTime } = sourceStock
     const migrated = await getEntityBySourceId(context, skuId)
 
     if (migrated?.targetId) {
-      mapStock[+skuId] = +migrated.targetId
+      stockMapFileWriteStream.write(`${skuId}=>${migrated.targetId}\n`)
     }
 
-    if (mapStock[+skuId]) return
+    const currentProcessed = await stockMapFile.findLine(skuId)
+
+    if (currentProcessed) return
 
     const quantity =
       stocksOption === 'KEEP_SOURCE'
@@ -82,9 +89,33 @@ const handleStocks = async (context: AppEventContext) => {
         }),
       null
     ).catch(() => incrementVBaseEntity(context))
+    stockMapFileWriteStream.write(`${skuId}=>${targetSku}\n`)
+  }
 
-    mapStock[+skuId] = targetSku
-  })
+  const inventoryDetailsLineIterator = inventoryDetailsFile.getLineIterator()
+
+  const MAX_CONCURRENT_TASKS = 10
+  const taskQueue: Array<Promise<void>> = []
+
+  for await (const line of inventoryDetailsLineIterator) {
+    const inventory = JSON.parse(line)
+
+    // eslint-disable-next-line no-loop-func
+    const task = (async () => {
+      await processStock(inventory)
+    })()
+
+    taskQueue.push(task)
+
+    if (taskQueue.length >= MAX_CONCURRENT_TASKS) {
+      await Promise.race(taskQueue)
+      taskQueue.splice(0, taskQueue.findIndex((t) => t === task) + 1)
+    }
+  }
+
+  await Promise.all(taskQueue)
+
+  stockMapFileWriteStream.end()
 
   await updateCurrentImport(context, {
     status: IMPORT_STATUS.SUCCESS,
@@ -99,11 +130,14 @@ const handleStocks = async (context: AppEventContext) => {
     `productDetails-${executionImportId}`
   )
 
+  const skuDetailsFile = new FileManager(`skuDetails-${executionImportId}`)
   const priceFile = new FileManager(`prices-${executionImportId}`)
 
   const sourceSkuProductFile = new FileManager(
     `sourceSkuProduct-${executionImportId}`
   )
+
+  const priceDetailsFile = new FileManager(`priceDetails-${executionImportId}`)
 
   categoryFile.delete()
   productFile.delete()
@@ -113,6 +147,10 @@ const handleStocks = async (context: AppEventContext) => {
   skuFile.delete()
   skuIdsFile.delete()
   sourceSkuSellerStockFile.delete()
+  skuDetailsFile.delete()
+  priceDetailsFile.delete()
+  inventoryDetailsFile.delete()
+  stockMapFile.delete()
 }
 
 export default handleStocks

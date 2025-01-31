@@ -1,5 +1,4 @@
 import {
-  batch,
   FileManager,
   getEntityBySourceId,
   incrementVBaseEntity,
@@ -10,7 +9,7 @@ import {
 const handlePrices = async (context: AppEventContext) => {
   const { importEntity, sourceCatalog, targetCatalog } = context.clients
   const {
-    id: executionImportId,
+    id: executionImportId = '',
     settings = {},
     importPrices,
   } = context.state.body
@@ -26,16 +25,15 @@ const handlePrices = async (context: AppEventContext) => {
   }
 
   const skuFile = new FileManager(`skus-${executionImportId}`)
-  const sourceSkuProductFile = new FileManager(
-    `sourceSkuProduct-${executionImportId}`
+
+  const sourcePricesTotal = await sourceCatalog.generatePriceDetailsFile(
+    executionImportId
   )
 
-  const sourcePrices = await sourceCatalog.getPrices(
-    skuIdsFile,
-    sourceSkuProductFile
-  )
+  const priceDetailsFile = new FileManager(`priceDetails-${executionImportId}`)
 
-  const sourcePricesTotal = sourcePrices.length
+  if (!priceDetailsFile.exists()) return
+
   const priceFile = new FileManager(`prices-${executionImportId}`)
   const priceFileWriteStream = priceFile.getWriteStream()
   const sourceSkuSellerStockFile = new FileManager(
@@ -45,7 +43,8 @@ const handlePrices = async (context: AppEventContext) => {
   const sourceSkuSellerStockFileWriteStream = sourceSkuSellerStockFile.getWriteStream()
 
   await updateCurrentImport(context, { sourcePricesTotal })
-  await batch(sourcePrices, async (sourcePrice) => {
+
+  const processPrice = async (sourcePrice: PriceDetails) => {
     const { itemId, basePrice, sellerStock, ...price } = sourcePrice
     const migrated = await getEntityBySourceId(context, itemId)
 
@@ -85,7 +84,30 @@ const handlePrices = async (context: AppEventContext) => {
     ).catch(() => incrementVBaseEntity(context))
 
     priceFileWriteStream.write(`${itemId}=>${skuId}\n`)
-  })
+  }
+
+  const priceDetailsLineIterator = priceDetailsFile.getLineIterator()
+
+  const MAX_CONCURRENT_TASKS = 10
+  const taskQueue: Array<Promise<void>> = []
+
+  for await (const line of priceDetailsLineIterator) {
+    const price = JSON.parse(line)
+
+    // eslint-disable-next-line no-loop-func
+    const task = (async () => {
+      await processPrice(price)
+    })()
+
+    taskQueue.push(task)
+
+    if (taskQueue.length >= MAX_CONCURRENT_TASKS) {
+      await Promise.race(taskQueue)
+      taskQueue.splice(0, taskQueue.findIndex((t) => t === task) + 1)
+    }
+  }
+
+  await Promise.all(taskQueue)
 
   priceFileWriteStream.end()
   sourceSkuSellerStockFileWriteStream.end()

@@ -1,5 +1,4 @@
 import {
-  batch,
   FileManager,
   getEntityBySourceId,
   incrementVBaseEntity,
@@ -10,7 +9,7 @@ const handleSkus = async (context: AppEventContext) => {
   const { entity } = context.state
   const { sourceCatalog, targetCatalog, importEntity } = context.clients
   const {
-    id: executionImportId,
+    id: executionImportId = '',
     settings = {},
     importImages = true,
   } = context.state.body
@@ -21,7 +20,12 @@ const handleSkus = async (context: AppEventContext) => {
   if (!productFile.exists() || !skuIdsFile.exists()) return
 
   const { account: sourceAccount } = settings
-  const [firstSku, ...sourceSkus] = await sourceCatalog.getSkus(skuIdsFile)
+
+  await sourceCatalog.generateSkuDetailsFiles(executionImportId)
+
+  const skuDetailsFile = new FileManager(`skuDetails-${executionImportId}`)
+
+  if (!skuDetailsFile.exists()) return
 
   const skuFile = new FileManager(`skus-${executionImportId}`)
   const skuFileWriteStream = skuFile.getWriteStream()
@@ -97,14 +101,38 @@ const handleSkus = async (context: AppEventContext) => {
     return targetId
   }
 
-  const lastSkuId = await processSku(firstSku)
+  const skuLineIterator = skuDetailsFile.getLineIterator()
 
-  const skusWithIds = sourceSkus.map((data, index) => ({
-    ...data,
-    newId: lastSkuId + index + 1,
-  }))
+  let index = 1
+  let lastSkuId = 0
+  const MAX_CONCURRENT_TASKS = 10
+  const taskQueue: Array<Promise<void>> = []
 
-  await batch(skusWithIds, processSku)
+  for await (const line of skuLineIterator) {
+    const sku = JSON.parse(line)
+
+    if (index === 1) {
+      lastSkuId = await processSku(sku)
+      index++
+    } else {
+      // eslint-disable-next-line no-loop-func
+      const task = (async () => {
+        await processSku({
+          ...sku,
+          newId: lastSkuId ? lastSkuId + index++ : undefined,
+        })
+      })()
+
+      taskQueue.push(task)
+
+      if (taskQueue.length >= MAX_CONCURRENT_TASKS) {
+        await Promise.race(taskQueue)
+        taskQueue.splice(0, taskQueue.findIndex((t) => t === task) + 1)
+      }
+    }
+  }
+
+  await Promise.all(taskQueue)
 
   skuFileWriteStream.end()
   sourceSkuProductFileWriteStream.end()

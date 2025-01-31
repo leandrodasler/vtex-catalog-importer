@@ -65,8 +65,6 @@ const verifyImports = async () => {
 
   if (!nextPendingImport || getCurrentImportId()) return
 
-  // context.state.body = nextPendingImport
-  // runImport(context)
   const { adminUserAuthToken } = context.vtex
 
   context.clients.events.sendEvent('', 'runImport', {
