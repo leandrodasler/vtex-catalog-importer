@@ -126,7 +126,7 @@ const handleProducts = async (context: AppEventContext) => {
       taskQueue.push(task)
 
       if (taskQueue.length >= MAX_CONCURRENT_TASKS) {
-        await Promise.all(taskQueue)
+        await Promise.race(taskQueue)
         taskQueue.splice(0, taskQueue.findIndex((t) => t === task) + 1)
       }
     }
