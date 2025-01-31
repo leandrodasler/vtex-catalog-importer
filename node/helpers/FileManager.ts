@@ -19,10 +19,6 @@ export class FileManager {
     return fs.unlinkSync(this.filePath)
   }
 
-  public append(data: string) {
-    return fs.appendFileSync(this.filePath, data, { encoding: 'utf8' })
-  }
-
   public getWriteStream() {
     return fs.createWriteStream(this.filePath, { flags: 'a', encoding: 'utf8' })
   }

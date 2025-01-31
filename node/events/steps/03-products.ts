@@ -36,6 +36,7 @@ const handleProducts = async (context: AppEventContext) => {
   if (!productDetailsFile.exists()) return
 
   const productFile = new FileManager(`products-${executionImportId}`)
+  const productFileWriteStream = productFile.getWriteStream()
 
   await updateCurrentImport(context, { sourceProductsTotal, sourceSkusTotal })
 
@@ -44,7 +45,7 @@ const handleProducts = async (context: AppEventContext) => {
     const migrated = await getEntityBySourceId(context, Id)
 
     if (migrated?.targetId) {
-      productFile.append(`${Id}=>${migrated.targetId}\n`)
+      productFileWriteStream.write(`${Id}=>${migrated.targetId}\n`)
     }
 
     const currentProcessed = await productFile.findLine(Id)
@@ -95,7 +96,7 @@ const handleProducts = async (context: AppEventContext) => {
       null
     ).catch(() => incrementVBaseEntity(context))
 
-    productFile.append(`${Id}=>${targetId}\n`)
+    productFileWriteStream.write(`${Id}=>${targetId}\n`)
 
     return targetId
   }
@@ -132,6 +133,7 @@ const handleProducts = async (context: AppEventContext) => {
   }
 
   await Promise.all(taskQueue)
+  productFileWriteStream.end()
 }
 
 export default handleProducts

@@ -7,10 +7,7 @@ import {
 } from '../../helpers'
 
 const handleSkus = async (context: AppEventContext) => {
-  const { entity /* skuIds */ /* mapProduct */ } = context.state
-
-  // if (!skuIds?.length /* || !mapProduct */) return
-
+  const { entity } = context.state
   const { sourceCatalog, targetCatalog, importEntity } = context.clients
   const {
     id: executionImportId,
@@ -26,29 +23,28 @@ const handleSkus = async (context: AppEventContext) => {
   const { account: sourceAccount } = settings
   const [firstSku, ...sourceSkus] = await sourceCatalog.getSkus(skuIdsFile)
 
-  // const mapSku: EntityMap = {}
   const skuFile = new FileManager(`skus-${executionImportId}`)
-  // const mapSourceSkuProduct: EntityMap = {}
+  const skuFileWriteStream = skuFile.getWriteStream()
+
   const sourceSkuProductFile = new FileManager(
     `sourceSkuProduct-${executionImportId}`
   )
+
+  const sourceSkuProductFileWriteStream = sourceSkuProductFile.getWriteStream()
 
   const processSku = async ({ Id, newId, RefId, ...sku }: SkuDetails) => {
     const migrated = await getEntityBySourceId(context, Id)
 
     if (migrated?.targetId) {
-      // mapSku[Id] = +migrated.targetId
-      skuFile.append(`${Id}=>${migrated.targetId}\n`)
+      skuFileWriteStream.write(`${Id}=>${migrated.targetId}\n`)
     }
-
-    // if (mapSku[Id]) return mapSku[Id]
 
     const currentProcessed = await skuFile.findLine(Id)
 
     if (currentProcessed) return +currentProcessed
 
     const { ProductId, IsActive } = sku
-    const targetProductId = +((await productFile.findLine(ProductId)) ?? 0) // mapProduct[ProductId]
+    const targetProductId = +((await productFile.findLine(ProductId)) ?? 0)
     const skuContext = await sourceCatalog.getSkuContext(Id, importImages)
     const { Ean, specifications, files } = skuContext
 
@@ -95,10 +91,8 @@ const handleSkus = async (context: AppEventContext) => {
       null
     ).catch(() => incrementVBaseEntity(context))
 
-    // mapSku[Id] = targetId
-    skuFile.append(`${Id}=>${targetId}\n`)
-    // mapSourceSkuProduct[Id] = ProductId
-    sourceSkuProductFile.append(`${Id}=>${ProductId}\n`)
+    skuFileWriteStream.write(`${Id}=>${targetId}\n`)
+    sourceSkuProductFileWriteStream.write(`${Id}=>${ProductId}\n`)
 
     return targetId
   }
@@ -112,9 +106,8 @@ const handleSkus = async (context: AppEventContext) => {
 
   await batch(skusWithIds, processSku)
 
-  // context.state.mapSku = mapSku
-  // context.state.mapSourceSkuProduct = mapSourceSkuProduct
-  // context.state.mapProduct = undefined
+  skuFileWriteStream.end()
+  sourceSkuProductFileWriteStream.end()
 }
 
 export default handleSkus
