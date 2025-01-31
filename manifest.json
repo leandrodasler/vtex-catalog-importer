@@ -1,7 +1,7 @@
 {
   "vendor": "ssesandbox04",
   "name": "catalog-importer",
-  "version": "0.0.43",
+  "version": "0.0.44",
   "title": "Catalog Importer",
   "description": "Catalog import management admin app",
   "builders": {
