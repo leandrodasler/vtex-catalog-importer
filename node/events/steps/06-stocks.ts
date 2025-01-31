@@ -19,36 +19,20 @@ const handleStocks = async (context: AppEventContext) => {
     targetWarehouse,
   } = context.state.body
 
-  const {
-    entity,
-    // skuIds /* , mapSku */,
-    // mapSourceSkuSellerStock,
-  } = context.state
-
+  const { entity } = context.state
   const { account: sourceAccount } = settings
-
   const skuIdsFile = new FileManager(`skuIds-${executionImportId}`)
-
-  if (
-    !targetWarehouse ||
-    !skuIdsFile.exists()
-    // !skuIds?.length // ||
-    // !mapSku ||
-    // !mapSourceSkuSellerStock
-  ) {
-    return
-  }
-
   const skuFile = new FileManager(`skus-${executionImportId}`)
   const sourceSkuSellerStockFile = new FileManager(
     `sourceSkuSellerStock-${executionImportId}`
   )
 
-  if (!skuFile.exists() || !sourceSkuSellerStockFile.exists()) return
+  if (!targetWarehouse || !skuIdsFile.exists() || !skuFile.exists()) {
+    return
+  }
 
   const sourceStocks = await sourceCatalog.getInventories(
     skuIdsFile,
-    // mapSourceSkuSellerStock
     sourceSkuSellerStockFile
   )
 
@@ -77,7 +61,7 @@ const handleStocks = async (context: AppEventContext) => {
       stocksOption === 'UNLIMITED' ||
       (hasUnlimitedQuantity && stocksOption === 'KEEP_SOURCE')
 
-    const targetSku = +((await skuFile.findLine(skuId)) ?? 0) // mapSku[+skuId]
+    const targetSku = +((await skuFile.findLine(skuId)) ?? 0)
     const payload = { quantity, unlimitedQuantity, leadTime }
 
     await promiseWithConditionalRetry(
@@ -101,9 +85,6 @@ const handleStocks = async (context: AppEventContext) => {
 
     mapStock[+skuId] = targetSku
   })
-
-  // context.state.mapSku = undefined
-  // context.state.mapSourceSkuSellerStock = undefined
 
   await updateCurrentImport(context, {
     status: IMPORT_STATUS.SUCCESS,

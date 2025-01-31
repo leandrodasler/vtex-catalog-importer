@@ -23,6 +23,10 @@ export class FileManager {
     return fs.appendFileSync(this.filePath, data, { encoding: 'utf8' })
   }
 
+  public getWriteStream() {
+    return fs.createWriteStream(this.filePath, { flags: 'a', encoding: 'utf8' })
+  }
+
   public getLineIterator() {
     const fileStream = fs.createReadStream(this.filePath)
 

@@ -25,7 +25,6 @@ const handleCategories = async (context: AppEventContext) => {
 
   await updateCurrentImport(context, { sourceCategoriesTotal })
   const sourceCategories = await sourceCatalog.getCategories(categories)
-  // const mapCategory: EntityMap = {}
 
   const categoryFile = new FileManager(`categories-${executionImportId}`)
 
@@ -33,11 +32,9 @@ const handleCategories = async (context: AppEventContext) => {
     const migrated = await getEntityBySourceId(context, Id)
 
     if (migrated?.targetId) {
-      // mapCategory[Id] = +migrated.targetId
       categoryFile.append(`${Id}=>${migrated.targetId}\n`)
     }
 
-    // if (mapCategory[Id]) return
     if (await categoryFile.findLine(Id)) return
 
     const { FatherCategoryId, GlobalCategoryId = 0 } = category
@@ -46,7 +43,7 @@ const handleCategories = async (context: AppEventContext) => {
       ...category,
       GlobalCategoryId: GlobalCategoryId || undefined,
       FatherCategoryId: FatherCategoryId
-        ? +((await categoryFile.findLine(FatherCategoryId)) ?? 0) || undefined // mapCategory[FatherCategoryId]
+        ? +((await categoryFile.findLine(FatherCategoryId)) ?? 0) || undefined
         : undefined,
     }
 
@@ -69,11 +66,8 @@ const handleCategories = async (context: AppEventContext) => {
       null
     ).catch(() => incrementVBaseEntity(context))
 
-    // mapCategory[Id] = targetId
     categoryFile.append(`${Id}=>${targetId}\n`)
   })
-
-  // context.state.mapCategory = mapCategory
 }
 
 export default handleCategories

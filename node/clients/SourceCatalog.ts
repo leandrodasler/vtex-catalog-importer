@@ -195,17 +195,15 @@ export default class SourceCatalog extends HttpClient {
     const productIds = Object.keys(productAndSkuIds)
     const categories = this.flatCategoryTree(categoryTree)
 
-    const products: ProductPayload[] = []
-
     const productDetailsFile = new FileManager(
       `productDetails-${executionImportId}`
-    )
+    ).getWriteStream()
 
-    const skuIdsFile = new FileManager(`skuIds-${executionImportId}`)
+    const skuIdsFile = new FileManager(
+      `skuIds-${executionImportId}`
+    ).getWriteStream()
 
-    const skuIds: number[] = []
-
-    await batch(
+    const results = await batch(
       productIds,
       async (id) => {
         const product = await this.getProductDetails(id)
@@ -214,30 +212,40 @@ export default class SourceCatalog extends HttpClient {
           (c) => c.id === String(CategoryId)
         )
 
-        if (!IsActive || !inCategoryTree || !productAndSkuIds[id].length) return
+        if (!IsActive || !inCategoryTree || !productAndSkuIds[id].length) {
+          return { products: 0, skus: 0 }
+        }
 
         const CategoryPath = this.getCategoryPath(CategoryId, categoryTree)
         const BrandName = await this.getBrandDetails(String(BrandId)).then(
           (b) => b.Name
         )
 
-        products.push({ ...product, CategoryPath, BrandName })
+        const productData = { ...product, CategoryPath, BrandName }
 
-        skuIds.push(...productAndSkuIds[id])
+        productDetailsFile.write(`${JSON.stringify(productData)}\n`)
+
+        for (const skuId of productAndSkuIds[id]) {
+          skuIdsFile.write(`${skuId}\n`)
+        }
+
+        return { products: 1, skus: productAndSkuIds[id].length }
       },
       GET_DETAILS_CONCURRENCY
     )
 
-    products.forEach((product) => {
-      productDetailsFile.append(`${JSON.stringify(product)}\n`)
-    })
+    productDetailsFile.end()
+    skuIdsFile.end()
 
-    skuIds.forEach((id) => {
-      skuIdsFile.append(`${id}\n`)
-    })
+    const { sourceProductsTotal, sourceSkusTotal } = results.reduce(
+      (acc, curr) => {
+        acc.sourceProductsTotal += curr.products
+        acc.sourceSkusTotal += curr.skus
 
-    const sourceProductsTotal = products.length
-    const sourceSkusTotal = skuIds.length
+        return acc
+      },
+      { sourceProductsTotal: 0, sourceSkusTotal: 0 }
+    )
 
     return { sourceProductsTotal, sourceSkusTotal }
   }
@@ -355,23 +363,28 @@ export default class SourceCatalog extends HttpClient {
   ) {
     const skuLineIterator = skuIdsFile.getLineIterator()
 
-    const skuIds: number[] = []
+    const prices: Array<
+      | PriceDetails
+      | {
+          itemId: ID
+          listPrice: number
+          costPrice: number
+          basePrice: number
+          markup: null
+          sellerStock: number
+        }
+    > = []
 
-    for await (const line of skuLineIterator) {
-      skuIds.push(Number(line))
+    for await (const id of skuLineIterator) {
+      const productId = (await sourceSkuProductFile.findLine(id)) as string
+      const price = await this.getPrice(id, productId)
+
+      if (price) {
+        prices.push(price)
+      }
     }
 
-    const prices = await batch(
-      skuIds,
-      async (id) => {
-        const productId = (await sourceSkuProductFile.findLine(id)) as string
-
-        return this.getPrice(id, productId /* mapSourceSkuProduct[id] */)
-      },
-      GET_DETAILS_CONCURRENCY
-    )
-
-    return prices.filter((p) => p !== null) as PriceDetails[]
+    return prices as PriceDetails[]
   }
 
   private generateInventory(skuId: ID, totalQuantity = 0): SkuInventory {
