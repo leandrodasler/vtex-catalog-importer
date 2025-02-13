@@ -25,10 +25,20 @@
     "status": { "type": "string" },
     "error": { "type": ["string", "null"] },
     "currentEntity": { "type": ["string", "null"] },
-    "entityError": { "type": ["string", "null"] }
+    "entityError": { "type": ["string", "null"] },
+    "entityEvent": { "type": ["string", "null"] },
+    "currentIndex": { "type": ["integer", "null"] },
+    "lastId": { "type": ["integer", "null"] }
   },
   "v-cache": false,
-  "v-indexed": ["user", "status", "settings"],
+  "v-indexed": [
+    "user",
+    "status",
+    "settings",
+    "entityEvent",
+    "currentIndex",
+    "lastId"
+  ],
   "v-security": { "allowGetAll": true },
   "v-immediate-indexing": true
 }

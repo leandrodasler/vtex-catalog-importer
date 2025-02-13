@@ -106,15 +106,71 @@ export default class TargetCatalog extends HttpClient {
     productId: ID,
     specifications: ProductSpecificationPayload[]
   ) {
+    let groups: SpecificationGroup[] = []
+    let allSpecifications: Specification[] = []
+
     return sequentialBatch(
       specifications,
-      async ({ Name: FieldName, Value: FieldValues, GroupName }) => {
+      async ({
+        Name: FieldName,
+        Value: FieldValues,
+        GroupName,
+        GroupPosition,
+        Id,
+        ...rest
+      }) => {
+        const group = await this.post<SpecificationGroup>(
+          ENDPOINTS.specification.setGroup,
+          { Name: GroupName, Position: GroupPosition }
+        ).catch(async () => {
+          if (!groups.length) {
+            groups = await this.get<SpecificationGroup[]>(
+              ENDPOINTS.specification.listGroups
+            )
+          }
+
+          return groups.find((g) => g.Name === GroupName)
+        })
+
+        if (group) {
+          if (!allSpecifications.length) {
+            allSpecifications = await this.get<Specification[]>(
+              ENDPOINTS.specification.listAll
+            )
+          }
+
+          const currentSpecification = allSpecifications.find(
+            (s) => s.Name === FieldName
+          )
+
+          const specificationPayload = {
+            Name: FieldName,
+            CategoryId: null,
+            FieldGroupId: group.Id,
+            ...rest,
+          }
+
+          if (currentSpecification) {
+            await this.put(
+              ENDPOINTS.specification.updateOrDetails(
+                currentSpecification.FieldId
+              ),
+              specificationPayload
+            ).catch(() => null)
+          } else {
+            await this.post(
+              ENDPOINTS.specification.set,
+              specificationPayload
+            ).catch(() => null)
+          }
+        }
+
         await this.associateProductSpecification(productId, {
           FieldName,
           FieldValues,
           GroupName,
           RootLevelSpecification: false,
-        })
+        }).catch(() => null)
       }
     )
   }

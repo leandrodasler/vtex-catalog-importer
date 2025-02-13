@@ -71,6 +71,10 @@ export const messages = defineMessages({
   importStatusRUNNINGLabel: { id: 'admin/import.status.running.label' },
   importStatusSUCCESSLabel: { id: 'admin/import.status.success.label' },
   importStatusERRORLabel: { id: 'admin/import.status.error.label' },
+  importStatusTO_BE_DELETEDLabel: {
+    id: 'admin/import.status.to_be_deleted.label',
+  },
+  importStatusDELETINGLabel: { id: 'admin/import.status.deleting.label' },
   importViewLabel: { id: 'admin/import.view.label' },
   importPaginationLabel: { id: 'admin/import.pagination.label' },
   importDelete: { id: 'admin/import.delete' },
@@ -85,4 +89,5 @@ export const messages = defineMessages({
   importResultsPRICELabel: { id: 'admin/import.results.price.label' },
   importResultsSTOCKLabel: { id: 'admin/import.results.stock.label' },
   importResultsTotalLabel: { id: 'admin/import.results.total.label' },
+  importResultsRetrievingLabel: { id: 'admin/import.results.retrieving.label' },
 })

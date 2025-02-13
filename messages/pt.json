@@ -74,6 +74,8 @@
   "admin/import.status.running.label": "PROCESSANDO",
   "admin/import.status.success.label": "SUCESSO",
   "admin/import.status.error.label": "ERRO",
+  "admin/import.status.to_be_deleted.label": "A EXCLUIR",
+  "admin/import.status.deleting.label": "EXCLUINDO",
   "admin/import.view.label": "Visualizar detalhes",
   "admin/import.pagination.label": "Exibindo {pageSize, plural, one {{pageSize} importação} other {últimas {pageSize} importações}}",
   "admin/import.delete": "Deseja mesmo excluir a importação?",
@@ -88,5 +90,6 @@
   "admin/import.results.sku.label": "SKUs",
   "admin/import.results.price.label": "Preços",
   "admin/import.results.stock.label": "Estoques",
-  "admin/import.results.total.label": "Total: {total, plural, =0 {nenhum dado importado} one {1 dado importado} other {{total} dados importados}}"
+  "admin/import.results.total.label": "Total: {total, plural, =0 {nenhum dado importado} one {1 dado importado} other {{total} dados importados}}",
+  "admin/import.results.retrieving.label": "Recuperando dados para a importação de"
 }

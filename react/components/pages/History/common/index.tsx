@@ -85,4 +85,7 @@ export const EntitySkeleton = ({ width }: EntitySkeletonProps) => (
 )
 
 export const statusBeforeFinished = (status?: ImportStatus) =>
-  status === 'PENDING' || status === 'RUNNING'
+  status === 'PENDING' ||
+  status === 'RUNNING' ||
+  status === 'TO_BE_DELETED' ||
+  status === 'DELETING'

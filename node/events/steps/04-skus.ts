@@ -1,46 +1,61 @@
 import {
+  batch,
+  DEFAULT_CONCURRENCY,
   FileManager,
   getEntityBySourceId,
   incrementVBaseEntity,
   promiseWithConditionalRetry,
+  updateCurrentImport,
 } from '../../helpers'
 
 const handleSkus = async (context: AppEventContext) => {
   const { entity } = context.state
-  const { sourceCatalog, targetCatalog, importEntity } = context.clients
+  const {
+    sourceCatalog,
+    targetCatalog,
+    importEntity,
+    importExecution,
+  } = context.clients
+
   const {
     id: executionImportId = '',
     settings = {},
     importImages = true,
+    currentIndex,
+    lastId,
   } = context.state.body
 
   const productFile = new FileManager(`products-${executionImportId}`)
-  const skuIdsFile = new FileManager(`skuIds-${executionImportId}`)
 
-  if (!productFile.exists() || !skuIdsFile.exists()) return
+  if (!productFile.exists()) return
 
   const { account: sourceAccount } = settings
 
-  await sourceCatalog.generateSkuDetailsFiles(executionImportId)
-
   const skuDetailsFile = new FileManager(`skuDetails-${executionImportId}`)
 
-  if (!skuDetailsFile.exists()) return
+  const sourceSkusTotal = skuDetailsFile.exists()
+    ? context.state.body.sourceSkusTotal
+    : await sourceCatalog.generateSkuDetailsFiles(
+        executionImportId,
+        importExecution
+      )
+
+  if (!sourceSkusTotal || !skuDetailsFile.exists()) return
 
   const skuFile = new FileManager(`skus-${executionImportId}`)
-  const skuFileWriteStream = skuFile.getWriteStream()
-
   const sourceSkuProductFile = new FileManager(
     `sourceSkuProduct-${executionImportId}`
   )
 
-  const sourceSkuProductFileWriteStream = sourceSkuProductFile.getWriteStream()
+  if (!context.state.body.sourceSkusTotal) {
+    await updateCurrentImport(context, { sourceSkusTotal })
+  }
 
   const processSku = async ({ Id, newId, RefId, ...sku }: SkuDetails) => {
     const migrated = await getEntityBySourceId(context, Id)
 
     if (migrated?.targetId) {
-      skuFileWriteStream.write(`${Id}=>${migrated.targetId}\n`)
+      skuFile.appendLine(`${Id}=>${migrated.targetId}`)
     }
 
     const currentProcessed = await skuFile.findLine(Id)
@@ -65,21 +80,28 @@ const handleSkus = async (context: AppEventContext) => {
       null
     )
 
-    await Promise.all([
-      promiseWithConditionalRetry(
-        () =>
-          targetCatalog.associateSkuSpecifications(targetId, specifications),
-        null
-      ),
-      promiseWithConditionalRetry(
-        () => targetCatalog.createSkuEan(targetId, Ean ?? RefId),
-        null
-      ),
-      promiseWithConditionalRetry(
-        () => targetCatalog.createSkuFiles(targetId, files),
-        null
-      ),
-    ])
+    if (targetId) {
+      await Promise.all([
+        promiseWithConditionalRetry(
+          () =>
+            targetCatalog.associateSkuSpecifications(targetId, specifications),
+          null
+        ),
+        promiseWithConditionalRetry(
+          () =>
+            targetCatalog.createSkuEan(targetId, Ean ?? RefId).catch((e) => {
+              if (e.message.includes('status code 422')) return
+
+              throw e
+            }),
+          null
+        ),
+        promiseWithConditionalRetry(
+          () => targetCatalog.createSkuFiles(targetId, files),
+          null
+        ),
+      ])
+    }
 
     await promiseWithConditionalRetry(
       () =>
@@ -95,47 +117,73 @@ const handleSkus = async (context: AppEventContext) => {
       null
     ).catch(() => incrementVBaseEntity(context))
 
-    skuFileWriteStream.write(`${Id}=>${targetId}\n`)
-    sourceSkuProductFileWriteStream.write(`${Id}=>${ProductId}\n`)
+    skuFile.appendLine(`${Id}=>${targetId}`)
+    sourceSkuProductFile.appendLine(`${Id}=>${ProductId}`)
 
     return targetId
   }
 
   const skuLineIterator = skuDetailsFile.getLineIterator()
-
   let index = 1
-  let lastSkuId = 0
-  const MAX_CONCURRENT_TASKS = 10
-  const taskQueue: Array<Promise<void>> = []
+  let lastSkuId = lastId
+  const taskQueue: Array<() => Promise<void>> = []
 
   for await (const line of skuLineIterator) {
+    if (currentIndex && index < currentIndex) {
+      index++
+      continue
+    }
+
     const sku = JSON.parse(line)
 
     if (index === 1) {
       lastSkuId = await processSku(sku)
-      index++
     } else {
-      // eslint-disable-next-line no-loop-func
-      const task = (async () => {
+      const generateTask = (firstId: number, i: number) => async () => {
         await processSku({
           ...sku,
-          newId: lastSkuId ? lastSkuId + index++ : undefined,
+          newId: firstId ? firstId + i : undefined,
         })
-      })()
-
-      taskQueue.push(task)
-
-      if (taskQueue.length >= MAX_CONCURRENT_TASKS) {
-        await Promise.race(taskQueue)
-        taskQueue.splice(0, taskQueue.findIndex((t) => t === task) + 1)
       }
+
+      if (lastSkuId) {
+        taskQueue.push(generateTask(lastSkuId, index))
+      }
+
+      if (taskQueue.length === DEFAULT_CONCURRENCY) {
+        await batch(taskQueue.splice(0, taskQueue.length), (t) => t())
+      }
+    }
+
+    if (index % (DEFAULT_CONCURRENCY * 8) === 0 && index < sourceSkusTotal) {
+      break
+    }
+
+    if (index < sourceSkusTotal) {
+      index++
     }
   }
 
-  await Promise.all(taskQueue)
+  if (taskQueue.length) {
+    await batch(taskQueue, (t) => t())
+  }
 
-  skuFileWriteStream.end()
-  sourceSkuProductFileWriteStream.end()
+  if (index < sourceSkusTotal) {
+    await updateCurrentImport(context, {
+      entityEvent: 'sku',
+      currentIndex: index + 1,
+      lastId: lastSkuId,
+    })
+  } else {
+    await updateCurrentImport(context, {
+      entityEvent: 'price',
+      currentIndex: null,
+      lastId: null,
+    })
+  }
+
+  skuLineIterator.removeAllListeners()
+  skuLineIterator.close()
 }
 
 export default handleSkus

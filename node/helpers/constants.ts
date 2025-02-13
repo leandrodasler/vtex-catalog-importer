@@ -26,8 +26,13 @@ export const ENDPOINTS = {
   specification: {
     listByProduct: (productId: ID) =>
       `/api/catalog_system/pvt/products/${productId}/specification`,
-    get: (specificationId: ID) =>
+    listAll:
+      '/api/catalog_system/pub/specification/field/listByCategoryId/null',
+    updateOrDetails: (specificationId: ID) =>
       `/api/catalog/pvt/specification/${specificationId}`,
+    setGroup: '/api/catalog/pvt/specificationgroup',
+    set: '/api/catalog/pvt/specification',
+    listGroups: '/api/catalog_system/pvt/specification/groupbycategory/null',
     getGroup: (groupId: ID) =>
       `/api/catalog_system/pub/specification/groupGet/${groupId}`,
   },
@@ -95,6 +100,9 @@ export const IMPORT_EXECUTION_FIELDS = [
   'error',
   'currentEntity',
   'entityError',
+  'entityEvent',
+  'currentIndex',
+  'lastId',
 ]
 
 export const IMPORT_EXECUTION_FULL_FIELDS = [
@@ -125,7 +133,7 @@ export const IMPORT_STATUS: { [keyof in ImportStatus]: ImportStatus } = {
 }
 
 export const STEP_DELAY = 1000
-export const DEFAULT_CONCURRENCY = 500
+export const DEFAULT_CONCURRENCY = 250
 export const GET_DETAILS_CONCURRENCY = 25
 export const MAX_RETRIES = 10
 export const ONE_RESULT = { page: 1, pageSize: 1 }
@@ -144,3 +152,19 @@ export const STEPS = [
 
 export const STEPS_ENTITIES = STEPS.map((step) => step.entity)
 export const STEPS_HANDLERS = STEPS.map((step) => step.handler)
+
+export const FILE_PREFIXES = [
+  'categories',
+  'productAndSkuIds',
+  'products',
+  'productDetails',
+  'skuIds',
+  'skus',
+  'skuDetails',
+  'prices',
+  'sourceSkuProduct',
+  'priceDetails',
+  'sourceSkuSellerStock',
+  'inventoryDetails',
+  'stockMap',
+]

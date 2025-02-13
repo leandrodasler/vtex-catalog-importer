@@ -14,7 +14,7 @@ import {
   csx,
   useDataViewState,
 } from '@vtex/admin-ui'
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import TreeView, { flattenTree } from 'react-accessible-treeview'
 import type { MessageDescriptor } from 'react-intl'
 import { useIntl } from 'react-intl'
@@ -127,16 +127,15 @@ export const useStockOptionLabel = () => {
 export const useEntityLabel = () => {
   const { formatMessage } = useIntl()
 
-  return (entityError: Import['entityError']) =>
-    entityError
-      ? formatMessage(messages.importResultsErrorLabel, {
-          entity: formatMessage(
-            messages[
-              `importResults${entityError.toUpperCase()}Label` as keyof typeof messages
-            ]
-          ).toLowerCase(),
-        })
-      : ''
+  return useCallback(
+    (entity: string) =>
+      formatMessage(
+        messages[
+          `importResults${entity.toUpperCase()}Label` as keyof typeof messages
+        ]
+      ),
+    [formatMessage]
+  )
 }
 
 export const goToHistoryPage = (id?: string) => {
