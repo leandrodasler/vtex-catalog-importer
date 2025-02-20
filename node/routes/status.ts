@@ -10,7 +10,7 @@ import type {
 
 import {
   batch,
-  FileManager,
+  DEFAULT_VBASE_BUCKET,
   formatFileSize,
   getLastEntity,
   IMPORT_ENTITY_FIELDS,
@@ -18,7 +18,7 @@ import {
   setCachedContext,
 } from '../helpers'
 
-const PAG = { page: 1, pageSize: 25 }
+const PAG = { page: 1, pageSize: 500 }
 const SORT = 'createdIn desc'
 
 const outputHTML = (data?: unknown[]) =>
@@ -26,33 +26,12 @@ const outputHTML = (data?: unknown[]) =>
 
 const timeZone = 'America/Sao_Paulo'
 
-const formatTimeElapsed = (begin: string | Date) => {
-  const now = Date.now()
-  const diff = now - new Date(begin).getTime()
-
-  if (diff < 60 * 1000) {
-    return `${Math.round(diff / 1000)}s ago`
-  }
-
-  if (diff < 60 * 60 * 1000) {
-    return `${Math.round(diff / 1000 / 60)} min ago`
-  }
-
-  return `${Math.round(diff / 1000 / 60 / 60)}h ago`
-}
-
 const formatDate = (date: string | Date) =>
-  `${new Date(date).toLocaleString('pt-BR', {
-    timeZone,
-  })} - ${formatTimeElapsed(date)}`
+  `${new Date(date).toLocaleString('pt-BR', { timeZone })}`
 
-type FileRow = {
-  name: string
-  size: string
-  lines: number
-  created: string
-  modified: string
-}
+const diffDate = (date: string) => Date.now() - new Date(date).getTime()
+
+type FileRow = { name: string; size: string; lines: number; modified: string }
 
 function sortFiles(files: FileRow[]) {
   return files.sort((a, b) => {
@@ -93,7 +72,6 @@ function listFiles(directory: string): Promise<FileRow[]> {
           name: `Erro ao ler o diretório: ${err.message}`,
           size: '---',
           lines: 0,
-          created: '---',
           modified: '---',
         })
       }
@@ -114,7 +92,6 @@ function listFiles(directory: string): Promise<FileRow[]> {
                 name: `Erro ao obter informações do arquivo ${file}: ${e.message}`,
                 size: '---',
                 lines: 0,
-                created: '---',
                 modified: '---',
               })
             } else if (stats.isFile()) {
@@ -122,7 +99,6 @@ function listFiles(directory: string): Promise<FileRow[]> {
                 name: file,
                 size: formatFileSize(stats.size),
                 lines,
-                created: formatDate(stats.birthtime),
                 modified: formatDate(stats.mtime),
               })
             }
@@ -147,6 +123,7 @@ const status = async (context: Context) => {
     importExecution,
     importEntity,
     targetCatalog,
+    vbase,
   } = context.clients
 
   const user = await privateClient.getUser().catch(() => {
@@ -155,20 +132,6 @@ const status = async (context: Context) => {
   })
 
   if (!user) return
-
-  const fileQuery = context.request.query?.file
-
-  if (fileQuery) {
-    const file = new FileManager(fileQuery)
-
-    if (file.exists()) {
-      context.status = 200
-      context.type = 'text/plain'
-      context.body = fs.createReadStream(file.filePath)
-
-      return
-    }
-  }
 
   const reload = context.request.query?.reload === '1'
 
@@ -197,16 +160,18 @@ const status = async (context: Context) => {
       } = i
 
       return {
-        sourceAccount: settings?.useDefault ? 'Default' : settings?.account,
         ...(lastEntity?.lastInteractionIn && {
           lastEntityLastInteraction: `${formatDate(
             lastEntity.lastInteractionIn
-          )}`,
+          )} - ${Math.floor(
+            diffDate(lastEntity.lastInteractionIn) / 1000 / 60
+          )} minutes ago`,
         }),
         createdDate: formatDate(createdIn),
         lastInteractionDate: formatDate(lastInteractionIn),
         status: `<strong class='status ${importStatus}'>${importStatus}</strong>`,
         ...rest,
+        vbaseJson: await vbase.getJSON(DEFAULT_VBASE_BUCKET, rest.id, true),
       }
     }
   )
@@ -224,16 +189,8 @@ const status = async (context: Context) => {
     ...e,
   }))
 
-  const directoryToList = path.join('/usr/local/data/import-data')
-
-  if (!fs.existsSync(directoryToList)) {
-    fs.mkdirSync(directoryToList)
-  }
-
-  const indexFile = new FileManager('index.js', `${__dirname}/..`)
-  const indexStats = await indexFile.getStats()
+  const directoryToList = path.join(__dirname, '../helpers')
   const files = await listFiles(directoryToList)
-  const { heapTotal, heapUsed } = process.memoryUsage()
 
   context.status = 200
   context.set('Content-Type', 'text/html')
@@ -283,7 +240,7 @@ const status = async (context: Context) => {
       .status.success { background-color: green; }
       .status.error, .status.deleting, .status.to_be_deleted { background-color: red; }
       .status.running { background-color: blue; }
-      table, ul { font-family: monospace; }
+      table { font-family: monospace; }
     </style>
   </head>
   <body>
@@ -308,42 +265,15 @@ const status = async (context: Context) => {
         <h3>Listing files in directory <em>${directoryToList}</em>:</h3>
         <table border="1" cellpadding="5" cellspacing="0">
           <tr>
-            <th>Name</th><th>Size</th><th>Lines</th><th>Created</th><th>Modified</th>
+            <th>Name</th><th>Size</th><th>Lines</th><th>Modified</th>
           </tr>
-          ${
-            !files.length
-              ? '<tr><td colspan="5" align="center">No files found</td></tr>'
-              : ''
-          }
-          ${files
-            .map(
-              (file) =>
-                `<tr>
-                  <td><a target="_blank" href="?file=${file.name}">${file.name}</a></td>
-                  <td>${file.size}</td>
-                  <td>${file.lines}</td>
-                  <td>${file.created}</td>
-                  <td>${file.modified}</td>
-                </tr>`
-            )
-            .join('')}
+        ${files
+          .map(
+            (file) =>
+              `<tr><td>${file.name}</td><td>${file.size}</td><td>${file.lines}</td><td>${file.modified}</td></tr>`
+          )
+          .join('')}
         </table>
-        <br />
-        <div>
-          <strong>INDEX FILE INFO:</strong>
-          <ul>
-            <li>PATH: ${indexFile.filePath}</li>
-            <li>MODIFIED: ${formatDate(indexStats.mtime)}</li>
-          </ul>
-        </div>
-        <br />
-        <div>
-          <strong>MEMORY INFO:</strong>
-          <ul>
-            <li>HEAP TOTAL: ${formatFileSize(heapTotal)}</li>
-            <li>HEAP USED: ${formatFileSize(heapUsed)}</li>
-          </ul>
-        </div>
       </section>
       <section>
         <h3>Imports - showing ${imports.length} of ${totalImports}:</h3>

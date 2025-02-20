@@ -5,12 +5,8 @@ import readline from 'readline'
 export class FileManager {
   public filePath: string
 
-  constructor(filePath: string, basePath = '/usr/local/data/import-data') {
-    if (!fs.existsSync(basePath)) {
-      fs.mkdirSync(basePath)
-    }
-
-    this.filePath = path.resolve(basePath, filePath)
+  constructor(filePath: string) {
+    this.filePath = path.resolve(__dirname, filePath)
   }
 
   public exists() {
@@ -69,9 +65,5 @@ export class FileManager {
     }
 
     return totalLines
-  }
-
-  public async getStats() {
-    return fs.promises.stat(this.filePath)
   }
 }

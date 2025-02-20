@@ -3,6 +3,7 @@ import {
   DEFAULT_CONCURRENCY,
   FileManager,
   getEntityBySourceId,
+  incrementVBaseEntity,
   promiseWithConditionalRetry,
   updateCurrentImport,
 } from '../../helpers'
@@ -24,42 +25,19 @@ const handlePrices = async (context: AppEventContext) => {
 
   const { entity } = context.state
 
+  const skuIdsFile = new FileManager(`skuIds-${executionImportId}`)
+
   const { account: sourceAccount } = settings
 
-  if (!importPrices) {
-    await updateCurrentImport(context, {
-      entityEvent: 'stock',
-      currentIndex: null,
-      lastId: null,
-    })
-
+  if (!importPrices || !skuIdsFile.exists()) {
     return
   }
 
   const skuFile = new FileManager(`skus-${executionImportId}`)
-
-  if (!skuFile.exists()) {
-    await updateCurrentImport(context, {
-      entityEvent: 'sku',
-      currentIndex: null,
-    })
-
-    return
-  }
-
   const priceDetailsFile = new FileManager(`priceDetails-${executionImportId}`)
 
-  if (!priceDetailsFile.exists() && currentIndex) {
-    await updateCurrentImport(context, {
-      entityEvent: 'price',
-      currentIndex: null,
-    })
-
-    return
-  }
-
   const sourcePricesTotal = priceDetailsFile.exists()
-    ? await priceDetailsFile.getTotalLines()
+    ? context.state.body.sourcePricesTotal
     : await sourceCatalog.generatePriceDetailsFile(
         executionImportId,
         importExecution
@@ -72,9 +50,11 @@ const handlePrices = async (context: AppEventContext) => {
     `sourceSkuSellerStock-${executionImportId}`
   )
 
-  await updateCurrentImport(context, { sourcePricesTotal })
+  if (!context.state.body.sourcePricesTotal) {
+    await updateCurrentImport(context, { sourcePricesTotal })
+  }
 
-  async function processPrice(sourcePrice: PriceDetails) {
+  const processPrice = async (sourcePrice: PriceDetails) => {
     const { itemId, basePrice, sellerStock, ...price } = sourcePrice
     const migrated = await getEntityBySourceId(context, itemId)
 
@@ -82,57 +62,38 @@ const handlePrices = async (context: AppEventContext) => {
       priceFile.appendLine(`${itemId}=>${migrated.targetId}`)
     }
 
-    async function saveEntity({ targetId, payload }: SaveEntityArgs) {
-      return importEntity
-        .saveOrUpdate({
-          id: `${executionImportId}-${entity}-${itemId}-${targetId}`,
-          executionImportId,
-          name: entity,
-          sourceAccount,
-          sourceId: itemId,
-          targetId,
-          payload,
-          pathParams: { prices: targetId },
-        })
-        .catch((e) => {
-          if (e.message.includes('304')) {
-            return
-          }
-
-          throw e
-        })
-    }
-
     const currentProcessed = await priceFile.findLine(itemId)
+
+    if (currentProcessed) return
+
     const includeBasePrice = price.costPrice === null || price.markup === null
     const payload = { ...price, ...(includeBasePrice && { basePrice }) }
-
-    if (currentProcessed) {
-      promiseWithConditionalRetry(saveEntity, {
-        targetId: currentProcessed,
-        payload,
-      })
-
-      return
-    }
-
     const skuId = +((await skuFile.findLine(itemId)) ?? 0)
 
     if (sellerStock) {
       sourceSkuSellerStockFile.appendLine(`${itemId}=>${sellerStock}`)
     }
 
-    await promiseWithConditionalRetry(function createPrice() {
-      return targetCatalog.createPrice(skuId, payload)
-    }, null)
+    await promiseWithConditionalRetry(
+      () => targetCatalog.createPrice(skuId, payload),
+      null
+    )
 
-    await Promise.all([
-      promiseWithConditionalRetry(saveEntity, {
-        targetId: skuId,
-        payload,
-      }),
-      priceFile.appendLine(`${itemId}=>${skuId}`),
-    ])
+    await promiseWithConditionalRetry(
+      () =>
+        importEntity.save({
+          executionImportId,
+          name: entity,
+          sourceAccount,
+          sourceId: itemId,
+          targetId: skuId,
+          payload,
+          pathParams: { prices: skuId },
+        }),
+      null
+    ).catch(() => incrementVBaseEntity(context))
+
+    priceFile.appendLine(`${itemId}=>${skuId}`)
   }
 
   const priceDetailsLineIterator = priceDetailsFile.getLineIterator()
@@ -146,16 +107,12 @@ const handlePrices = async (context: AppEventContext) => {
     }
 
     const price = JSON.parse(line)
-    const task = async function taskPrice() {
-      await processPrice(price)
-    }
+    const task = async () => processPrice(price)
 
     taskQueue.push(task)
 
     if (taskQueue.length === DEFAULT_CONCURRENCY) {
-      await batch(taskQueue.splice(0, taskQueue.length), function taskPrice(t) {
-        return t()
-      })
+      await batch(taskQueue.splice(0, taskQueue.length), (t) => t())
     }
 
     if (index % (DEFAULT_CONCURRENCY * 8) === 0 && index < sourcePricesTotal) {
@@ -168,9 +125,7 @@ const handlePrices = async (context: AppEventContext) => {
   }
 
   if (taskQueue.length) {
-    await batch(taskQueue, function taskPrice(t) {
-      return t()
-    })
+    await batch(taskQueue, (t) => t())
   }
 
   if (index < sourcePricesTotal) {

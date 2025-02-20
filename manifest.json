@@ -13,9 +13,7 @@
     "node": "6.x",
     "react": "3.x"
   },
-  "dependencies": {
-    "vtex.admin-navigation": "0.x"
-  },
+  "dependencies": {},
   "registries": ["smartcheckout"],
   "policies": [
     {

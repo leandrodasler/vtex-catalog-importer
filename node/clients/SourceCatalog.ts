@@ -65,72 +65,6 @@ export default class SourceCatalog extends HttpClient {
     )
   }
 
-  public async generateCategoryDetailsFile(
-    executionImportId: string,
-    importExecutionClient: MasterDataEntity<ImportExecution>,
-    categories: Category[]
-  ) {
-    const categoryDetailsFile = new FileManager(
-      `categoryDetails-${executionImportId}`
-    )
-
-    await categoryDetailsFile.delete()
-
-    const categoryDetailsFileWriteStream = categoryDetailsFile.getWriteStream()
-
-    const promisesFn: Array<() => Promise<number>> = []
-    let count = 0
-    let index = 0
-
-    for await (const category of categories) {
-      const writeInFile = async () => {
-        const newCategory = await this.getCategoryDetails(category).catch(
-          () => null
-        )
-
-        if (newCategory) {
-          categoryDetailsFileWriteStream.write(
-            `${JSON.stringify(newCategory)}\n`
-          )
-
-          return 1
-        }
-
-        return 0
-      }
-
-      promisesFn.push(writeInFile)
-
-      if (promisesFn.length === GET_DETAILS_CONCURRENCY) {
-        const result = await batch(
-          promisesFn.splice(0, promisesFn.length),
-          (promiseFn) => promiseFn()
-        )
-
-        const lastCount = count
-
-        count += result.reduce((a, b) => a + b, 0)
-        index += GET_DETAILS_CONCURRENCY
-
-        if (index % DEFAULT_CONCURRENCY === 0 && count !== lastCount) {
-          await importExecutionClient
-            .update(executionImportId, { sourceCategoriesTotal: count })
-            .catch(() => null)
-        }
-      }
-    }
-
-    if (promisesFn.length) {
-      await batch(promisesFn.splice(0, promisesFn.length), (promiseFn) =>
-        promiseFn()
-      )
-    }
-
-    categoryDetailsFileWriteStream.end()
-
-    return categoryDetailsFile.getTotalLines()
-  }
-
   private async generateProductAndSkuIdsFile(
     executionImportId: string,
     categoryTree: Category[]
@@ -140,11 +74,7 @@ export default class SourceCatalog extends HttpClient {
 
     const productAndSkuIdsFile = new FileManager(
       `productAndSkuIds-${executionImportId}`
-    )
-
-    await productAndSkuIdsFile.delete()
-
-    const productAndSkuIdsFileWriteStream = productAndSkuIdsFile.getWriteStream()
+    ).getWriteStream()
 
     const getFromNextCategory = async () => {
       const category = firstLevelCategories.shift()
@@ -159,7 +89,7 @@ export default class SourceCatalog extends HttpClient {
         )
 
         Object.entries(data).forEach(([productId, skuIds]) => {
-          productAndSkuIdsFileWriteStream.write(
+          productAndSkuIdsFile.write(
             `${JSON.stringify({ productId, skuIds })}\n`
           )
         })
@@ -179,7 +109,7 @@ export default class SourceCatalog extends HttpClient {
 
     await getFromNextCategory()
 
-    productAndSkuIdsFileWriteStream.end()
+    productAndSkuIdsFile.end()
   }
 
   private async getProductDetails(id: ID) {
@@ -246,6 +176,10 @@ export default class SourceCatalog extends HttpClient {
     return results.reduce((acc, { products }) => acc + products, 0)
   }
 
+  private getSkuResults(results: ProductAndSkuResults[]) {
+    return results.reduce((acc, { skus }) => acc + skus, 0)
+  }
+
   public async generateProductAndSkuFiles(
     executionImportId: string,
     importExecutionClient: MasterDataEntity<ImportExecution>,
@@ -259,13 +193,8 @@ export default class SourceCatalog extends HttpClient {
       `productDetails-${executionImportId}`
     )
 
-    await productDetailsFile.delete()
-
     const productDetailsFileWriteStream = productDetailsFile.getWriteStream()
     const skuIdsFile = new FileManager(`skuIds-${executionImportId}`)
-
-    await skuIdsFile.delete()
-
     const skuIdsFileWriteStream = skuIdsFile.getWriteStream()
 
     const productAndSkuIdsFile = new FileManager(
@@ -274,6 +203,7 @@ export default class SourceCatalog extends HttpClient {
 
     const promisesFn: Array<() => Promise<ProductAndSkuResults>> = []
     let sourceProductsTotal = 0
+    let sourceSkusTotal = 0
     let index = 0
 
     for await (const line of productAndSkuIdsFile) {
@@ -320,6 +250,7 @@ export default class SourceCatalog extends HttpClient {
         const lastSourceProductsTotal = sourceProductsTotal
 
         sourceProductsTotal += this.getProductResults(results)
+        sourceSkusTotal += this.getSkuResults(results)
         index += GET_DETAILS_CONCURRENCY
 
         if (
@@ -334,9 +265,13 @@ export default class SourceCatalog extends HttpClient {
     }
 
     if (promisesFn.length) {
-      await batch(promisesFn.splice(0, promisesFn.length), (promiseFn) =>
-        promiseFn()
+      const finalResults = await batch(
+        promisesFn.splice(0, promisesFn.length),
+        (promiseFn) => promiseFn()
       )
+
+      sourceProductsTotal += this.getProductResults(finalResults)
+      sourceSkusTotal += this.getSkuResults(finalResults)
     }
 
     productAndSkuIdsFile.removeAllListeners()
@@ -344,7 +279,7 @@ export default class SourceCatalog extends HttpClient {
     productDetailsFileWriteStream.end()
     skuIdsFileWriteStream.end()
 
-    return productDetailsFile.getTotalLines()
+    return { sourceProductsTotal, sourceSkusTotal }
   }
 
   private async getSpecificationGroup(id: ID) {
@@ -391,9 +326,6 @@ export default class SourceCatalog extends HttpClient {
     const skuLineIterator = skuIdsFile.getLineIterator()
 
     const skuDetailsFile = new FileManager(`skuDetails-${executionImportId}`)
-
-    await skuDetailsFile.delete()
-
     const skuDetailsFileWriteStream = skuDetailsFile.getWriteStream()
 
     const promisesFn: Array<() => Promise<number>> = []
@@ -435,16 +367,19 @@ export default class SourceCatalog extends HttpClient {
     }
 
     if (promisesFn.length) {
-      await batch(promisesFn.splice(0, promisesFn.length), (promiseFn) =>
-        promiseFn()
+      const finalResult = await batch(
+        promisesFn.splice(0, promisesFn.length),
+        (promiseFn) => promiseFn()
       )
+
+      count += finalResult.reduce((a, b) => a + b, 0)
     }
 
     skuLineIterator.removeAllListeners()
     skuLineIterator.close()
     skuDetailsFileWriteStream.end()
 
-    return skuDetailsFile.getTotalLines()
+    return count
   }
 
   private async getSkuFiles(id: ID) {
@@ -518,8 +453,6 @@ export default class SourceCatalog extends HttpClient {
       `priceDetails-${executionImportId}`
     )
 
-    await priceDetailsFile.delete()
-
     const priceDetailsFileWriteStream = priceDetailsFile.getWriteStream()
 
     const skuLineIterator = skuIdsFile.getLineIterator()
@@ -563,16 +496,19 @@ export default class SourceCatalog extends HttpClient {
     }
 
     if (promisesFn.length) {
-      await batch(promisesFn.splice(0, promisesFn.length), (promiseFn) =>
-        promiseFn()
+      const finalResult = await batch(
+        promisesFn.splice(0, promisesFn.length),
+        (promiseFn) => promiseFn()
       )
+
+      count += finalResult.reduce((a, b) => a + b, 0)
     }
 
     skuLineIterator.removeAllListeners()
     skuLineIterator.close()
     priceDetailsFileWriteStream.end()
 
-    return priceDetailsFile.getTotalLines()
+    return count
   }
 
   private generateInventory(skuId: ID, totalQuantity = 0): SkuInventory {
@@ -611,8 +547,6 @@ export default class SourceCatalog extends HttpClient {
     const inventoryDetailsFile = new FileManager(
       `inventoryDetails-${executionImportId}`
     )
-
-    await inventoryDetailsFile.delete()
 
     const inventoryDetailsFileWriteStream = inventoryDetailsFile.getWriteStream()
 
@@ -661,15 +595,18 @@ export default class SourceCatalog extends HttpClient {
     }
 
     if (promisesFn.length) {
-      await batch(promisesFn.splice(0, promisesFn.length), (promiseFn) =>
-        promiseFn()
+      const finalResult = await batch(
+        promisesFn.splice(0, promisesFn.length),
+        (promiseFn) => promiseFn()
       )
+
+      count += finalResult.reduce((a, b) => a + b, 0)
     }
 
     skuLineIterator.removeAllListeners()
     skuLineIterator.close()
     inventoryDetailsFileWriteStream.end()
 
-    return inventoryDetailsFile.getTotalLines()
+    return count
   }
 }

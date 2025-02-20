@@ -51,11 +51,6 @@ declare global {
 
   type VBaseJSON = Record<string, number>
 
-  type SaveEntityArgs = {
-    targetId: ID
-    payload: Record<string, unknown>
-  }
-
   type Brand = BrandFromClients
 
   type BrandDetails = {

@@ -13,7 +13,7 @@ import {
   csx,
   useModalState,
 } from '@vtex/admin-ui'
-import React, { useEffect, useMemo, useRef } from 'react'
+import React, { useMemo } from 'react'
 import { useIntl } from 'react-intl'
 import type {
   Query,
@@ -56,7 +56,6 @@ const IMPORT_NOT_FOUND_ERROR = 'import-not-found'
 const ShowImportModal = ({ modalState, id, setDeleted }: Props) => {
   const { formatMessage } = useIntl()
   const getStatusLabel = useStatusLabel()
-  const timeout = useRef<number>()
 
   const { data, loading, refetch } = useQueryCustom<
     Pick<Query, 'importProgress'>,
@@ -71,7 +70,7 @@ const ShowImportModal = ({ modalState, id, setDeleted }: Props) => {
       } = dataCompleted
 
       if (statusBeforeFinished(status) || !completed) {
-        timeout.current = window.setTimeout(() => refetch(), POLLING_INTERVAL)
+        setTimeout(() => refetch(), POLLING_INTERVAL)
       }
     },
     toastError(error) {
@@ -83,14 +82,6 @@ const ShowImportModal = ({ modalState, id, setDeleted }: Props) => {
       }
     },
   })
-
-  useEffect(() => {
-    return () => {
-      if (timeout.current) {
-        clearTimeout(timeout.current)
-      }
-    }
-  }, [])
 
   const deleteConfirmationModal = useModalState()
 

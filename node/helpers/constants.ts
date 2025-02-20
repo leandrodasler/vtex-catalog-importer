@@ -138,9 +138,9 @@ export const GET_DETAILS_CONCURRENCY = 25
 export const MAX_RETRIES = 10
 export const ONE_RESULT = { page: 1, pageSize: 1 }
 export const COMMON_WHERE = `(status<>${IMPORT_STATUS.TO_BE_DELETED})AND(status<>${IMPORT_STATUS.DELETING})`
+export const DEFAULT_VBASE_BUCKET = 'catalog-importer'
 export const PRODUCT_REF_ID_ERROR = 'same RefId'
 export const PRODUCT_LINK_ID_ERROR = 'same LinkId'
-export const PRODUCT_ALREADY_CREATED = 'Product already created with this id'
 
 export const STEPS = [
   { entity: 'category', handler: handleCategories },
@@ -155,7 +155,6 @@ export const STEPS_HANDLERS = STEPS.map((step) => step.handler)
 
 export const FILE_PREFIXES = [
   'categories',
-  'categoryDetails',
   'productAndSkuIds',
   'products',
   'productDetails',

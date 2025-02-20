@@ -56,7 +56,7 @@ export default function History() {
         if (
           imports.some(({ status }: Import) => statusBeforeFinished(status))
         ) {
-          window.setTimeout(() => refetch(), POLLING_INTERVAL)
+          setTimeout(() => refetch(), POLLING_INTERVAL)
         }
       },
     }

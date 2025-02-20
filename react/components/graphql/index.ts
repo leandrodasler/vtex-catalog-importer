@@ -54,8 +54,6 @@ const useErrorRetry = <T = Query, V = undefined>(
     const message = e.message.toLowerCase()
     const messageToRetry =
       message.includes('400') ||
-      message.includes('408') ||
-      message.includes('423') ||
       message.includes('429') ||
       message.includes('500') ||
       message.includes('502') ||
@@ -68,7 +66,7 @@ const useErrorRetry = <T = Query, V = undefined>(
       message.includes('econnrefused')
 
     if (messageToRetry && retries.current < MAX_RETRIES) {
-      window.setTimeout(() => refetch(), RETRY_DELAY * (retries.current + 1))
+      setTimeout(() => refetch(), RETRY_DELAY * (retries.current + 1))
       retries.current++
     } else {
       const shouldToastError =

@@ -1,12 +1,12 @@
-import { UserInputError } from '@vtex/api'
-
 import { setCurrentImportId } from '..'
 import {
   batch,
   DEFAULT_CONCURRENCY,
+  deleteImportFiles,
   FileManager,
   getEntityBySourceId,
   IMPORT_STATUS,
+  incrementVBaseEntity,
   promiseWithConditionalRetry,
   updateCurrentImport,
 } from '../../helpers'
@@ -24,24 +24,16 @@ const handleStocks = async (context: AppEventContext) => {
     settings = {},
     stocksOption = 'KEEP_SOURCE',
     stockValue,
-    targetWarehouse = '',
+    targetWarehouse,
     currentIndex,
   } = context.state.body
 
   const { entity } = context.state
   const { account: sourceAccount } = settings
+  const skuIdsFile = new FileManager(`skuIds-${executionImportId}`)
   const skuFile = new FileManager(`skus-${executionImportId}`)
 
-  if (!targetWarehouse) {
-    throw new UserInputError('Target warehouse is missing')
-  }
-
-  if (!skuFile.exists()) {
-    await updateCurrentImport(context, {
-      entityEvent: 'sku',
-      currentIndex: null,
-    })
-
+  if (!targetWarehouse || !skuIdsFile.exists() || !skuFile.exists()) {
     return
   }
 
@@ -49,17 +41,8 @@ const handleStocks = async (context: AppEventContext) => {
     `inventoryDetails-${executionImportId}`
   )
 
-  if (!inventoryDetailsFile.exists() && currentIndex) {
-    await updateCurrentImport(context, {
-      entityEvent: 'stock',
-      currentIndex: null,
-    })
-
-    return
-  }
-
   const sourceStocksTotal = inventoryDetailsFile.exists()
-    ? await inventoryDetailsFile.getTotalLines()
+    ? context.state.body.sourceStocksTotal
     : await sourceCatalog.generateInventoryDetailsFile(
         executionImportId,
         importExecution
@@ -69,9 +52,11 @@ const handleStocks = async (context: AppEventContext) => {
 
   const stockMapFile = new FileManager(`stockMap-${executionImportId}`)
 
-  await updateCurrentImport(context, { sourceStocksTotal })
+  if (!context.state.body.sourceStocksTotal) {
+    await updateCurrentImport(context, { sourceStocksTotal })
+  }
 
-  async function processStock(sourceStock: SkuInventory) {
+  const processStock = async (sourceStock: SkuInventory) => {
     const { skuId, totalQuantity, hasUnlimitedQuantity, leadTime } = sourceStock
     const migrated = await getEntityBySourceId(context, skuId)
 
@@ -79,28 +64,10 @@ const handleStocks = async (context: AppEventContext) => {
       stockMapFile.appendLine(`${skuId}=>${migrated.targetId}`)
     }
 
-    async function saveEntity({ targetId, payload }: SaveEntityArgs) {
-      return importEntity
-        .saveOrUpdate({
-          id: `${executionImportId}-${entity}-${skuId}-${targetId}`,
-          executionImportId,
-          name: entity,
-          sourceAccount,
-          sourceId: skuId,
-          targetId,
-          payload,
-          pathParams: { skus: targetId, warehouses: targetWarehouse },
-        })
-        .catch((e) => {
-          if (e.message.includes('304')) {
-            return
-          }
-
-          throw e
-        })
-    }
-
     const currentProcessed = await stockMapFile.findLine(skuId)
+
+    if (currentProcessed) return
+
     const quantity =
       stocksOption === 'KEEP_SOURCE'
         ? totalQuantity
@@ -112,30 +79,29 @@ const handleStocks = async (context: AppEventContext) => {
       stocksOption === 'UNLIMITED' ||
       (hasUnlimitedQuantity && stocksOption === 'KEEP_SOURCE')
 
+    const targetSku = +((await skuFile.findLine(skuId)) ?? 0)
     const payload = { quantity, unlimitedQuantity, leadTime }
 
-    if (currentProcessed) {
-      promiseWithConditionalRetry(saveEntity, {
-        targetId: currentProcessed,
-        payload,
-      })
+    await promiseWithConditionalRetry(
+      () => targetCatalog.createInventory(targetSku, targetWarehouse, payload),
+      null
+    )
 
-      return
-    }
+    await promiseWithConditionalRetry(
+      () =>
+        importEntity.save({
+          executionImportId,
+          name: entity,
+          sourceAccount,
+          sourceId: skuId,
+          targetId: targetSku,
+          payload,
+          pathParams: { skus: targetSku, warehouses: targetWarehouse },
+        }),
+      null
+    ).catch(() => incrementVBaseEntity(context))
 
-    const targetSku = +((await skuFile.findLine(skuId)) ?? 0)
-
-    await promiseWithConditionalRetry(function createInventory() {
-      return targetCatalog.createInventory(targetSku, targetWarehouse, payload)
-    }, null)
-
-    await Promise.all([
-      promiseWithConditionalRetry(saveEntity, {
-        targetId: targetSku,
-        payload,
-      }),
-      stockMapFile.appendLine(`${skuId}=>${targetSku}`),
-    ])
+    stockMapFile.appendLine(`${skuId}=>${targetSku}`)
   }
 
   const inventoryDetailsLineIterator = inventoryDetailsFile.getLineIterator()
@@ -149,16 +115,12 @@ const handleStocks = async (context: AppEventContext) => {
     }
 
     const inventory = JSON.parse(line)
-    const task = async function taskStock() {
-      await processStock(inventory)
-    }
+    const task = async () => processStock(inventory)
 
     taskQueue.push(task)
 
     if (taskQueue.length === DEFAULT_CONCURRENCY) {
-      await batch(taskQueue.splice(0, taskQueue.length), function taskStock(t) {
-        return t()
-      })
+      await batch(taskQueue.splice(0, taskQueue.length), (t) => t())
     }
 
     if (index % (DEFAULT_CONCURRENCY * 8) === 0 && index < sourceStocksTotal) {
@@ -171,9 +133,7 @@ const handleStocks = async (context: AppEventContext) => {
   }
 
   if (taskQueue.length) {
-    await batch(taskQueue, function taskStock(t) {
-      return t()
-    })
+    await batch(taskQueue, (t) => t())
   }
 
   if (index < sourceStocksTotal) {
@@ -189,8 +149,7 @@ const handleStocks = async (context: AppEventContext) => {
 
     setCurrentImportId(null)
 
-    // PS: do not delete files in order to analyze the results of the imports
-    // deleteImportFiles(executionImportId)
+    deleteImportFiles(executionImportId)
   }
 
   inventoryDetailsLineIterator.removeAllListeners()
