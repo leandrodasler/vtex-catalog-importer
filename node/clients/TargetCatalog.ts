@@ -3,6 +3,7 @@ import type { InstanceOptions } from '@vtex/api'
 import {
   batch,
   ENDPOINTS,
+  PRODUCT_ALREADY_CREATED,
   PRODUCT_LINK_ID_ERROR,
   PRODUCT_REF_ID_ERROR,
   sequentialBatch,
@@ -61,12 +62,23 @@ export default class TargetCatalog extends HttpClient {
 
     return this.post<T, Partial<T>>(ENDPOINTS.product.set, newPayload).catch(
       (e) => {
+        const alreadyCreatedError = e.response?.data?.includes?.(
+          PRODUCT_ALREADY_CREATED
+        )
+
+        if (alreadyCreatedError) {
+          return this.get<T>(
+            ENDPOINTS.product.updateOrDetails(newPayload.Id as ID)
+          )
+        }
+
         const refIdError = e.response?.data?.includes?.(PRODUCT_REF_ID_ERROR)
-        const linkIdError = e.response?.data?.includes?.(PRODUCT_LINK_ID_ERROR)
 
         if (refIdError) {
           return this.createUniqueProduct(payload, countRefId + 1, countLinkId)
         }
+
+        const linkIdError = e.response?.data?.includes?.(PRODUCT_LINK_ID_ERROR)
 
         if (linkIdError) {
           return this.createUniqueProduct(payload, countRefId, countLinkId + 1)
@@ -92,7 +104,17 @@ export default class TargetCatalog extends HttpClient {
   }
 
   public async createSku<T extends SkuDetails>(payload: Partial<T>) {
-    return this.post<T, Partial<T>>(ENDPOINTS.sku.set, payload)
+    return this.post<T, Partial<T>>(ENDPOINTS.sku.set, payload).catch(
+      async (e) => {
+        if (e.message.includes('409')) {
+          return this.get<SkuDetails>(
+            ENDPOINTS.sku.updateOrDetails(payload.Id as ID)
+          )
+        }
+
+        throw e
+      }
+    )
   }
 
   private async associateProductSpecification(

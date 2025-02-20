@@ -1,16 +1,14 @@
 import {
   delay,
   deleteImport,
+  FileManager,
   getFirstImportPending,
   getFirstImportRunning,
   getFirstImportToBeDeleted,
-  getLastEntity,
-  IMPORT_STATUS,
 } from '.'
 import { getCurrentImportId } from '../events'
 
 const TIMEOUT = 10000
-const MAX_TIME_LAST_ENTITY = 15 * 60 * 1000
 
 let cachedContext: Context | undefined
 
@@ -40,24 +38,20 @@ const verifyImports = async () => {
       return
     }
 
-    const lastEntity = await getLastEntity(context, importRunning)
+    const indexFile = new FileManager('index.js', `${__dirname}/..`)
+    const indexFileStats = await indexFile.getStats()
 
-    if (lastEntity) {
-      const diffDate =
-        Date.now() - new Date(lastEntity.lastInteractionIn).getTime()
+    const importRunningLastInteractionIn = new Date(
+      importRunning.lastInteractionIn
+    ).getTime()
 
-      if (diffDate > MAX_TIME_LAST_ENTITY) {
-        await context.clients.importEntity.update(lastEntity.id, {
-          updated: Date.now(),
-        })
-
-        await context.clients.importExecution.update(importRunning.id, {
-          currentEntity: null,
-          status: IMPORT_STATUS.PENDING,
-        })
-
-        await delay(TIMEOUT)
-      }
+    if (
+      indexFileStats.mtimeMs > importRunningLastInteractionIn &&
+      importRunning.currentEntity
+    ) {
+      await context.clients.importExecution.update(importRunning.id, {
+        entityEvent: importRunning.currentEntity,
+      })
     }
 
     return

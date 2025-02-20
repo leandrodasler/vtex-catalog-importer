@@ -3,7 +3,6 @@ import {
   DEFAULT_CONCURRENCY,
   FileManager,
   getEntityBySourceId,
-  incrementVBaseEntity,
   promiseWithConditionalRetry,
   updateCurrentImport,
 } from '../../helpers'
@@ -23,14 +22,30 @@ const handleProducts = async (context: AppEventContext) => {
 
   const categoryFile = new FileManager(`categories-${executionImportId}`)
 
-  if (!categoryFile.exists()) return
+  if (!categoryFile.exists()) {
+    await updateCurrentImport(context, {
+      entityEvent: 'category',
+      currentIndex: null,
+    })
+
+    return
+  }
 
   const productDetailsFile = new FileManager(
     `productDetails-${executionImportId}`
   )
 
-  const { sourceProductsTotal } = productDetailsFile.exists()
-    ? context.state.body
+  if (!productDetailsFile.exists() && currentIndex) {
+    await updateCurrentImport(context, {
+      entityEvent: 'product',
+      currentIndex: null,
+    })
+
+    return
+  }
+
+  const sourceProductsTotal = productDetailsFile.exists()
+    ? await productDetailsFile.getTotalLines()
     : await sourceCatalog.generateProductAndSkuFiles(
         executionImportId,
         context.clients.importExecution,
@@ -41,11 +56,9 @@ const handleProducts = async (context: AppEventContext) => {
 
   const productFile = new FileManager(`products-${executionImportId}`)
 
-  if (!context.state.body.sourceProductsTotal) {
-    await updateCurrentImport(context, { sourceProductsTotal })
-  }
+  await updateCurrentImport(context, { sourceProductsTotal })
 
-  const processProduct = async (p: ProductDetails) => {
+  async function processProduct(p: ProductDetails) {
     const { Id, newId, BrandId, CategoryId, DepartmentId, ...product } = p
     const migrated = await getEntityBySourceId(context, Id)
 
@@ -53,55 +66,70 @@ const handleProducts = async (context: AppEventContext) => {
       productFile.appendLine(`${Id}=>${migrated.targetId}`)
     }
 
-    const currentProcessed = await productFile.findLine(Id)
-
-    if (currentProcessed) return +currentProcessed
-
-    const payload = { ...(newId && { Id: newId }), ...product }
-
-    const {
-      Id: targetId,
-      DepartmentId: _,
-      ...created
-    } = await promiseWithConditionalRetry(
-      () => targetCatalog.createProduct(payload),
-      null
-    )
-
-    const specifications = await sourceCatalog.getProductSpecifications(Id)
-    const targetCategoryId = +((await categoryFile.findLine(CategoryId)) ?? 0)
-    const updatePayload = { ...created, CategoryId: targetCategoryId }
-
-    await Promise.all([
-      promiseWithConditionalRetry(
-        () =>
-          targetCatalog.associateProductSpecifications(
-            targetId,
-            specifications
-          ),
-        null
-      ),
-      promiseWithConditionalRetry(
-        () => targetCatalog.updateProduct(targetId, updatePayload),
-        null
-      ),
-    ])
-
-    await promiseWithConditionalRetry(
-      () =>
-        importEntity.save({
+    async function saveEntity({ targetId, payload }: SaveEntityArgs) {
+      return importEntity
+        .saveOrUpdate({
+          id: `${executionImportId}-${entity}-${Id}-${targetId}`,
           executionImportId,
           name: entity,
           sourceAccount,
           sourceId: Id,
           targetId,
-          payload: { ...payload, ...updatePayload },
+          payload,
           title: product.Name,
-        }),
-      null
-    ).catch(() => incrementVBaseEntity(context))
+        })
+        .catch((e) => {
+          if (e.message.includes('304')) {
+            return
+          }
 
-    productFile.appendLine(`${Id}=>${targetId}`)
+          throw e
+        })
+    }
+
+    const currentProcessed = await productFile.findLine(Id)
+    const payload = { ...(newId && { Id: newId }), ...product }
+    const targetCategoryId = +((await categoryFile.findLine(CategoryId)) ?? 0)
+
+    if (currentProcessed) {
+      promiseWithConditionalRetry(saveEntity, {
+        targetId: currentProcessed,
+        payload: { ...payload, CategoryId: targetCategoryId },
+      })
+
+      return +currentProcessed
+    }
+
+    const {
+      Id: targetId,
+      DepartmentId: _,
+      ...created
+    } = await promiseWithConditionalRetry(function createProduct() {
+      return targetCatalog.createProduct(payload)
+    }, null)
+
+    const specifications = await sourceCatalog.getProductSpecifications(Id)
+    const updatePayload = { ...created, CategoryId: targetCategoryId }
+
+    await Promise.all([
+      promiseWithConditionalRetry(function associateProductSpecifications() {
+        return targetCatalog.associateProductSpecifications(
+          targetId,
+          specifications
+        )
+      }, null),
+      promiseWithConditionalRetry(function updateProduct() {
+        return targetCatalog.updateProduct(targetId, updatePayload)
+      }, null),
+    ])
+
+    await Promise.all([
+      promiseWithConditionalRetry(saveEntity, {
+        targetId,
+        payload: { ...payload, ...updatePayload },
+      }),
+      productFile.appendLine(`${Id}=>${targetId}`),
+    ])
 
     return targetId
   }
@@ -121,20 +149,31 @@ const handleProducts = async (context: AppEventContext) => {
 
     if (index === 1) {
       lastProductId = await processProduct(product)
+
+      await updateCurrentImport(context, {
+        currentIndex: index + 1,
+        lastId: lastProductId,
+      })
     } else {
-      const generateTask = (firstId: number, i: number) => async () => {
-        await processProduct({
-          ...product,
-          newId: firstId ? firstId + i : undefined,
-        })
-      }
+      const generateTask = (firstId: number, i: number) =>
+        async function taskProduct() {
+          await processProduct({
+            ...product,
+            newId: firstId ? firstId + i : undefined,
+          })
+        }
 
       if (lastProductId) {
         taskQueue.push(generateTask(lastProductId, index))
       }
 
       if (taskQueue.length === DEFAULT_CONCURRENCY) {
-        await batch(taskQueue.splice(0, taskQueue.length), (t) => t())
+        await batch(
+          taskQueue.splice(0, taskQueue.length),
+          function taskProduct(t) {
+            return t()
+          }
+        )
       }
     }
 
@@ -151,7 +190,9 @@ const handleProducts = async (context: AppEventContext) => {
   }
 
   if (taskQueue.length) {
-    await batch(taskQueue, (t) => t())
+    await batch(taskQueue, function taskProduct(t) {
+      return t()
+    })
   }
 
   if (index < sourceProductsTotal) {

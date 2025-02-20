@@ -5,7 +5,6 @@ import type {
 } from 'ssesandbox04.catalog-importer'
 
 import {
-  DEFAULT_VBASE_BUCKET,
   IMPORT_EXECUTION_FULL_FIELDS,
   IMPORT_STATUS,
   ONE_RESULT,
@@ -20,7 +19,7 @@ export const importProgress = async (
 ) => {
   setCachedContext(context)
 
-  const { importExecution, importEntity, vbase } = context.clients
+  const { importExecution, importEntity } = context.clients
   const currentImport: ImportExecution = await importExecution.get(
     id,
     IMPORT_EXECUTION_FULL_FIELDS
@@ -29,10 +28,6 @@ export const importProgress = async (
   if (!currentImport) {
     throw new NotFoundError('import-not-found')
   }
-
-  const vbaseJson = await vbase
-    .getJSON<VBaseJSON>(DEFAULT_VBASE_BUCKET, id, true)
-    .catch(() => null)
 
   const [categories, products, skus, prices, stocks] = await Promise.all(
     STEPS_ENTITIES.map((entity) =>
@@ -43,7 +38,7 @@ export const importProgress = async (
           '',
           `(executionImportId=${id})AND(name=${entity})`
         )
-        .then(({ pagination: { total } }) => total + (vbaseJson?.[entity] ?? 0))
+        .then(({ pagination: { total } }) => total)
     )
   )
 
