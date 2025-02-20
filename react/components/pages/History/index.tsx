@@ -42,7 +42,7 @@ const POLLING_INTERVAL = 3000
 
 export default function History() {
   const { formatMessage } = useIntl()
-  const [deleted /* , setDeleted */] = useState<string[]>([])
+  const [deleted, setDeleted] = useState<string[]>([])
   const importModal = useModalState()
   const [importIdModal, setImportIdModal] = useState('')
 
@@ -62,7 +62,6 @@ export default function History() {
     }
   )
 
-  const setDeleted = () => refetch()
   const imports = data?.imports.data
 
   useEffect(() => {

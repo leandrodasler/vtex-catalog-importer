@@ -30,16 +30,6 @@ const verifyImports = async () => {
   const importRunning = await getFirstImportRunning(context)
 
   if (importRunning) {
-    if (importRunning.entityEvent) {
-      await context.clients.events.sendEvent('', 'runStep', {
-        step: importRunning.entityEvent,
-        adminUserAuthToken: context.vtex.adminUserAuthToken,
-        ...importRunning,
-      })
-
-      return
-    }
-
     const lastEntity = await getLastEntity(context, importRunning)
 
     if (lastEntity) {
@@ -77,7 +67,7 @@ const verifyImports = async () => {
 
   const { adminUserAuthToken } = context.vtex
 
-  context.clients.events.sendEvent('', 'runStep', {
+  context.clients.events.sendEvent('', 'runImport', {
     adminUserAuthToken,
     ...nextPendingImport,
   })

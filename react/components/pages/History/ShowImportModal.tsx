@@ -51,34 +51,20 @@ const firstColumnTheme = csx({
 })
 
 const POLLING_INTERVAL = 1000
-const IMPORT_NOT_FOUND_ERROR = 'import-not-found'
 
 const ShowImportModal = ({ modalState, id, setDeleted }: Props) => {
   const { formatMessage } = useIntl()
   const getStatusLabel = useStatusLabel()
 
   const { data, loading, refetch } = useQueryCustom<
-    Pick<Query, 'importProgress'>,
+    Query,
     QueryImportProgressArgs
   >(IMPORT_PROGRESS_QUERY, {
-    fetchPolicy: 'cache-and-network',
     skip: !id,
     variables: { id },
-    onCompleted(dataCompleted) {
-      const {
-        importProgress: { completed, status },
-      } = dataCompleted
-
+    onCompleted({ importProgress: { completed, status } }) {
       if (statusBeforeFinished(status) || !completed) {
         setTimeout(() => refetch(), POLLING_INTERVAL)
-      }
-    },
-    toastError(error) {
-      return !error.message.includes(IMPORT_NOT_FOUND_ERROR)
-    },
-    onError(error) {
-      if (error.message.includes(IMPORT_NOT_FOUND_ERROR)) {
-        modalState.hide()
       }
     },
   })
@@ -138,8 +124,7 @@ const ShowImportModal = ({ modalState, id, setDeleted }: Props) => {
             <Button
               disabled={
                 firstLoading ||
-                status === 'TO_BE_DELETED' ||
-                status === 'DELETING' ||
+                // status === 'RUNNING' ||
                 deleteConfirmationModal.open
               }
               variant="critical"

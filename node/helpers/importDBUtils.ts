@@ -12,7 +12,7 @@ import {
   IMPORT_STATUS,
   ONE_RESULT,
 } from './constants'
-import { batch, promiseWithConditionalRetry } from './utils'
+import { batch } from './utils'
 
 const { PENDING, RUNNING, TO_BE_DELETED, DELETING } = IMPORT_STATUS
 
@@ -51,13 +51,11 @@ export const updateCurrentImport = async (
   context: AppEventContext,
   fields: EventState['body']
 ) => {
-  await promiseWithConditionalRetry(() => {
-    if (!context.state.body.id) return
-
-    return context.clients.importExecution.update(context.state.body.id, fields)
-  }, null).then(() => {
-    context.state.body = { ...context.state.body, ...fields }
-  })
+  if (!context.state.body.id) return
+  await context.clients.importExecution
+    .update(context.state.body.id, fields)
+    .then(() => (context.state.body = { ...context.state.body, ...fields }))
+    .catch(() => {})
 }
 
 export const updateImportStatus = async (

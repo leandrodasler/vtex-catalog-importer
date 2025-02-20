@@ -63,9 +63,6 @@ type Import {
   error: String
   currentEntity: String
   entityError: String
-  entityEvent: String
-  currentIndex: Int
-  lastId: Int
 }
 
 input ImportInput {

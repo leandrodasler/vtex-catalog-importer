@@ -25,7 +25,7 @@ import { useLocaleDate } from './common'
 type Props = { currentImport: Import }
 
 const ImportDetails = ({ currentImport }: Props) => {
-  const { formatMessage, formatRelativeTime } = useIntl()
+  const { formatMessage } = useIntl()
   const { getStartedAt, getFinishedAt } = useLocaleDate()
   const { breakpoint } = useBreakpoint()
   const { getToggleProps, getCollapseProps, visible } = useCollapse()
@@ -36,18 +36,6 @@ const ImportDetails = ({ currentImport }: Props) => {
       currentImport?.categoryTree.sort(treeSorter).map(categoryTreeMapper) ??
       [],
     [currentImport?.categoryTree]
-  )
-
-  const diffInMillis =
-    new Date(currentImport.lastInteractionIn).getTime() -
-    new Date(currentImport.createdIn).getTime()
-
-  const diffInSeconds = Math.round(diffInMillis / 1000)
-  const diffInMinutes = Math.round(diffInSeconds / 60)
-  const diff = formatRelativeTime(
-    diffInSeconds >= 60 ? diffInMinutes : diffInSeconds,
-    diffInSeconds >= 60 ? 'minutes' : 'seconds',
-    { style: 'short' }
   )
 
   return (
@@ -63,9 +51,6 @@ const ImportDetails = ({ currentImport }: Props) => {
           {formatMessage(messages.importLastInteractionInLabel)}:{' '}
         </Text>
         {getFinishedAt(currentImport.lastInteractionIn, currentImport.status)}
-        {(currentImport.status === 'SUCCESS' ||
-          currentImport.status === 'ERROR') &&
-          ` (${diff})`}
       </section>
       <section>
         <Text variant="title1">

@@ -1,6 +1,4 @@
 import {
-  batch,
-  DEFAULT_CONCURRENCY,
   FileManager,
   getEntityBySourceId,
   incrementVBaseEntity,
@@ -9,18 +7,11 @@ import {
 } from '../../helpers'
 
 const handlePrices = async (context: AppEventContext) => {
-  const {
-    importEntity,
-    importExecution,
-    sourceCatalog,
-    targetCatalog,
-  } = context.clients
-
+  const { importEntity, sourceCatalog, targetCatalog } = context.clients
   const {
     id: executionImportId = '',
     settings = {},
     importPrices,
-    currentIndex,
   } = context.state.body
 
   const { entity } = context.state
@@ -34,32 +25,31 @@ const handlePrices = async (context: AppEventContext) => {
   }
 
   const skuFile = new FileManager(`skus-${executionImportId}`)
+
+  const sourcePricesTotal = await sourceCatalog.generatePriceDetailsFile(
+    executionImportId
+  )
+
   const priceDetailsFile = new FileManager(`priceDetails-${executionImportId}`)
 
-  const sourcePricesTotal = priceDetailsFile.exists()
-    ? context.state.body.sourcePricesTotal
-    : await sourceCatalog.generatePriceDetailsFile(
-        executionImportId,
-        importExecution
-      )
-
-  if (!sourcePricesTotal || !priceDetailsFile.exists()) return
+  if (!priceDetailsFile.exists()) return
 
   const priceFile = new FileManager(`prices-${executionImportId}`)
+  const priceFileWriteStream = priceFile.getWriteStream()
   const sourceSkuSellerStockFile = new FileManager(
     `sourceSkuSellerStock-${executionImportId}`
   )
 
-  if (!context.state.body.sourcePricesTotal) {
-    await updateCurrentImport(context, { sourcePricesTotal })
-  }
+  const sourceSkuSellerStockFileWriteStream = sourceSkuSellerStockFile.getWriteStream()
+
+  await updateCurrentImport(context, { sourcePricesTotal })
 
   const processPrice = async (sourcePrice: PriceDetails) => {
     const { itemId, basePrice, sellerStock, ...price } = sourcePrice
     const migrated = await getEntityBySourceId(context, itemId)
 
     if (migrated?.targetId) {
-      priceFile.appendLine(`${itemId}=>${migrated.targetId}`)
+      priceFileWriteStream.write(`${itemId}=>${migrated.targetId}\n`)
     }
 
     const currentProcessed = await priceFile.findLine(itemId)
@@ -71,7 +61,7 @@ const handlePrices = async (context: AppEventContext) => {
     const skuId = +((await skuFile.findLine(itemId)) ?? 0)
 
     if (sellerStock) {
-      sourceSkuSellerStockFile.appendLine(`${itemId}=>${sellerStock}`)
+      sourceSkuSellerStockFileWriteStream.write(`${itemId}=>${sellerStock}\n`)
     }
 
     await promiseWithConditionalRetry(
@@ -93,55 +83,34 @@ const handlePrices = async (context: AppEventContext) => {
       null
     ).catch(() => incrementVBaseEntity(context))
 
-    priceFile.appendLine(`${itemId}=>${skuId}`)
+    priceFileWriteStream.write(`${itemId}=>${skuId}\n`)
   }
 
   const priceDetailsLineIterator = priceDetailsFile.getLineIterator()
-  let index = 1
-  const taskQueue: Array<() => Promise<void>> = []
+
+  const MAX_CONCURRENT_TASKS = 10
+  const taskQueue: Array<Promise<void>> = []
 
   for await (const line of priceDetailsLineIterator) {
-    if (currentIndex && index < currentIndex) {
-      index++
-      continue
-    }
-
     const price = JSON.parse(line)
-    const task = async () => processPrice(price)
+
+    // eslint-disable-next-line no-loop-func
+    const task = (async () => {
+      await processPrice(price)
+    })()
 
     taskQueue.push(task)
 
-    if (taskQueue.length === DEFAULT_CONCURRENCY) {
-      await batch(taskQueue.splice(0, taskQueue.length), (t) => t())
-    }
-
-    if (index % (DEFAULT_CONCURRENCY * 8) === 0 && index < sourcePricesTotal) {
-      break
-    }
-
-    if (index < sourcePricesTotal) {
-      index++
+    if (taskQueue.length >= MAX_CONCURRENT_TASKS) {
+      await Promise.race(taskQueue)
+      taskQueue.splice(0, taskQueue.findIndex((t) => t === task) + 1)
     }
   }
 
-  if (taskQueue.length) {
-    await batch(taskQueue, (t) => t())
-  }
+  await Promise.all(taskQueue)
 
-  if (index < sourcePricesTotal) {
-    await updateCurrentImport(context, {
-      entityEvent: 'price',
-      currentIndex: index + 1,
-    })
-  } else {
-    await updateCurrentImport(context, {
-      entityEvent: 'stock',
-      currentIndex: null,
-    })
-  }
-
-  priceDetailsLineIterator.removeAllListeners()
-  priceDetailsLineIterator.close()
+  priceFileWriteStream.end()
+  sourceSkuSellerStockFileWriteStream.end()
 }
 
 export default handlePrices

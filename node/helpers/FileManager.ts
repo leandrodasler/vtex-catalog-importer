@@ -16,11 +16,7 @@ export class FileManager {
   public delete() {
     if (!this.exists()) return
 
-    return fs.promises.unlink(this.filePath)
-  }
-
-  public appendLine(line: string) {
-    return fs.appendFileSync(this.filePath, `${line}\n`)
+    return fs.unlinkSync(this.filePath)
   }
 
   public getWriteStream() {
@@ -43,27 +39,10 @@ export class FileManager {
 
     for await (const line of lineIterator) {
       if (line.startsWith(`${prefix}=>`)) {
-        lineIterator.removeAllListeners()
-        lineIterator.close()
-
         return line.split('=>')[1].trim()
       }
     }
 
-    lineIterator.removeAllListeners()
-    lineIterator.close()
-
     return null
-  }
-
-  public async getTotalLines() {
-    const lineIterator = this.getLineIterator()
-    let totalLines = 0
-
-    for await (const line of lineIterator) {
-      if (line) totalLines++
-    }
-
-    return totalLines
   }
 }

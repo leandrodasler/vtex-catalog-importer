@@ -27,12 +27,13 @@ const handleCategories = async (context: AppEventContext) => {
   const sourceCategories = await sourceCatalog.getCategories(categories)
 
   const categoryFile = new FileManager(`categories-${executionImportId}`)
+  const categoryFileWriteStream = categoryFile.getWriteStream()
 
   await sequentialBatch(sourceCategories, async ({ Id, ...category }) => {
     const migrated = await getEntityBySourceId(context, Id)
 
     if (migrated?.targetId) {
-      categoryFile.appendLine(`${Id}=>${migrated.targetId}`)
+      categoryFileWriteStream.write(`${Id}=>${migrated.targetId}\n`)
     }
 
     if (await categoryFile.findLine(Id)) return
@@ -66,10 +67,10 @@ const handleCategories = async (context: AppEventContext) => {
       null
     ).catch(() => incrementVBaseEntity(context))
 
-    categoryFile.appendLine(`${Id}=>${targetId}`)
+    categoryFileWriteStream.write(`${Id}=>${targetId}\n`)
   })
 
-  await updateCurrentImport(context, { entityEvent: 'product' })
+  categoryFileWriteStream.end()
 }
 
 export default handleCategories

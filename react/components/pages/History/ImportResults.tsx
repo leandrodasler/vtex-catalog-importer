@@ -1,4 +1,4 @@
-import { Alert, Stack, Text } from '@vtex/admin-ui'
+import { Stack, Text } from '@vtex/admin-ui'
 import React from 'react'
 import { useIntl } from 'react-intl'
 import type { ImportProgress } from 'ssesandbox04.catalog-importer'
@@ -18,7 +18,6 @@ const ImportResults = ({ importProgress, loading }: Props) => {
 
   const {
     currentImport: {
-      status,
       error,
       entityError,
       currentEntity,
@@ -37,20 +36,7 @@ const ImportResults = ({ importProgress, loading }: Props) => {
 
   const total = +categories + +products + +skus + +prices + +stocks
 
-  const errorTitle = entityError
-    ? formatMessage(messages.importResultsErrorLabel, {
-        entity: getEntityLabel(entityError).toLowerCase(),
-      })
-    : ''
-
-  const mustViewRetrievingMessage =
-    status === 'RUNNING' &&
-    ((currentEntity === 'category' &&
-      (!categories || !sourceCategoriesTotal)) ||
-      (currentEntity === 'product' && (!products || !sourceProductsTotal)) ||
-      (currentEntity === 'sku' && (!skus || !sourceSkusTotal)) ||
-      (currentEntity === 'price' && (!prices || !sourcePricesTotal)) ||
-      (currentEntity === 'stock' && (!stocks || !sourceStocksTotal)))
+  const errorTitle = getEntityLabel(entityError)
 
   return (
     <Stack space="$space-2" fluid>
@@ -105,17 +91,9 @@ const ImportResults = ({ importProgress, loading }: Props) => {
         loading={loading}
         isCurrent={currentEntity === 'stock'}
       />
-
       <Text variant="title1">
         {formatMessage(messages.importResultsTotalLabel, { total })}
       </Text>
-
-      {mustViewRetrievingMessage && (
-        <Alert>
-          {formatMessage(messages.importResultsRetrievingLabel)}{' '}
-          <strong>{getEntityLabel(currentEntity)}</strong>
-        </Alert>
-      )}
     </Stack>
   )
 }

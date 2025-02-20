@@ -23,14 +23,22 @@ declare global {
 
   type Context = ServiceContext<Clients, ServiceState>
 
+  // type EntityMap = Record<number, number>
+
+  // type EntityMapName = Record<string, { id: number }>
+
   type EventState = Omit<RecorderState, 'body'> & {
     body: Partial<WithInternalFields<Import>>
     entity?: string
+    // mapCategory?: EntityMap
+    // mapProduct?: EntityMap
+    // mapSku?: EntityMap
+    // mapSourceSkuProduct?: EntityMap
+    // mapSourceSkuSellerStock?: EntityMap
+    // skuIds?: number[]
   }
 
-  type AppEventContext =
-    | ServiceContext<Clients, EventState>
-    | EventContext<Clients, EventState>
+  type AppEventContext = ServiceContext<Clients, EventState>
 
   type AppContext = Context | AppEventContext
 
@@ -87,8 +95,6 @@ declare global {
     data: Record<string, number[]>
     range: { total: number; from: number; to: number }
   }
-
-  type ProductAndSkuResults = { products: number; skus: number }
 
   type ProductDetails = {
     newId?: number
@@ -185,18 +191,13 @@ declare global {
   }
 
   type Specification = {
-    Id: number
-    FieldId: number
     FieldGroupId: number
     Name: string
     GroupName: string
-    GroupPosition: number
   }
 
   type SpecificationGroup = {
-    Id?: number
     Name: string
-    Position: number
   }
 
   type AssociatedSpecification = {

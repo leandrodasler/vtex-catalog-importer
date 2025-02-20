@@ -23,10 +23,7 @@ export type GraphQLError = {
   message: string
 }
 
-type CustomGraphQLOptions = {
-  toastError?: boolean | ((e: GraphQLError) => boolean)
-  toastKey?: string
-}
+type CustomGraphQLOptions = { toastError?: boolean; toastKey?: string }
 
 type CustomQueryHookOptions<T, V> = QueryHookOptions<T, V> &
   CustomGraphQLOptions
@@ -49,7 +46,6 @@ const useErrorRetry = <T = Query, V = undefined>(
   const retries = useRef(0)
   const [finishRetries, setFinishRetries] = useState(false)
   const { onError, toastError = true, toastKey: key } = options ?? {}
-
   const retryError = (e: GraphQLError, refetch: () => void) => {
     const message = e.message.toLowerCase()
     const messageToRetry =
@@ -58,21 +54,16 @@ const useErrorRetry = <T = Query, V = undefined>(
       message.includes('500') ||
       message.includes('502') ||
       message.includes('503') ||
-      message.includes('504') ||
       message.includes('network error') ||
       message.includes('networkerror') ||
       message.includes('genericerror') ||
-      message.includes('unhealthy') ||
-      message.includes('econnrefused')
+      message.includes('unhealthy')
 
     if (messageToRetry && retries.current < MAX_RETRIES) {
       setTimeout(() => refetch(), RETRY_DELAY * (retries.current + 1))
       retries.current++
     } else {
-      const shouldToastError =
-        typeof toastError === 'function' ? toastError(e) : toastError
-
-      shouldToastError &&
+      toastError &&
         showToast({
           message: formatMessage(getGraphQLMessageDescriptor(e)),
           variant: 'critical',

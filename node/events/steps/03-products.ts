@@ -1,6 +1,4 @@
 import {
-  batch,
-  DEFAULT_CONCURRENCY,
   FileManager,
   getEntityBySourceId,
   incrementVBaseEntity,
@@ -14,8 +12,6 @@ const handleProducts = async (context: AppEventContext) => {
     id: executionImportId = '',
     settings = {},
     categoryTree,
-    currentIndex,
-    lastId,
   } = context.state.body
 
   const { entity } = context.state
@@ -25,32 +21,31 @@ const handleProducts = async (context: AppEventContext) => {
 
   if (!categoryFile.exists()) return
 
+  const {
+    sourceProductsTotal,
+    sourceSkusTotal,
+  } = await sourceCatalog.generateProductAndSkuFiles(
+    executionImportId,
+    categoryTree
+  )
+
   const productDetailsFile = new FileManager(
     `productDetails-${executionImportId}`
   )
 
-  const { sourceProductsTotal } = productDetailsFile.exists()
-    ? context.state.body
-    : await sourceCatalog.generateProductAndSkuFiles(
-        executionImportId,
-        context.clients.importExecution,
-        categoryTree
-      )
-
-  if (!sourceProductsTotal || !productDetailsFile.exists()) return
+  if (!productDetailsFile.exists()) return
 
   const productFile = new FileManager(`products-${executionImportId}`)
+  const productFileWriteStream = productFile.getWriteStream()
 
-  if (!context.state.body.sourceProductsTotal) {
-    await updateCurrentImport(context, { sourceProductsTotal })
-  }
+  await updateCurrentImport(context, { sourceProductsTotal, sourceSkusTotal })
 
   const processProduct = async (p: ProductDetails) => {
     const { Id, newId, BrandId, CategoryId, DepartmentId, ...product } = p
     const migrated = await getEntityBySourceId(context, Id)
 
     if (migrated?.targetId) {
-      productFile.appendLine(`${Id}=>${migrated.targetId}`)
+      productFileWriteStream.write(`${Id}=>${migrated.targetId}\n`)
     }
 
     const currentProcessed = await productFile.findLine(Id)
@@ -101,75 +96,45 @@ const handleProducts = async (context: AppEventContext) => {
       null
     ).catch(() => incrementVBaseEntity(context))
 
-    productFile.appendLine(`${Id}=>${targetId}`)
+    productFileWriteStream.write(`${Id}=>${targetId}\n`)
 
     return targetId
   }
 
   const productLineIterator = productDetailsFile.getLineIterator()
+
   let index = 1
-  let lastProductId = lastId
-  const taskQueue: Array<() => Promise<void>> = []
+  let lastProductId = 0
+  const MAX_CONCURRENT_TASKS = 10
+  const taskQueue: Array<Promise<void>> = []
 
   for await (const line of productLineIterator) {
-    if (currentIndex && index < currentIndex) {
-      index++
-      continue
-    }
-
     const product = JSON.parse(line)
 
     if (index === 1) {
       lastProductId = await processProduct(product)
+      index++
     } else {
-      const generateTask = (firstId: number, i: number) => async () => {
+      // eslint-disable-next-line no-loop-func
+      const task = (async () => {
         await processProduct({
           ...product,
-          newId: firstId ? firstId + i : undefined,
+          newId: lastProductId ? lastProductId + index++ : undefined,
         })
+      })()
+
+      taskQueue.push(task)
+
+      if (taskQueue.length >= MAX_CONCURRENT_TASKS) {
+        await Promise.race(taskQueue)
+        taskQueue.splice(0, taskQueue.findIndex((t) => t === task) + 1)
       }
-
-      if (lastProductId) {
-        taskQueue.push(generateTask(lastProductId, index))
-      }
-
-      if (taskQueue.length === DEFAULT_CONCURRENCY) {
-        await batch(taskQueue.splice(0, taskQueue.length), (t) => t())
-      }
-    }
-
-    if (
-      index % (DEFAULT_CONCURRENCY * 4) === 0 &&
-      index < sourceProductsTotal
-    ) {
-      break
-    }
-
-    if (index < sourceProductsTotal) {
-      index++
     }
   }
 
-  if (taskQueue.length) {
-    await batch(taskQueue, (t) => t())
-  }
+  await Promise.all(taskQueue)
 
-  if (index < sourceProductsTotal) {
-    await updateCurrentImport(context, {
-      entityEvent: 'product',
-      currentIndex: index + 1,
-      lastId: lastProductId,
-    })
-  } else {
-    await updateCurrentImport(context, {
-      entityEvent: 'sku',
-      currentIndex: null,
-      lastId: null,
-    })
-  }
-
-  productLineIterator.removeAllListeners()
-  productLineIterator.close()
+  productFileWriteStream.end()
 }
 
 export default handleProducts

@@ -19,10 +19,6 @@
     "runImportEvent": {
       "sender": "ssesandbox04.catalog-importer",
       "keys": ["runImport"]
-    },
-    "runStep": {
-      "sender": "ssesandbox04.catalog-importer",
-      "keys": ["runStep"]
     }
   }
 }
