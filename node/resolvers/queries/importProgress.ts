@@ -1,3 +1,4 @@
+import { NotFoundError } from '@vtex/api'
 import type {
   ImportExecution,
   QueryImportProgressArgs,
@@ -24,6 +25,10 @@ export const importProgress = async (
     id,
     IMPORT_EXECUTION_FULL_FIELDS
   )
+
+  if (!currentImport) {
+    throw new NotFoundError('import-not-found')
+  }
 
   const vbaseJson = await vbase
     .getJSON<VBaseJSON>(DEFAULT_VBASE_BUCKET, id, true)

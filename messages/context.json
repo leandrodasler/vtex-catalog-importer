@@ -74,6 +74,8 @@
   "admin/import.status.running.label": "RUNNING",
   "admin/import.status.success.label": "SUCCESS",
   "admin/import.status.error.label": "ERROR",
+  "admin/import.status.to_be_deleted.label": "TO BE DELETED",
+  "admin/import.status.deleting.label": "DELETING",
   "admin/import.view.label": "View details",
   "admin/import.pagination.label": "Showing {pageSize, plural, one {{pageSize} import} other {last {pageSize} imports}}",
   "admin/import.delete": "Do you really want to delete the import?",
@@ -88,5 +90,6 @@
   "admin/import.results.sku.label": "SKUs",
   "admin/import.results.price.label": "Prices",
   "admin/import.results.stock.label": "Stocks",
-  "admin/import.results.total.label": "Total: {total, plural, =0 {no data imported} other {{total} imported data}}"
+  "admin/import.results.total.label": "Total: {total, plural, =0 {no data imported} other {{total} imported data}}",
+  "admin/import.results.retrieving.label": "Retrieving data for import of"
 }

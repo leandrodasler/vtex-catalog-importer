@@ -1,4 +1,6 @@
 import {
+  batch,
+  DEFAULT_CONCURRENCY,
   FileManager,
   getEntityBySourceId,
   incrementVBaseEntity,
@@ -12,6 +14,8 @@ const handleProducts = async (context: AppEventContext) => {
     id: executionImportId = '',
     settings = {},
     categoryTree,
+    currentIndex,
+    lastId,
   } = context.state.body
 
   const { entity } = context.state
@@ -21,31 +25,32 @@ const handleProducts = async (context: AppEventContext) => {
 
   if (!categoryFile.exists()) return
 
-  const {
-    sourceProductsTotal,
-    sourceSkusTotal,
-  } = await sourceCatalog.generateProductAndSkuFiles(
-    executionImportId,
-    categoryTree
-  )
-
   const productDetailsFile = new FileManager(
     `productDetails-${executionImportId}`
   )
 
-  if (!productDetailsFile.exists()) return
+  const { sourceProductsTotal } = productDetailsFile.exists()
+    ? context.state.body
+    : await sourceCatalog.generateProductAndSkuFiles(
+        executionImportId,
+        context.clients.importExecution,
+        categoryTree
+      )
+
+  if (!sourceProductsTotal || !productDetailsFile.exists()) return
 
   const productFile = new FileManager(`products-${executionImportId}`)
-  const productFileWriteStream = productFile.getWriteStream()
 
-  await updateCurrentImport(context, { sourceProductsTotal, sourceSkusTotal })
+  if (!context.state.body.sourceProductsTotal) {
+    await updateCurrentImport(context, { sourceProductsTotal })
+  }
 
   const processProduct = async (p: ProductDetails) => {
     const { Id, newId, BrandId, CategoryId, DepartmentId, ...product } = p
     const migrated = await getEntityBySourceId(context, Id)
 
     if (migrated?.targetId) {
-      productFileWriteStream.write(`${Id}=>${migrated.targetId}\n`)
+      productFile.appendLine(`${Id}=>${migrated.targetId}`)
     }
 
     const currentProcessed = await productFile.findLine(Id)
@@ -96,45 +101,75 @@ const handleProducts = async (context: AppEventContext) => {
       null
     ).catch(() => incrementVBaseEntity(context))
 
-    productFileWriteStream.write(`${Id}=>${targetId}\n`)
+    productFile.appendLine(`${Id}=>${targetId}`)
 
     return targetId
   }
 
   const productLineIterator = productDetailsFile.getLineIterator()
-
   let index = 1
-  let lastProductId = 0
-  const MAX_CONCURRENT_TASKS = 10
-  const taskQueue: Array<Promise<void>> = []
+  let lastProductId = lastId
+  const taskQueue: Array<() => Promise<void>> = []
 
   for await (const line of productLineIterator) {
+    if (currentIndex && index < currentIndex) {
+      index++
+      continue
+    }
+
     const product = JSON.parse(line)
 
     if (index === 1) {
       lastProductId = await processProduct(product)
-      index++
     } else {
-      // eslint-disable-next-line no-loop-func
-      const task = (async () => {
+      const generateTask = (firstId: number, i: number) => async () => {
         await processProduct({
           ...product,
-          newId: lastProductId ? lastProductId + index++ : undefined,
+          newId: firstId ? firstId + i : undefined,
         })
-      })()
-
-      taskQueue.push(task)
-
-      if (taskQueue.length >= MAX_CONCURRENT_TASKS) {
-        await Promise.race(taskQueue)
-        taskQueue.splice(0, taskQueue.findIndex((t) => t === task) + 1)
       }
+
+      if (lastProductId) {
+        taskQueue.push(generateTask(lastProductId, index))
+      }
+
+      if (taskQueue.length === DEFAULT_CONCURRENCY) {
+        await batch(taskQueue.splice(0, taskQueue.length), (t) => t())
+      }
+    }
+
+    if (
+      index % (DEFAULT_CONCURRENCY * 4) === 0 &&
+      index < sourceProductsTotal
+    ) {
+      break
+    }
+
+    if (index < sourceProductsTotal) {
+      index++
     }
   }
 
-  await Promise.all(taskQueue)
+  if (taskQueue.length) {
+    await batch(taskQueue, (t) => t())
+  }
 
-  productFileWriteStream.end()
+  if (index < sourceProductsTotal) {
+    await updateCurrentImport(context, {
+      entityEvent: 'product',
+      currentIndex: index + 1,
+      lastId: lastProductId,
+    })
+  } else {
+    await updateCurrentImport(context, {
+      entityEvent: 'sku',
+      currentIndex: null,
+      lastId: null,
+    })
+  }
+
+  productLineIterator.removeAllListeners()
+  productLineIterator.close()
 }
 
 export default handleProducts

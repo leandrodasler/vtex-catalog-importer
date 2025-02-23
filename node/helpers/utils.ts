@@ -1,15 +1,16 @@
 import type { ErrorLike, Maybe } from '@vtex/api'
+import pLimit from 'p-limit'
 import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
 import {
   DEFAULT_CONCURRENCY,
   DEFAULT_VBASE_BUCKET,
-  IMPORT_EXECUTION_FIELDS,
+  FILE_PREFIXES,
+  FileManager,
   IMPORT_STATUS,
   MAX_RETRIES,
   STEP_DELAY,
   STEPS,
-  STEPS_ENTITIES,
 } from '.'
 import { updateCurrentImport } from './importDBUtils'
 
@@ -32,10 +33,12 @@ export const promiseWithConditionalRetry = async <T, R = void>(
       message.includes('500') ||
       message.includes('502') ||
       message.includes('503') ||
+      message.includes('504') ||
       message.includes('network error') ||
       message.includes('networkerror') ||
       message.includes('genericerror') ||
-      message.includes('unhealthy')
+      message.includes('unhealthy') ||
+      message.includes('econnrefused')
 
     if (messageToRetry && retries < MAX_RETRIES) {
       await delay(STEP_DELAY * (retries + 1))
@@ -52,28 +55,15 @@ export const batch = async <T, R = void>(
   elementCallback: (element: T) => Promise<Maybe<R>> | R,
   concurrency = DEFAULT_CONCURRENCY
 ) => {
-  const cloneData = [...data]
-  const results: R[] = []
+  const limit = pLimit(concurrency)
 
-  const processBatch = async () => {
-    if (!cloneData.length) return
+  const results = await Promise.all(
+    data.map((element) =>
+      limit(() => promiseWithConditionalRetry(elementCallback, element))
+    )
+  )
 
-    const result = ((await Promise.all(
-      cloneData.splice(0, concurrency).map(async (element) => {
-        return promiseWithConditionalRetry(elementCallback, element)
-      })
-    )) as unknown) as R
-
-    if (result) {
-      results.push(result)
-    }
-
-    await processBatch()
-  }
-
-  await processBatch()
-
-  return results.flat()
+  return results.filter(Boolean).flat() as R[]
 }
 
 export const sequentialBatch = async <T, R = void>(
@@ -83,7 +73,7 @@ export const sequentialBatch = async <T, R = void>(
   return batch(data, elementCallback, 1)
 }
 
-export const handleError = async (context: AppEventContext, e: ErrorLike) => {
+export function getError(e: ErrorLike) {
   const data = e.response?.data
   const statusText = e.response?.statusText
   const fallbackMessage = data && typeof data === 'string' ? data : statusText
@@ -96,7 +86,11 @@ export const handleError = async (context: AppEventContext, e: ErrorLike) => {
         }`
       : ''
 
-  const error = `${e.message}${errorDetailFormatted}${requestError}`
+  return `${e.message}${errorDetailFormatted}${requestError}`
+}
+
+export const handleError = async (context: AppEventContext, e: ErrorLike) => {
+  const error = getError(e)
   const entityError = context.state.entity
 
   await delay(STEP_DELAY)
@@ -115,19 +109,6 @@ export const processStepFactory = (context: AppEventContext) => async (
   if (context.state.body.error || !context.state.body.id || !nextEntity) return
 
   await delay(STEP_DELAY)
-
-  const currentImport = await context.clients.importExecution.get(
-    context.state.body.id,
-    IMPORT_EXECUTION_FIELDS
-  )
-
-  if (
-    currentImport.currentEntity &&
-    STEPS_ENTITIES.indexOf(currentImport.currentEntity as string) >=
-      STEPS_ENTITIES.indexOf(nextEntity)
-  ) {
-    return
-  }
 
   context.state.entity = nextEntity
 
@@ -151,4 +132,27 @@ export const incrementVBaseEntity = async (context: AppEventContext) => {
   const newJson = { ...json, [entity]: (json[entity] ?? 0) + 1 }
 
   return vbase.saveJSON(DEFAULT_VBASE_BUCKET, id, newJson)
+}
+
+export const deleteImportFiles = (executionImportId: string) => {
+  return Promise.all(
+    FILE_PREFIXES.map((prefix) =>
+      new FileManager(`${prefix}-${executionImportId}`).delete()
+    )
+  )
+}
+
+export function formatFileSize(bytes: number) {
+  const units = ['bytes', 'KB', 'MB', 'GB']
+  let size = bytes
+  let unitIndex = 0
+
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024
+    unitIndex++
+  }
+
+  return `${new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format(
+    size
+  )} ${units[unitIndex]}`
 }

@@ -1,4 +1,7 @@
-/* eslint-disable no-console */
+import fs from 'fs'
+import path from 'path'
+import readline from 'readline'
+
 import { method } from '@vtex/api'
 import type {
   ImportEntity,
@@ -8,6 +11,7 @@ import type {
 import {
   batch,
   DEFAULT_VBASE_BUCKET,
+  formatFileSize,
   getLastEntity,
   IMPORT_ENTITY_FIELDS,
   IMPORT_EXECUTION_FIELDS,
@@ -20,10 +24,96 @@ const SORT = 'createdIn desc'
 const outputHTML = (data?: unknown[]) =>
   data?.length ? `<pre>${JSON.stringify(data, null, 2)}</pre>` : ''
 
+const timeZone = 'America/Sao_Paulo'
+
 const formatDate = (date: string | Date) =>
-  `${new Date(date).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`
+  `${new Date(date).toLocaleString('pt-BR', { timeZone })}`
 
 const diffDate = (date: string) => Date.now() - new Date(date).getTime()
+
+type FileRow = { name: string; size: string; lines: number; modified: string }
+
+function sortFiles(files: FileRow[]) {
+  return files.sort((a, b) => {
+    const isJsA = a.name.endsWith('.js')
+    const isJsB = b.name.endsWith('.js')
+
+    if (isJsA && !isJsB) return -1
+    if (!isJsA && isJsB) return 1
+
+    return a.name.localeCompare(b.name)
+  })
+}
+
+async function getFileTotalLines(filePath: string) {
+  const fileStream = fs.createReadStream(filePath)
+
+  const rl = readline.createInterface({
+    input: fileStream,
+    crlfDelay: Infinity,
+  })
+
+  let totalLines = 0
+
+  for await (const line of rl) {
+    if (line) totalLines++
+  }
+
+  return totalLines
+}
+
+function listFiles(directory: string): Promise<FileRow[]> {
+  const results: FileRow[] = []
+
+  return new Promise((resolve) => {
+    fs.readdir(directory, (err, files) => {
+      if (err) {
+        results.push({
+          name: `Erro ao ler o diretório: ${err.message}`,
+          size: '---',
+          lines: 0,
+          modified: '---',
+        })
+      }
+
+      let pending = files.length
+
+      if (pending === 0) {
+        return resolve(results)
+      }
+
+      files.forEach((file) => {
+        const filePath = path.join(directory, file)
+
+        getFileTotalLines(filePath).then((lines) => {
+          fs.stat(filePath, (e, stats) => {
+            if (e) {
+              results.push({
+                name: `Erro ao obter informações do arquivo ${file}: ${e.message}`,
+                size: '---',
+                lines: 0,
+                modified: '---',
+              })
+            } else if (stats.isFile()) {
+              results.push({
+                name: file,
+                size: formatFileSize(stats.size),
+                lines,
+                modified: formatDate(stats.mtime),
+              })
+            }
+
+            pending--
+
+            if (pending === 0) {
+              resolve(sortFiles(results))
+            }
+          })
+        })
+      })
+    })
+  })
+}
 
 const status = async (context: Context) => {
   setCachedContext(context)
@@ -65,6 +155,7 @@ const status = async (context: Context) => {
         importImages,
         importPrices,
         targetWarehouse,
+        status: importStatus,
         ...rest
       } = i
 
@@ -78,6 +169,7 @@ const status = async (context: Context) => {
         }),
         createdDate: formatDate(createdIn),
         lastInteractionDate: formatDate(lastInteractionIn),
+        status: `<strong class='status ${importStatus}'>${importStatus}</strong>`,
         ...rest,
         vbaseJson: await vbase.getJSON(DEFAULT_VBASE_BUCKET, rest.id, true),
       }
@@ -96,6 +188,9 @@ const status = async (context: Context) => {
     lastInteractionDate: formatDate(lastInteractionIn),
     ...e,
   }))
+
+  const directoryToList = path.join(__dirname, '../helpers')
+  const files = await listFiles(directoryToList)
 
   context.status = 200
   context.set('Content-Type', 'text/html')
@@ -140,6 +235,12 @@ const status = async (context: Context) => {
       h1 span:not(:first-child) {
         margin-right: 5px;
       }
+      .status { color: white; background-color: gray; padding: 2px; }
+      .status.pending { background-color: orange; }
+      .status.success { background-color: green; }
+      .status.error, .status.deleting, .status.to_be_deleted { background-color: red; }
+      .status.running { background-color: blue; }
+      table { font-family: monospace; }
     </style>
   </head>
   <body>
@@ -160,6 +261,20 @@ const status = async (context: Context) => {
       <h2>Logged as ${user}</h2>
     </header>
     <div class="flex">
+      <section>
+        <h3>Listing files in directory <em>${directoryToList}</em>:</h3>
+        <table border="1" cellpadding="5" cellspacing="0">
+          <tr>
+            <th>Name</th><th>Size</th><th>Lines</th><th>Modified</th>
+          </tr>
+        ${files
+          .map(
+            (file) =>
+              `<tr><td>${file.name}</td><td>${file.size}</td><td>${file.lines}</td><td>${file.modified}</td></tr>`
+          )
+          .join('')}
+        </table>
+      </section>
       <section>
         <h3>Imports - showing ${imports.length} of ${totalImports}:</h3>
         ${outputHTML(imports)}
