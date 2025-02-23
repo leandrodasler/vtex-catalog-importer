@@ -4,7 +4,6 @@ import type { AppSettingsInput } from 'ssesandbox04.catalog-importer'
 
 import {
   DEFAULT_CONCURRENCY,
-  DEFAULT_VBASE_BUCKET,
   FILE_PREFIXES,
   FileManager,
   IMPORT_STATUS,
@@ -29,6 +28,8 @@ export const promiseWithConditionalRetry = async <T, R = void>(
     const message = e.message.toLowerCase()
     const messageToRetry =
       message.includes('400') ||
+      message.includes('408') ||
+      message.includes('423') ||
       message.includes('429') ||
       message.includes('500') ||
       message.includes('502') ||
@@ -104,9 +105,10 @@ export const handleError = async (context: AppEventContext, e: ErrorLike) => {
 export const processStepFactory = (context: AppEventContext) => async (
   step: (context: AppEventContext) => Promise<void>
 ) => {
+  const { error, id, status } = context.state.body
   const nextEntity = STEPS.find(({ handler }) => handler === step)?.entity
 
-  if (context.state.body.error || !context.state.body.id || !nextEntity) return
+  if (error || !id || !nextEntity || status !== IMPORT_STATUS.RUNNING) return
 
   await delay(STEP_DELAY)
 
@@ -120,18 +122,6 @@ export const processStepFactory = (context: AppEventContext) => async (
   await delay(STEP_DELAY)
 
   return step(context).catch((e) => handleError(context, e))
-}
-
-export const incrementVBaseEntity = async (context: AppEventContext) => {
-  const { vbase } = context.clients
-  const { id = '' } = context.state.body
-  const { entity = '' } = context.state
-  const json =
-    (await vbase.getJSON<VBaseJSON>(DEFAULT_VBASE_BUCKET, id, true)) ?? {}
-
-  const newJson = { ...json, [entity]: (json[entity] ?? 0) + 1 }
-
-  return vbase.saveJSON(DEFAULT_VBASE_BUCKET, id, newJson)
 }
 
 export const deleteImportFiles = (executionImportId: string) => {

@@ -51,10 +51,10 @@ export const updateCurrentImport = async (
   context: AppEventContext,
   fields: EventState['body']
 ) => {
-  await promiseWithConditionalRetry(() => {
+  await promiseWithConditionalRetry(async function updateImport() {
     if (!context.state.body.id) return
 
-    return context.clients.importExecution.update(context.state.body.id, fields)
+    await context.clients.importExecution.update(context.state.body.id, fields)
   }, null).then(() => {
     context.state.body = { ...context.state.body, ...fields }
   })
@@ -111,7 +111,7 @@ export const deleteImport = async (
     await updateImportStatus(context, importId, DELETING)
   }
 
-  const entities = await getEntities(context, importId, DEFAULT_CONCURRENCY)
+  const entities = await getEntities(context, importId, DEFAULT_CONCURRENCY * 4)
 
   batch(entities.data, deleteEntityFactory(context))
 
