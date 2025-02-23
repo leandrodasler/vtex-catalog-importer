@@ -1,16 +1,16 @@
 import type { ClientsConfig } from '@vtex/api'
 import { IOClients } from '@vtex/api'
-import { masterDataFor } from '@vtex/clients'
+import { masterDataFor, vbaseFor } from '@vtex/clients'
 import type {
   ImportEntity,
   ImportExecution,
 } from 'ssesandbox04.catalog-importer'
 
 import {
-  CURRENT_MD_SCHEMA,
   DEFAULT_CONCURRENCY,
   MAX_RETRIES,
   MD_ENTITIES,
+  STABLE_MD_SCHEMA,
 } from '../helpers'
 import Cosmos from './Cosmos'
 import HttpClient from './HttpClient'
@@ -19,7 +19,7 @@ import SourceCatalog from './SourceCatalog'
 import TargetCatalog from './TargetCatalog'
 
 const { VTEX_APP_VENDOR, VTEX_APP_NAME } = process.env
-const STABLE_SCHEMA_APP_ID = `${VTEX_APP_VENDOR}.${VTEX_APP_NAME}@${CURRENT_MD_SCHEMA}`
+const STABLE_SCHEMA_APP_ID = `${VTEX_APP_VENDOR}.${VTEX_APP_NAME}@${STABLE_MD_SCHEMA}`
 
 export class Clients extends IOClients {
   public get httpClient() {
@@ -53,6 +53,13 @@ export class Clients extends IOClients {
     return this.getOrSet(
       MD_ENTITIES.entity,
       masterDataFor<ImportEntity>(MD_ENTITIES.entity, STABLE_SCHEMA_APP_ID)
+    )
+  }
+
+  public get mdSettings() {
+    return this.getOrSet(
+      'mdSettings',
+      vbaseFor<string, MDSettings>('mdSettings')
     )
   }
 }

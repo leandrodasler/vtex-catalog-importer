@@ -1,0 +1,44 @@
+{
+  "title": "Import Execution",
+  "type": "object",
+  "properties": {
+    "user": { "type": "string" },
+    "settings": {
+      "type": "object",
+      "properties": {
+        "useDefault": { "type": ["boolean", "null"] },
+        "account": { "type": ["string", "null"] }
+      },
+      "v-indexed": ["useDefault", "account"]
+    },
+    "categoryTree": { "type": "array" },
+    "importImages": { "type": "boolean" },
+    "importPrices": { "type": "boolean" },
+    "stocksOption": { "type": "string" },
+    "stockValue": { "type": ["integer", "null"] },
+    "targetWarehouse": { "type": "string" },
+    "sourceCategoriesTotal": { "type": ["integer"] },
+    "sourceProductsTotal": { "type": ["integer"] },
+    "sourceSkusTotal": { "type": ["integer"] },
+    "sourcePricesTotal": { "type": ["integer"] },
+    "sourceStocksTotal": { "type": ["integer"] },
+    "status": { "type": "string" },
+    "error": { "type": ["string", "null"] },
+    "currentEntity": { "type": ["string", "null"] },
+    "entityError": { "type": ["string", "null"] },
+    "entityEvent": { "type": ["string", "null"] },
+    "currentIndex": { "type": ["integer", "null"] },
+    "lastId": { "type": ["integer", "null"] }
+  },
+  "v-cache": false,
+  "v-indexed": [
+    "user",
+    "status",
+    "settings",
+    "entityEvent",
+    "currentIndex",
+    "lastId"
+  ],
+  "v-security": { "allowGetAll": true },
+  "v-immediate-indexing": true
+}

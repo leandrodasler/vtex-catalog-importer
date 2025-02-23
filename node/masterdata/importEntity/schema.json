@@ -1,0 +1,27 @@
+{
+  "title": "Import Entity",
+  "type": "object",
+  "properties": {
+    "name": { "type": ["string", "null"] },
+    "executionImportId": { "type": ["string", "null"] },
+    "sourceAccount": { "type": ["string", "null"] },
+    "sourceId": { "type": ["string", "integer", "null"] },
+    "targetId": { "type": ["string", "integer", "null"] },
+    "pathParams": { "type": ["object", "null"] },
+    "payload": { "type": "object" },
+    "title": { "type": ["string", "null"] },
+    "updated": { "type": ["integer", "null"] }
+  },
+  "v-cache": false,
+  "v-indexed": [
+    "name",
+    "executionImportId",
+    "sourceAccount",
+    "sourceId",
+    "targetId",
+    "title",
+    "updated"
+  ],
+  "v-security": { "allowGetAll": true },
+  "v-immediate-indexing": true
+}

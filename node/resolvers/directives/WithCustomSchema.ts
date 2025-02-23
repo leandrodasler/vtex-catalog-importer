@@ -1,7 +1,9 @@
 import { defaultFieldResolver } from 'graphql'
 import { SchemaDirectiveVisitor } from 'graphql-tools'
 
-import { CURRENT_MD_SCHEMA, MD_ENTITIES } from '../../helpers'
+import { MD_ENTITIES, STABLE_MD_SCHEMA } from '../../helpers'
+import importEntitySchema from '../../masterdata/importEntity/schema.json'
+import importExecutionSchema from '../../masterdata/importExecution/schema.json'
 
 const { VTEX_APP_VENDOR, VTEX_APP_NAME, VTEX_APP_VERSION } = process.env
 const MD_APP_NAME = VTEX_APP_NAME?.replace(/-/g, '_')
@@ -9,9 +11,11 @@ const MD_APP_NAME = VTEX_APP_NAME?.replace(/-/g, '_')
 const getEntityFullName = (entity: string) =>
   `${VTEX_APP_VENDOR}_${MD_APP_NAME}_${entity}`
 
-const mdEntities = Object.values(MD_ENTITIES).map(getEntityFullName)
+const ENTITIES = Object.values(MD_ENTITIES).map(getEntityFullName)
+const SCHEMAS = [importExecutionSchema, importEntitySchema]
+const SETTINGS_VBASE_KEY = 'settings'
 
-const getAndCleanSchemas = async (
+const cleanDefaultSchemas = async (
   { clients: { masterdata, targetCatalog } }: Context,
   entities: string[],
   schemaName: string
@@ -26,10 +30,10 @@ const getAndCleanSchemas = async (
         .catch(() => null)
         .then((schema) => {
           if (schema) {
-            targetCatalog.deleteSchema(dataEntity, schemaName)
+            return targetCatalog.deleteSchema(dataEntity, schemaName)
           }
 
-          return schema
+          return null
         })
     )
   )
@@ -46,11 +50,17 @@ const createSchemas = async (
       .map(async (schema, i) =>
         masterdata
           .createOrUpdateSchema({
-            dataEntity: mdEntities[i],
+            dataEntity: ENTITIES[i],
             schemaName: newSchemaName,
             schemaBody: schema as Record<string, unknown>,
           })
-          .catch(() => null)
+          .catch((e) => {
+            if (e.response.status !== 304) {
+              throw e
+            }
+
+            return schema
+          })
       )
   )
 }
@@ -64,22 +74,39 @@ export default class WithCustomSchema extends SchemaDirectiveVisitor {
       const { workspace, production } = context.vtex
       const defaultSchema = VTEX_APP_VERSION as string
       const workspaceSchema = `${defaultSchema}-${workspace}`
+      const settings = await context.clients.mdSettings.get(
+        SETTINGS_VBASE_KEY,
+        true
+      )
 
-      // getting and deleting schemas created by masterdata builder
-      const schemas = await (production
-        ? getAndCleanSchemas(context, mdEntities, defaultSchema)
-        : getAndCleanSchemas(context, mdEntities, workspaceSchema))
+      const currentVersion = production ? defaultSchema : workspaceSchema
+      const currentSchemaHash = JSON.stringify(SCHEMAS)
+
+      if (
+        settings?.schemaHash === currentSchemaHash &&
+        settings?.currentVersion === currentVersion
+      ) {
+        return resolve(root, args, context, info)
+      }
+
+      // deleting schemas created by masterdata builder
+      cleanDefaultSchemas(context, ENTITIES, currentVersion)
 
       // creating new schemas with a known name
-      await createSchemas(context, schemas, CURRENT_MD_SCHEMA)
+      await createSchemas(context, SCHEMAS, STABLE_MD_SCHEMA)
 
       if (!production) {
         await createSchemas(
           context,
-          schemas,
-          `${CURRENT_MD_SCHEMA}-${workspace}`
+          SCHEMAS,
+          `${STABLE_MD_SCHEMA}-${workspace}`
         )
       }
+
+      await context.clients.mdSettings.save(SETTINGS_VBASE_KEY, {
+        schemaHash: JSON.stringify(SCHEMAS),
+        currentVersion,
+      })
 
       return resolve(root, args, context, info)
     }

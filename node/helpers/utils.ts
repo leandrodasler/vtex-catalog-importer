@@ -60,7 +60,7 @@ export const batch = async <T, R = void>(
 
   const results = await Promise.all(
     data.map((element) =>
-      limit(() => promiseWithConditionalRetry(elementCallback, element))
+      limit(promiseWithConditionalRetry, elementCallback, element)
     )
   )
 
