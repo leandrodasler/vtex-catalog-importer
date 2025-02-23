@@ -20,6 +20,10 @@ export function setCachedContext(context: Context) {
   cachedContext = context
 }
 
+const SETUP_FILE = new FileManager('SETUP_FILE')
+
+SETUP_FILE.appendLine(new Date().toISOString())
+
 const verifyImports = async () => {
   const context = getCachedContext()
 
@@ -38,15 +42,14 @@ const verifyImports = async () => {
       return
     }
 
-    const indexFile = new FileManager('index.js', `${__dirname}/..`)
-    const indexFileStats = await indexFile.getStats()
+    const setupFileStats = await SETUP_FILE.getStats()
 
-    const importRunningLastInteractionIn = new Date(
+    const importRunningLastInteractionInMs = new Date(
       importRunning.lastInteractionIn
     ).getTime()
 
     if (
-      indexFileStats.mtimeMs > importRunningLastInteractionIn &&
+      setupFileStats.mtimeMs > importRunningLastInteractionInMs &&
       importRunning.currentEntity
     ) {
       await context.clients.importExecution.update(importRunning.id, {

@@ -5,11 +5,7 @@ import readline from 'readline'
 export class FileManager {
   public filePath: string
 
-  constructor(filePath: string, basePath = '/usr/local/data/import-data') {
-    if (!fs.existsSync(basePath)) {
-      fs.mkdirSync(basePath)
-    }
-
+  constructor(filePath: string, basePath = __dirname) {
     this.filePath = path.resolve(basePath, filePath)
   }
 

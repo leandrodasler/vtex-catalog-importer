@@ -6,6 +6,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "target": "es2019",
+    "resolveJsonModule": true,
     "types": ["jest"]
   },
   "include": ["./typings/*.d.ts", "./**/*.tsx", "./**/*.ts"]

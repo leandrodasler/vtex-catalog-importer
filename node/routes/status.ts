@@ -52,18 +52,11 @@ type FileRow = {
   lines: number
   created: string
   modified: string
+  modifiedMs: number
 }
 
 function sortFiles(files: FileRow[]) {
-  return files.sort((a, b) => {
-    const isJsA = a.name.endsWith('.js')
-    const isJsB = b.name.endsWith('.js')
-
-    if (isJsA && !isJsB) return -1
-    if (!isJsA && isJsB) return 1
-
-    return a.name.localeCompare(b.name)
-  })
+  return files.sort((a, b) => a.modifiedMs - b.modifiedMs)
 }
 
 async function getFileTotalLines(filePath: string) {
@@ -95,6 +88,7 @@ function listFiles(directory: string): Promise<FileRow[]> {
           lines: 0,
           created: '---',
           modified: '---',
+          modifiedMs: 0,
         })
       }
 
@@ -116,6 +110,7 @@ function listFiles(directory: string): Promise<FileRow[]> {
                 lines: 0,
                 created: '---',
                 modified: '---',
+                modifiedMs: 0,
               })
             } else if (stats.isFile()) {
               results.push({
@@ -124,6 +119,7 @@ function listFiles(directory: string): Promise<FileRow[]> {
                 lines,
                 created: formatDate(stats.birthtime),
                 modified: formatDate(stats.mtime),
+                modifiedMs: stats.mtimeMs,
               })
             }
 
@@ -224,12 +220,7 @@ const status = async (context: Context) => {
     ...e,
   }))
 
-  const directoryToList = path.join('/usr/local/data/import-data')
-
-  if (!fs.existsSync(directoryToList)) {
-    fs.mkdirSync(directoryToList)
-  }
-
+  const directoryToList = path.join(`${__dirname}/../helpers`)
   const indexFile = new FileManager('index.js', `${__dirname}/..`)
   const indexStats = await indexFile.getStats()
   const files = await listFiles(directoryToList)
@@ -305,7 +296,7 @@ const status = async (context: Context) => {
     </header>
     <div class="flex">
       <section>
-        <h3>Listing files in directory <em>${directoryToList}</em>:</h3>
+        <h3>Listing import files in directory <em>${directoryToList}</em>:</h3>
         <table border="1" cellpadding="5" cellspacing="0">
           <tr>
             <th>Name</th><th>Size</th><th>Lines</th><th>Created</th><th>Modified</th>
@@ -316,6 +307,7 @@ const status = async (context: Context) => {
               : ''
           }
           ${files
+            .filter((file) => !file.name.endsWith('.js'))
             .map(
               (file) =>
                 `<tr>
@@ -323,7 +315,7 @@ const status = async (context: Context) => {
                   <td>${file.size}</td>
                   <td>${file.lines}</td>
                   <td>${file.created}</td>
-                  <td>${file.modified}</td>
+                  <td title="Timestamp: ${file.modifiedMs}">${file.modified}</td>
                 </tr>`
             )
             .join('')}

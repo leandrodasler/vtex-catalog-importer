@@ -74,7 +74,7 @@ export const ENDPOINTS = {
   },
 }
 
-export const CURRENT_MD_SCHEMA = '0.0.4'
+export const STABLE_MD_SCHEMA = '0.0.4'
 export const MD_ENTITIES = {
   import: 'importExecution',
   entity: 'importEntity',

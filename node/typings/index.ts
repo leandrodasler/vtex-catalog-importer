@@ -49,7 +49,7 @@ declare global {
     Record<string, unknown>
   >
 
-  type VBaseJSON = Record<string, number>
+  type MDSettings = { schemaHash: string; currentVersion: string }
 
   type SaveEntityArgs = {
     targetId: ID
