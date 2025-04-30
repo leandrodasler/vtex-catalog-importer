@@ -1,5 +1,4 @@
 import {
-  FileManager,
   getEntityBySourceId,
   incrementVBaseEntity,
   promiseWithConditionalRetry,
@@ -26,17 +25,16 @@ const handleCategories = async (context: AppEventContext) => {
   await updateCurrentImport(context, { sourceCategoriesTotal })
   const sourceCategories = await sourceCatalog.getCategories(categories)
 
-  const categoryFile = new FileManager(`categories-${executionImportId}`)
-  const categoryFileWriteStream = categoryFile.getWriteStream()
+  const mapCategory: EntityMap = {}
 
   await sequentialBatch(sourceCategories, async ({ Id, ...category }) => {
     const migrated = await getEntityBySourceId(context, Id)
 
     if (migrated?.targetId) {
-      categoryFileWriteStream.write(`${Id}=>${migrated.targetId}\n`)
+      mapCategory[Id] = +migrated.targetId
     }
 
-    if (await categoryFile.findLine(Id)) return
+    if (mapCategory[Id]) return
 
     const { FatherCategoryId, GlobalCategoryId = 0 } = category
 
@@ -44,7 +42,7 @@ const handleCategories = async (context: AppEventContext) => {
       ...category,
       GlobalCategoryId: GlobalCategoryId || undefined,
       FatherCategoryId: FatherCategoryId
-        ? +((await categoryFile.findLine(FatherCategoryId)) ?? 0) || undefined
+        ? mapCategory[FatherCategoryId]
         : undefined,
     }
 
@@ -67,10 +65,10 @@ const handleCategories = async (context: AppEventContext) => {
       null
     ).catch(() => incrementVBaseEntity(context))
 
-    categoryFileWriteStream.write(`${Id}=>${targetId}\n`)
+    mapCategory[Id] = targetId
   })
 
-  categoryFileWriteStream.end()
+  context.state.mapCategory = mapCategory
 }
 
 export default handleCategories

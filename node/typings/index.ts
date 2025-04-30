@@ -23,19 +23,19 @@ declare global {
 
   type Context = ServiceContext<Clients, ServiceState>
 
-  // type EntityMap = Record<number, number>
+  type EntityMap = Record<number, number>
 
   // type EntityMapName = Record<string, { id: number }>
 
   type EventState = Omit<RecorderState, 'body'> & {
     body: Partial<WithInternalFields<Import>>
     entity?: string
-    // mapCategory?: EntityMap
-    // mapProduct?: EntityMap
-    // mapSku?: EntityMap
-    // mapSourceSkuProduct?: EntityMap
-    // mapSourceSkuSellerStock?: EntityMap
-    // skuIds?: number[]
+    mapCategory?: EntityMap
+    mapProduct?: EntityMap
+    mapSku?: EntityMap
+    mapSourceSkuProduct?: EntityMap
+    mapSourceSkuSellerStock?: EntityMap
+    skuIds?: number[]
   }
 
   type AppEventContext = ServiceContext<Clients, EventState>

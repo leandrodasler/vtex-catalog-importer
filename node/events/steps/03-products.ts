@@ -1,5 +1,5 @@
 import {
-  FileManager,
+  batch,
   getEntityBySourceId,
   incrementVBaseEntity,
   promiseWithConditionalRetry,
@@ -9,34 +9,24 @@ import {
 const handleProducts = async (context: AppEventContext) => {
   const { sourceCatalog, targetCatalog, importEntity } = context.clients
   const {
-    id: executionImportId = '',
+    id: executionImportId,
     settings = {},
     categoryTree,
   } = context.state.body
 
-  const { entity } = context.state
+  const { entity, mapCategory } = context.state
   const { account: sourceAccount } = settings
 
-  const categoryFile = new FileManager(`categories-${executionImportId}`)
+  if (!mapCategory) return
 
-  if (!categoryFile.exists()) return
+  const { products, skuIds } = await sourceCatalog.getProducts(categoryTree)
+  const [firstProduct, ...sourceProducts] = products
 
-  const {
-    sourceProductsTotal,
-    sourceSkusTotal,
-  } = await sourceCatalog.generateProductAndSkuFiles(
-    executionImportId,
-    categoryTree
-  )
+  context.state.skuIds = skuIds
 
-  const productDetailsFile = new FileManager(
-    `productDetails-${executionImportId}`
-  )
-
-  if (!productDetailsFile.exists()) return
-
-  const productFile = new FileManager(`products-${executionImportId}`)
-  const productFileWriteStream = productFile.getWriteStream()
+  const sourceProductsTotal = products.length
+  const sourceSkusTotal = skuIds.length
+  const mapProduct: EntityMap = {}
 
   await updateCurrentImport(context, { sourceProductsTotal, sourceSkusTotal })
 
@@ -45,12 +35,10 @@ const handleProducts = async (context: AppEventContext) => {
     const migrated = await getEntityBySourceId(context, Id)
 
     if (migrated?.targetId) {
-      productFileWriteStream.write(`${Id}=>${migrated.targetId}\n`)
+      mapProduct[Id] = +migrated.targetId
     }
 
-    const currentProcessed = await productFile.findLine(Id)
-
-    if (currentProcessed) return +currentProcessed
+    if (mapProduct[Id]) return mapProduct[Id]
 
     const payload = { ...(newId && { Id: newId }), ...product }
 
@@ -64,7 +52,7 @@ const handleProducts = async (context: AppEventContext) => {
     )
 
     const specifications = await sourceCatalog.getProductSpecifications(Id)
-    const targetCategoryId = +((await categoryFile.findLine(CategoryId)) ?? 0)
+    const targetCategoryId = mapCategory[CategoryId]
     const updatePayload = { ...created, CategoryId: targetCategoryId }
 
     await Promise.all([
@@ -96,45 +84,22 @@ const handleProducts = async (context: AppEventContext) => {
       null
     ).catch(() => incrementVBaseEntity(context))
 
-    productFileWriteStream.write(`${Id}=>${targetId}\n`)
+    mapProduct[Id] = targetId
 
     return targetId
   }
 
-  const productLineIterator = productDetailsFile.getLineIterator()
+  const lastProductId = await processProduct(firstProduct)
 
-  let index = 1
-  let lastProductId = 0
-  const MAX_CONCURRENT_TASKS = 10
-  const taskQueue: Array<Promise<void>> = []
+  const productsWithIds = sourceProducts.map((data, index) => ({
+    ...data,
+    newId: lastProductId + index + 1,
+  }))
 
-  for await (const line of productLineIterator) {
-    const product = JSON.parse(line)
+  await batch(productsWithIds, processProduct)
 
-    if (index === 1) {
-      lastProductId = await processProduct(product)
-      index++
-    } else {
-      // eslint-disable-next-line no-loop-func
-      const task = (async () => {
-        await processProduct({
-          ...product,
-          newId: lastProductId ? lastProductId + index++ : undefined,
-        })
-      })()
-
-      taskQueue.push(task)
-
-      if (taskQueue.length >= MAX_CONCURRENT_TASKS) {
-        await Promise.race(taskQueue)
-        taskQueue.splice(0, taskQueue.findIndex((t) => t === task) + 1)
-      }
-    }
-  }
-
-  await Promise.all(taskQueue)
-
-  productFileWriteStream.end()
+  context.state.mapProduct = mapProduct
+  context.state.mapCategory = undefined
 }
 
 export default handleProducts
