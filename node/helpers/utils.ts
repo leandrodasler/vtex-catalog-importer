@@ -28,14 +28,18 @@ export const promiseWithConditionalRetry = async <T, R = void>(
     const message = e.message.toLowerCase()
     const messageToRetry =
       message.includes('400') ||
+      message.includes('408') ||
+      message.includes('423') ||
       message.includes('429') ||
       message.includes('500') ||
       message.includes('502') ||
       message.includes('503') ||
+      message.includes('504') ||
       message.includes('network error') ||
       message.includes('networkerror') ||
       message.includes('genericerror') ||
-      message.includes('unhealthy')
+      message.includes('unhealthy') ||
+      message.includes('econnrefused')
 
     if (messageToRetry && retries < MAX_RETRIES) {
       await delay(STEP_DELAY * (retries + 1))

@@ -256,7 +256,7 @@ export default class SourceCatalog extends HttpClient {
 
   private async getSpecification(id: ID) {
     const { FieldGroupId, ...specification } = await this.get<Specification>(
-      ENDPOINTS.specification.get(id)
+      ENDPOINTS.specification.updateOrDetails(id)
     )
 
     const { Name: GroupName } = await this.getSpecificationGroup(FieldGroupId)

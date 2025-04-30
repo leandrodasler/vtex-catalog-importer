@@ -26,8 +26,13 @@ export const ENDPOINTS = {
   specification: {
     listByProduct: (productId: ID) =>
       `/api/catalog_system/pvt/products/${productId}/specification`,
-    get: (specificationId: ID) =>
+    listAll:
+      '/api/catalog_system/pub/specification/field/listByCategoryId/null',
+    updateOrDetails: (specificationId: ID) =>
       `/api/catalog/pvt/specification/${specificationId}`,
+    setGroup: '/api/catalog/pvt/specificationgroup',
+    set: '/api/catalog/pvt/specification',
+    listGroups: '/api/catalog_system/pvt/specification/groupbycategory/null',
     getGroup: (groupId: ID) =>
       `/api/catalog_system/pub/specification/groupGet/${groupId}`,
   },
@@ -133,6 +138,7 @@ export const COMMON_WHERE = `(status<>${IMPORT_STATUS.TO_BE_DELETED})AND(status<
 export const DEFAULT_VBASE_BUCKET = 'catalog-importer'
 export const PRODUCT_REF_ID_ERROR = 'same RefId'
 export const PRODUCT_LINK_ID_ERROR = 'same LinkId'
+export const PRODUCT_ALREADY_CREATED = 'Product already created with this id'
 
 export const STEPS = [
   { entity: 'category', handler: handleCategories },

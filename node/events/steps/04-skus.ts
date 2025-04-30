@@ -65,21 +65,28 @@ const handleSkus = async (context: AppEventContext) => {
       null
     )
 
-    await Promise.all([
-      promiseWithConditionalRetry(
-        () =>
-          targetCatalog.associateSkuSpecifications(targetId, specifications),
-        null
-      ),
-      promiseWithConditionalRetry(
-        () => targetCatalog.createSkuEan(targetId, Ean ?? RefId),
-        null
-      ),
-      promiseWithConditionalRetry(
-        () => targetCatalog.createSkuFiles(targetId, files),
-        null
-      ),
-    ])
+    if (targetId) {
+      await Promise.all([
+        promiseWithConditionalRetry(
+          () =>
+            targetCatalog.associateSkuSpecifications(targetId, specifications),
+          null
+        ),
+        promiseWithConditionalRetry(
+          () =>
+            targetCatalog.createSkuEan(targetId, Ean ?? RefId).catch((e) => {
+              if (e.message.includes('status code 422')) return
+
+              throw e
+            }),
+          null
+        ),
+        promiseWithConditionalRetry(
+          () => targetCatalog.createSkuFiles(targetId, files),
+          null
+        ),
+      ])
+    }
 
     await promiseWithConditionalRetry(
       () =>

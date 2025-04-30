@@ -191,13 +191,18 @@ declare global {
   }
 
   type Specification = {
+    Id: number
+    FieldId: number
     FieldGroupId: number
     Name: string
     GroupName: string
+    GroupPosition: number
   }
 
   type SpecificationGroup = {
+    Id?: number
     Name: string
+    Position: number
   }
 
   type AssociatedSpecification = {
