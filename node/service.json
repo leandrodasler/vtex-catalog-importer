@@ -13,6 +13,10 @@
     "cleanCatalog": {
       "path": "/_v/vtex-catalog-importer/cleanCatalog",
       "public": true
+    },
+    "updateInventory": {
+      "path": "/_v/vtex-catalog-importer/updateInventory",
+      "public": true
     }
   },
   "events": {

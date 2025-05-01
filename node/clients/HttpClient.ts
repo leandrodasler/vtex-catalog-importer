@@ -112,4 +112,8 @@ export default class HttpClient extends ExternalClient {
   public async getCategoryTreeFlattened() {
     return this.flatCategoryTree(await this.getCategoryTree())
   }
+
+  public async getAllProducts() {
+    return this.get<ProductAndSkuIds>(ENDPOINTS.product.listAll(0, 250))
+  }
 }

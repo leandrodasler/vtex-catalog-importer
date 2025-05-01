@@ -416,21 +416,23 @@ export default class SourceCatalog extends HttpClient {
           balance.find((i) => i.hasUnlimitedQuantity || i.totalQuantity > 0) ??
           balance[0]
 
-        return inventory?.hasUnlimitedQuantity ||
-          (inventory?.totalQuantity ?? 0) > 0
-          ? { ...inventory, skuId }
-          : this.generateInventory(skuId, sellerStock)
+        return { ...inventory, skuId, balance }
+
+        // return inventory?.hasUnlimitedQuantity ||
+        //   (inventory?.totalQuantity ?? 0) > 0
+        //   ? { ...inventory, skuId }
+        //   : this.generateInventory(skuId, sellerStock)
       })
       .catch(() => this.generateInventory(skuId, sellerStock))
   }
 
   public async getInventories(
     skuIds: number[],
-    mapSourceSkuSellerStock: EntityMap
+    mapSourceSkuSellerStock?: EntityMap
   ) {
     return batch(
       skuIds,
-      (id) => this.getInventory(id, mapSourceSkuSellerStock[id]),
+      (id) => this.getInventory(id, mapSourceSkuSellerStock?.[id]),
       GET_DETAILS_CONCURRENCY
     )
   }
