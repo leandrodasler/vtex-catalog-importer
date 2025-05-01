@@ -4,12 +4,13 @@
   "license": "UNLICENSED",
   "scripts": {
     "lint": "eslint --ext js,jsx,ts,tsx .",
-    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json}\""
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json}\"",
+    "postinstall": "yarn --cwd react & yarn --cwd node"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "vtex setup -i && git add package.json react/package.json node/package.json yarn.lock react/yarn.lock node/yarn.lock react/tsconfig.json node/tsconfig.json && lint-staged",
-      "post-merge": "yarn && vtex setup && yarn format"
+      "pre-commit": "lint-staged",
+      "post-merge": "yarn"
     }
   },
   "lint-staged": {
